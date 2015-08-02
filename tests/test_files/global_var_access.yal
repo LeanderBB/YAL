@@ -1,0 +1,7 @@
+var a = 20
+
+func test()
+   a = a + 1
+end
+
+test()

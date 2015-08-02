@@ -1,0 +1,10 @@
+var a = 10
+var b = 0
+
+if (a > 10)
+    var a = 21
+    b = a - 1
+else
+    var a = 100
+    b = a + 1
+end
