@@ -1,0 +1,10 @@
+var x = 20
+
+func test(int32 a)
+  if (a > 10)
+     return
+  end
+  x = x + 1
+end
+
+test(20)
