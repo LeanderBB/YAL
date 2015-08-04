@@ -553,6 +553,7 @@ LoadGlobalByteCodeInst(const ConstantType dataType)
     case kConstantTypeUInt64:
     case kConstantTypeInt64:
     case kConstantTypeFloat64:
+    case kConstantTypeText:
         return YALVM_BYTECODE_LOAD_GLOBAL_64;
     case kConstantTypeId:
     default:
@@ -574,6 +575,7 @@ StoreGlobalByteCodeInst(const ConstantType dataType)
     case kConstantTypeUInt64:
     case kConstantTypeInt64:
     case kConstantTypeFloat64:
+    case kConstantTypeText:
         return YALVM_BYTECODE_STORE_GLOBAL_64;
     case kConstantTypeId:
     default:

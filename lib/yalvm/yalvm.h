@@ -10,7 +10,7 @@
 #endif
 
 #include "yalvm/yalvm_config.h"
-#include "yalvm/yalvm_allocator.h"
+#include "yalvm/yalvm_external.h"
 
 YALVM_MODULE_BGN
 

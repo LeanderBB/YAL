@@ -1,6 +1,7 @@
 #include "yal/module/module.h"
 #include "yal/module/moduleindexable.h"
 #include "yal/util/outputformater.h"
+#include <cstring>
 namespace yal
 {
 
@@ -58,11 +59,22 @@ Module::addGlobal(const ModuleGlobal* global)
 ModuleConstant*
 Module::constant(const ConstantValue& value) const
 {
-    for (auto& v : _constants)
+    if (value.type() == kConstantTypeText)
     {
-        if (v->matchesValue(value))
+        auto it = _strings.find(value.valueAsText());
+        if (it != _strings.end())
         {
-            return v.get();
+            return it->second.get();
+        }
+    }
+    else
+    {
+        for (auto& v : _constants)
+        {
+            if (v->matchesValue(value))
+            {
+                return v.get();
+            }
         }
     }
     return nullptr;
@@ -71,14 +83,26 @@ Module::constant(const ConstantValue& value) const
 bool
 Module::addConstant(ModuleConstant* constant)
 {
-    for (auto& v : _constants)
+    if (constant->value().type() == kConstantTypeText)
     {
-        if (v->matchesValue(constant->value()))
+        auto it = _strings.find(constant->value().valueAsText());
+        if (it != _strings.end())
         {
             return false;
         }
+        _strings.insert(std::make_pair(constant->value().valueAsText(),ConstantPtr_t(constant)));
     }
-    _constants.push_back(ConstantPtr_t(constant));
+    else
+    {
+        for (auto& v : _constants)
+        {
+            if (v->matchesValue(constant->value()))
+            {
+                return false;
+            }
+        }
+        _constants.push_back(ConstantPtr_t(constant));
+    }
     return true;
 }
 
@@ -87,9 +111,11 @@ Module::removeUnusedAndAssignIndices()
 {
     _constants32.clear();
     _constants64.clear();
+    _stringsVec.clear();
     _globals32.clear();
     _globals64.clear();
     _functions.clear();
+    _totalStringSizeBytes = 0;
 
     //process functions
     _functions.reserve(_functionMap.size());
@@ -154,37 +180,17 @@ Module::removeUnusedAndAssignIndices()
         }
         ++constant_it;
     }
-}
 
-void
-Module::logInfo(OutputSink& sink) const
-{
-    OutputFormater formater;
-    formater.formatAndWrite(sink, ".functions\n");
-    for(auto& func : _functionMap)
+    // process strings
+
+    auto strings_end = _strings.end();
+    _stringsVec.reserve(_strings.size());
+    for(auto strings_it = _strings.begin(); strings_it != strings_end; ++strings_it)
     {
-        formater.formatAndWrite(sink,"  [%04d] %s\n", func.second->moduleIndex(),
-                                func.second->functionName());
+        strings_it->second->setModuleIndex(_stringsVec.size());
+        _stringsVec.push_back(strings_it->second.get());
+        _totalStringSizeBytes += strlen(strings_it->second->value().valueAsText()) + 1 + sizeof(yal_u32);
     }
-
-    formater.formatAndWrite(sink, ".globals\n");
-    for(auto& global: _globalMap)
-    {
-        formater.formatAndWrite(sink,"  [%04d:%s] %s\n",
-                                global.second->moduleIndex(),
-                                ConstantTypeIs32Bits(global.second->variableType()) ? "32" : "64",
-                                global.second->variableName());
-    }
-
-    formater.formatAndWrite(sink, ".constants\n");
-    for(auto& constant: _constants)
-    {
-        formater.formatAndWrite(sink,"  [%04d:%s] // %s\n",
-                                constant->moduleIndex(),
-                                constant->value().valueIs32Bits()? "32" : "64",
-                                ConstantTypeToStr(constant->value().type()));
-    }
-
 }
 
 }

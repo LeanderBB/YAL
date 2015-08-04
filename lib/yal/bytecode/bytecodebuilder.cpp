@@ -46,6 +46,8 @@ ByteCodeBuilder::writeModuleInfo(ParserState& state)
 
     const Module::OrderedFunctionVec_t& function_vec = module.functions();
 
+    const Module::OrderedStringsVec_t& strings_vec = module.strings();
+
     // validate constant count
     if (constants32_vec.size() >= YALVM_BIN_MAX_CONSTANTS)
     {
@@ -80,6 +82,18 @@ ByteCodeBuilder::writeModuleInfo(ParserState& state)
         return false;
     }
 
+    if (strings_vec.size() >= YALVM_BIN_MAX_STRINGS)
+    {
+        _errorHandler.onError("String count exceeds maximum value", 0);
+        return false;
+    }
+
+    if (module.totalStringSizeBytes() >= YALVM_BIN_MAX_STRINGS_SIZE)
+    {
+        _errorHandler.onError("Exceeded maximum string storage capacity", 0);
+        return false;
+    }
+
     // setup header
     yalvm_bin_header_t header;
     yalvm_bin_header_init(&header);
@@ -89,6 +103,8 @@ ByteCodeBuilder::writeModuleInfo(ParserState& state)
     header.n_globals32 = globals32_vec.size();
     header.n_globals64 = globals64_vec.size();
     header.n_functions = function_vec.size();
+    header.n_strings = strings_vec.size();
+    header.strings_size = module.totalStringSizeBytes();
 
     // write header
     if (_codeOutput.write(&header, sizeof(header)) != sizeof(header))
@@ -142,6 +158,25 @@ ByteCodeBuilder::writeModuleInfo(ParserState& state)
         if (_codeOutput.write(&vm_global, sizeof(vm_global)) != sizeof(vm_global))
         {
             _errorHandler.onError("Could not write global 64 to code output", 0);
+            return false;
+        }
+    }
+
+    // write strings
+    for (auto& string: strings_vec)
+    {
+        const char* text = string->value().valueAsText();
+        yalvm_u32 string_len = strlen(text);
+
+        if (_codeOutput.write(&string_len, sizeof(string_len)) != sizeof(string_len))
+        {
+            _errorHandler.onError("Could not write string size to code output", 0);
+            return false;
+        }
+
+        if (_codeOutput.write(text, string_len + 1) != string_len + 1)
+        {
+            _errorHandler.onError("Could not write string to code output", 0);
             return false;
         }
     }

@@ -23,7 +23,7 @@ set(YALVM_HDR
     yalvm_register.h
     yalvm_ctx.h
     yalvm_stack.h
-    yalvm_allocator.h
+    yalvm_external.h
     yalvm_error.h
     ${YALVM_CONFIG_FILE}
 )

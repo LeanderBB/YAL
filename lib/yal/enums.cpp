@@ -40,6 +40,8 @@ ConstantTypeToStr(const enum ConstantType val)
     {
     case kConstantTypeId:
         return "ConstantTypeId";
+    case kConstantTypeText:
+        return "ConstantTypeText";
     case kConstantTypeUInt32:
         return "ConstantTypeUInt32";
     case kConstantTypeUInt64:

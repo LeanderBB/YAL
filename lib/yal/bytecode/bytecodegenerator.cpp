@@ -470,6 +470,16 @@ ByteCodeGenerator::visit(ConstantNode& node)
             return;
         }
     }
+    case kConstantTypeText:
+    {
+        if (!getConstantIdx(inst_value, node.constantValue()))
+        {
+            logError(node);
+            return;
+        }
+        instruction = YALVM_BYTECODE_LOAD_STRING;
+        break;
+    }
     case kConstantTypeInt32:
     {
         yal_i32 value = node.constantValue().valueAsInt32();

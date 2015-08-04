@@ -21,6 +21,7 @@ enum ConstantType
 {
     kConstantTypeNone = 0,
     kConstantTypeId,
+    kConstantTypeText,
     kConstantTypeInt32,
     kConstantTypeUInt32,
     kConstantTypeInt64,
