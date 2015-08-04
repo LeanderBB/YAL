@@ -14,6 +14,7 @@ yalvm_ctx_create(yalvm_ctx_t* ctx,
     ctx->globals32 = NULL;
     ctx->globals64 = NULL;
     ctx->functions = NULL;
+    ctx->strings = NULL;
     ctx->pc = NULL;
 }
 
@@ -24,6 +25,12 @@ yalvm_ctx_destroy(yalvm_ctx_t *ctx)
     {
         yalvm_free(ctx->functions);
         ctx->functions = NULL;
+    }
+
+    if (ctx->strings)
+    {
+        yalvm_free(ctx->strings);
+        ctx->strings = NULL;
     }
 }
 
@@ -60,6 +67,23 @@ yalvm_ctx_set_binary(yalvm_ctx_t* ctx,
     ctx->constants64 = (yalvm_u64*) (input
             + yalvm_bin_header_offset_constant32(bin_header, 0));
 
+
+    const void* string_offset = (input + yalvm_bin_header_offset_strings(bin_header));
+    /* cache string locations */
+    if (bin_header->n_strings)
+    {
+        ctx->strings = (const char**)yalvm_malloc(sizeof(char*) * bin_header->n_strings);
+        size_t offset = 0;
+        for (yalvm_u16 i = 0; i < bin_header->n_strings; ++i)
+        {
+            const void* cur_ptr = YALVM_PTR_ADD(string_offset, offset);
+            const yalvm_u32* string_size = (const yalvm_u32*) cur_ptr;
+            offset += sizeof(yalvm_u32);
+
+            ctx->strings[i] = (const char*) YALVM_PTR_ADD(string_offset, offset);
+            offset += (*string_size) + 1;
+        }
+    }
 
     /* process functions */
     ctx->functions = (const yalvm_func_header_t**)
@@ -753,7 +777,7 @@ yalvm_ctx_execute(yalvm_ctx_t* ctx)
                 return YALVM_ERROR_STACK_OVERFLOW;
             }
             /* save function ptr */
-            ctx->registers[dst].ptr.value =(yalvm_size)function;
+            ctx->registers[dst].ptr.value =(void*)function;
             break;
         }
             /* Push Function Argument */
@@ -833,6 +857,15 @@ yalvm_ctx_execute(yalvm_ctx_t* ctx)
             yalvm_register_copy(&ctx->registers[dst], &ctx->registers[src1]);
         }
             break;
+        /* Load String */
+        case YALVM_BYTECODE_LOAD_STRING:
+        {
+            yalvm_u8 dst_reg;
+            yalvm_u16 val;
+            yalvm_bytecode_unpack_dst_value(code, &dst_reg, &val);
+            ctx->registers[dst_reg].ptr.value = (void*)ctx->strings[val];
+            break;
+        }
         default:
             return YALVM_ERROR_UNKNOW_INSTRUCTION;
         }

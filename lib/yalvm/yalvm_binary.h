@@ -21,8 +21,9 @@ YALVM_MODULE_BGN
  * [  globals  64 0    ]
  *       ...
  * [  globals  64 N    ]
- * [  globals  64 0    ]
+ * [     string 0      ]
  *       ...
+ * [     string N      ]
  * [yalvm_func_header 0]
  * [  function 0       ]
  *
@@ -35,14 +36,16 @@ YALVM_MODULE_BGN
 
 enum yalvm_bin_enums
 {
-    YALVM_BIN_SIZEOF_CONSTANT_32 = 4,
-    YALVM_BIN_SIZEOF_CONSTANT_64 = 8,
-    YALVM_BIN_SIZEOF_GLOBAL_32 = 8,
-    YALVM_BIN_SIZEOF_GLOBAL_64 = 12,
-    YALVM_BIN_MAX_FUNCTION_CODE_SIZE = 0xFFFF,
-    YALVM_BIN_MAX_GLOBALS = 0xFFFF,
-    YALVM_BIN_MAX_CONSTANTS = 0xFFFF,
-    YALVM_BIN_MAX_FUNCTIONS = 0xFFFF,
+    YALVM_BIN_SIZEOF_CONSTANT_32        = 4,
+    YALVM_BIN_SIZEOF_CONSTANT_64        = 8,
+    YALVM_BIN_SIZEOF_GLOBAL_32          = 8,
+    YALVM_BIN_SIZEOF_GLOBAL_64          = 12,
+    YALVM_BIN_MAX_FUNCTION_CODE_SIZE    = 0xFFFF,
+    YALVM_BIN_MAX_GLOBALS               = 0xFFFF,
+    YALVM_BIN_MAX_CONSTANTS             = 0xFFFF,
+    YALVM_BIN_MAX_FUNCTIONS             = 0xFFFF,
+    YALVM_BIN_MAX_STRINGS               = 0xFFFF,
+    YALVM_BIN_MAX_STRINGS_SIZE          = 0XFFFF
 };
 
 #define YAVLM_BIN_INDEX_INVALID 0xFFFFFFFF
@@ -59,6 +62,8 @@ typedef struct
     yalvm_u16 n_globals64;    /* number of 64bit globals   */
     yalvm_u16 n_functions;    /* number of functions       */
     yalvm_u16 flags;          /* unused                    */
+    yalvm_u16 n_strings;      /* number of strings         */
+    yalvm_u16 strings_size;   /* total size of all strings */
 } yalvm_bin_header_t;
 #pragma pack(pop)
 
@@ -84,6 +89,9 @@ yalvm_bin_header_offset_constant32(const yalvm_bin_header_t* header,
 yalvm_u32
 yalvm_bin_header_offset_constant64(const yalvm_bin_header_t* header,
                                    const yalvm_u16 index);
+
+yalvm_u32
+yalvm_bin_header_offset_strings(const yalvm_bin_header_t* header);
 
 void
 yalvm_bin_header_init(yalvm_bin_header_t* header);

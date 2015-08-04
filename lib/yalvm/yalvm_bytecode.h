@@ -139,6 +139,8 @@ enum yalvm_bytecode_inst
     YALVM_BYTECODE_RETURN,
     /* Copy Register */
     YALVM_BYTECODE_COPY_REGISTER,
+    /* Load String */
+    YALVM_BYTECODE_LOAD_STRING,
     /* Total instruction count */
     YALVM_BYTECODE_TOTAL
 };

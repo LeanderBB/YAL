@@ -49,7 +49,42 @@ ByteCodePrinter::process()
                              bin_header.n_globals64);
     _formater.formatAndWrite(_sink, "# functions   : %u\n",
                              bin_header.n_functions);
+    _formater.formatAndWrite(_sink, "# strings     : %u\n",
+                             bin_header.n_strings);
+    _formater.formatAndWrite(_sink, "# string size : %u\n",
+                             bin_header.strings_size);
     _formater.formatAndWrite(_sink, "\n");
+
+    // print strings
+
+    yal_u32 string_offset = yalvm_bin_header_offset_strings(&bin_header);
+
+    if (!_input.seekSet(string_offset))
+    {
+        _formater.formatAndWrite(_sink, "Could not seek to string start\n");
+        return false;
+    }
+
+    for (yal_u32 i = 0; i < bin_header.n_strings; ++i)
+    {
+        yalvm_u32 size = 0;
+
+        if (_input.read(&size, sizeof(size)) != sizeof(size))
+        {
+            _formater.formatAndWrite(_sink, "Could not read string size\n");
+            return false;
+        }
+
+        char buffer[size + 1];
+
+        if (_input.read(buffer, sizeof(buffer)) != sizeof(buffer))
+        {
+            _formater.formatAndWrite(_sink, "Could not read string\n");
+            return false;
+        }
+
+        _formater.formatAndWrite(_sink, "> String %u: \"%s\"\n", i, buffer);
+    }
 
     // write functions
     yal_u32 functions_offset = yalvm_bin_header_offset_functions(&bin_header);
@@ -290,7 +325,12 @@ ByteCodePrinter::print(const yalvm_func_header_t &function_header)
         case YALVM_BYTECODE_COPY_REGISTER:
             print2Regs(code);
             break;
+        /* Load String */
+        case YALVM_BYTECODE_LOAD_STRING:
+            print2Argsu(code);
+            break;
         default:
+            printf("Uknow byte code \n");
             return false;
         }
     }

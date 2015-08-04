@@ -18,6 +18,7 @@ public:
     typedef std::vector<const ModuleConstant*> OrderedConstantVec_t;
     typedef std::vector<const ModuleGlobal*> OrderedGlobalVec_t;
     typedef std::vector<const ModuleFunction*> OrderedFunctionVec_t;
+    typedef std::vector<const ModuleConstant*> OrderedStringsVec_t;
 
     Module();
 
@@ -36,8 +37,6 @@ public:
     bool addConstant(ModuleConstant* constant);
 
     void removeUnusedAndAssignIndices();
-
-    void logInfo(OutputSink& sink) const;
 
     const FunctionMap_t& functionMap() const
     {
@@ -64,10 +63,19 @@ public:
         return _globals64;
     }
 
+    const OrderedStringsVec_t& strings() const
+    {
+        return _stringsVec;
+    }
 
     const OrderedFunctionVec_t& functions() const
     {
         return _functions;
+    }
+
+    size_t totalStringSizeBytes() const
+    {
+        return _totalStringSizeBytes;
     }
 
 private:
@@ -75,14 +83,18 @@ private:
     typedef StrHashMap<GlobalPtr_t> GlobalMap_t;
     typedef std::unique_ptr<ModuleConstant> ConstantPtr_t;
     typedef std::vector<ConstantPtr_t> ConstantVec_t;
+    typedef yal::StrHashMap<ConstantPtr_t> StringMap_t;
     FunctionMap_t _functionMap;
     GlobalMap_t _globalMap;
     ConstantVec_t _constants;
+    StringMap_t _strings;
     OrderedConstantVec_t _constants32;
     OrderedConstantVec_t _constants64;
+    OrderedStringsVec_t _stringsVec;
     OrderedGlobalVec_t _globals32;
     OrderedGlobalVec_t _globals64;
     OrderedFunctionVec_t _functions;
+    size_t _totalStringSizeBytes;
 };
 
 }

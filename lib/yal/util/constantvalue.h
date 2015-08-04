@@ -25,7 +25,8 @@ public:
 
     explicit ConstantValue(const yal_f64 float64);
 
-    explicit ConstantValue(const char* id);
+    explicit ConstantValue(const char* id,
+                           const bool isText);
 
     ~ConstantValue();
 
@@ -53,6 +54,8 @@ public:
     yal_u64 valueAs64BitRaw() const;
 
     const char* valueAsId() const;
+
+    const char* valueAsText() const;
 
     bool valueFitsInByteCode() const;
 

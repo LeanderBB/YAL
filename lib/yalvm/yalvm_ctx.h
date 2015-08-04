@@ -21,6 +21,7 @@ typedef struct
     yalvm_bin_global64_t*       globals64;
     const yalvm_u32*            constants32;
     const yalvm_u64*            constants64;
+    const char**                strings;
     const yalvm_func_header_t** functions;
 } yalvm_ctx_t;
 

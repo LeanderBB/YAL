@@ -1,5 +1,6 @@
 #include "yal/util/constantvalue.h"
 #include <limits>
+#include <cstring>
 
 namespace yal
 {
@@ -45,8 +46,9 @@ ConstantValue::ConstantValue(const yal_f64 float64):
     _value.float64 = float64;
 }
 
-ConstantValue::ConstantValue(const char* id):
-    _type(kConstantTypeId)
+ConstantValue::ConstantValue(const char* id,
+                             const bool isText):
+    _type(isText ? kConstantTypeText : kConstantTypeId)
 {
     _value.id = id;
 }
@@ -125,6 +127,13 @@ ConstantValue::valueAsId() const
     return _value.id;
 }
 
+const char*
+ConstantValue::valueAsText() const
+{
+    YAL_ASSERT(_type == kConstantTypeText);
+    return _value.id;
+}
+
 bool
 ConstantValue::valueFitsInByteCode() const
 {
@@ -183,6 +192,8 @@ ConstantValue::operator == (const ConstantValue& other) const
 
     switch(_type)
     {
+    case kConstantTypeText:
+        return strcmp(valueAsText(), other.valueAsText()) == 0;
     case kConstantTypeBool:
         return valueAsBoolean() == other.valueAsBoolean();
     case kConstantTypeInt32:

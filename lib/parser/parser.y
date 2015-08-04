@@ -279,8 +279,8 @@ constant: TK_BOOL { $$ = new yal::ConstantNode(yal::BisonYyltypeToLocation(yyllo
 | TK_UINT64 { $$ = new yal::ConstantNode(yal::BisonYyltypeToLocation(yylloc), yal::ConstantValue($1));}
 | TK_FLT32 { $$ = new yal::ConstantNode(yal::BisonYyltypeToLocation(yylloc), yal::ConstantValue($1));}
 | TK_FLT64 { $$ = new yal::ConstantNode(yal::BisonYyltypeToLocation(yylloc), yal::ConstantValue($1));}
-| TK_TEXT {printf("Found <text>:%s\n", $1); $$ = nullptr; }
-| TK_ID { $$ = new yal::ConstantNode(yal::BisonYyltypeToLocation(yylloc), yal::ConstantValue($1)); }
+| TK_TEXT { $$ = new yal::ConstantNode(yal::BisonYyltypeToLocation(yylloc), yal::ConstantValue($1, true)); }
+| TK_ID { $$ = new yal::ConstantNode(yal::BisonYyltypeToLocation(yylloc), yal::ConstantValue($1, false)); }
 ;
 
 

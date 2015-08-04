@@ -17,7 +17,7 @@ typedef union
     } reg64;
     struct
     {
-        yalvm_size value;
+        void* value;
     } ptr;
 } yalvm_register_t;
 

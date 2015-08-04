@@ -1,8 +1,39 @@
 #include <yal/yal.h>
 #include <cstdio>
+#include <cstring>
 #include <yalvm/yalvm_ctx.h>
 #include <yalvm/yalvm_error.h>
 
+
+// yalvm external function that need to be implemented
+extern "C"
+{
+
+void*
+yalvm_malloc(yalvm_size size)
+{
+    return malloc(size);
+}
+
+void
+yalvm_free(void* ptr)
+{
+    return free(ptr);
+}
+
+void
+yalvm_memset(void* ptr, int val, yalvm_size size)
+{
+    memset(ptr, val, size);
+}
+
+void
+yalvm_memcpy(void* dst, const void* src, yalvm_size size)
+{
+    memcpy(dst, src, size);
+}
+
+}
 
 static void
 printRegister(yalvm_register_t* reg)

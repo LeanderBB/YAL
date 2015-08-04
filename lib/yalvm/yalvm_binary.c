@@ -13,11 +13,8 @@ yalvm_bin_header_valid_magic(const yalvm_bin_header_t* header)
 yalvm_u32
 yalvm_bin_header_offset_functions(const yalvm_bin_header_t* header)
 {
-    yalvm_u32 offset = sizeof(yalvm_bin_header_t);
-    offset += header->n_constants32 * YALVM_BIN_SIZEOF_CONSTANT_32;
-    offset += header->n_constants64 * YALVM_BIN_SIZEOF_CONSTANT_64;
-    offset += header->n_globals32 * YALVM_BIN_SIZEOF_GLOBAL_32;
-    offset += header->n_globals64 * YALVM_BIN_SIZEOF_GLOBAL_64;
+    yalvm_u32 offset = yalvm_bin_header_offset_strings(header);
+    offset += header->strings_size;
     return offset;
 }
 
@@ -25,8 +22,8 @@ yalvm_u32
 yalvm_bin_header_offset_global32(const yalvm_bin_header_t* header,
                           const yalvm_u16 index)
 {
-    yalvm_u32 offset = sizeof(yalvm_bin_header_t);
-    return (index < header->n_globals32)
+     yalvm_u32 offset = yalvm_bin_header_offset_constant64(header, header->n_constants64);
+    return (index <= header->n_globals32)
             ? offset + (YALVM_BIN_SIZEOF_GLOBAL_32 * index)
             : YAVLM_BIN_INDEX_INVALID;
 }
@@ -35,9 +32,8 @@ yalvm_u32
 yalvm_bin_header_offset_global64(const yalvm_bin_header_t* header,
                           const yalvm_u16 index)
 {
-    yalvm_u32 offset = sizeof(yalvm_bin_header_t);
-    offset += header->n_globals32 * YALVM_BIN_SIZEOF_GLOBAL_32;
-    if (index < header->n_globals64)
+    yalvm_u32 offset = yalvm_bin_header_offset_global32(header, header->n_globals32);
+    if (index <= header->n_globals64)
     {
         return offset + YALVM_BIN_SIZEOF_GLOBAL_64 * index;
     }
@@ -52,9 +48,7 @@ yalvm_bin_header_offset_constant32(const yalvm_bin_header_t* header,
                             const yalvm_u16 index)
 {
     yalvm_u32 offset = sizeof(yalvm_bin_header_t);
-    offset += header->n_globals32 * YALVM_BIN_SIZEOF_GLOBAL_32;
-    offset += header->n_globals64 * YALVM_BIN_SIZEOF_GLOBAL_64;
-    if (index < header->n_constants32)
+    if (index <= header->n_constants32)
     {
         return offset + YALVM_BIN_SIZEOF_CONSTANT_32 * index;
     }
@@ -68,11 +62,8 @@ yalvm_u32
 yalvm_bin_header_offset_constant64(const yalvm_bin_header_t* header,
                             const yalvm_u16 index)
 {
-    yalvm_u32 offset = sizeof(yalvm_bin_header_t);
-    offset += header->n_constants32 * YALVM_BIN_SIZEOF_CONSTANT_32;
-    offset += header->n_constants64 * YALVM_BIN_SIZEOF_CONSTANT_64;
-    offset += header->n_constants32 * YALVM_BIN_SIZEOF_CONSTANT_32;
-    if (index < header->n_constants64)
+    yalvm_u32 offset = yalvm_bin_header_offset_constant32(header, header->n_constants32);
+    if (index <= header->n_constants64)
     {
         return offset + YALVM_BIN_SIZEOF_CONSTANT_64 * index;
     }
@@ -80,6 +71,12 @@ yalvm_bin_header_offset_constant64(const yalvm_bin_header_t* header,
     {
         return YAVLM_BIN_INDEX_INVALID;
     }
+}
+
+yalvm_u32
+yalvm_bin_header_offset_strings(const yalvm_bin_header_t* header)
+{
+    return yalvm_bin_header_offset_global64(header, header->n_globals64);
 }
 
 
@@ -93,6 +90,8 @@ yalvm_bin_header_init(yalvm_bin_header_t* header)
     header->n_functions =0;
     header->n_globals32 = 0;
     header->n_globals64 = 0;
+    header->n_strings = 0;
+    header->strings_size = 0;
 }
 
 void
