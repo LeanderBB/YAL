@@ -51,6 +51,7 @@ extern void yyerror(YYLTYPE* location,
 #include <yal/ast/functionnode.h>
 #include <yal/ast/conditionnode.h>
 #include <yal/ast/returnnode.h>
+#include <yal/ast/printnode.h>
 
 }
 
@@ -75,9 +76,10 @@ extern void yyerror(YYLTYPE* location,
     class yal::StatementNode* nodeSt;
     class yal::CodeBodyNode* nodeCodeBody;
     class yal::AstBaseNode* node;
-    class yal::ExpressionList* nodeExpList;
     class yal::ArgumentDeclNode* nodeDeclArg;
     class yal::ArgumentDeclsNode* nodeDeclArgs;
+    class yal::PrintArgsNode* nodePrintArgs;
+    class yal::FunctionCallArgsNode* nodeFunCallArgs;
 }
 
 // define the token association with the union member
@@ -112,6 +114,7 @@ extern void yyerror(YYLTYPE* location,
 %token TK_ELSE "else"
 %token TK_END "end"
 %token END TK_NL "new line"
+%token TK_PRINT "print"
 
 // operatores
 %token TK_OP_ASSIGN "="
@@ -162,11 +165,12 @@ extern void yyerror(YYLTYPE* location,
 
 %start program
 %type <node> func_decl 
-%type <nodeSt> statement var_decl st_upper
+%type <nodeSt> statement var_decl st_upper print_statement
 %type <nodeExp> expression constant func_call
 %type <nodeIf> if_statement if_statement_next
+%type <nodePrintArgs> print_args
+%type <nodeFunCallArgs> call_args
 %type <nodeCodeBody> code_body
-%type <nodeExpList>  call_args
 %type <builtinType> builtin_type func_return
 %type <nodeDeclArg> decl_arg
 %type <nodeDeclArgs> decl_args
@@ -195,10 +199,18 @@ st_upper: statement TK_NL {$$ = $1;}
 ;
 
 statement: var_decl { $$ = $1;}
+| print_statement { $$ = static_cast<yal::StatementNode*>($1);}
 | expression { $$ = static_cast<yal::StatementNode*>($1);}
 | if_statement { $$ = static_cast<yal::StatementNode*>($1);}
 | TK_RETURN expression {$$ = new yal::ReturnNode(yal::BisonYyltypeToLocation(yylloc), $2);}
 | TK_RETURN {$$ = new yal::ReturnNode(yal::BisonYyltypeToLocation(yylloc), nullptr);}
+;
+
+print_statement: TK_PRINT '(' print_args ')' {$$ = new yal::PrintNode(yal::BisonYyltypeToLocation(yylloc), $3);}
+;
+
+print_args : print_args ',' expression {$$->expressions.push_back($3);}
+| expression { $$ = new yal::PrintArgsNode(yal::BisonYyltypeToLocation(yylloc)); $$->expressions.push_back($1);}
 ;
 
 if_statement: TK_IF '(' expression ')' TK_NL code_body if_statement_next {$$ = new yal::ConditionNode(yal::BisonYyltypeToLocation(yylloc), $3, $6, $7);}
@@ -246,8 +258,8 @@ func_call: TK_ID '(' call_args ')' {$$ = new yal::FunctionCallNode(yal::BisonYyl
     ;
 
 call_args: call_args ',' expression {$$->expressions.push_back($3);}
-    | expression { $$ = new yal::ExpressionList(yal::BisonYyltypeToLocation(yylloc)); $$->expressions.push_back($1);}
-    | %empty { $$ = new yal::ExpressionList(yal::BisonYyltypeToLocation(yylloc)); }
+    | expression { $$ = new yal::FunctionCallArgsNode(yal::BisonYyltypeToLocation(yylloc)); $$->expressions.push_back($1);}
+    | %empty { $$ = new yal::FunctionCallArgsNode(yal::BisonYyltypeToLocation(yylloc)); }
     ;
 
 

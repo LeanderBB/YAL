@@ -32,6 +32,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <string.h>
+#include <inttypes.h>
 
 typedef int8_t   yalvm_i8;
 typedef uint8_t  yalvm_u8;
@@ -44,6 +45,24 @@ typedef uint64_t yalvm_u64;
 typedef float    yalvm_f32;
 typedef double   yalvm_f64;
 typedef size_t   yalvm_size;
+
+#define YALVM_PRIi8  PRIi8
+#define YALVM_PRIi16 PRIi16
+#define YALVM_PRIi32 PRIi32
+#define YALVM_PRIi64 PRIi64
+
+#define YALVM_PRIu8  PRIu8
+#define YALVM_PRIu16 PRIu16
+#define YALVM_PRIu32 PRIu32
+#define YALVM_PRIu64 PRIu64
+
+#define YALVM_PRIf32 "f"
+#define YALVM_PRIf64 "f"
+
+#define YALVM_PRI_HEX8  SCNx8
+#define YALVM_PRI_HEX16 SCNx16
+#define YALVM_PRI_HEX32 SCNx32
+#define YALVM_PRI_HEX64 SCNx64
 
 #else
 
@@ -59,7 +78,34 @@ typedef float           yalvm_f32;
 typedef double          yalvm_f64;
 typedef long            yalvm_size;
 
+#define YALVM_PRIi8  "hhd"
+#define YALVM_PRIi16 "hd"
+#define YALVM_PRIi32 "d"
+#define YALVM_PRIi64 "lld"
+
+#define YALVM_PRIu8  "hhu"
+#define YALVM_PRIu16 "hu"
+#define YALVM_PRIu32 "u"
+#define YALVM_PRIu64 "llu"
+
+#define YALVM_PRIf32 "f"
+#define YALVM_PRIf64 "f"
+
+#define YALVM_PRI_HEX8  "hhx"
+#define YALVM_PRI_HEX16 "hx"
+#define YALVM_PRI_HEX32 "x"
+#define YALVM_PRI_HEX64 "llx"
+
 #endif
+
+#if defined YALVM_32BIT
+#define YALVM_PRIsz  YALVM_PRIu32
+#else
+#define YALVM_PRIsz  YALVM_PRIu64
+#endif
+
+
+
 
 #endif
 

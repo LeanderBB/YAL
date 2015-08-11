@@ -103,6 +103,15 @@ TEST(CompileCode, StringConstantTest)
     EXPECT_EQ(true, compile_result);
 }
 
+TEST(CompileCode, HelloWorldTest)
+{
+    yal::MemoryOuputSink mem_sink(1024*1024*10);
+    const std::string path(s_test_path + "/helloworld.yal");
+    const bool compile_result = CompileCode(path.c_str(), mem_sink);
+    EXPECT_EQ(true, compile_result);
+}
+
+
 
 int
 main(int argc,

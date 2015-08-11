@@ -14,6 +14,7 @@
 #include "yal/ast/returnnode.h"
 #include "yal/symbols/type_utils.h"
 #include "yal/parser/parser_state.h"
+#include "yal/ast/printnode.h"
 
 #include <cstdio>
 
@@ -271,7 +272,7 @@ SymbolTreeBuilder::visit(ArgumentDeclsNode& node)
 }
 
 void
-SymbolTreeBuilder::visit(ExpressionList& node)
+SymbolTreeBuilder::visit(FunctionCallArgsNode& node)
 {
     YAL_ASSERT(_curFunctionCall);
     node.setSymbolTable(currentScope());
@@ -575,6 +576,33 @@ SymbolTreeBuilder::visit(ReturnNode& node)
 
     node.setSymbolTable(currentScope());
     node.setTypeInfo(_expResult);
+}
+
+void
+SymbolTreeBuilder::visit(PrintNode& node)
+{
+    node.arguments()->accept(*this);
+}
+
+
+void
+SymbolTreeBuilder::visit(PrintArgsNode& node)
+{
+    node.setSymbolTable(currentScope());
+    yal_u32 idx = 0;
+
+    for(auto& v : node.expressions)
+    {
+        if (!didError())
+        {
+            v->accept(*this);
+        }
+        else
+        {
+            return;
+        }
+        ++idx;
+    }
 }
 
 }

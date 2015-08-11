@@ -584,5 +584,31 @@ StoreGlobalByteCodeInst(const ConstantType dataType)
     }
 }
 
+yalvm_bytecode_inst_t
+PrintByteCodeInst(const ConstantType dataType)
+{
+    switch(dataType)
+    {
+    case kConstantTypeInt32:
+        return YALVM_BYTECODE_PRINT_I;
+    case kConstantTypeBool:
+    case kConstantTypeUInt32:
+        return YALVM_BYTECODE_PRINT_U;
+    case kConstantTypeFloat32:
+        return YALVM_BYTECODE_PRINT_F;
+    case kConstantTypeUInt64:
+        return YALVM_BYTECODE_PRINT_UL;
+    case kConstantTypeInt64:
+        return YALVM_BYTECODE_PRINT_IL;
+    case kConstantTypeFloat64:
+        return YALVM_BYTECODE_PRINT_FL;
+    case kConstantTypeText:
+        return YALVM_BYTECODE_PRINT_STR;
+    default:
+        YAL_ASSERT(false && "Should not be reached");
+        return YALVM_BYTECODE_TOTAL;
+    }
+}
+
 
 }

@@ -16,6 +16,7 @@ yalvm_ctx_create(yalvm_ctx_t* ctx,
     ctx->functions = NULL;
     ctx->strings = NULL;
     ctx->pc = NULL;
+    ctx->print_buffer[0] = '\0';
 }
 
 void
@@ -56,16 +57,16 @@ yalvm_ctx_set_binary(yalvm_ctx_t* ctx,
     ctx->binary_end = input_end;
 
     ctx->globals32 = (yalvm_bin_global32_t*) (input
-            + yalvm_bin_header_offset_global32(bin_header, 0));
+                                              + yalvm_bin_header_offset_global32(bin_header, 0));
 
     ctx->globals64 = (yalvm_bin_global64_t*) (input
-            + yalvm_bin_header_offset_global64(bin_header, 0));
+                                              + yalvm_bin_header_offset_global64(bin_header, 0));
 
     ctx->constants32 = (yalvm_u32*) (input
-            + yalvm_bin_header_offset_constant32(bin_header, 0));
+                                     + yalvm_bin_header_offset_constant32(bin_header, 0));
 
     ctx->constants64 = (yalvm_u64*) (input
-            + yalvm_bin_header_offset_constant32(bin_header, 0));
+                                     + yalvm_bin_header_offset_constant32(bin_header, 0));
 
 
     const void* string_offset = (input + yalvm_bin_header_offset_strings(bin_header));
@@ -857,7 +858,7 @@ yalvm_ctx_execute(yalvm_ctx_t* ctx)
             yalvm_register_copy(&ctx->registers[dst], &ctx->registers[src1]);
         }
             break;
-        /* Load String */
+            /* Load String */
         case YALVM_BYTECODE_LOAD_STRING:
         {
             yalvm_u8 dst_reg;
@@ -866,6 +867,86 @@ yalvm_ctx_execute(yalvm_ctx_t* ctx)
             ctx->registers[dst_reg].ptr.value = (void*)ctx->strings[val];
             break;
         }
+            /* Print instruction */
+        case YALVM_BYTECODE_PRINT_I:
+        {
+            yalvm_u8 dst_reg;
+            yalvm_bytecode_unpack_register(code, &dst_reg);
+            const yalvm_i32* value = yalvm_register_to_i32(&ctx->registers[dst_reg]);
+            yalvm_snprintf(ctx->print_buffer,
+                           sizeof(ctx->print_buffer) -1 ,
+                           "%" YALVM_PRIi32, *value);
+            yalvm_print(ctx, ctx->print_buffer);
+            break;
+        }
+        case YALVM_BYTECODE_PRINT_IL:
+        {
+            yalvm_u8 dst_reg;
+            yalvm_bytecode_unpack_register(code, &dst_reg);
+            const yalvm_i64* value = yalvm_register_to_i64(&ctx->registers[dst_reg]);
+            yalvm_snprintf(ctx->print_buffer,
+                           sizeof(ctx->print_buffer) -1 ,
+                           "%" YALVM_PRIi64, *value);
+            yalvm_print(ctx, ctx->print_buffer);
+            break;
+        }
+        case YALVM_BYTECODE_PRINT_U:
+        {
+            yalvm_u8 dst_reg;
+            yalvm_bytecode_unpack_register(code, &dst_reg);
+            const yalvm_u32* value = yalvm_register_to_u32(&ctx->registers[dst_reg]);
+            yalvm_snprintf(ctx->print_buffer,
+                           sizeof(ctx->print_buffer) -1 ,
+                           "%" YALVM_PRIu32, *value);
+            yalvm_print(ctx, ctx->print_buffer);
+            break;
+        }
+        case YALVM_BYTECODE_PRINT_UL:
+        {
+            yalvm_u8 dst_reg;
+            yalvm_bytecode_unpack_register(code, &dst_reg);
+            const yalvm_u64* value = yalvm_register_to_u64(&ctx->registers[dst_reg]);
+            yalvm_snprintf(ctx->print_buffer,
+                           sizeof(ctx->print_buffer) -1 ,
+                           "%" YALVM_PRIu64, *value);
+            yalvm_print(ctx, ctx->print_buffer);
+            break;
+        }
+        case YALVM_BYTECODE_PRINT_F:
+        {
+            yalvm_u8 dst_reg;
+            yalvm_bytecode_unpack_register(code, &dst_reg);
+            const yalvm_f32* value = yalvm_register_to_f32(&ctx->registers[dst_reg]);
+            yalvm_snprintf(ctx->print_buffer,
+                           sizeof(ctx->print_buffer) -1 ,
+                           "%" YALVM_PRIf32, *value);
+            yalvm_print(ctx, ctx->print_buffer);
+            break;
+        }
+        case YALVM_BYTECODE_PRINT_FL:
+        {
+            yalvm_u8 dst_reg;
+            yalvm_bytecode_unpack_register(code, &dst_reg);
+            const yalvm_f64* value = yalvm_register_to_f64(&ctx->registers[dst_reg]);
+            yalvm_snprintf(ctx->print_buffer,
+                           sizeof(ctx->print_buffer) -1 ,
+                           "%" YALVM_PRIf64, *value);
+            yalvm_print(ctx, ctx->print_buffer);
+            break;
+        }
+        case YALVM_BYTECODE_PRINT_STR:
+        {
+            yalvm_u8 dst_reg;
+            yalvm_bytecode_unpack_register(code, &dst_reg);
+            yalvm_print(ctx, (const char*)ctx->registers[dst_reg].ptr.value);
+            break;
+        }
+        case YALVM_BYTECODE_PRINT_NL:
+        {
+            yalvm_print(ctx, "\n");
+            break;
+        }
+
         default:
             return YALVM_ERROR_UNKNOW_INSTRUCTION;
         }

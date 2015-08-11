@@ -3,13 +3,29 @@
 
 YALVM_MODULE_BGN
 
-void* yalvm_malloc(yalvm_size size);
+struct yalvm_ctx;
 
-void yalvm_free(void* ptr);
+void*
+yalvm_malloc(yalvm_size size);
 
-void yalvm_memset(void* ptr, int val, yalvm_size size);
+void
+yalvm_free(void* ptr);
 
-void yalvm_memcpy(void* dst, const void* src, yalvm_size size);
+void
+yalvm_memset(void* ptr, int val, yalvm_size size);
+
+void
+yalvm_memcpy(void* dst, const void* src, yalvm_size size);
+
+void
+yalvm_print(struct yalvm_ctx* ctx,
+            const char* string);
+
+int
+yalvm_snprintf(char *str,
+               yalvm_size size,
+               const char *format,
+               ...);
 
 YALVM_MODULE_END
 

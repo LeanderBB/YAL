@@ -125,8 +125,6 @@ typedef YALVector<yal::ExpressionNode*> ExpressionNodeVec_t;
 class ExpressionList: public AstBaseNode
 {
 public:
-    YAL_AST_NODE_ACCEPT_HDR(ExpressionList)
-
     ExpressionList(const SourceLocationInfo& loc);
 
     ExpressionList(const SourceLocationInfo& loc,

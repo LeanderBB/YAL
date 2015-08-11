@@ -329,6 +329,19 @@ ByteCodePrinter::print(const yalvm_func_header_t &function_header)
         case YALVM_BYTECODE_LOAD_STRING:
             print2Argsu(code);
             break;
+            /* Print instruction */
+        case YALVM_BYTECODE_PRINT_I:
+        case YALVM_BYTECODE_PRINT_IL:
+        case YALVM_BYTECODE_PRINT_U:
+        case YALVM_BYTECODE_PRINT_UL:
+        case YALVM_BYTECODE_PRINT_F:
+        case YALVM_BYTECODE_PRINT_FL:
+        case YALVM_BYTECODE_PRINT_STR:
+            print1Reg(code);
+            break;
+        case YALVM_BYTECODE_PRINT_NL:
+           printf("\n");
+           break;
         default:
             printf("Uknow byte code \n");
             return false;

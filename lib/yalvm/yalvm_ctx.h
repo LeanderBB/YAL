@@ -9,7 +9,7 @@
 
 YALVM_MODULE_BGN
 
-typedef struct
+typedef struct yalvm_ctx
 {
     const yalvm_bin_header_t*   header;
     yalvm_u8*                   binary;
@@ -23,6 +23,7 @@ typedef struct
     const yalvm_u64*            constants64;
     const char**                strings;
     const yalvm_func_header_t** functions;
+    char                        print_buffer[512];
 } yalvm_ctx_t;
 
 

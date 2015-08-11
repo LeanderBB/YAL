@@ -13,6 +13,7 @@
 #include "yal/ast/conditionnode.h"
 #include "yal/ast/returnnode.h"
 #include "yal/parser/parser_state.h"
+#include "yal/ast/printnode.h"
 
 #include <cstdlib>
 
@@ -145,7 +146,7 @@ AstPrinter::visit(ArgumentDeclsNode& node)
 }
 
 void
-AstPrinter::visit(ExpressionList& node)
+AstPrinter::visit(FunctionCallArgsNode& node)
 {
     printIdent();
     _formater.format("%s>\n", node.nodeTypeStr());
@@ -328,6 +329,33 @@ AstPrinter::visit(ReturnNode& node)
     node.expression()->accept(*this);
     _ident -= kNumIdent;
 }
+
+void
+AstPrinter::visit(PrintNode& node)
+{
+    printIdent();
+    _formater.format("%s>\n", node.nodeTypeStr());
+    _formater.write(_sink);
+    _ident += kNumIdent;
+    node.arguments()->accept(*this);
+    _ident -= kNumIdent;
+}
+
+void
+AstPrinter::visit(PrintArgsNode& node)
+{
+    printIdent();
+    _formater.format("%s>\n", node.nodeTypeStr());
+    _formater.write(_sink);
+    _ident += kNumIdent;
+    for(auto& v : node.expressions)
+    {
+        v->accept(*this);
+    }
+    _ident -= kNumIdent;
+}
+
+
 
 
 

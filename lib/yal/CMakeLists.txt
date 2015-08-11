@@ -32,6 +32,7 @@ set(YAL_HDR
     ast/argumentdeclnode.h
     ast/functionnode.h
     ast/returnnode.h
+    ast/printnode.h
     symbols/symboltable.h
     ast/astprinter.h
     symbols/symboltable.h
@@ -80,6 +81,7 @@ set(YAL_SRC
     ast/functionnode.cpp
     ast/returnnode.cpp
     ast/astprinter.cpp
+    ast/printnode.cpp
     symbols/symbol.cpp
     symbols/variablesym.cpp
     symbols/functionsym.cpp

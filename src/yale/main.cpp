@@ -3,6 +3,7 @@
 #include <cstring>
 #include <yalvm/yalvm_ctx.h>
 #include <yalvm/yalvm_error.h>
+#include <stdarg.h>
 
 
 // yalvm external function that need to be implemented
@@ -33,17 +34,39 @@ yalvm_memcpy(void* dst, const void* src, yalvm_size size)
     memcpy(dst, src, size);
 }
 
+void
+yalvm_print(yalvm_ctx *ctx,
+            const char *string)
+{
+    (void) *ctx;
+    printf("%s", string);
+}
+
+int
+yalvm_snprintf(char *str,
+               yalvm_size size,
+               const char *format,
+               ...)
+{
+    int result = 0;
+    va_list args;
+    va_start(args, format);
+    result = vsnprintf(str, size, format, args);
+    va_end(args);
+    return result;
+}
+
 }
 
 static void
 printRegister(yalvm_register_t* reg)
 {
-    printf("  hex32: 0x%08x\n",reg->reg32.value);
-    printf("  hex64: 0x%016llx\n", reg->reg64.value);
-    printf("  i32  : %d\n", *yalvm_register_to_i32(reg));
-    printf("  i64  : %lld\n", *yalvm_register_to_i64(reg));
-    printf("  u32  : %u\n", *yalvm_register_to_u32(reg));
-    printf("  u64  : %llu\n", *yalvm_register_to_u64(reg));
+    printf("  hex32: 0x%08" YALVM_PRI_HEX32 "\n",reg->reg32.value);
+    printf("  hex64: 0x%016" YALVM_PRI_HEX64 "\n", reg->reg64.value);
+    printf("  i32  : %" YALVM_PRIi32 "\n", *yalvm_register_to_i32(reg));
+    printf("  i64  : %" YALVM_PRIi64 "\n", *yalvm_register_to_i64(reg));
+    printf("  u32  : %" YALVM_PRIu32 "\n", *yalvm_register_to_u32(reg));
+    printf("  u64  : %" YALVM_PRIu64 "\n", *yalvm_register_to_u64(reg));
     printf("  f32  : %f\n", *yalvm_register_to_f32(reg));
     printf("  f64  : %lf\n", *yalvm_register_to_f64(reg));
 }
@@ -102,7 +125,11 @@ int main(const int argc,
     }
     else
     {
-        printf("yale - 0.1.0\n");
+        printf("yale - 0.2.0\n");
+        printf("yalvm %d.%d.%d\n\n",
+               YALVM_VERSION_MAJOR,
+               YALVM_VERSION_MINOR,
+               YALVM_VERSION_PATCH);
         printf("yalvm binary executor\n\n");
         printf("Usage: %s <binary file>\n\n", argv[0]);
         return EXIT_SUCCESS;
