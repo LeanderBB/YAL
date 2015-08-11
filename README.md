@@ -115,27 +115,27 @@ Future work
 -----------
 Future versions of the project aim to support the following:
 
-  * Comment support
-  * Compiler Optimisations
-  * Language Documentation
-  * Remove dependency on Flex/Bison
-  * Better error messages in the compiler.
-  * Loops
-  * Printing to stdout support
-  * Memory management
-    * Automatic Reference Counting (ARC) a la Objective-C
-  * Custom data types
-  * Interfaces
-    * Inspired by Google GO
-  * Native Code Interface
-    * Compiler support to generate all the boilerplate code or utility functions
-  * VM Function Handler
-  * Builtin objects
-    * Strings
-    * Arrays 
-    * HashMaps
-  * Module linking
-  * C++ Wrapper around yalvm C code.
-  * Multiple return values?
-  * LLVM bytecode generation
-    * JIT on Native execution
+* [x] ~~Comment support~~
+* [ ] Compiler Optimisations
+* [ ] Language Documentation
+* [ ] Remove dependency on Flex/Bison
+* [ ] Better error messages in the compiler.
+* [ ] Loops
+* [X] ~~Printing  support~~
+* [ ] Memory management
+  * Automatic Reference Counting (ARC) a la Objective-C
+* [ ] Custom data types
+* [ ] Interfaces
+  * Inspired by Google GO
+* [ ] Native Code Interface
+  * Compiler support to generate all the boilerplate code or utility functions
+* [ ] VM Function Handler
+  * [ ] Builtin objects
+  * [ ] Strings
+  * [ ] Arrays 
+  * [ ] HashMaps
+* [ ] Module linking
+* [ ] C++ Wrapper around yalvm C code.
+* [ ] Multiple return values?
+* [ ] LLVM bytecode generation
+  * JIT on Native execution
