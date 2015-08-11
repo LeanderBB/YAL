@@ -143,7 +143,16 @@ static const char* yalvm_bytecode_inst_strings [] =
     /* Copy Register */
     "copy reg",
     /* Load String */
-    "load string"
+    "load string",
+    /* Print instruction */
+    "printi",
+    "printil",
+    "printu",
+    "printul",
+    "printf",
+    "printfl",
+    "printstr",
+    "printnl",
     /* end of strings */
 };
 

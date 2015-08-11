@@ -33,6 +33,9 @@ DECIMAL [0-9]+\.[0-9]+
 ID [a-zA-Z][a-zA-Z0-9_]*
 
 %%
+
+^#.+\n {}
+
 \n {return TK_NL; }
 
 true {return yal::FlexReadBool(yylval, yytext);}
@@ -72,6 +75,8 @@ float32 {return TK_TYPE_F32;}
 float64 {return TK_TYPE_F64;}
 
 bool {return TK_TYPE_BOOL;}
+
+print {return TK_PRINT;}
 
 ">>" {return TK_SHIFT_RIGHT;}
 
@@ -140,7 +145,7 @@ bool {return TK_TYPE_BOOL;}
 
 {ID} {return yal::FlexReadId(yylval, yytext);}
 
-\".+\" { return yal::FlexReadText(yylval, yytext);}
+\"[^\"]+\" { return yal::FlexReadText(yylval, yytext);}
 
 [\t ]+ ;
 

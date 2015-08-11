@@ -16,6 +16,7 @@
 #include "yal/symbols/variablesym.h"
 #include "yal/symbols/functionsym.h"
 #include "yal/bytecode/bytecode_utils.h"
+#include "yal/ast/printnode.h"
 #include <cstdio>
 #include <limits>
 
@@ -623,9 +624,21 @@ ByteCodeGenerator::visit(ArgumentDeclsNode& node)
 }
 
 void
-ByteCodeGenerator::visit(ExpressionList& node)
+ByteCodeGenerator::visit(FunctionCallArgsNode& node)
 {
-    (void) node;
+    for(auto& exp : node.expressions)
+    {
+        pushAndSetRegister(Register(_regAllocator));
+        exp->accept(*this);
+        Register tmp_register  = _currentRegister;
+        YAL_ASSERT(tmp_register.isValid());
+        popRegister();
+
+        yalvm_bytecode_t code = yalvm_bytecode_pack_one_register(YALVM_BYTECODE_PUSH_ARG,
+                                                                 tmp_register.registerIdx());
+        _buffer.append(code);
+    }
+
 }
 
 void
@@ -799,20 +812,7 @@ ByteCodeGenerator::visit(FunctionCallNode& node)
     // process arguments
     if (node.hasFunctionArguments())
     {
-        ExpressionList* arg_expression = node.functionArguments();
-        for(auto& exp : arg_expression->expressions)
-        {
-            pushAndSetRegister(Register(_regAllocator));
-            exp->accept(*this);
-            Register tmp_register  = _currentRegister;
-            YAL_ASSERT(tmp_register.isValid());
-            popRegister();
-
-            yalvm_bytecode_t code = yalvm_bytecode_pack_one_register(YALVM_BYTECODE_PUSH_ARG,
-                                                                     tmp_register.registerIdx());
-            _buffer.append(code);
-        }
-
+        node.functionArguments()->accept(*this);
     }
 
     yalvm_bytecode_t code_call = yalvm_bytecode_pack_three_registers(YALVM_BYTECODE_CALL,
@@ -940,5 +940,31 @@ ByteCodeGenerator::visit(ReturnNode& node)
     return;
 }
 
+void
+ByteCodeGenerator::visit(PrintNode& node)
+{
+    node.arguments()->accept(*this);
+    const yalvm_bytecode_t code = yalvm_bytecode_pack_instruction(YALVM_BYTECODE_PRINT_NL);
+    _buffer.append(code);
+}
+
+void
+ByteCodeGenerator::visit(PrintArgsNode& node)
+{
+    for(auto& exp : node.expressions)
+    {
+        pushAndSetRegister(Register(_regAllocator));
+        exp->accept(*this);
+        Register tmp_register  = _currentRegister;
+        YAL_ASSERT(tmp_register.isValid());
+        popRegister();
+
+        const yalvm_bytecode_inst_t print_inst = PrintByteCodeInst(exp->typeInfo());
+        const yalvm_bytecode_t code = yalvm_bytecode_pack_one_register(print_inst,
+                                                                       tmp_register.registerIdx());
+        _buffer.append(code);
+    }
+
+}
 
 }

@@ -34,6 +34,10 @@ LoadGlobalByteCodeInst(const ConstantType dataType);
 
 yalvm_bytecode_inst_t
 StoreGlobalByteCodeInst(const ConstantType dataType);
+
+yalvm_bytecode_inst_t
+PrintByteCodeInst(const ConstantType dataType);
+
 }
 
 #endif

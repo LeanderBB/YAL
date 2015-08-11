@@ -6,6 +6,23 @@
 namespace yal
 {
 
+class FunctionCallArgsNode : public ExpressionList
+{
+public:
+    YAL_AST_NODE_ACCEPT_HDR(FunctionCallArgsNode)
+
+    FunctionCallArgsNode(const SourceLocationInfo& loc):
+        ExpressionList(loc)
+    {
+
+    }
+
+    virtual ~FunctionCallArgsNode()
+    {
+
+    }
+};
+
 class FunctionCallNode : public ExpressionNode
 {
 public:
@@ -13,7 +30,7 @@ public:
 
     FunctionCallNode(const SourceLocationInfo& loc,
                      const char* name,
-                     ExpressionList* args);
+                     FunctionCallArgsNode *args);
 
     virtual ~FunctionCallNode();
 
@@ -22,7 +39,7 @@ public:
         return _functionName;
     }
 
-    ExpressionList* functionArguments() const
+    FunctionCallArgsNode* functionArguments() const
     {
         return _functionArgs;
     }
@@ -39,7 +56,7 @@ public:
 
 private:
     const char* _functionName;
-    ExpressionList* _functionArgs;
+    FunctionCallArgsNode* _functionArgs;
 };
 
 

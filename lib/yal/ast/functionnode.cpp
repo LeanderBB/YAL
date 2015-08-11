@@ -7,7 +7,7 @@ YAL_AST_NODE_ACCEPT_IMP(FunctionCallNode)
 
 FunctionCallNode::FunctionCallNode(const SourceLocationInfo &loc,
                                    const char* name,
-                                   ExpressionList* args):
+                                   FunctionCallArgsNode* args):
     ExpressionNode(loc),
     _functionName(name),
     _functionArgs(args)
