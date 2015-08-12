@@ -48,13 +48,22 @@ public:
         return _typeInfo;
     }
 
-    void setTypeInfo(const ConstantType type)
+    ConstantType returnTypeInfo() const
+    {
+        return _returnTypeInfo;
+    }
+
+    void setTypeInfo(const ConstantType type,
+                     const ConstantType returnType)
     {
         _typeInfo = type;
+        _returnTypeInfo = returnType;
     }
+
 protected:
     const SourceLocationInfo _loc;
     ConstantType _typeInfo;
+    ConstantType _returnTypeInfo;
     SymbolTable* _pSymTable = nullptr;
 };
 

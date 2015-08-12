@@ -111,6 +111,14 @@ TEST(CompileCode, HelloWorldTest)
     EXPECT_EQ(true, compile_result);
 }
 
+TEST(CompileCode, WhileLoop)
+{
+    yal::MemoryOuputSink mem_sink(1024*1024*10);
+    const std::string path(s_test_path + "/while_loop.yal");
+    const bool compile_result = CompileCode(path.c_str(), mem_sink);
+    EXPECT_EQ(true, compile_result);
+}
+
 
 
 int

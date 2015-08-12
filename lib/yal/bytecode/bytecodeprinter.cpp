@@ -298,12 +298,12 @@ ByteCodePrinter::print(const yalvm_func_header_t &function_header)
             break;
         /* Uncoditional Jmp */
         case YALVM_BYTECODE_JUMP:
-            print1Args(code);
+            print1Argsi(code);
             break;
         /* Conditional Jmp */
         case YALVM_BYTECODE_JUMP_TRUE:
         case YALVM_BYTECODE_JUMP_FALSE:
-            print2Argsu(code);
+            print2Argsi(code);
             break;
         /* Load Function */
         case YALVM_BYTECODE_LOAD_FUNCTION:
@@ -377,12 +377,21 @@ ByteCodePrinter::print2Argsu(const yalvm_bytecode_t code)
 }
 
 void
-ByteCodePrinter::print1Args(const yalvm_bytecode_t code)
+ByteCodePrinter::print1Argsu(const yalvm_bytecode_t code)
 {
     yal_u32 val;
     yalvm_bytecode_unpack_value(code, &val);
     _formater.formatAndWrite(_sink," %u\n",val);
 }
+
+void
+ByteCodePrinter::print1Argsi(const yalvm_bytecode_t code)
+{
+    yal_i32 val;
+    yalvm_bytecode_unpack_value_signed(code, &val);
+    _formater.formatAndWrite(_sink," %d\n",val);
+}
+
 
 void
 ByteCodePrinter::print2Regs(const yalvm_bytecode_t code)

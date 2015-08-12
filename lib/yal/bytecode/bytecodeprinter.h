@@ -30,7 +30,9 @@ protected:
 
     void print2Argsu(const yalvm_bytecode_t code);
 
-    void print1Args(const yalvm_bytecode_t code);
+    void print1Argsu(const yalvm_bytecode_t code);
+
+    void print1Argsi(const yalvm_bytecode_t code);
 
     void print2Regs(const yalvm_bytecode_t code);
 

@@ -279,6 +279,17 @@ yalvm_bytecode_pack_value(const yalvm_bytecode_inst_t inst,
     return code;
 }
 
+YALVM_INLINE
+yalvm_bytecode_t
+yalvm_bytecode_pack_value_signed(const yalvm_bytecode_inst_t inst,
+                                 const yalvm_i32 value)
+{
+    yalvm_bytecode_t code = 0;
+    code |= YALVM_BYTECODE_WRITE_INST(inst);
+    code |= YALVM_BYTECODE_WRITE_VALUE24(value);
+    return code;
+}
+
 
 YALVM_INLINE
 yalvm_bytecode_inst_t
@@ -290,7 +301,7 @@ yalvm_bytecode_unpack_instruction(const yalvm_bytecode_t code)
 YALVM_INLINE
 void
 yalvm_bytecode_unpack_register(const yalvm_bytecode_t code,
-                                yalvm_u8* dst_reg)
+                               yalvm_u8* dst_reg)
 {
     *dst_reg =  YALVM_BYTECODE_READ_RDST(code);
 }
@@ -334,6 +345,18 @@ yalvm_bytecode_unpack_value(const yalvm_bytecode_t code,
                             yalvm_u32* value)
 {
     *value = YALVM_BYTECODE_READ_VALUE24(code);
+}
+
+YALVM_INLINE
+void
+yalvm_bytecode_unpack_value_signed(const yalvm_bytecode_t code,
+                                   yalvm_i32* value)
+{
+    *value = YALVM_BYTECODE_READ_VALUE24(code);
+    if (*value & (1 << 23))
+    {
+       *value |= 0xFF000000;
+    }
 }
 
 const char*

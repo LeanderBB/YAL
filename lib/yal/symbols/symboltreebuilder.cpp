@@ -15,6 +15,7 @@
 #include "yal/symbols/type_utils.h"
 #include "yal/parser/parser_state.h"
 #include "yal/ast/printnode.h"
+#include "yal/ast/whileloopnode.h"
 
 #include <cstdio>
 
@@ -131,7 +132,7 @@ SymbolTreeBuilder::visit(AssignOperatorNode& node)
             return;
         }
 
-        node.setTypeInfo(var_type);
+        node.setTypeInfo(var_type, var_type);
     }
 
     variable->touchWrite();
@@ -177,7 +178,7 @@ SymbolTreeBuilder::visit(CompareOperatorNode& node)
     }
 
     _expResult = left_type;
-    node.setTypeInfo(left_type);
+    node.setTypeInfo(left_type, left_type);
 }
 
 void
@@ -204,7 +205,7 @@ SymbolTreeBuilder::visit(ConstantNode& node)
         }
 
         _expResult = sym->returnType();
-        node.setTypeInfo(node.constantType());
+        node.setTypeInfo(node.constantType(), _expResult);
         variable->touchRead();
     }
     else
@@ -220,7 +221,7 @@ SymbolTreeBuilder::visit(ConstantNode& node)
         }
 
         _expResult = node.constantType();
-        node.setTypeInfo(node.constantType());
+        node.setTypeInfo(_expResult, _expResult);
     }
 }
 
@@ -353,7 +354,7 @@ SymbolTreeBuilder::visit(VariableDeclNode& node)
         auto sym_var = new VariableSym(var_name, _expResult, is_global_var,
                                        currentScope()->level());
         _curScope->declareSymbol(sym_var);
-        node.setTypeInfo(_expResult);
+        node.setTypeInfo(_expResult, _expResult);
 
         // register with module global
         if (is_global_var)
@@ -403,7 +404,7 @@ SymbolTreeBuilder::visit(DualOperatorNode& node)
         return;
     }
 
-    node.setTypeInfo(_expResult);
+    node.setTypeInfo(_expResult, _expResult);
 }
 
 void
@@ -420,7 +421,15 @@ SymbolTreeBuilder::visit(SingleOperatorNode& node)
         return;
     }
 
-    node.setTypeInfo(_expResult);
+    if (node.singleOperatorType() == kSingleOperatorTypeNeg && !ConstantTypeIsSigned(_expResult))
+    {
+        _formater.format("'%s' requires a signed data type\n",
+                         SingleOperatorTypeToStr(node.singleOperatorType()));
+        logError(node);
+        return;
+    }
+
+    node.setTypeInfo(_expResult,_expResult);
 }
 
 void
@@ -575,7 +584,30 @@ SymbolTreeBuilder::visit(ReturnNode& node)
     }
 
     node.setSymbolTable(currentScope());
-    node.setTypeInfo(_expResult);
+    node.setTypeInfo(_expResult, _expResult);
+}
+
+void
+SymbolTreeBuilder::visit(WhileLoopNode& node)
+{
+    node.setSymbolTable(currentScope());
+
+    node.condition()->accept(*this);
+    if (!didError())
+    {
+        // check condition expression
+        if (!IsValidBoolean(_expResult))
+        {
+            _formater.format("Condition does not produce valid boolean\n");
+            logError(node);
+            return;
+        }
+
+        // begin new scope
+        beginScope();
+        node.code()->accept(*this);
+        endScope();
+    }
 }
 
 void
