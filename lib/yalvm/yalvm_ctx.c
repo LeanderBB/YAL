@@ -140,7 +140,7 @@ yalvm_ctx_set_binary(yalvm_ctx_t* ctx,
 
 
 
-#define YALVM_UNACK_REGISTERS(type) \
+#define YALVM_UNPACK_REGISTERS(type) \
     yalvm_u8 dst, src1, src2; \
     yalvm_bytecode_unpack_registers(code, &dst, &src1, &src2); \
     yalvm_ ## type  * reg_dst = yalvm_register_to_ ## type (&ctx->registers[dst]); \
@@ -148,11 +148,14 @@ yalvm_ctx_set_binary(yalvm_ctx_t* ctx,
     yalvm_ ## type  * reg_src2 = yalvm_register_to_ ## type (&ctx->registers[src2])
 
 
-#define YALVM_UNACK_REGISTER(type) \
+#define YALVM_UNPACK_REGISTER(type) \
     yalvm_u8 dst; \
     yalvm_bytecode_unpack_register(code, &dst); \
     yalvm_ ## type  * reg_dst = yalvm_register_to_ ## type (&ctx->registers[dst]); \
 
+#define YALVM_UNPACKED_DST (*reg_dst)
+#define YALVM_UNPACKED_SRC1 (*reg_src1)
+#define YALVM_UNPACKED_SRC2 (*reg_src2)
 
 yalvm_u32
 yalvm_ctx_execute(yalvm_ctx_t* ctx)
@@ -240,493 +243,493 @@ yalvm_ctx_execute(yalvm_ctx_t* ctx)
             /* Summation instruction */
         case YALVM_BYTECODE_ADD_I:
         {
-            YALVM_UNACK_REGISTERS(i32);
-            *reg_dst = *reg_src1 + *reg_src2;
+            YALVM_UNPACK_REGISTERS(i32);
+            *reg_dst = (*reg_src1) + (*reg_src2);
             break;
         }
         case YALVM_BYTECODE_ADD_IL:
         {
-            YALVM_UNACK_REGISTERS(i64);
-            *reg_dst = *reg_src1 + *reg_src2;
+            YALVM_UNPACK_REGISTERS(i64);
+            *reg_dst = (*reg_src1) + (*reg_src2);
             break;
         }
         case YALVM_BYTECODE_ADD_U:
         {
-            YALVM_UNACK_REGISTERS(u32);
-            *reg_dst = *reg_src1 + *reg_src2;
+            YALVM_UNPACK_REGISTERS(u32);
+            *reg_dst = (*reg_src1) + (*reg_src2);
             break;
         }
         case YALVM_BYTECODE_ADD_UL:
         {
-            YALVM_UNACK_REGISTERS(u64);
-            *reg_dst = *reg_src1 + *reg_src2;
+            YALVM_UNPACK_REGISTERS(u64);
+            *reg_dst = (*reg_src1) + (*reg_src2);
             break;
         }
         case YALVM_BYTECODE_ADD_F:
         {
-            YALVM_UNACK_REGISTERS(f32);
-            *reg_dst = *reg_src1 + *reg_src2;
+            YALVM_UNPACK_REGISTERS(f32);
+            *reg_dst = (*reg_src1) + (*reg_src2);
             break;
         }
         case YALVM_BYTECODE_ADD_FL:
         {
-            YALVM_UNACK_REGISTERS(f64);
-            *reg_dst = *reg_src1 + *reg_src2;
+            YALVM_UNPACK_REGISTERS(f64);
+            *reg_dst = (*reg_src1) + (*reg_src2);
             break;
         }
             /* Substraction instruction */
         case YALVM_BYTECODE_SUB_I:
         {
-            YALVM_UNACK_REGISTERS(i32);
-            *reg_dst = *reg_src1 - *reg_src2;
+            YALVM_UNPACK_REGISTERS(i32);
+            *reg_dst = (*reg_src1) - (*reg_src2);
             break;
         }
         case YALVM_BYTECODE_SUB_IL:
         {
-            YALVM_UNACK_REGISTERS(i64);
-            *reg_dst = *reg_src1 - *reg_src2;
+            YALVM_UNPACK_REGISTERS(i64);
+            *reg_dst = (*reg_src1) - (*reg_src2);
             break;
         }
         case YALVM_BYTECODE_SUB_U:
         {
-            YALVM_UNACK_REGISTERS(u32);
-            *reg_dst = *reg_src1 - *reg_src2;
+            YALVM_UNPACK_REGISTERS(u32);
+            *reg_dst = (*reg_src1) - (*reg_src2);
             break;
         }
         case YALVM_BYTECODE_SUB_UL:
         {
-            YALVM_UNACK_REGISTERS(u64);
-            *reg_dst = *reg_src1 - *reg_src2;
+            YALVM_UNPACK_REGISTERS(u64);
+            *reg_dst = (*reg_src1) - (*reg_src2);
             break;
         }
         case YALVM_BYTECODE_SUB_F:
         {
-            YALVM_UNACK_REGISTERS(f32);
-            *reg_dst = *reg_src1 - *reg_src2;
+            YALVM_UNPACK_REGISTERS(f32);
+            *reg_dst = (*reg_src1) - (*reg_src2);
             break;
         }
         case YALVM_BYTECODE_SUB_FL:
         {
-            YALVM_UNACK_REGISTERS(f64);
-            *reg_dst = *reg_src1 - *reg_src2;
+            YALVM_UNPACK_REGISTERS(f64);
+            *reg_dst = (*reg_src1) - (*reg_src2);
             break;
         }
             /* Multiplication instruction */
         case YALVM_BYTECODE_MUL_I:
         {
-            YALVM_UNACK_REGISTERS(i32);
+            YALVM_UNPACK_REGISTERS(i32);
             *reg_dst = (*reg_src1) * (*reg_src2);
             break;
         }
         case YALVM_BYTECODE_MUL_IL:
         {
-            YALVM_UNACK_REGISTERS(i64);
+            YALVM_UNPACK_REGISTERS(i64);
             *reg_dst = (*reg_src1) * (*reg_src2);
             break;
         }
         case YALVM_BYTECODE_MUL_U:
         {
-            YALVM_UNACK_REGISTERS(u32);
+            YALVM_UNPACK_REGISTERS(u32);
             *reg_dst = (*reg_src1) * (*reg_src2);
             break;
         }
         case YALVM_BYTECODE_MUL_UL:
         {
-            YALVM_UNACK_REGISTERS(u64);
+            YALVM_UNPACK_REGISTERS(u64);
             *reg_dst = (*reg_src1) * (*reg_src2);
             break;
         }
         case YALVM_BYTECODE_MUL_F:
         {
-            YALVM_UNACK_REGISTERS(f32);
+            YALVM_UNPACK_REGISTERS(f32);
             *reg_dst = (*reg_src1) * (*reg_src2);
             break;
         }
         case YALVM_BYTECODE_MUL_FL:
         {
-            YALVM_UNACK_REGISTERS(f64);
+            YALVM_UNPACK_REGISTERS(f64);
             *reg_dst = (*reg_src1) * (*reg_src2);
             break;
         }
             /* Division instruction */
         case YALVM_BYTECODE_DIV_I:
         {
-            YALVM_UNACK_REGISTERS(i32);
+            YALVM_UNPACK_REGISTERS(i32);
             *reg_dst = (*reg_src1) / (*reg_src2);
             break;
         }
         case YALVM_BYTECODE_DIV_IL:
         {
-            YALVM_UNACK_REGISTERS(i64);
+            YALVM_UNPACK_REGISTERS(i64);
             *reg_dst = (*reg_src1) / (*reg_src2);
             break;
         }
         case YALVM_BYTECODE_DIV_U:
         {
-            YALVM_UNACK_REGISTERS(u32);
+            YALVM_UNPACK_REGISTERS(u32);
             *reg_dst = (*reg_src1) / (*reg_src2);
             break;
         }
         case YALVM_BYTECODE_DIV_UL:
         {
-            YALVM_UNACK_REGISTERS(u64);
+            YALVM_UNPACK_REGISTERS(u64);
             *reg_dst = (*reg_src1) / (*reg_src2);
             break;
         }
         case YALVM_BYTECODE_DIV_F:
         {
-            YALVM_UNACK_REGISTERS(f32);
+            YALVM_UNPACK_REGISTERS(f32);
             *reg_dst = (*reg_src1) / (*reg_src2);
             break;
         }
         case YALVM_BYTECODE_DIV_FL:
         {
-            YALVM_UNACK_REGISTERS(f64);
+            YALVM_UNPACK_REGISTERS(f64);
             *reg_dst = (*reg_src1) / (*reg_src2);
             break;
         }
             /* Negative (-var) */
         case YALVM_BYTECODE_NEG_I:
         {
-            YALVM_UNACK_REGISTER(i32);
+            YALVM_UNPACK_REGISTER(i32);
             *reg_dst = -(*reg_dst);
             break;
         }
         case YALVM_BYTECODE_NEG_IL:
         {
-            YALVM_UNACK_REGISTER(i64);
+            YALVM_UNPACK_REGISTER(i64);
             *reg_dst = -(*reg_dst);
             break;
         }
         case YALVM_BYTECODE_NEG_F:
         {
-            YALVM_UNACK_REGISTER(f32);
+            YALVM_UNPACK_REGISTER(f32);
             *reg_dst = -(*reg_dst);
             break;
         }
         case YALVM_BYTECODE_NEG_FL:
         {
-            YALVM_UNACK_REGISTER(f64);
+            YALVM_UNPACK_REGISTER(f64);
             *reg_dst = -(*reg_dst);
             break;
         }
             /* Bit and */
         case YALVM_BYTECODE_BIT_AND_32:
         {
-            YALVM_UNACK_REGISTERS(u32);
+            YALVM_UNPACK_REGISTERS(u32);
             *reg_dst = (*reg_src1) & (*reg_src2);
             break;
         }
         case YALVM_BYTECODE_BIT_AND_64:
         {
-            YALVM_UNACK_REGISTERS(u64);
+            YALVM_UNPACK_REGISTERS(u64);
             *reg_dst = (*reg_src1) & (*reg_src2);
             break;
         }
             /* Bit or */
         case YALVM_BYTECODE_BIT_OR_32:
         {
-            YALVM_UNACK_REGISTERS(u32);
+            YALVM_UNPACK_REGISTERS(u32);
             *reg_dst = (*reg_src1) | (*reg_src2);
             break;
         }
         case YALVM_BYTECODE_BIT_OR_64:
         {
-            YALVM_UNACK_REGISTERS(u64);
+            YALVM_UNPACK_REGISTERS(u64);
             *reg_dst = (*reg_src1) | (*reg_src2);
             break;
         }
             /* Bit xor */
         case YALVM_BYTECODE_BIT_XOR_32:
         {
-            YALVM_UNACK_REGISTERS(u32);
+            YALVM_UNPACK_REGISTERS(u32);
             *reg_dst = (*reg_src1) ^ (*reg_src2);
             break;
         }
         case YALVM_BYTECODE_BIT_XOR_64:
         {
-            YALVM_UNACK_REGISTERS(u64);
+            YALVM_UNPACK_REGISTERS(u64);
             *reg_dst = (*reg_src1) ^ (*reg_src2);
             break;
         }
         case YALVM_BYTECODE_BIT_NOT_32:
         {
-            YALVM_UNACK_REGISTER(u32);
+            YALVM_UNPACK_REGISTER(u32);
             *reg_dst = ~(*reg_dst);
             break;
         }
         case YALVM_BYTECODE_BIT_NOT_64:
         {
-            YALVM_UNACK_REGISTER(u64);
+            YALVM_UNPACK_REGISTER(u64);
             *reg_dst = ~(*reg_dst);
             break;
         }
             /* Shift Left */
         case YALVM_BYTECODE_SHIFTL_32:
         {
-            YALVM_UNACK_REGISTERS(u32);
+            YALVM_UNPACK_REGISTERS(u32);
             *reg_dst = (*reg_src1) << (*reg_src2);
             break;
         }
         case YALVM_BYTECODE_SHIFTL_64:
         {
-            YALVM_UNACK_REGISTERS(u64);
+            YALVM_UNPACK_REGISTERS(u64);
             *reg_dst = (*reg_src1) << (*reg_src2);
             break;
         }
             /* Shift Right */
         case YALVM_BYTECODE_SHIFTR_32:
         {
-            YALVM_UNACK_REGISTERS(u32);
+            YALVM_UNPACK_REGISTERS(u32);
             *reg_dst = (*reg_src1) >> (*reg_src2);
             break;
         }
         case  YALVM_BYTECODE_SHIFTR_64:
         {
-            YALVM_UNACK_REGISTERS(u64);
+            YALVM_UNPACK_REGISTERS(u64);
             *reg_dst = (*reg_src1) >> (*reg_src2);
             break;
         }
             /* Logical And */
         case  YALVM_BYTECODE_AND:
         {
-            YALVM_UNACK_REGISTERS(u64);
+            YALVM_UNPACK_REGISTERS(u64);
             *reg_dst = (*reg_src1) && (*reg_src2);
             break;
         }
             /* Logical Or */
         case YALVM_BYTECODE_OR:
         {
-            YALVM_UNACK_REGISTERS(u64);
+            YALVM_UNPACK_REGISTERS(u64);
             *reg_dst = (*reg_src1) || (*reg_src2);
             break;
         }
             /* Logical not */
         case YALVM_BYTECODE_NOT:
         {
-            YALVM_UNACK_REGISTER(u64);
+            YALVM_UNPACK_REGISTER(u64);
             *reg_dst = !(*reg_dst);
             break;
         }
             /* Compare Greater */
         case YALVM_BYTECODE_COMPARE_GT_I:
         {
-            YALVM_UNACK_REGISTERS(i32);
+            YALVM_UNPACK_REGISTERS(i32);
             *reg_dst = (*reg_src1) > (*reg_src2);
             break;
         }
         case YALVM_BYTECODE_COMPARE_GT_IL:
         {
-            YALVM_UNACK_REGISTERS(i64);
+            YALVM_UNPACK_REGISTERS(i64);
             *reg_dst = (*reg_src1) > (*reg_src2);
             break;
         }
         case YALVM_BYTECODE_COMPARE_GT_U:
         {
-            YALVM_UNACK_REGISTERS(u32);
+            YALVM_UNPACK_REGISTERS(u32);
             *reg_dst = (*reg_src1) > (*reg_src2);
             break;
         }
         case YALVM_BYTECODE_COMPARE_GT_UL:
         {
-            YALVM_UNACK_REGISTERS(u64);
+            YALVM_UNPACK_REGISTERS(u64);
             *reg_dst = (*reg_src1) > (*reg_src2);
             break;
         }
         case YALVM_BYTECODE_COMPARE_GT_F:
         {
-            YALVM_UNACK_REGISTERS(f32);
+            YALVM_UNPACK_REGISTERS(f32);
             *reg_dst = (*reg_src1) > (*reg_src2);
             break;
         }
         case YALVM_BYTECODE_COMPARE_GT_FL:
         {
-            YALVM_UNACK_REGISTERS(f64);
+            YALVM_UNPACK_REGISTERS(f64);
             *reg_dst = (*reg_src1) > (*reg_src2);
             break;
         }
             /* Compare Greater or Equal */
         case YALVM_BYTECODE_COMPARE_GE_I:
         {
-            YALVM_UNACK_REGISTERS(i32);
+            YALVM_UNPACK_REGISTERS(i32);
             *reg_dst = (*reg_src1) >= (*reg_src2);
             break;
         }
         case YALVM_BYTECODE_COMPARE_GE_IL:
         {
-            YALVM_UNACK_REGISTERS(i64);
+            YALVM_UNPACK_REGISTERS(i64);
             *reg_dst = (*reg_src1) >= (*reg_src2);
             break;
         }
         case YALVM_BYTECODE_COMPARE_GE_U:
         {
-            YALVM_UNACK_REGISTERS(u32);
+            YALVM_UNPACK_REGISTERS(u32);
             *reg_dst = (*reg_src1) >= (*reg_src2);
             break;
         }
         case YALVM_BYTECODE_COMPARE_GE_UL:
         {
-            YALVM_UNACK_REGISTERS(u64);
+            YALVM_UNPACK_REGISTERS(u64);
             *reg_dst = (*reg_src1) >= (*reg_src2);
             break;
         }
         case YALVM_BYTECODE_COMPARE_GE_F:
         {
-            YALVM_UNACK_REGISTERS(f32);
+            YALVM_UNPACK_REGISTERS(f32);
             *reg_dst = (*reg_src1) >= (*reg_src2);
             break;
         }
         case YALVM_BYTECODE_COMPARE_GE_FL:
         {
-            YALVM_UNACK_REGISTERS(f64);
+            YALVM_UNPACK_REGISTERS(f64);
             *reg_dst = (*reg_src1) >= (*reg_src2);
             break;
         }
             /* Compare Lesser */
         case YALVM_BYTECODE_COMPARE_LT_I:
         {
-            YALVM_UNACK_REGISTERS(i32);
+            YALVM_UNPACK_REGISTERS(i32);
             *reg_dst = (*reg_src1) < (*reg_src2);
             break;
         }
         case YALVM_BYTECODE_COMPARE_LT_IL:
         {
-            YALVM_UNACK_REGISTERS(i64);
+            YALVM_UNPACK_REGISTERS(i64);
             *reg_dst = (*reg_src1) < (*reg_src2);
             break;
         }
         case YALVM_BYTECODE_COMPARE_LT_U:
         {
-            YALVM_UNACK_REGISTERS(u32);
+            YALVM_UNPACK_REGISTERS(u32);
             *reg_dst = (*reg_src1) < (*reg_src2);
             break;
         }
         case YALVM_BYTECODE_COMPARE_LT_UL:
         {
-            YALVM_UNACK_REGISTERS(u64);
+            YALVM_UNPACK_REGISTERS(u64);
             *reg_dst = (*reg_src1) < (*reg_src2);
             break;
         }
         case YALVM_BYTECODE_COMPARE_LT_F:
         {
-            YALVM_UNACK_REGISTERS(f32);
+            YALVM_UNPACK_REGISTERS(f32);
             *reg_dst = (*reg_src1) < (*reg_src2);
             break;
         }
         case YALVM_BYTECODE_COMPARE_LT_FL:
         {
-            YALVM_UNACK_REGISTERS(f64);
+            YALVM_UNPACK_REGISTERS(f64);
             *reg_dst = (*reg_src1) < (*reg_src2);
             break;
         }
             /* Compare Lesser or Equal */
         case YALVM_BYTECODE_COMPARE_LE_I:
         {
-            YALVM_UNACK_REGISTERS(i32);
+            YALVM_UNPACK_REGISTERS(i32);
             *reg_dst = (*reg_src1) <= (*reg_src2);
             break;
         }
         case YALVM_BYTECODE_COMPARE_LE_IL:
         {
-            YALVM_UNACK_REGISTERS(i64);
+            YALVM_UNPACK_REGISTERS(i64);
             *reg_dst = (*reg_src1) <= (*reg_src2);
             break;
         }
         case YALVM_BYTECODE_COMPARE_LE_U:
         {
-            YALVM_UNACK_REGISTERS(u32);
+            YALVM_UNPACK_REGISTERS(u32);
             *reg_dst = (*reg_src1) <= (*reg_src2);
             break;
         }
         case YALVM_BYTECODE_COMPARE_LE_UL:
         {
-            YALVM_UNACK_REGISTERS(u64);
+            YALVM_UNPACK_REGISTERS(u64);
             *reg_dst = (*reg_src1) <= (*reg_src2);
             break;
         }
         case YALVM_BYTECODE_COMPARE_LE_F:
         {
-            YALVM_UNACK_REGISTERS(f32);
+            YALVM_UNPACK_REGISTERS(f32);
             *reg_dst = (*reg_src1) <= (*reg_src2);
             break;
         }
         case YALVM_BYTECODE_COMPARE_LE_FL:
         {
-            YALVM_UNACK_REGISTERS(f64);
+            YALVM_UNPACK_REGISTERS(f64);
             *reg_dst = (*reg_src1) <= (*reg_src2);
             break;
         }
             /* Compare Equal */
         case YALVM_BYTECODE_COMPARE_EQ_I:
         {
-            YALVM_UNACK_REGISTERS(i32);
+            YALVM_UNPACK_REGISTERS(i32);
             *reg_dst = (*reg_src1) == (*reg_src2);
             break;
         }
         case YALVM_BYTECODE_COMPARE_EQ_IL:
         {
-            YALVM_UNACK_REGISTERS(i64);
+            YALVM_UNPACK_REGISTERS(i64);
             *reg_dst = (*reg_src1) == (*reg_src2);
             break;
         }
         case YALVM_BYTECODE_COMPARE_EQ_U:
         {
-            YALVM_UNACK_REGISTERS(u32);
+            YALVM_UNPACK_REGISTERS(u32);
             *reg_dst = (*reg_src1) == (*reg_src2);
             break;
         }
         case YALVM_BYTECODE_COMPARE_EQ_UL:
         {
-            YALVM_UNACK_REGISTERS(u64);
+            YALVM_UNPACK_REGISTERS(u64);
             *reg_dst = (*reg_src1) == (*reg_src2);
             break;
         }
         case YALVM_BYTECODE_COMPARE_EQ_F:
         {
-            YALVM_UNACK_REGISTERS(f32);
+            YALVM_UNPACK_REGISTERS(f32);
             *reg_dst = (*reg_src1) == (*reg_src2);
             break;
         }
         case YALVM_BYTECODE_COMPARE_EQ_FL:
         {
-            YALVM_UNACK_REGISTERS(f64);
+            YALVM_UNPACK_REGISTERS(f64);
             *reg_dst = (*reg_src1) == (*reg_src2);
             break;
         }
             /* Compare not Equal*/
         case YALVM_BYTECODE_COMPARE_NE_I:
         {
-            YALVM_UNACK_REGISTERS(i32);
+            YALVM_UNPACK_REGISTERS(i32);
             *reg_dst = (*reg_src1) != (*reg_src2);
             break;
         }
         case YALVM_BYTECODE_COMPARE_NE_IL:
         {
-            YALVM_UNACK_REGISTERS(i64);
+            YALVM_UNPACK_REGISTERS(i64);
             *reg_dst = (*reg_src1) != (*reg_src2);
             break;
         }
         case YALVM_BYTECODE_COMPARE_NE_U:
         {
-            YALVM_UNACK_REGISTERS(u32);
+            YALVM_UNPACK_REGISTERS(u32);
             *reg_dst = (*reg_src1) != (*reg_src2);
             break;
         }
         case YALVM_BYTECODE_COMPARE_NE_UL:
         {
-            YALVM_UNACK_REGISTERS(u64);
+            YALVM_UNPACK_REGISTERS(u64);
             *reg_dst = (*reg_src1) != (*reg_src2);
             break;
         }
         case YALVM_BYTECODE_COMPARE_NE_F:
         {
-            YALVM_UNACK_REGISTERS(f32);
+            YALVM_UNPACK_REGISTERS(f32);
             *reg_dst = (*reg_src1) != (*reg_src2);
             break;
         }
         case YALVM_BYTECODE_COMPARE_NE_FL:
         {
-            YALVM_UNACK_REGISTERS(f64);
+            YALVM_UNPACK_REGISTERS(f64);
             *reg_dst = (*reg_src1) != (*reg_src2);
             break;
         }
@@ -734,8 +737,8 @@ yalvm_ctx_execute(yalvm_ctx_t* ctx)
         case YALVM_BYTECODE_JUMP:
         {
             /*TODO: destination check */
-            yalvm_u32 value;
-            yalvm_bytecode_unpack_value(code, &value);
+            yalvm_i32 value;
+            yalvm_bytecode_unpack_value_signed(code, &value);
             ctx->pc += value;
             break;
         }
@@ -744,8 +747,8 @@ yalvm_ctx_execute(yalvm_ctx_t* ctx)
         {
             /*TODO: destination check */
             yalvm_u8 dst;
-            yalvm_u16 value;
-            yalvm_bytecode_unpack_dst_value(code, &dst, &value);
+            yalvm_i16 value;
+            yalvm_bytecode_unpack_dst_value_signed(code, &dst, &value);
             if (ctx->registers[dst].reg64.value)
             {
                 ctx->pc += value;

@@ -17,6 +17,7 @@
 #include "yal/symbols/functionsym.h"
 #include "yal/bytecode/bytecode_utils.h"
 #include "yal/ast/printnode.h"
+#include "yal/ast/whileloopnode.h"
 #include <cstdio>
 #include <limits>
 
@@ -866,6 +867,7 @@ ByteCodeGenerator::visit(ConditionNode& node)
                                                                         tmp_register.registerIdx(),
                                                                         1);
         jump_to_false_offset  = _buffer.append(condition_code);
+        YAL_ASSERT(jump_to_false_offset <  std::numeric_limits<yal_i32>::max());
         YAL_ASSERT(node.hasOnTrueComponent());
     }
 
@@ -876,18 +878,26 @@ ByteCodeGenerator::visit(ConditionNode& node)
     if (node.hasConditionComponent())
     {
         // update previous value
-        const size_t current_offset = _buffer.size();
-        size_t diff = current_offset - jump_to_false_offset;
-        YAL_ASSERT(diff < std::numeric_limits<yal_u16>::max());
-        _buffer.replace(jump_to_false_offset, yalvm_bytecode_pack_dst_value(YALVM_BYTECODE_JUMP_FALSE,
-                                                                            tmp_register.registerIdx(),
-                                                                            static_cast<yal_u16>(diff)));
+        const size_t buffer_size = _buffer.size();
+        YAL_ASSERT(buffer_size <  std::numeric_limits<yal_i32>::max());
+        const yal_i32 current_offset = static_cast<yal_i32>(buffer_size);
+        yal_i32 diff = current_offset - static_cast<yal_i32>(jump_to_false_offset);
+        if (diff >= std::numeric_limits<yal_i16>::max())
+        {
+            _formater.format("Condition jump instruction exceeds maximum jump offset\n");
+            logError(node);
+            return;
+        }
+        _buffer.replace(jump_to_false_offset, yalvm_bytecode_pack_dst_value_signed(YALVM_BYTECODE_JUMP_FALSE,
+                                                                                   tmp_register.registerIdx(),
+                                                                                   diff));
     }
 
     if (node.hasOnFalseComponent())
     {
         // mark jump instruction
         const size_t jump_to_end_offset = _buffer.append(yalvm_bytecode_pack_value(YALVM_BYTECODE_JUMP, 0));
+        YAL_ASSERT(jump_to_end_offset <  std::numeric_limits<yal_i32>::max());
         registerScope(node.onFalse()->symbolTable());
         node.onFalse()->accept(*this);
         unregisterScope(node.onFalse()->symbolTable());
@@ -898,12 +908,19 @@ ByteCodeGenerator::visit(ConditionNode& node)
         }
 
         // update jmp instruction
-        const size_t current_offset = _buffer.size();
-        const size_t diff = current_offset - jump_to_end_offset;
-        YAL_ASSERT(diff < std::numeric_limits<yal_u16>::max());
+        const size_t buffer_size = _buffer.size();
+        YAL_ASSERT(buffer_size <  std::numeric_limits<yal_i32>::max());
+        const yal_i32 current_offset = static_cast<yal_i32>(buffer_size);
+        const yal_i32 diff = current_offset - static_cast<yal_i32>(jump_to_end_offset);
+        if (diff >= std::numeric_limits<yal_i16>::max())
+        {
+            _formater.format("Condition jump instruction exceeds maximum jump offset\n");
+            logError(node);
+            return;
+        }
 
-        _buffer.replace(jump_to_end_offset, yalvm_bytecode_pack_value(YALVM_BYTECODE_JUMP,
-                                                                      static_cast<yal_u16>(diff)));
+        _buffer.replace(jump_to_end_offset, yalvm_bytecode_pack_value_signed(YALVM_BYTECODE_JUMP,
+                                                                             diff));
     }
 
     return;
@@ -959,12 +976,84 @@ ByteCodeGenerator::visit(PrintArgsNode& node)
         YAL_ASSERT(tmp_register.isValid());
         popRegister();
 
-        const yalvm_bytecode_inst_t print_inst = PrintByteCodeInst(exp->typeInfo());
+        const yalvm_bytecode_inst_t print_inst = PrintByteCodeInst(exp->returnTypeInfo());
         const yalvm_bytecode_t code = yalvm_bytecode_pack_one_register(print_inst,
                                                                        tmp_register.registerIdx());
         _buffer.append(code);
     }
 
+}
+
+void
+ByteCodeGenerator::visit(WhileLoopNode& node)
+{
+
+    Register tmp_register;
+    const size_t jump_to_condition = _buffer.size();
+    YAL_ASSERT(jump_to_condition <  std::numeric_limits<yal_i32>::max());
+
+    pushAndSetRegister(Register(_regAllocator));
+    node.condition()->accept(*this);
+    tmp_register  = _currentRegister;
+    YAL_ASSERT(tmp_register.isValid());
+    popRegister();
+
+    // check of error
+    if (didError())
+    {
+        return;
+    }
+
+    const yalvm_bytecode_t condition_code = yalvm_bytecode_pack_dst_value(YALVM_BYTECODE_JUMP_FALSE,
+                                                                          tmp_register.registerIdx(),
+                                                                          1);
+    const size_t jump_on_false_inst_loc = _buffer.append(condition_code);
+    YAL_ASSERT(jump_on_false_inst_loc <  std::numeric_limits<yal_i32>::max());
+
+
+    // generate loop code
+    registerScope(node.code()->symbolTable());
+    node.code()->accept(*this);
+    unregisterScope(node.code()->symbolTable());
+
+    // check of error
+    if (didError())
+    {
+        return;
+    }
+
+    // jump back to condition
+    size_t buffer_size = _buffer.size();
+    YAL_ASSERT(buffer_size <  std::numeric_limits<yal_i32>::max());
+    yal_i32 current_offset = static_cast<yal_i32>(buffer_size);
+    yal_i32 diff = static_cast<yal_i32>(jump_to_condition) - (current_offset + 1);
+    if (diff <= std::numeric_limits<yal_i16>::min())
+    {
+        _formater.format("While loop jump instruction exceeds maximum jump offset\n");
+        logError(node);
+        return;
+    }
+
+    const yalvm_bytecode_t jump_code = yalvm_bytecode_pack_value_signed(YALVM_BYTECODE_JUMP,
+                                                                             diff);
+     buffer_size = _buffer.append(jump_code);
+
+    // update on false jump
+    YAL_ASSERT(buffer_size <  std::numeric_limits<yal_i32>::max());
+    current_offset = static_cast<yal_i32>(buffer_size);
+    diff = current_offset - static_cast<yal_i32>(jump_on_false_inst_loc);
+    if (diff >= std::numeric_limits<yal_i16>::max())
+    {
+        _formater.format("Condition jump instruction exceeds maximum jump offset\n");
+        logError(node);
+        return;
+    }
+    _buffer.replace(jump_on_false_inst_loc, yalvm_bytecode_pack_dst_value_signed(YALVM_BYTECODE_JUMP_FALSE,
+                                                                                 tmp_register.registerIdx(),
+                                                                                 diff));
+
+
+    return;
 }
 
 }

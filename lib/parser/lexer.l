@@ -62,6 +62,8 @@ not {return TK_NOT;}
 
 return {return TK_RETURN;}
 
+while {return TK_WHILE;}
+
 int32 {return TK_TYPE_INT32;}
 
 uint32 {return TK_TYPE_UINT32;}

@@ -52,6 +52,7 @@ extern void yyerror(YYLTYPE* location,
 #include <yal/ast/conditionnode.h>
 #include <yal/ast/returnnode.h>
 #include <yal/ast/printnode.h>
+#include <yal/ast/whileloopnode.h>
 
 }
 
@@ -80,6 +81,7 @@ extern void yyerror(YYLTYPE* location,
     class yal::ArgumentDeclsNode* nodeDeclArgs;
     class yal::PrintArgsNode* nodePrintArgs;
     class yal::FunctionCallArgsNode* nodeFunCallArgs;
+    class yal::WhileLoopNode* nodeWhileLoop;
 }
 
 // define the token association with the union member
@@ -108,13 +110,13 @@ extern void yyerror(YYLTYPE* location,
 %token TK_TYPE_F32 "type decimal 32bit"
 %token TK_TYPE_F64 "type decimal 64bit"
 
-
 %token TK_IF "if"
 %token TK_ELIF "elif"
 %token TK_ELSE "else"
 %token TK_END "end"
 %token END TK_NL "new line"
 %token TK_PRINT "print"
+%token TK_WHILE "while"
 
 // operatores
 %token TK_OP_ASSIGN "="
@@ -174,6 +176,7 @@ extern void yyerror(YYLTYPE* location,
 %type <builtinType> builtin_type func_return
 %type <nodeDeclArg> decl_arg
 %type <nodeDeclArgs> decl_args
+%type <nodeWhileLoop> while_statement
 %%
 
 program: program func_decl TK_NL  {state->program.push_back(static_cast<yal::AstBaseNode*>(yal::BisonYyltypeToLocation(yylloc),$2));}
@@ -202,6 +205,7 @@ statement: var_decl { $$ = $1;}
 | print_statement { $$ = static_cast<yal::StatementNode*>($1);}
 | expression { $$ = static_cast<yal::StatementNode*>($1);}
 | if_statement { $$ = static_cast<yal::StatementNode*>($1);}
+| while_statement{ $$ = static_cast<yal::StatementNode*>($1); }
 | TK_RETURN expression {$$ = new yal::ReturnNode(yal::BisonYyltypeToLocation(yylloc), $2);}
 | TK_RETURN {$$ = new yal::ReturnNode(yal::BisonYyltypeToLocation(yylloc), nullptr);}
 ;
@@ -219,6 +223,9 @@ if_statement_next: TK_ELIF '(' expression ')' TK_NL code_body if_statement_next 
     | TK_ELSE TK_NL code_body TK_END {$$ = new ConditionNode(yal::BisonYyltypeToLocation(yylloc), nullptr, $3, nullptr);}
     | TK_END {$$ = nullptr;}
     ;
+
+while_statement: TK_WHILE '(' expression ')' TK_NL code_body TK_END { $$ = new yal::WhileLoopNode(yal::BisonYyltypeToLocation(yylloc), $3, $6);}
+;
 
 expression: '(' expression ')' {$$ = new yal::SingleOperatorNode(yal::BisonYyltypeToLocation(yylloc), kSingleOperatorTypeBlock, $2);}
     | TK_OP_MINUS expression %prec TK_PREC_NEG {$$ = new yal::SingleOperatorNode(yal::BisonYyltypeToLocation(yylloc), kSingleOperatorTypeNeg, $2);}

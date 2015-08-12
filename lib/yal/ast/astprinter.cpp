@@ -14,7 +14,7 @@
 #include "yal/ast/returnnode.h"
 #include "yal/parser/parser_state.h"
 #include "yal/ast/printnode.h"
-
+#include "yal/ast/whileloopnode.h"
 #include <cstdlib>
 
 namespace yal
@@ -175,7 +175,7 @@ AstPrinter::visit(DualOperatorNode& node)
 {
     printIdent();
     _formater.format("%s> %s \n", node.nodeTypeStr(),
-                    DualOperatorTypeToStr(node.dualOperatorType()));
+                     DualOperatorTypeToStr(node.dualOperatorType()));
     _formater.write(_sink);
     _ident += kNumIdent;
     printIdent();
@@ -200,7 +200,7 @@ AstPrinter::visit(SingleOperatorNode& node)
 {
     printIdent();
     _formater.format("%s> %s \n", node.nodeTypeStr(),
-                    SingleOperatorTypeToStr(node.singleOperatorType()));
+                     SingleOperatorTypeToStr(node.singleOperatorType()));
     _formater.write(_sink);
     _ident += kNumIdent;
     node.expression()->accept(*this);
@@ -355,10 +355,29 @@ AstPrinter::visit(PrintArgsNode& node)
     _ident -= kNumIdent;
 }
 
+void
+AstPrinter::visit(WhileLoopNode& node)
+{
+    printIdent();
+    _formater.format("%s>\n", node.nodeTypeStr());
+    _formater.write(_sink);
+    _ident += kNumIdent;
+    printIdent();
+    _formater.format("Condition>\n");
+    _formater.write(_sink);
+    _ident += kNumIdent;
+     node.condition()->accept(*this);
+
+     printIdent();
+    _formater.format("Code>\n");
+    _formater.write(_sink);
+    _ident += kNumIdent;
+
+    node.code()->accept(*this);
 
 
-
-
-
+    _ident -= kNumIdent;
+    _ident -= kNumIdent;
+}
 
 }
