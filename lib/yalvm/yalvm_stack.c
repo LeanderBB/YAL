@@ -87,7 +87,7 @@ yalvm_stack_frame_end(yalvm_stack_t* stack,
     --prev_frame_record;
 
     /* first frame, empty stack afterwards */
-    if ((void*)prev_frame_record < stack->stack_start)
+    if ((void*)prev_frame_record <= stack->stack_start)
     {
         stack->stack_frame_base = NULL;
         stack->stack_frame_top = NULL;

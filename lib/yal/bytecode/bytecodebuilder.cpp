@@ -102,7 +102,7 @@ ByteCodeBuilder::writeModuleInfo(ParserState& state)
     header.n_constants64 = constants64_vec.size();
     header.n_globals32 = globals32_vec.size();
     header.n_globals64 = globals64_vec.size();
-    header.n_functions = function_vec.size();
+    header.n_functions = function_vec.size() + 1; // +1 for global code
     header.n_strings = strings_vec.size();
     header.strings_size = module.totalStringSizeBytes();
 

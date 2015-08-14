@@ -1,0 +1,24 @@
+func cmp_eq(int32 a, int32 b) : bool
+    return a == b
+end
+
+
+func cmp_ne(int32 a, int32 b) : bool
+    return a != b
+end
+
+func cmp_lt(int32 a, int32 b) : bool
+    return a < b
+end
+
+func cmp_le(int32 a, int32 b) : bool
+    return a <= b
+end
+
+func cmp_gt(int32 a, int32 b) : bool
+    return a > b
+end
+
+func cmp_ge(int32 a, int32 b) : bool
+    return a >= b
+end

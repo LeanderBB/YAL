@@ -7,16 +7,16 @@
 namespace yal
 {
 
-class MemoryOuputSink : public OutputSink
+class MemoryOutputSink : public OutputSink
 {
 public:
-    MemoryOuputSink(const size_t bufferSize);
+    MemoryOutputSink(const size_t bufferSize);
 
-    MemoryOuputSink(const MemoryOuputSink&) = delete;
+    MemoryOutputSink(const MemoryOutputSink&) = delete;
 
-    MemoryOuputSink& operator=(const MemoryOuputSink&) = delete;
+    MemoryOutputSink& operator=(const MemoryOutputSink&) = delete;
 
-    virtual ~MemoryOuputSink();
+    virtual ~MemoryOutputSink();
 
     virtual size_t write(const void* data,
                          const size_t data_size) override;
@@ -24,6 +24,11 @@ public:
     virtual void close() override;
 
     const void* buffer() const
+    {
+        return _buffer;
+    }
+
+    void* buffer()
     {
         return _buffer;
     }

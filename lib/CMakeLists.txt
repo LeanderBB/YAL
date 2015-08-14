@@ -9,8 +9,9 @@ set(YAL_LIB_VM yalvm)
 
 #FIXME: Move this into yal subdir at some point
 set(YAL_VERSION_MAJOR 0)
-set(YAL_VERSION_MINOR 1)
+set(YAL_VERSION_MINOR 3)
 set(YAL_VERSION_PATCH 0)
+set(YAL_VERSION_STR "\"${YAL_VERSION_MAJOR}.${YAL_VERSION_MINOR}.${YAL_VERSION_PATCH}\"")
 set(YAL_CONFIG_INCLUDE_DIR ${CMAKE_CURRENT_BINARY_DIR}/generated/)
 set(YAL_CONFIG_FILE ${YAL_CONFIG_INCLUDE_DIR}/yal/config.h)
 configure_file(yal/config.h.cmake ${YAL_CONFIG_FILE})

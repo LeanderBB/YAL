@@ -17,6 +17,7 @@ set(YAL_HDR
     util/errorhandler.h
     util/constantvalue.h
     util/memorysink.h
+    util/argparser.h
     ast/astbasenode.h
     ast/astnodevisitor.h
     ast/variabledeclnode.h
@@ -68,6 +69,7 @@ set(YAL_SRC
     util/stringinputsink.cpp
     util/constantvalue.cpp
     util/memorysink.cpp
+    util/argparser.cpp
     ast/astbasenode.cpp
     ast/variabledeclnode.cpp
     ast/constantnode.cpp

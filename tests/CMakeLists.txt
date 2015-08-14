@@ -36,3 +36,4 @@ endmacro()
 
 
 add_subdirectory(compile_tests)
+add_subdirectory(execution_tests)

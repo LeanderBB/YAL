@@ -38,7 +38,7 @@ CompileCode(const char* code_file,
 
 TEST(CompileCode, GlobalVariableAccesss) {
 
-    yal::MemoryOuputSink mem_sink(1024*1024*10);
+    yal::MemoryOutputSink mem_sink(1024*1024*10);
 
     const std::string path(s_test_path + "/global_var_access.yal");
     const bool compile_result = CompileCode(path.c_str(), mem_sink);
@@ -48,7 +48,7 @@ TEST(CompileCode, GlobalVariableAccesss) {
 
 TEST(CompileCode, IfElifElseExpression)
 {
-    yal::MemoryOuputSink mem_sink(1024*1024*10);
+    yal::MemoryOutputSink mem_sink(1024*1024*10);
     const std::string path(s_test_path + "/if_elif_else_expression.yal");
     const bool compile_result = CompileCode(path.c_str(), mem_sink);
     EXPECT_EQ(true, compile_result);
@@ -57,7 +57,7 @@ TEST(CompileCode, IfElifElseExpression)
 
 TEST(CompileCode, GlobalVariableExpression)
 {
-    yal::MemoryOuputSink mem_sink(1024*1024*10);
+    yal::MemoryOutputSink mem_sink(1024*1024*10);
     const std::string path(s_test_path + "/global_var_expression.yal");
     const bool compile_result = CompileCode(path.c_str(), mem_sink);
     EXPECT_EQ(true, compile_result);
@@ -65,7 +65,7 @@ TEST(CompileCode, GlobalVariableExpression)
 
 TEST(CompileCode, VariableAccessTypeAssertion)
 {
-    yal::MemoryOuputSink mem_sink(1024*1024*10);
+    yal::MemoryOutputSink mem_sink(1024*1024*10);
     const std::string path(s_test_path + "/variable_access_type_assertion.yal");
     const bool compile_result = CompileCode(path.c_str(), mem_sink);
     EXPECT_EQ(true, compile_result);
@@ -73,7 +73,7 @@ TEST(CompileCode, VariableAccessTypeAssertion)
 
 TEST(CompileCode, RecursiveFunctionReturnType)
 {
-    yal::MemoryOuputSink mem_sink(1024*1024*10);
+    yal::MemoryOutputSink mem_sink(1024*1024*10);
     const std::string path(s_test_path + "/recursive_function_return_type.yal");
     const bool compile_result = CompileCode(path.c_str(), mem_sink);
     EXPECT_EQ(true, compile_result);
@@ -81,7 +81,7 @@ TEST(CompileCode, RecursiveFunctionReturnType)
 
 TEST(CompileCode, VoidReturn)
 {
-    yal::MemoryOuputSink mem_sink(1024*1024*10);
+    yal::MemoryOutputSink mem_sink(1024*1024*10);
     const std::string path(s_test_path + "/void_return.yal");
     const bool compile_result = CompileCode(path.c_str(), mem_sink);
     EXPECT_EQ(true, compile_result);
@@ -89,7 +89,7 @@ TEST(CompileCode, VoidReturn)
 
 TEST(CompileCode, Scoping)
 {
-    yal::MemoryOuputSink mem_sink(1024*1024*10);
+    yal::MemoryOutputSink mem_sink(1024*1024*10);
     const std::string path(s_test_path + "/scope_test.yal");
     const bool compile_result = CompileCode(path.c_str(), mem_sink);
     EXPECT_EQ(true, compile_result);
@@ -97,7 +97,7 @@ TEST(CompileCode, Scoping)
 
 TEST(CompileCode, StringConstantTest)
 {
-    yal::MemoryOuputSink mem_sink(1024*1024*10);
+    yal::MemoryOutputSink mem_sink(1024*1024*10);
     const std::string path(s_test_path + "/string_constant_test.yal");
     const bool compile_result = CompileCode(path.c_str(), mem_sink);
     EXPECT_EQ(true, compile_result);
@@ -105,7 +105,7 @@ TEST(CompileCode, StringConstantTest)
 
 TEST(CompileCode, HelloWorldTest)
 {
-    yal::MemoryOuputSink mem_sink(1024*1024*10);
+    yal::MemoryOutputSink mem_sink(1024*1024*10);
     const std::string path(s_test_path + "/helloworld.yal");
     const bool compile_result = CompileCode(path.c_str(), mem_sink);
     EXPECT_EQ(true, compile_result);
@@ -113,13 +113,11 @@ TEST(CompileCode, HelloWorldTest)
 
 TEST(CompileCode, WhileLoop)
 {
-    yal::MemoryOuputSink mem_sink(1024*1024*10);
+    yal::MemoryOutputSink mem_sink(1024*1024*10);
     const std::string path(s_test_path + "/while_loop.yal");
     const bool compile_result = CompileCode(path.c_str(), mem_sink);
     EXPECT_EQ(true, compile_result);
 }
-
-
 
 int
 main(int argc,

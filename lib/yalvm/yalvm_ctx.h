@@ -26,11 +26,20 @@ typedef struct yalvm_ctx
     char                        print_buffer[512];
 } yalvm_ctx_t;
 
+typedef struct
+{
+    const yalvm_func_header_t*  func_header;
+    yalvm_ctx_t*                ctx;
+    yalvm_u32                   pushed_arg_count;
+    yalvm_register_t            return_register;
+} yalvm_func_hdl_t;
+
+
 
 void
 yalvm_ctx_create(yalvm_ctx_t* ctx,
-               void* stack,
-               const yalvm_size stack_size);
+                 void* stack,
+                 const yalvm_size stack_size);
 
 void
 yalvm_ctx_destroy(yalvm_ctx_t* ctx);
@@ -39,9 +48,6 @@ yalvm_bool
 yalvm_ctx_set_binary(yalvm_ctx_t* ctx,
                      void* binary,
                      const yalvm_size binary_size);
-
-yalvm_u32
-yalvm_ctx_execute(yalvm_ctx_t* ctx);
 
 yalvm_u32
 yalvm_ctx_num_globals32(const yalvm_ctx_t* ctx);
@@ -58,7 +64,28 @@ yalvm_ctx_globals32(const yalvm_ctx_t* ctx);
 const yalvm_bin_global64_t*
 yalvm_ctx_globals64(const yalvm_ctx_t* ctx);
 
+const yalvm_bin_global32_t*
+yalvm_ctx_globals32_by_name(const yalvm_ctx_t* ctx,
+                            const char* name);
 
+const yalvm_bin_global64_t*
+yalvm_ctx_globals64_by_name(const yalvm_ctx_t* ctx,
+                            const char* name);
+
+yalvm_bool
+yalvm_ctx_acquire_function(yalvm_ctx_t* ctx,
+                           yalvm_func_hdl_t* func_hdl,
+                           const char* function_name);
+
+yalvm_bool
+yalvm_func_hdl_push_arg(yalvm_func_hdl_t* func_hdl,
+                        const yalvm_register_t* arg);
+
+yalvm_u32
+yalvm_func_hdl_execute(yalvm_func_hdl_t* func_hdl);
+
+yalvm_bool
+yalvm_ctx_release_function(yalvm_func_hdl_t* func_hdl);
 
 YALVM_MODULE_END
 
