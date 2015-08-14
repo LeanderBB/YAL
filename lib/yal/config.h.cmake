@@ -23,4 +23,7 @@
 #define YAL_VERSION_PATCH 0
 #endif
 
+
+#define YAL_VERSION_STR @YAL_VERSION_STR@
+
 #endif

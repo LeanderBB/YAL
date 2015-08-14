@@ -148,7 +148,7 @@ ByteCodeGenerator::setupFunction(const yal::FunctionDeclNode &node)
         const ArgumentDeclsNode* func_args = node.functionArguments();
         for (auto& arg : func_args->arguments())
         {
-            bool result = _regAllocator.allocate(arg->argumentName(), node.symbolTable()->level());
+            bool result = _regAllocator.allocate(arg->argumentName(), arg->symbolTable()->level());
             (void) result;
             YAL_ASSERT(result != RegisterAllocator::UnusedRegisterValue);
         }

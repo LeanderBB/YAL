@@ -1,6 +1,9 @@
 #include <yal/yal.h>
 #include <cstdio>
 #include <cstring>
+#include <yal/util/filesink.h>
+#include <yal/util/sinkerrorhandler.h>
+#include <yal/util/argparser.h>
 #include <yalvm/yalvm_ctx.h>
 #include <yalvm/yalvm_error.h>
 #include <stdarg.h>
@@ -109,30 +112,61 @@ printGlobals(const yalvm_ctx_t* ctx)
     }
 }
 
+static const char* sDescription =
+        "yale - Yet Anoter Language Executor (0.2.0, yalvm " YALVM_VERSION_STR")\n"
+        "usage: yale [options] <input file>\n";
+
+enum Option
+{
+    kOptionPrintGlobals = yal::KArgsOptionHelp + 1
+};
+
+
 int main(const int argc,
          const char** argv)
 {
 
-    FILE* input = nullptr;
-    if (argc >1)
+    // output sink
+    yal::FileOutputSink io_output(stdout);
+    // error sink
+    yal::FileOutputSink err_output(stderr);
+
+
+    // setup arg parser
+    yal::ArgParser arg_parser;
+    arg_parser.add(kOptionPrintGlobals, 'g', "print-globals",
+                   "Print global variables after execution", 0);
+
+    const int parse_result = arg_parser.parse(argc, argv, err_output);
+
+    if (parse_result < 0)
     {
-        input = fopen(argv[1],"r");
+        arg_parser.printHelp(io_output, sDescription);
+        return EXIT_FAILURE;
+    }
+
+    if (arg_parser.isSet(0))
+    {
+        arg_parser.printHelp(io_output, sDescription);
+        return EXIT_SUCCESS;
+    }
+
+
+    FILE* input = nullptr;
+    const int args_left = argc - parse_result;
+    if (args_left > 0)
+    {
+        input = fopen(argv[parse_result], "r");
         if (!input)
         {
-            fprintf(stderr, "Could not open '%s'\n", argv[1]);
+            fprintf(stderr, "Could not open '%s'\n", argv[parse_result]);
             return EXIT_FAILURE;
         }
     }
     else
     {
-        printf("yale - 0.2.0\n");
-        printf("yalvm %d.%d.%d\n\n",
-               YALVM_VERSION_MAJOR,
-               YALVM_VERSION_MINOR,
-               YALVM_VERSION_PATCH);
-        printf("yalvm binary executor\n\n");
-        printf("Usage: %s <binary file>\n\n", argv[0]);
-        return EXIT_SUCCESS;
+        arg_parser.printHelp(io_output, sDescription);
+        return EXIT_FAILURE;
     }
 
     fseek(input, 0, SEEK_END);
@@ -160,20 +194,35 @@ int main(const int argc,
     if (yalvm_ctx_set_binary(&vm, buffer, file_size) != yalvm_true)
     {
         fprintf(stderr, "Failed to load '%s' into context\n", argv[1]);
+        yalvm_ctx_destroy(&vm);
         return EXIT_FAILURE;
     }
 
-    yalvm_u32 exec_val = yalvm_ctx_execute(&vm);
+    yalvm_func_hdl_t func_hdl;
+
+    if (yalvm_ctx_acquire_function(&vm, &func_hdl, yalvm_func_global_name()) != yalvm_true)
+    {
+        fprintf(stderr, "Failed to load global function into context\n");
+        yalvm_ctx_destroy(&vm);
+        return EXIT_FAILURE;
+    }
+
+
+    yalvm_u32 exec_val = yalvm_func_hdl_execute(&func_hdl);
 
     if (exec_val == YALVM_ERROR_NONE)
     {
-        printGlobals(&vm);
+        if (arg_parser.isSet(kOptionPrintGlobals))
+        {
+            printGlobals(&vm);
+        }
     }
     else
     {
         fprintf(stderr, "Execution error: %s\n", yalvm_error_str(exec_val));
     }
 
+    yalvm_ctx_release_function(&func_hdl);
     yalvm_ctx_destroy(&vm);
 
     return (exec_val == YALVM_ERROR_NONE) ? EXIT_SUCCESS : EXIT_FAILURE;

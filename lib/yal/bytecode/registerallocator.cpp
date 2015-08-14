@@ -120,6 +120,7 @@ RegisterAllocator::reset()
     _registerPool[i] = UnusedRegisterValue;
     _maxRegisterCount = 0;
     _nextFreeRegister = 0;
+    _registerMap.clear();
 }
 
 yal_i32

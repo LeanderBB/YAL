@@ -1,5 +1,6 @@
 #include "yalvm/yalvm_ctx.h"
 #include "yalvm/yalvm_error.h"
+#include "yalvm/yalvm_hashing.h"
 
 void
 yalvm_ctx_create(yalvm_ctx_t* ctx,
@@ -108,33 +109,6 @@ yalvm_ctx_set_binary(yalvm_ctx_t* ctx,
                 + (sizeof(yalvm_bytecode_t) * function_header->code_size);
     }
 
-    /* set pc to global function if there is one */
-    if (input < input_end)
-    {
-        yalvm_func_header_t* global_func_header = (yalvm_func_header_t*)input;
-
-        if (input >= input_end
-                || !yalvm_func_header_valid_magic(global_func_header)
-                || yalvm_func_global_hash() != global_func_header->hash)
-        {
-            yalvm_ctx_destroy(ctx);
-            return yalvm_false;
-        }
-
-        ctx->pc = (yalvm_bytecode_t*) (global_func_header + 1);
-        if (!yalvm_stack_frame_begin(&ctx->stack,
-                                     global_func_header->n_registers)
-                || !yalvm_stack_function_begin(&ctx->stack,
-                                               NULL,
-                                               NULL,
-                                               global_func_header->n_registers))
-        {
-            yalvm_ctx_destroy(ctx);
-            return yalvm_false;
-        }
-        ctx->registers = yalvm_stack_local_registers(&ctx->stack);
-    }
-
     return yalvm_true;
 }
 
@@ -166,7 +140,7 @@ yalvm_ctx_execute(yalvm_ctx_t* ctx)
         return YALVM_ERROR_INVALID_CTX;
     }
 
-    while((yalvm_u8*)ctx->pc < ctx->binary_end)
+    while(ctx->pc && (yalvm_u8*)ctx->pc < ctx->binary_end)
     {
         const yalvm_bytecode_t code = *(ctx->pc++);
         const yalvm_bytecode_inst_t inst = yalvm_bytecode_unpack_instruction(code);
@@ -986,4 +960,126 @@ const yalvm_bin_global64_t*
 yalvm_ctx_globals64(const yalvm_ctx_t* ctx)
 {
     return (ctx->header) ? ctx->globals64 : NULL;
+}
+
+const yalvm_bin_global32_t*
+yalvm_ctx_globals32_by_name(const yalvm_ctx_t* ctx,
+                            const char* name)
+{
+    const yalvm_u32 hash = yalvm_one_at_a_time_hash(name);
+    for(yalvm_u32 i = 0; i < ctx->header->n_globals32; ++i)
+    {
+        if (ctx->globals32[i].hash == hash)
+        {
+            return &ctx->globals32[i];
+        }
+    }
+    return NULL;
+}
+
+const yalvm_bin_global64_t*
+yalvm_ctx_globals64_by_name(const yalvm_ctx_t* ctx,
+                            const char* name)
+{
+    const yalvm_u32 hash = yalvm_one_at_a_time_hash(name);
+    for(yalvm_u32 i = 0; i < ctx->header->n_globals64; ++i)
+    {
+        if (ctx->globals64[i].hash == hash)
+        {
+            return &ctx->globals64[i];
+        }
+    }
+    return NULL;
+}
+
+yalvm_bool
+yalvm_ctx_acquire_function(yalvm_ctx_t* ctx,
+                           yalvm_func_hdl_t* func_hdl,
+                           const char* function_name)
+{
+    yalvm_memset(func_hdl, 0, sizeof(func_hdl));
+
+    if (!ctx)
+    {
+        return yalvm_false;
+    }
+
+    const yalvm_u32 func_hash = yalvm_one_at_a_time_hash(function_name);
+
+
+    const yalvm_func_header_t* function_header = NULL;
+    for(yalvm_i32 i = (yalvm_i32)ctx->header->n_functions - 1;
+        i >= 0 && !function_header; --i)
+    {
+        if (ctx->functions[i]->hash == func_hash)
+        {
+            function_header = ctx->functions[i];
+        }
+    }
+
+    if (!function_header )
+    {
+        return yalvm_false;
+    }
+
+
+    if (function_header->code_size == 0)
+    {
+        return yalvm_false;
+    }
+
+    if (yalvm_stack_frame_begin(&ctx->stack, function_header->n_registers) == yalvm_false)
+    {
+        return yalvm_false;
+    }
+
+    ctx->registers = yalvm_stack_local_registers(&ctx->stack);
+
+    func_hdl->ctx = ctx;
+    func_hdl->func_header = function_header;
+    func_hdl->pushed_arg_count = 0;
+    func_hdl->return_register.ptr.value = 0;
+
+    return yalvm_true;
+}
+
+yalvm_bool
+yalvm_func_hdl_push_arg(yalvm_func_hdl_t* func_hdl,
+                        const yalvm_register_t* arg)
+{
+    if (func_hdl->pushed_arg_count + 1 < func_hdl->func_header->n_arguments)
+    {
+        return yalvm_stack_push(&func_hdl->ctx->stack, arg);
+    }
+    return yalvm_false;
+}
+
+yalvm_u32
+yalvm_func_hdl_execute(yalvm_func_hdl_t* func_hdl)
+{
+    if (yalvm_false == yalvm_stack_function_begin(&func_hdl->ctx->stack,
+                                                  NULL,
+                                                  &func_hdl->return_register,
+                                                  func_hdl->func_header->n_registers))
+    {
+        return YALVM_ERROR_INVALID_CTX;
+    }
+
+    func_hdl->ctx->pc = (yalvm_bytecode_t*) (func_hdl->func_header + 1);
+
+    return yalvm_ctx_execute(func_hdl->ctx);
+}
+
+yalvm_bool
+yalvm_ctx_release_function(yalvm_func_hdl_t* func_hdl)
+{
+    yalvm_bool result = yalvm_false;
+    if (func_hdl->func_header)
+    {
+        result = yalvm_stack_frame_end(&func_hdl->ctx->stack,
+                                       (const void**)&func_hdl->ctx->pc);
+        func_hdl->ctx = NULL;
+        func_hdl->func_header = NULL;
+    }
+    return result;
 }

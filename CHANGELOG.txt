@@ -1,7 +1,13 @@
 yyyy/mm/dd - 0.3.0
 ------------------
 
-New: Support for while loops
+New: Support for while loops.
+
+New: VM function calling interface.
+
+New: Command line options for yalc and yale.
+
+Fix: Incorrect register allocation.
 
 2015/08/11 - 0.2.0
 ------------------

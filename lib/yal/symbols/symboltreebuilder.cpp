@@ -29,7 +29,7 @@ SymbolTreeBuilder::SymbolTreeBuilder(ErrorHandler &errHandler):
     _curFunctionDecl(nullptr),
     _curFunctionCall(nullptr),
     _errHandler(errHandler),
-    _scopeCounter(1),
+    _scopeCounter(0),
     _error(false)
 {
 
@@ -61,7 +61,7 @@ SymbolTreeBuilder::beginScope()
 {
     _scopeStack.push(_curScope);
     SymbolTable* tmp = _curScope;
-    _curScope = new SymbolTable(tmp, _scopeCounter++);
+    _curScope = new SymbolTable(tmp, ++_scopeCounter);
     tmp->addChild(_curScope);
 }
 
@@ -70,6 +70,7 @@ SymbolTreeBuilder::endScope()
 {
     if (!_scopeStack.empty())
     {
+        --_scopeCounter;
         _curScope = _scopeStack.top();
         _scopeStack.pop();
     }

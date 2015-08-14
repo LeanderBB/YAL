@@ -3,7 +3,7 @@
 namespace yal
 {
 
-MemoryOuputSink::MemoryOuputSink(const size_t bufferSize):
+MemoryOutputSink::MemoryOutputSink(const size_t bufferSize):
     _buffer(new char[bufferSize]),
     _bufferSize(bufferSize),
     _offset(0)
@@ -11,14 +11,14 @@ MemoryOuputSink::MemoryOuputSink(const size_t bufferSize):
 
 }
 
-MemoryOuputSink::~MemoryOuputSink()
+MemoryOutputSink::~MemoryOutputSink()
 {
     delete[] _buffer;
 }
 
 
 size_t
-MemoryOuputSink::write(const void *data,
+MemoryOutputSink::write(const void *data,
                        const size_t data_size)
 {
     size_t new_offset = _offset + data_size;
@@ -34,7 +34,7 @@ MemoryOuputSink::write(const void *data,
 
 
 void
-MemoryOuputSink::close()
+MemoryOutputSink::close()
 {
     _offset = _bufferSize;
 }

@@ -25,7 +25,9 @@ ModuleFunction::functionName() const
 bool
 ModuleFunction::wasUsed() const
 {
-    return _symbol->readCount() > 0 || _symbol->callCount() > 0;
+    //TODO: Provide annotations to override behaviour
+    //return _symbol->readCount() > 0 || _symbol->callCount() > 0;
+    return true;
 }
 
 ConstantType

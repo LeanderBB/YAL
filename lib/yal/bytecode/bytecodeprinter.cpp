@@ -98,7 +98,7 @@ ByteCodePrinter::process()
     YAL_ASSERT(functions_offset == _input.tell());
 
     // process functions
-    for(yal_u32 i = 0; i <= bin_header.n_functions; ++i)
+    for(yal_u32 i = 0; i < bin_header.n_functions; ++i)
     {
         yalvm_func_header_t function_header;
         if (_input.read(&function_header, sizeof(function_header))
