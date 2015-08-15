@@ -72,11 +72,11 @@ typedef YALVector<yal::AstBaseNode*> AstBaseNodeVec_t;
 
 #define YAL_AST_NODE_ACCEPT_HDR(type) \
     static const yal::AstType NodeType;\
-    \
     inline virtual void accept(yal::AstNodeVisitor& visitor) override \
     { \
         visitor.visit(*this); \
     } \
+    \
     inline virtual yal::AstType nodeType() const override \
     { \
         return YAL_AST_NODE_TYPE(type); \
@@ -84,6 +84,13 @@ typedef YALVector<yal::AstBaseNode*> AstBaseNodeVec_t;
     inline virtual const char* nodeTypeStr() const override\
     {\
         return #type; \
+    }
+
+#define YAL_AST_NODE_ACCEPT_HDR_BASE(type, base) \
+    YAL_AST_NODE_ACCEPT_HDR(type) \
+    inline virtual void acceptBase(yal::AstNodeVisitor& visitor) \
+    { \
+        base::accept(visitor); \
     }
 
 #define YAL_AST_NODE_ACCEPT_IMP(type) \

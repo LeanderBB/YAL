@@ -557,6 +557,15 @@ SymbolTreeBuilder::visit(ReturnNode& node)
     const ConstantType func_return = _curFunctionDecl->returnType();
     // current return type
 
+    if (func_return != kConstantTypeNone && !node.expression())
+    {
+        _formater.format("Function '%s' has return value of %s, but we are not returning any\n",
+                         function_name, ConstantTypeToStr(_expResult));
+        logError(node);
+        return;
+    }
+
+
     if (node.expression())
     {
         if (func_return == kConstantTypeNone)

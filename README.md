@@ -117,10 +117,13 @@ Future versions of the project aim to support the following:
 
 * [x] ~~Comment support~~
 * [ ] Compiler Optimisations
+  * [x] ~~ Global Variables ~~
+  * [ ] Dead Code removal
+  * [ ] Register copy reduction
 * [ ] Language Documentation
 * [ ] Remove dependency on Flex/Bison
 * [ ] Better error messages in the compiler.
-* [ ] Loops
+* [X] Loops
 * [X] ~~Printing  support~~
 * [ ] Memory management
   * Automatic Reference Counting (ARC) a la Objective-C
@@ -129,8 +132,8 @@ Future versions of the project aim to support the following:
   * Inspired by Google GO
 * [ ] Native Code Interface
   * Compiler support to generate all the boilerplate code or utility functions
-* [ ] VM Function Handler
-  * [ ] Builtin objects
+* [X] ~~ VM Function Handler~~
+* [ ] Builtin objects
   * [ ] Strings
   * [ ] Arrays 
   * [ ] HashMaps

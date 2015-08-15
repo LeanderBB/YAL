@@ -1,4 +1,16 @@
-yyyy/mm/dd - 0.3.0
+yyyy/mm/dd - 0.4.0
+------------------
+
+Fix: Register allocation bugs.
+
+New: Global variable read/write optimizations.
+
+Fix: Empty returns on functions with return value not being
+reported as errors.
+
+Fix: Missing static initializers
+
+2015/08/13 - 0.3.0
 ------------------
 
 New: Support for while loops.

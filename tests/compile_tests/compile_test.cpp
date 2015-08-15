@@ -119,6 +119,15 @@ TEST(CompileCode, WhileLoop)
     EXPECT_EQ(true, compile_result);
 }
 
+TEST(CompileCode, FailEmptyReturn)
+{
+    yal::MemoryOutputSink mem_sink(1024*1024*10);
+    const std::string path(s_test_path + "/fail_empty_return.yal");
+    const bool compile_result = CompileCode(path.c_str(), mem_sink);
+    EXPECT_EQ(compile_result, false);
+}
+
+
 int
 main(int argc,
      char **argv)
