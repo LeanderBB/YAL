@@ -3,6 +3,8 @@
 namespace yal
 {
 
+YAL_AST_NODE_ACCEPT_IMP(FunctionCallArgsNode)
+
 YAL_AST_NODE_ACCEPT_IMP(FunctionCallNode)
 
 FunctionCallNode::FunctionCallNode(const SourceLocationInfo &loc,

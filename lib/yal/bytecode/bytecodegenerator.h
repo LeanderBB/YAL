@@ -8,6 +8,7 @@
 #include "yal/util/errorhandler.h"
 #include "yal/util/outputformater.h"
 #include "yal/module/module.h"
+#include "yal/util/str_utils.h"
 #include <stack>
 
 namespace yal
@@ -37,10 +38,18 @@ private:
         {
             return _registerIdx;
         }
+
+        void disablePopRelease();
+
+        bool popRelease() const
+        {
+            return _popRelease;
+        }
     private:
         yal_i32 _registerIdx;
         yal_u32 _scopeLevel;
         bool _isTemporary;
+        bool _popRelease;
     };
 
 public:
@@ -64,7 +73,14 @@ public:
 
     yal_u8 maxRegisterCount() const;
 
+    bool onScopeBeginGlobal();
+
+    bool onScopeEndGlobal();
+
 protected:
+
+    class IScopeAction;
+    class GlobalScopeAction;
 
 #define YAL_NODE_LIST_FUNC(CLASS) virtual void visit(CLASS& node) override;
 #include "yal/ast/astnodelist.h"
@@ -89,9 +105,11 @@ protected:
 
     void unregisterScope(const SymbolTable* table);
 
-    void pushAndSetRegister(const Register reg);
+    void pushRegister(const Register reg);
 
-    void popRegister();
+    const Register& topRegister() const;
+
+    Register popRegister();
 
     void allocateRegister(const char* variable);
 
@@ -108,15 +126,29 @@ protected:
     bool getConstantIdx(yal_u32& idx,
                         const ConstantValue& val);
 
+    bool onScopeBegin(const AstBaseNode& node);
+
+    bool onScopeEnd(const AstBaseNode& node);
+
+    bool addScopeAction(IScopeAction* action);
+
+    bool runScopeEndActions(const bool exitCauseByReturn = false);
 
 protected:
+
+    typedef std::unique_ptr<IScopeAction> ScopeActionPtr_t;
+    typedef std::vector<ScopeActionPtr_t> ScopeActionVec_t;
+    typedef std::unique_ptr<ScopeActionVec_t> ScopeActionVecPtr_t;
+    typedef std::stack<ScopeActionVecPtr_t> ScopeActionStack_t;
+
     Module& _moduleInfo;
     ErrorHandler& _errorHandler;
     std::stack<Register> _registerStack;
     ByteCodeBuffer _buffer;
     RegisterAllocator _regAllocator;
-    Register _currentRegister;
     OutputFormater _formater;
+    StrHashMap<Register> _globalToLocalMap;
+    ScopeActionStack_t _scopeActions;
     bool _didError;
 };
 

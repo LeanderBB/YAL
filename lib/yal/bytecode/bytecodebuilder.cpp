@@ -237,6 +237,10 @@ ByteCodeBuilder::writeModuleInfo(ParserState& state)
 
     yalvm_func_header_t global_header;
     yalvm_func_header_init(&global_header, yalvm_func_global_name());
+    if (!function_code.onScopeBeginGlobal())
+    {
+        return false;
+    }
 
     for (auto& v : state.program)
     {
@@ -251,6 +255,12 @@ ByteCodeBuilder::writeModuleInfo(ParserState& state)
         }
         // otherwise generate the bytecode for the function
     }
+
+    if (!function_code.onScopeEndGlobal())
+    {
+        return false;
+    }
+
     if (function_code.buffer().size())
     {
         function_code.addHaltInst();

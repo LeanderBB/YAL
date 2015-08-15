@@ -3,6 +3,8 @@
 namespace yal
 {
 
+YAL_AST_NODE_ACCEPT_IMP(WhileLoopNode)
+
 WhileLoopNode::WhileLoopNode(const SourceLocationInfo& loc,
                              ExpressionNode* condition,
                              CodeBodyNode* code):

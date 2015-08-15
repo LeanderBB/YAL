@@ -178,7 +178,7 @@ TEST(ExecutionTest, WhileLoop)
 
         if (global)
         {
-            EXPECT_EQ(global->val, 10);
+            EXPECT_EQ(global->val, 10u);
         }
     }
 }
@@ -215,7 +215,7 @@ TEST(ExecutionTest, CompareOperators)
         const yalvm_u32 exec_val = yalvm_func_hdl_execute(func_hdl);
         EXPECT_EQ(exec_val, YALVM_ERROR_NONE);
 
-        EXPECT_EQ(func_hdl->return_register.reg32.value, 1);
+        EXPECT_EQ(func_hdl->return_register.reg32.value, 1u);
 
     }
 
@@ -238,7 +238,7 @@ TEST(ExecutionTest, CompareOperators)
         const yalvm_u32 exec_val = yalvm_func_hdl_execute(func_hdl);
         EXPECT_EQ(exec_val, YALVM_ERROR_NONE);
 
-        EXPECT_EQ(func_hdl->return_register.reg32.value, 0);
+        EXPECT_EQ(func_hdl->return_register.reg32.value, 0u);
 
     }
 
@@ -262,7 +262,7 @@ TEST(ExecutionTest, CompareOperators)
         const yalvm_u32 exec_val = yalvm_func_hdl_execute(func_hdl);
         EXPECT_EQ(exec_val, YALVM_ERROR_NONE);
 
-        EXPECT_EQ(func_hdl->return_register.reg32.value, 0);
+        EXPECT_EQ(func_hdl->return_register.reg32.value, 0u);
 
     }
 
@@ -285,7 +285,7 @@ TEST(ExecutionTest, CompareOperators)
         const yalvm_u32 exec_val = yalvm_func_hdl_execute(func_hdl);
         EXPECT_EQ(exec_val, YALVM_ERROR_NONE);
 
-        EXPECT_EQ(func_hdl->return_register.reg32.value, 1);
+        EXPECT_EQ(func_hdl->return_register.reg32.value, 1u);
 
     }
 
@@ -308,7 +308,7 @@ TEST(ExecutionTest, CompareOperators)
         const yalvm_u32 exec_val = yalvm_func_hdl_execute(func_hdl);
         EXPECT_EQ(exec_val, YALVM_ERROR_NONE);
 
-        EXPECT_EQ(func_hdl->return_register.reg32.value, 1);
+        EXPECT_EQ(func_hdl->return_register.reg32.value, 1u);
 
     }
 
@@ -331,7 +331,7 @@ TEST(ExecutionTest, CompareOperators)
         const yalvm_u32 exec_val = yalvm_func_hdl_execute(func_hdl);
         EXPECT_EQ(exec_val, YALVM_ERROR_NONE);
 
-        EXPECT_EQ(func_hdl->return_register.reg32.value, 0);
+        EXPECT_EQ(func_hdl->return_register.reg32.value, 0u);
 
     }
 
@@ -354,7 +354,7 @@ TEST(ExecutionTest, CompareOperators)
         const yalvm_u32 exec_val = yalvm_func_hdl_execute(func_hdl);
         EXPECT_EQ(exec_val, YALVM_ERROR_NONE);
 
-        EXPECT_EQ(func_hdl->return_register.reg32.value, 0);
+        EXPECT_EQ(func_hdl->return_register.reg32.value, 0u);
 
     }
 
@@ -377,7 +377,7 @@ TEST(ExecutionTest, CompareOperators)
         const yalvm_u32 exec_val = yalvm_func_hdl_execute(func_hdl);
         EXPECT_EQ(exec_val, YALVM_ERROR_NONE);
 
-        EXPECT_EQ(func_hdl->return_register.reg32.value, 1);
+        EXPECT_EQ(func_hdl->return_register.reg32.value, 1u);
 
     }
 
@@ -400,7 +400,7 @@ TEST(ExecutionTest, CompareOperators)
         const yalvm_u32 exec_val = yalvm_func_hdl_execute(func_hdl);
         EXPECT_EQ(exec_val, YALVM_ERROR_NONE);
 
-        EXPECT_EQ(func_hdl->return_register.reg32.value, 0);
+        EXPECT_EQ(func_hdl->return_register.reg32.value, 0u);
 
     }
 
@@ -423,7 +423,7 @@ TEST(ExecutionTest, CompareOperators)
         const yalvm_u32 exec_val = yalvm_func_hdl_execute(func_hdl);
         EXPECT_EQ(exec_val, YALVM_ERROR_NONE);
 
-        EXPECT_EQ(func_hdl->return_register.reg32.value, 1);
+        EXPECT_EQ(func_hdl->return_register.reg32.value, 1u);
 
     }
 
@@ -446,7 +446,7 @@ TEST(ExecutionTest, CompareOperators)
         const yalvm_u32 exec_val = yalvm_func_hdl_execute(func_hdl);
         EXPECT_EQ(exec_val, YALVM_ERROR_NONE);
 
-        EXPECT_EQ(func_hdl->return_register.reg32.value, 0);
+        EXPECT_EQ(func_hdl->return_register.reg32.value, 0u);
 
     }
 
@@ -469,7 +469,7 @@ TEST(ExecutionTest, CompareOperators)
         const yalvm_u32 exec_val = yalvm_func_hdl_execute(func_hdl);
         EXPECT_EQ(exec_val, YALVM_ERROR_NONE);
 
-        EXPECT_EQ(func_hdl->return_register.reg32.value, 0);
+        EXPECT_EQ(func_hdl->return_register.reg32.value, 0u);
 
     }
 
@@ -492,7 +492,7 @@ TEST(ExecutionTest, CompareOperators)
         const yalvm_u32 exec_val = yalvm_func_hdl_execute(func_hdl);
         EXPECT_EQ(exec_val, YALVM_ERROR_NONE);
 
-        EXPECT_EQ(func_hdl->return_register.reg32.value, 1);
+        EXPECT_EQ(func_hdl->return_register.reg32.value, 1u);
 
     }
 
@@ -515,12 +515,94 @@ TEST(ExecutionTest, CompareOperators)
         const yalvm_u32 exec_val = yalvm_func_hdl_execute(func_hdl);
         EXPECT_EQ(exec_val, YALVM_ERROR_NONE);
 
-        EXPECT_EQ(func_hdl->return_register.reg32.value, 0);
+        EXPECT_EQ(func_hdl->return_register.reg32.value, 0u);
 
     }
 }
 
+TEST(ExecutionTest, GlobalAccessOptimization1)
+{
+    TestVM tvm("global_access_optimization1.yal");
 
+    const bool compile_result = tvm.compile();
+
+    EXPECT_EQ(compile_result, true);
+    if (!compile_result)
+    {
+        return;
+    }
+
+    const bool setup_result = tvm.loadFunction(yalvm_func_global_name());
+    EXPECT_EQ(setup_result, true);
+
+    if (setup_result)
+    {
+        yalvm_func_hdl_t* func_hdl = tvm.hdl();
+
+        const yalvm_u32 exec_val = yalvm_func_hdl_execute(func_hdl);
+        EXPECT_EQ(exec_val, YALVM_ERROR_NONE);
+
+        const yalvm_bin_global32_t* global = yalvm_ctx_globals32_by_name(func_hdl->ctx,
+                                                                         "x");
+        EXPECT_NE(global, nullptr);
+
+        if (global)
+        {
+            EXPECT_EQ(global->val, 3u);
+        }
+    }
+}
+
+TEST(ExecutionTest, ArithemticTest1)
+{
+    TestVM tvm("arithemtic_test_1.yal");
+
+    const bool compile_result = tvm.compile();
+
+    EXPECT_EQ(compile_result, true);
+    if (!compile_result)
+    {
+        return;
+    }
+
+    bool setup_result = tvm.loadFunction("test");
+    EXPECT_EQ(setup_result, true);
+
+    if (setup_result)
+    {
+        yalvm_func_hdl_t* func_hdl = tvm.hdl();
+
+        yalvm_register_t reg1;
+        reg1.reg32.value = 0;
+
+        EXPECT_EQ(yalvm_func_hdl_push_arg(func_hdl, &reg1), yalvm_true);
+
+        const yalvm_u32 exec_val = yalvm_func_hdl_execute(func_hdl);
+        EXPECT_EQ(exec_val, YALVM_ERROR_NONE);
+
+        EXPECT_EQ(func_hdl->return_register.reg32.value, 1u);
+
+    }
+
+    setup_result = tvm.loadFunction("test");
+    EXPECT_EQ(setup_result, true);
+
+    if (setup_result)
+    {
+        yalvm_func_hdl_t* func_hdl = tvm.hdl();
+
+        yalvm_register_t reg1;
+        reg1.reg32.value = 4;
+
+        EXPECT_EQ(yalvm_func_hdl_push_arg(func_hdl, &reg1), yalvm_true);
+
+        const yalvm_u32 exec_val = yalvm_func_hdl_execute(func_hdl);
+        EXPECT_EQ(exec_val, YALVM_ERROR_NONE);
+
+        EXPECT_EQ(func_hdl->return_register.reg32.value, 10u);
+
+    }
+}
 
 int
 main(int argc,
