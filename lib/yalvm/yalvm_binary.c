@@ -24,7 +24,7 @@ yalvm_bin_header_offset_global32(const yalvm_bin_header_t* header,
 {
      yalvm_u32 offset = yalvm_bin_header_offset_constant64(header, header->n_constants64);
     return (index <= header->n_globals32)
-            ? offset + (YALVM_BIN_SIZEOF_GLOBAL_32 * index)
+            ? offset + (sizeof(yalvm_bin_global32_t) * index)
             : YAVLM_BIN_INDEX_INVALID;
 }
 
@@ -35,7 +35,7 @@ yalvm_bin_header_offset_global64(const yalvm_bin_header_t* header,
     yalvm_u32 offset = yalvm_bin_header_offset_global32(header, header->n_globals32);
     if (index <= header->n_globals64)
     {
-        return offset + YALVM_BIN_SIZEOF_GLOBAL_64 * index;
+        return offset + (sizeof(yalvm_bin_global64_t) * index);
     }
     else
     {
@@ -50,7 +50,7 @@ yalvm_bin_header_offset_constant32(const yalvm_bin_header_t* header,
     yalvm_u32 offset = sizeof(yalvm_bin_header_t);
     if (index <= header->n_constants32)
     {
-        return offset + YALVM_BIN_SIZEOF_CONSTANT_32 * index;
+        return offset + (sizeof(yalvm_u32) * index);
     }
     else
     {
@@ -65,7 +65,22 @@ yalvm_bin_header_offset_constant64(const yalvm_bin_header_t* header,
     yalvm_u32 offset = yalvm_bin_header_offset_constant32(header, header->n_constants32);
     if (index <= header->n_constants64)
     {
-        return offset + YALVM_BIN_SIZEOF_CONSTANT_64 * index;
+        return offset + (sizeof(yalvm_u64) * index);
+    }
+    else
+    {
+        return YAVLM_BIN_INDEX_INVALID;
+    }
+}
+
+yalvm_u32
+yalvm_bin_header_offset_objdescs(const yalvm_bin_header_t* header,
+                                 const yalvm_u16 index)
+{
+    yalvm_u32 offset = yalvm_bin_header_offset_global64(header, header->n_globals64);
+    if (index <= header->n_objdescs)
+    {
+        return offset + (sizeof(yalvm_obj_descriptor_t) * index);
     }
     else
     {
@@ -76,7 +91,7 @@ yalvm_bin_header_offset_constant64(const yalvm_bin_header_t* header,
 yalvm_u32
 yalvm_bin_header_offset_strings(const yalvm_bin_header_t* header)
 {
-    return yalvm_bin_header_offset_global64(header, header->n_globals64);
+    return yalvm_bin_header_offset_objdescs(header, header->n_objdescs);
 }
 
 
@@ -84,7 +99,7 @@ void
 yalvm_bin_header_init(yalvm_bin_header_t* header)
 {
     header->magic = yalvm_bin_header_magic;
-    header->flags = 0;
+    header->n_objdescs = 0;
     header->n_constants32 = 0;
     header->n_constants64 = 0;
     header->n_functions =0;

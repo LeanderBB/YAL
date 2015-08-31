@@ -216,6 +216,7 @@ ConstantTypeIs64Bits(const ConstantType type)
     case kConstantTypeFloat64:
     case kConstantTypeInt64:
     case kConstantTypeUInt64:
+    case kConstantTypeText:
         return true;
     default:
         return false;

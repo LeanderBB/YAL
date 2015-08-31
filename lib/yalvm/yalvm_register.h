@@ -7,15 +7,22 @@ YALVM_MODULE_BGN
 
 typedef union
 {
-    struct
+    union
     {
+        yalvm_bool b;
+        yalvm_f32 f;
+        yalvm_i32 i;
+        yalvm_u32 u;
         yalvm_u32 value;
     } reg32;
-    struct
+    union
     {
+        yalvm_f64 fl;
+        yalvm_i64 il;
+        yalvm_u64 ul;
         yalvm_u64 value;
     } reg64;
-    struct
+    union
     {
         void* value;
     } ptr;
@@ -24,61 +31,37 @@ typedef union
 YALVM_INLINE yalvm_i32*
 yalvm_register_to_i32(yalvm_register_t* reg)
 {
-    union
-    {
-        yalvm_u32* in;
-        yalvm_i32* out;
-    } u;
-    u.in = &reg->reg32.value;
-    return u.out;
+    return &reg->reg32.i;
 }
 
 YALVM_INLINE yalvm_u32*
 yalvm_register_to_u32(yalvm_register_t* reg)
 {
-    return &reg->reg32.value;
+    return &reg->reg32.u;
 }
 
 YALVM_INLINE yalvm_f32*
 yalvm_register_to_f32(yalvm_register_t* reg)
 {
-    union
-    {
-        yalvm_u32* in;
-        yalvm_f32* out;
-    } u;
-    u.in = &reg->reg32.value;
-    return u.out;
+    return &reg->reg32.f;
 }
 
 YALVM_INLINE yalvm_i64*
 yalvm_register_to_i64(yalvm_register_t* reg)
 {
-    union
-    {
-        yalvm_u64* in;
-        yalvm_i64* out;
-    } u;
-    u.in = &reg->reg64.value;
-    return u.out;
+    return &reg->reg64.il;
 }
 
 YALVM_INLINE yalvm_u64*
 yalvm_register_to_u64(yalvm_register_t* reg)
 {
-    return &reg->reg64.value;
+    return &reg->reg64.ul;
 }
 
 YALVM_INLINE yalvm_f64*
 yalvm_register_to_f64(yalvm_register_t* reg)
 {
-    union
-    {
-        yalvm_u64* in;
-        yalvm_f64* out;
-    } u;
-    u.in = &reg->reg64.value;
-    return u.out;
+    return &reg->reg64.fl;
 }
 
 YALVM_INLINE void

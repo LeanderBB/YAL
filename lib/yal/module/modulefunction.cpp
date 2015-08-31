@@ -30,7 +30,7 @@ ModuleFunction::wasUsed() const
     return true;
 }
 
-ConstantType
+DataType
 ModuleFunction::returnType() const
 {
     return _symbol->returnType();

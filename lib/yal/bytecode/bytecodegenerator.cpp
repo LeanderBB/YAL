@@ -42,7 +42,7 @@ class ByteCodeGenerator::GlobalScopeAction : public ByteCodeGenerator::IScopeAct
 public:
 
     GlobalScopeAction(const char* globalName,
-                      const ConstantType globalType,
+                      const DataType globalType,
                       const yal_u32 globalIdx,
                       Register reg):
         _global(globalName),
@@ -88,7 +88,7 @@ public:
 protected:
     const char* _global;
     Register _reg;
-    const ConstantType _globalType;
+    const DataType _globalType;
     const yal_u32 _globalIdx;
     bool _shouldRelease;
 };
@@ -523,25 +523,36 @@ ByteCodeGenerator::visit(AssignOperatorNode& node)
         return;
     }
 
-    yalvm_bytecode_inst_t inst =  AssignOperatorByteCodeInst(node.assignOperatorType(),
-                                                             node.typeInfo());
-
-
-    yalvm_bytecode_t code;
-
-    if (inst != YALVM_BYTECODE_COPY_REGISTER)
+    if (node.typeInfo().isBuiltinType())
     {
-        code = yalvm_bytecode_pack_three_registers(inst, var_register.registerIdx(),
-                                                   var_register.registerIdx(),
-                                                   tmp_register.registerIdx());
+
+        yalvm_bytecode_inst_t inst =  AssignOperatorByteCodeInst(node.assignOperatorType(),
+                                                                 node.typeInfo().data.builtin);
+
+
+        yalvm_bytecode_t code;
+
+        if (inst != YALVM_BYTECODE_COPY_REGISTER)
+        {
+            code = yalvm_bytecode_pack_three_registers(inst, var_register.registerIdx(),
+                                                       var_register.registerIdx(),
+                                                       tmp_register.registerIdx());
+        }
+        else
+        {
+            code = yalvm_bytecode_pack_two_registers(inst, var_register.registerIdx(),
+                                                     tmp_register.registerIdx());
+        }
+
+        _buffer.append(code);
+
     }
     else
     {
-        code = yalvm_bytecode_pack_two_registers(inst, var_register.registerIdx(),
-                                                 tmp_register.registerIdx());
+        _formater.format("Assignment of custom data types not yet implemented\n");
+        logError(node);
+        return;
     }
-
-    _buffer.append(code);
 
     if (tmp_register.popRelease())
     {
@@ -591,15 +602,25 @@ ByteCodeGenerator::visit(CompareOperatorNode& node)
     Register result_register(_regAllocator);
     pushRegister(result_register);
 
-    yalvm_bytecode_inst_t inst = CompareOperatorByteCodeInst(node.compareOperatorType(),
-                                                             node.typeInfo());
+    if (node.typeInfo().isBuiltinType())
+    {
+        yalvm_bytecode_inst_t inst = CompareOperatorByteCodeInst(node.compareOperatorType(),
+                                                                 node.typeInfo().data.builtin);
 
-    YAL_ASSERT(inst != YALVM_BYTECODE_TOTAL);
+        YAL_ASSERT(inst != YALVM_BYTECODE_TOTAL);
 
-    yalvm_bytecode_t code = yalvm_bytecode_pack_three_registers(inst, result_register.registerIdx(),
-                                                                left_register.registerIdx(),
-                                                                right_register.registerIdx());
-    _buffer.append(code);
+        yalvm_bytecode_t code = yalvm_bytecode_pack_three_registers(inst, result_register.registerIdx(),
+                                                                    left_register.registerIdx(),
+                                                                    right_register.registerIdx());
+        _buffer.append(code);
+
+    }
+    else
+    {
+        _formater.format("Compare of custom data types not yet implemented\n");
+        logError(node);
+        return;
+    }
 
     if (left_register.popRelease())
     {
@@ -619,7 +640,8 @@ ByteCodeGenerator::visit(ConstantNode& node)
 
     Register cur_register = Register(_regAllocator);
 
-    switch(node.constantType())
+    YAL_ASSERT(node.constantType().isBuiltinType());
+    switch(node.constantType().data.builtin)
     {
     case kConstantTypeId:
     {
@@ -671,7 +693,7 @@ ByteCodeGenerator::visit(ConstantNode& node)
         {
             cur_register.release(_regAllocator);
             cur_register = Register(_regAllocator, var_name,
-                                           var_symbol->scopeLevel());
+                                    var_symbol->scopeLevel());
             if (!cur_register.isValid())
             {
                 _formater.format("Variable '%s' has not been registered\n", var_name);
@@ -892,15 +914,26 @@ ByteCodeGenerator::visit(DualOperatorNode& node)
 
     pushRegister(cur_register);
 
-    yalvm_bytecode_inst_t inst = DualOperatorByteCodeInst(node.dualOperatorType(),
-                                                          node.typeInfo());
+    const DataType node_type = node.typeInfo();
 
-    YAL_ASSERT(inst != YALVM_BYTECODE_TOTAL);
+    if (node_type.isBuiltinType())
+    {
+        yalvm_bytecode_inst_t inst = DualOperatorByteCodeInst(node.dualOperatorType(),
+                                                              node_type.data.builtin);
 
-    yalvm_bytecode_t code = yalvm_bytecode_pack_three_registers(inst, cur_register.registerIdx(),
-                                                                left_register.registerIdx(),
-                                                                right_register.registerIdx());
-    _buffer.append(code);
+        YAL_ASSERT(inst != YALVM_BYTECODE_TOTAL);
+
+        yalvm_bytecode_t code = yalvm_bytecode_pack_three_registers(inst, cur_register.registerIdx(),
+                                                                    left_register.registerIdx(),
+                                                                    right_register.registerIdx());
+        _buffer.append(code);
+    }
+    else
+    {
+        _formater.format("Dual operators for custom data types not yet implemented\n");
+        logError(node);
+        return;
+    }
 
     if (left_register.popRelease())
     {
@@ -926,16 +959,26 @@ ByteCodeGenerator::visit(SingleOperatorNode& node)
 
         const Register& top = topRegister();
 
-        yalvm_bytecode_inst_t inst = SingeOperatorByteCodeInst(node.singleOperatorType(),
-                                                               node.typeInfo());
+        const DataType node_type = node.typeInfo();
 
-        YAL_ASSERT(inst != YALVM_BYTECODE_TOTAL);
+        if (node_type.isBuiltinType())
+        {
+            yalvm_bytecode_inst_t inst = SingeOperatorByteCodeInst(node.singleOperatorType(),
+                                                                   node_type.data.builtin);
 
-        yalvm_bytecode_t code = yalvm_bytecode_pack_one_register(inst,
-                                                                 top.registerIdx());
+            YAL_ASSERT(inst != YALVM_BYTECODE_TOTAL);
 
-        _buffer.append(code);
+            yalvm_bytecode_t code = yalvm_bytecode_pack_one_register(inst,
+                                                                     top.registerIdx());
 
+            _buffer.append(code);
+        }
+        else
+        {
+            _formater.format("Dual operators for custom data types not yet implemented\n");
+            logError(node);
+            return;
+        }
     }
 }
 

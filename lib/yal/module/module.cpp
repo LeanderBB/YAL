@@ -59,7 +59,7 @@ Module::addGlobal(const ModuleGlobal* global)
 ModuleConstant*
 Module::constant(const ConstantValue& value) const
 {
-    if (value.type() == kConstantTypeText)
+    if (value.type() == DataType(kConstantTypeText))
     {
         auto it = _strings.find(value.valueAsText());
         if (it != _strings.end())
@@ -83,7 +83,7 @@ Module::constant(const ConstantValue& value) const
 bool
 Module::addConstant(ModuleConstant* constant)
 {
-    if (constant->value().type() == kConstantTypeText)
+    if (constant->value().type() == DataType(kConstantTypeText))
     {
         auto it = _strings.find(constant->value().valueAsText());
         if (it != _strings.end())
@@ -142,13 +142,14 @@ Module::removeUnusedAndAssignIndices()
         const GlobalPtr_t& global = globals_it->second;
         //if (global->wasUsed())
         {
-            if (ConstantTypeIs32Bits(global->variableType()))
+            if (DataType::Is32Bits(global->variableType()))
             {
                 global->setModuleIndex(_globals32.size());
                 _globals32.push_back(global.get());
             }
             else
             {
+                YAL_ASSERT(DataType::Is64Bits(global->variableType()));
                 global->setModuleIndex(_globals64.size());
                 _globals64.push_back(global.get());
             }

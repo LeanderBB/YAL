@@ -3,6 +3,7 @@
 
 #include "yal/enums.h"
 #include "yal/module/moduleindexable.h"
+#include "yal/symbols/symbol.h"
 
 namespace yal
 {
@@ -21,7 +22,7 @@ public:
 
     bool wasUsed() const;
 
-    ConstantType returnType() const;
+    DataType returnType() const;
 
     FunctionDeclNode* functionNode() const;
 

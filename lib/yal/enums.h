@@ -65,6 +65,12 @@ enum SingleOperatorType
     kSingleOperatorTypeTil
 };
 
+enum SymbolDataOrigin
+{
+    kSymbolDataOriginBuiltin,
+    kSymbolDataOriginCustom
+};
+
 
 const char*
 AssignOperatorTypeToSt(const enum AssignOperatorType val);

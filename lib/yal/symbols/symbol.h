@@ -9,6 +9,52 @@ namespace yal
 
 typedef yal_u32 SymbolType_t;
 
+class Symbol;
+class DataType
+{
+public:
+
+    static const DataType VoidType;
+
+    static const char* ToStr(const DataType& type);
+
+    static bool IsInteger(const DataType& type);
+
+    static bool IsNumber(const DataType& type);
+
+    static bool IsSigned(const DataType& type);
+
+    static bool Is32Bits(const DataType& type);
+
+    static bool Is64Bits(const DataType& type);
+
+    static bool IsRefCounted(const DataType& type);
+
+    DataType();
+
+    explicit DataType(const ConstantType type);
+
+    explicit DataType(const Symbol* type);
+
+    inline bool isBuiltinType() const
+    {
+        return this->origin == kSymbolDataOriginBuiltin;
+    }
+
+    bool operator == (const DataType& other) const;
+
+    bool operator != (const DataType& other) const;
+
+public:
+    SymbolDataOrigin origin;
+    union
+    {
+        ConstantType builtin;
+        const Symbol* custom;
+    } data;
+};
+
+
 class SymbolTable;
 class Symbol
 {
@@ -38,7 +84,8 @@ public:
 
     bool hasReturnValue() const
     {
-        return returnType() != kConstantTypeNone;
+        const DataType dt = returnType();
+        return dt != DataType::VoidType;
     }
 
     void touchRead();
@@ -69,7 +116,7 @@ public:
 
     virtual SymbolType_t symbolType() const = 0;
 
-    virtual ConstantType returnType() const = 0;
+    virtual DataType returnType() const = 0;
 
     virtual bool isCallable() const = 0;
 
@@ -77,7 +124,9 @@ public:
 
     virtual yal_u32 argumentCount() const = 0;
 
-    virtual ConstantType argumentTypeOf(const yal_u32 argIdx) const = 0;
+    virtual DataType argumentTypeOf(const yal_u32 argIdx) const = 0;
+
+    virtual bool isRefCounted() const { return false; }
 
 protected:
     const char* _symName;

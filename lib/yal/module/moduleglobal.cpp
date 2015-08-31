@@ -26,7 +26,7 @@ ModuleGlobal::wasUsed() const
     return _symbol->readCount() > 0 || _symbol->writeCount() > 0;
 }
 
-ConstantType
+DataType
 ModuleGlobal::variableType() const
 {
     return _symbol->returnType();

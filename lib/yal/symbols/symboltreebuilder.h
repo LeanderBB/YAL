@@ -60,7 +60,7 @@ private:
     const FunctionSym* _curFunctionCall;
     ErrorHandler& _errHandler;
     SymbolTableStack_t _scopeStack;
-    ConstantType _expResult;
+    DataType _expResult;
     OutputFormater _formater;
     yal_u32 _scopeCounter;
     bool _error;

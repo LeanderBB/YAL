@@ -2,16 +2,17 @@
 #define __YAL_TYPE_UTILS_H__
 
 #include "yal/enums.h"
+#include "yal/symbols/symbol.h"
 
 namespace yal
 {
 
 bool
-CanTypeBePromoted(const ConstantType from,
-                  const ConstantType to);
+CanTypeBePromoted(const DataType from,
+                  const DataType to);
 
 bool
-IsValidBoolean(const ConstantType from);
+IsValidBoolean(const DataType from);
 
 }
 

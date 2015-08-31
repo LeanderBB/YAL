@@ -17,7 +17,7 @@ public:
 
     virtual ~ConstantNode();
 
-    ConstantType constantType() const
+    DataType constantType() const
     {
         return _constantValue.type();
     }

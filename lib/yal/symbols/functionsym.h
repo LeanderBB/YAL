@@ -17,11 +17,11 @@ public:
 
     ~FunctionSym();
 
-    bool addArgument(const ConstantType argumentType);
+    bool addArgument(const DataType argumentType);
 
     virtual SymbolType_t symbolType() const override;
 
-    virtual ConstantType returnType() const override;
+    virtual DataType returnType() const override;
 
     virtual bool isCallable() const override;
 
@@ -29,11 +29,11 @@ public:
 
     virtual yal_u32 argumentCount() const override;
 
-    virtual ConstantType argumentTypeOf(const yal_u32 argIdx) const override;
+    virtual DataType argumentTypeOf(const yal_u32 argIdx) const override;
 
 private:
-    const ConstantType _returnType;
-    ConstantType _argumentTypes[kMaxFunctionArgs];
+    const DataType _returnType;
+    DataType _argumentTypes[kMaxFunctionArgs];
     yal_u32 _nArguments;
 };
 

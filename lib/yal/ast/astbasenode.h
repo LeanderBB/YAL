@@ -6,6 +6,7 @@
 #include "yal/util/stl_utils.h"
 #include "yal/ast/astnodevisitor.h"
 #include "yal/util/errorhandler.h"
+#include "yal/symbols/symbol.h"
 
 namespace yal
 {
@@ -43,18 +44,18 @@ public:
         _pSymTable = pSymTable;
     }
 
-    ConstantType typeInfo() const
+    DataType typeInfo() const
     {
         return _typeInfo;
     }
 
-    ConstantType returnTypeInfo() const
+    DataType returnTypeInfo() const
     {
         return _returnTypeInfo;
     }
 
-    void setTypeInfo(const ConstantType type,
-                     const ConstantType returnType)
+    void setTypeInfo(const DataType type,
+                     const DataType returnType)
     {
         _typeInfo = type;
         _returnTypeInfo = returnType;
@@ -62,8 +63,8 @@ public:
 
 protected:
     const SourceLocationInfo _loc;
-    ConstantType _typeInfo;
-    ConstantType _returnTypeInfo;
+    DataType _typeInfo;
+    DataType _returnTypeInfo;
     SymbolTable* _pSymTable = nullptr;
 };
 
