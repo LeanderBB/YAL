@@ -13,7 +13,7 @@ public:
     static const SymbolType_t SymbolType;
 
     VariableSym(const char* varName,
-                const ConstantType varType,
+                const DataType varType,
                 const bool isGlobal,
                 const yal_u32 scopeLevel);
 
@@ -21,7 +21,7 @@ public:
 
     virtual SymbolType_t symbolType() const override;
 
-    virtual ConstantType returnType() const override;
+    virtual DataType returnType() const override;
 
     virtual bool isCallable() const override;
 
@@ -29,7 +29,7 @@ public:
 
     virtual yal_u32 argumentCount() const override;
 
-    virtual ConstantType argumentTypeOf(const yal_u32 argIdx) const override;
+    virtual DataType argumentTypeOf(const yal_u32 argIdx) const override;
 
     bool isGlobal() const
     {
@@ -37,7 +37,7 @@ public:
     }
 
 private:
-    const ConstantType _variableType;
+    const DataType _variableType;
     const bool _isGlobal;
 };
 

@@ -4,6 +4,7 @@
 #include "yal/yal.h"
 #include "yal/enums.h"
 #include <yalvm/yalvm_bytecode.h>
+#include "yal/symbols/symbol.h"
 
 namespace yal
 {
@@ -30,13 +31,13 @@ AssignOperatorByteCodeInst(const AssignOperatorType operatorType,
                            const ConstantType dataType);
 
 yalvm_bytecode_inst_t
-LoadGlobalByteCodeInst(const ConstantType dataType);
+LoadGlobalByteCodeInst(const DataType dataType);
 
 yalvm_bytecode_inst_t
-StoreGlobalByteCodeInst(const ConstantType dataType);
+StoreGlobalByteCodeInst(const DataType dataType);
 
 yalvm_bytecode_inst_t
-PrintByteCodeInst(const ConstantType dataType);
+PrintByteCodeInst(const DataType dataType);
 
 }
 

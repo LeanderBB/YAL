@@ -62,6 +62,20 @@ yalvm_snprintf(char *str,
     return result;
 }
 
+void*
+yalvm_realloc(void* ptr, yalvm_size size)
+{
+    return realloc(ptr, size);
+}
+
+void*
+yalvm_memmove(void *dest,
+              const void *src,
+              yalvm_size n)
+{
+    return memmove(dest, src, n);
+}
+
 }
 
 

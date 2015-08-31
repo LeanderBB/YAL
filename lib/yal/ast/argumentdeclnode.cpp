@@ -6,8 +6,8 @@ namespace yal
 YAL_AST_NODE_ACCEPT_IMP(ArgumentDeclNode)
 
 ArgumentDeclNode::ArgumentDeclNode(const SourceLocationInfo& loc,
-                       const ConstantType type,
-                       const char* name):
+                                   const ConstantType type,
+                                   const char* name):
     AstBaseNode(loc),
     _argName(name),
     _argId(nullptr),
@@ -17,8 +17,8 @@ ArgumentDeclNode::ArgumentDeclNode(const SourceLocationInfo& loc,
 }
 
 ArgumentDeclNode::ArgumentDeclNode(const SourceLocationInfo& loc,
-                       const char* id,
-                       const char* name):
+                                   const char* id,
+                                   const char* name):
     AstBaseNode(loc),
     _argName(name),
     _argId(id),
@@ -47,7 +47,7 @@ ArgumentDeclsNode::ArgumentDeclsNode(const SourceLocationInfo &loc):
 }
 
 ArgumentDeclsNode::ArgumentDeclsNode(const SourceLocationInfo& loc,
-                         ASTDeclArgVec_t&& argVec):
+                                     ASTDeclArgVec_t&& argVec):
     AstBaseNode(loc),
     _arguments(std::move(argVec))
 {

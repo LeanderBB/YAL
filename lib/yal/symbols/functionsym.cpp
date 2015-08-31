@@ -21,7 +21,7 @@ FunctionSym::~FunctionSym()
 }
 
 bool
-FunctionSym::addArgument(const ConstantType argumentType)
+FunctionSym::addArgument(const DataType argumentType)
 {
     if (_nArguments >= kMaxFunctionArgs)
     {
@@ -39,7 +39,7 @@ FunctionSym::symbolType() const
     return FunctionSym::SymbolType;
 }
 
-ConstantType
+DataType
 FunctionSym::returnType() const
 {
     return _returnType;
@@ -63,12 +63,12 @@ FunctionSym::argumentCount() const
     return _nArguments;
 }
 
-ConstantType
+DataType
 FunctionSym::argumentTypeOf(const yal_u32 argIdx) const
 {
     if (argIdx >= _nArguments)
     {
-        return kConstantTypeNone;
+        return DataType::VoidType;
     }
     return _argumentTypes[argIdx];
 }

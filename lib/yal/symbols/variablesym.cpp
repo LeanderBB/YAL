@@ -6,7 +6,7 @@ namespace yal
 const SymbolType_t VariableSym::SymbolType = 0x17603f10;
 
 VariableSym::VariableSym(const char* varName,
-                         const ConstantType varType,
+                         const DataType varType,
                          const bool isGlobal,
                          const yal_u32 scopeLevel):
     Symbol(varName, scopeLevel),
@@ -27,7 +27,7 @@ VariableSym::symbolType() const
     return VariableSym::SymbolType;
 }
 
-ConstantType
+DataType
 VariableSym::returnType() const
 {
     return _variableType;
@@ -51,7 +51,7 @@ VariableSym::argumentCount() const
     return 0;
 }
 
-ConstantType
+DataType
 VariableSym::argumentTypeOf(const yal_u32 argIdx) const
 {
     (void) argIdx;

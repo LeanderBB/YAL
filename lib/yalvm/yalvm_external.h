@@ -12,10 +12,23 @@ void
 yalvm_free(void* ptr);
 
 void
-yalvm_memset(void* ptr, int val, yalvm_size size);
+yalvm_memset(void* ptr,
+             int val,
+             yalvm_size size);
 
 void
-yalvm_memcpy(void* dst, const void* src, yalvm_size size);
+yalvm_memcpy(void* dst,
+             const void* src,
+             yalvm_size size);
+
+void*
+yalvm_realloc(void* ptr,
+              yalvm_size size);
+
+void*
+yalvm_memmove(void *dest,
+              const void *src,
+              yalvm_size n);
 
 void
 yalvm_print(struct yalvm_ctx* ctx,

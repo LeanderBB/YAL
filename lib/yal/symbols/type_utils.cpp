@@ -6,7 +6,7 @@ namespace yal
 static const bool
 sTypePromotionTable [kConstantTypeMax][kConstantTypeMax] =
 {
-  // none   id      text     i32     u32     i64     u64     bool    f32     f64
+    // none   id      text     i32     u32     i64     u64     bool    f32     f64
     {true,  false,  false,  false,  false,  false,  false,  false,  false,  false}, // none
     {false, true ,  false,  false,  false,  false,  false,  false,  false,  false}, // id
     {false, false,  true,   false,  false,  false,  false,  false,  false,  false}, // text
@@ -20,21 +20,30 @@ sTypePromotionTable [kConstantTypeMax][kConstantTypeMax] =
 };
 
 bool
-CanTypeBePromoted(const ConstantType from,
-               const ConstantType to)
+CanTypeBePromoted(const DataType from,
+                  const DataType to)
 {
-    if(from >= kConstantTypeMax || to >= kConstantTypeMax)
+    if (from.origin != kSymbolDataOriginBuiltin
+            || to.origin != kSymbolDataOriginBuiltin)
     {
         return false;
     }
 
-    return sTypePromotionTable[from][to];
+    if(from.data.builtin >= kConstantTypeMax
+            || to.data.builtin >= kConstantTypeMax)
+    {
+        return false;
+    }
+
+    return sTypePromotionTable[from.data.builtin][to.data.builtin];
 }
 
 bool
-IsValidBoolean(const ConstantType from)
+IsValidBoolean(const DataType from)
 {
-    return sTypePromotionTable[from][kConstantTypeBool];
+    return (from.origin == kSymbolDataOriginBuiltin)
+            ? sTypePromotionTable[from.data.builtin][kConstantTypeBool]
+            : false;
 }
 
 

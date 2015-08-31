@@ -39,8 +39,7 @@ typedef yalvm_i8   yalvm_bool;
 /* Utils -------------------------------------------------------------------*/
 
 #define YALVM_PTR_ADD(ptr, value) ((yalvm_u8*)ptr) + value
-
-
+#define YALVM_ARRAY_SIZE(x) (sizeof(x)/sizeof(x[0]))
 
 YALVM_MODULE_END
 

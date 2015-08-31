@@ -541,71 +541,92 @@ AssignOperatorByteCodeInst(const AssignOperatorType operatorType,
 }
 
 yalvm_bytecode_inst_t
-LoadGlobalByteCodeInst(const ConstantType dataType)
+LoadGlobalByteCodeInst(const DataType dataType)
 {
-    switch(dataType)
+    if (dataType.isBuiltinType())
     {
-    case kConstantTypeInt32:
-    case kConstantTypeUInt32:
-    case kConstantTypeFloat32:
-    case kConstantTypeBool:
-        return YALVM_BYTECODE_LOAD_GLOBAL_32;
-    case kConstantTypeUInt64:
-    case kConstantTypeInt64:
-    case kConstantTypeFloat64:
-    case kConstantTypeText:
+        switch(dataType.data.builtin)
+        {
+        case kConstantTypeInt32:
+        case kConstantTypeUInt32:
+        case kConstantTypeFloat32:
+        case kConstantTypeBool:
+            return YALVM_BYTECODE_LOAD_GLOBAL_32;
+        case kConstantTypeUInt64:
+        case kConstantTypeInt64:
+        case kConstantTypeFloat64:
+        case kConstantTypeText:
+            return YALVM_BYTECODE_LOAD_GLOBAL_64;
+        case kConstantTypeId:
+        default:
+            YAL_ASSERT(false && "Should not be reached");
+            return YALVM_BYTECODE_TOTAL;
+        }
+    }
+    else
+    {
         return YALVM_BYTECODE_LOAD_GLOBAL_64;
-    case kConstantTypeId:
-    default:
-        YAL_ASSERT(false && "Should not be reached");
-        return YALVM_BYTECODE_TOTAL;
     }
 }
 
 yalvm_bytecode_inst_t
-StoreGlobalByteCodeInst(const ConstantType dataType)
+StoreGlobalByteCodeInst(const DataType dataType)
 {
-    switch(dataType)
+    if (dataType.isBuiltinType())
     {
-    case kConstantTypeInt32:
-    case kConstantTypeUInt32:
-    case kConstantTypeFloat32:
-    case kConstantTypeBool:
-        return YALVM_BYTECODE_STORE_GLOBAL_32;
-    case kConstantTypeUInt64:
-    case kConstantTypeInt64:
-    case kConstantTypeFloat64:
-    case kConstantTypeText:
+        switch(dataType.data.builtin)
+        {
+        case kConstantTypeInt32:
+        case kConstantTypeUInt32:
+        case kConstantTypeFloat32:
+        case kConstantTypeBool:
+            return YALVM_BYTECODE_STORE_GLOBAL_32;
+        case kConstantTypeUInt64:
+        case kConstantTypeInt64:
+        case kConstantTypeFloat64:
+        case kConstantTypeText:
+            return YALVM_BYTECODE_STORE_GLOBAL_64;
+        case kConstantTypeId:
+        default:
+            YAL_ASSERT(false && "Should not be reached");
+            return YALVM_BYTECODE_TOTAL;
+        }
+    }
+    else
+    {
         return YALVM_BYTECODE_STORE_GLOBAL_64;
-    case kConstantTypeId:
-    default:
-        YAL_ASSERT(false && "Should not be reached");
-        return YALVM_BYTECODE_TOTAL;
     }
 }
 
 yalvm_bytecode_inst_t
-PrintByteCodeInst(const ConstantType dataType)
+PrintByteCodeInst(const DataType dataType)
 {
-    switch(dataType)
+    if (dataType.isBuiltinType())
     {
-    case kConstantTypeInt32:
-        return YALVM_BYTECODE_PRINT_I;
-    case kConstantTypeBool:
-    case kConstantTypeUInt32:
-        return YALVM_BYTECODE_PRINT_U;
-    case kConstantTypeFloat32:
-        return YALVM_BYTECODE_PRINT_F;
-    case kConstantTypeUInt64:
-        return YALVM_BYTECODE_PRINT_UL;
-    case kConstantTypeInt64:
-        return YALVM_BYTECODE_PRINT_IL;
-    case kConstantTypeFloat64:
-        return YALVM_BYTECODE_PRINT_FL;
-    case kConstantTypeText:
-        return YALVM_BYTECODE_PRINT_STR;
-    default:
-        YAL_ASSERT(false && "Should not be reached");
+        switch(dataType.data.builtin)
+        {
+        case kConstantTypeInt32:
+            return YALVM_BYTECODE_PRINT_I;
+        case kConstantTypeBool:
+        case kConstantTypeUInt32:
+            return YALVM_BYTECODE_PRINT_U;
+        case kConstantTypeFloat32:
+            return YALVM_BYTECODE_PRINT_F;
+        case kConstantTypeUInt64:
+            return YALVM_BYTECODE_PRINT_UL;
+        case kConstantTypeInt64:
+            return YALVM_BYTECODE_PRINT_IL;
+        case kConstantTypeFloat64:
+            return YALVM_BYTECODE_PRINT_FL;
+        case kConstantTypeText:
+            return YALVM_BYTECODE_PRINT_STR;
+        default:
+            YAL_ASSERT(false && "Should not be reached");
+            return YALVM_BYTECODE_TOTAL;
+        }
+    }
+    else
+    {
         return YALVM_BYTECODE_TOTAL;
     }
 }

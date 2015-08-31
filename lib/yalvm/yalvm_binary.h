@@ -21,6 +21,9 @@ YALVM_MODULE_BGN
  * [  globals  64 0    ]
  *       ...
  * [  globals  64 N    ]
+ * [  obj descriptor 0 ]
+ *       ...
+ * [  obj descriptor N ]
  * [     string 0      ]
  *       ...
  * [     string N      ]
@@ -36,10 +39,6 @@ YALVM_MODULE_BGN
 
 enum yalvm_bin_enums
 {
-    YALVM_BIN_SIZEOF_CONSTANT_32        = 4,
-    YALVM_BIN_SIZEOF_CONSTANT_64        = 8,
-    YALVM_BIN_SIZEOF_GLOBAL_32          = 8,
-    YALVM_BIN_SIZEOF_GLOBAL_64          = 12,
     YALVM_BIN_MAX_FUNCTION_CODE_SIZE    = 0xFFFF,
     YALVM_BIN_MAX_GLOBALS               = 0xFFFF,
     YALVM_BIN_MAX_CONSTANTS             = 0xFFFF,
@@ -61,7 +60,7 @@ typedef struct
     yalvm_u16 n_globals32;    /* number of 32bit globals   */
     yalvm_u16 n_globals64;    /* number of 64bit globals   */
     yalvm_u16 n_functions;    /* number of functions       */
-    yalvm_u16 flags;          /* unused                    */
+    yalvm_u16 n_objdescs;     /* number of object descs    */
     yalvm_u16 n_strings;      /* number of strings         */
     yalvm_u16 strings_size;   /* total size of all strings */
 } yalvm_bin_header_t;
@@ -89,6 +88,10 @@ yalvm_bin_header_offset_constant32(const yalvm_bin_header_t* header,
 yalvm_u32
 yalvm_bin_header_offset_constant64(const yalvm_bin_header_t* header,
                                    const yalvm_u16 index);
+
+yalvm_u32
+yalvm_bin_header_offset_objdescs(const yalvm_bin_header_t* header,
+                                 const yalvm_u16 index);
 
 yalvm_u32
 yalvm_bin_header_offset_strings(const yalvm_bin_header_t* header);
@@ -146,6 +149,19 @@ yalvm_func_global_name();
 
 yalvm_u32
 yalvm_func_global_hash();
+
+
+/* Object descriptor */
+#pragma pack(push, 1)
+typedef struct
+{
+    yalvm_u16 mem_size;     /* memory size               */
+    yalvm_u16 ctor_idx;     /* constructor function idx  */
+    yalvm_u16 dtor_idx;     /* destructor function idx   */
+    yalvm_u16 __unused;     /* unused                    */
+} yalvm_obj_descriptor_t;
+#pragma pack(pop)
+
 
 
 YALVM_MODULE_END

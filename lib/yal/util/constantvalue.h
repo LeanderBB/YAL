@@ -3,6 +3,7 @@
 
 #include "yal/yal.h"
 #include "yal/enums.h"
+#include "yal/symbols/symbol.h"
 
 namespace yal
 {
@@ -30,7 +31,7 @@ public:
 
     ~ConstantValue();
 
-    ConstantType type() const
+    DataType type() const
     {
         return _type;
     }
@@ -68,7 +69,7 @@ public:
     bool operator != (const ConstantValue& other) const;
 
 private:
-    const ConstantType _type;
+    const DataType _type;
     union
     {
         yal_bool boolean;

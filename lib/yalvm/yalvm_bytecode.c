@@ -153,11 +153,16 @@ static const char* yalvm_bytecode_inst_strings [] =
     "printfl",
     "printstr",
     "printnl",
+    /* Objects */
+    "obj alloc",
+    "obj acquire",
+    "obj release"
     /* end of strings */
 };
 
 const char*
 yalvm_bytecode_inst_to_str(const yalvm_bytecode_inst_t inst)
 {
-    return (inst < YALVM_BYTECODE_TOTAL) ? yalvm_bytecode_inst_strings[inst] : "Unknown";
+    static const yalvm_size strings_size = YALVM_ARRAY_SIZE(yalvm_bytecode_inst_strings);
+    return (inst < strings_size) ? yalvm_bytecode_inst_strings[inst] : "Unknown";
 }

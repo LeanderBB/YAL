@@ -108,7 +108,7 @@ AstPrinter::visit(ConstantNode& node)
 {
     printIdent();
     _formater.format("%s> type:%s \n", node.nodeTypeStr(),
-                     ConstantTypeToStr(node.constantType()));
+                     DataType::ToStr(node.constantType()));
     _formater.write(_sink);
 }
 

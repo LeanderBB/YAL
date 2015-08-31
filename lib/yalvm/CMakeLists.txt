@@ -26,6 +26,8 @@ set(YALVM_HDR
     yalvm_stack.h
     yalvm_external.h
     yalvm_error.h
+    yalvm_object.h
+    yalvm_array.h
     ${YALVM_CONFIG_FILE}
 )
 
@@ -36,6 +38,8 @@ set(YALVM_SRC
     yalvm_ctx.c
     yalvm_stack.c
     yalvm_error.c
+    yalvm_object.c
+    yalvm_array.c
 )
 
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${YAL_C_FLAGS} ${YAL_C_WERROR}")
