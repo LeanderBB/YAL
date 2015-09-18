@@ -12,6 +12,7 @@ namespace yal
 {
 class SymbolTable;
 
+class Type;
 class AstBaseNode
 {
 public:
@@ -61,11 +62,22 @@ public:
         _returnTypeInfo = returnType;
     }
 
+    void setType(Type* type)
+    {
+        _type = type;
+    }
+
+    Type* type() const
+    {
+        return _type;
+    }
+
 protected:
     const SourceLocationInfo _loc;
     DataType _typeInfo;
     DataType _returnTypeInfo;
     SymbolTable* _pSymTable = nullptr;
+    Type* _type = nullptr;
 };
 
 

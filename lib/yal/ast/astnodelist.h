@@ -1,5 +1,5 @@
 /*
- * Define the YAL_NODE_LIST_FUNC_MACRO(x) to use this on the list
+ * Define the YAL_NODE_LIST_FUNC(x) to use this somewhere
  */
 YAL_NODE_LIST_FUNC(VariableDeclNode)
 YAL_NODE_LIST_FUNC(FunctionDeclNode)

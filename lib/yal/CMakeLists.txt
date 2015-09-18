@@ -42,6 +42,11 @@ set(YAL_HDR
     symbols/functionsym.h
     symbols/symboltreebuilder.h
     symbols/type_utils.h
+    types/type.h
+    types/typelist.h
+    types/builtintype.h
+    types/functiontype.h
+    types/typeregistry.h
     bytecode/bytecodebuffer.h
     bytecode/registerallocator.h
     bytecode/bytecodebuilder.h
@@ -92,6 +97,10 @@ set(YAL_SRC
     symbols/symboltable.cpp
     symbols/symboltreebuilder.cpp
     symbols/type_utils.cpp
+    types/type.cpp
+    types/builtintype.cpp
+    types/functiontype.cpp
+    types/typeregistry.cpp
     bytecode/bytecodebuffer.cpp
     bytecode/registerallocator.cpp
     bytecode/bytecodebuilder.cpp

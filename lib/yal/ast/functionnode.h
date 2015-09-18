@@ -93,7 +93,7 @@ public:
         return _functionArgs;
     }
 
-    bool hasReturnType() const
+    bool hasReturnValue() const
     {
         return _returnType != kConstantTypeNone;
     }
@@ -103,11 +103,17 @@ public:
         return _returnType;
     }
 
+    Type* returnValueType() const
+    {
+        return _returnValueType;
+    }
+
 private:
     const char* _functionName;
     ArgumentDeclsNode* _functionArgs;
     CodeBodyNode* _codeBody;
     const ConstantType _returnType;
+    Type* _returnValueType;
 };
 
 }

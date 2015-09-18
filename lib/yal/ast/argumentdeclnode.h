@@ -72,6 +72,12 @@ public:
     {
         return _arguments;
     }
+
+    yal_u32 argumentCount() const
+    {
+        return _arguments.size();
+    }
+
 private:
     ASTDeclArgVec_t _arguments;
 };

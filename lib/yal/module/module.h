@@ -78,6 +78,12 @@ public:
         return _totalStringSizeBytes;
     }
 
+    yal_u32 moduleId() const
+    {
+        //TODO: generate this!!
+        return 0;
+    }
+
 private:
     typedef std::unique_ptr<const ModuleGlobal> GlobalPtr_t;
     typedef StrHashMap<GlobalPtr_t> GlobalMap_t;
