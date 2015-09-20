@@ -1,4 +1,6 @@
 #include "yal/ast/functionnode.h"
+#include "yal/types/type.h"
+#include "yal/types/builtintype.h"
 
 namespace yal
 {
@@ -33,7 +35,7 @@ FunctionDeclNode::FunctionDeclNode(const SourceLocationInfo& loc,
     _functionName(name),
     _functionArgs(args),
     _codeBody(code),
-    _returnType(returnType)
+    _returnValueType(BuiltinType::GetBuiltinTypeForConstantType(returnType))
 {
 
 }
@@ -41,6 +43,12 @@ FunctionDeclNode::FunctionDeclNode(const SourceLocationInfo& loc,
 FunctionDeclNode::~FunctionDeclNode()
 {
 
+}
+
+bool
+FunctionDeclNode::hasReturnValue() const
+{
+    return !_returnValueType->isVoidType();
 }
 
 

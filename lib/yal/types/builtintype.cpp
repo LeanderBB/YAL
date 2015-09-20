@@ -5,60 +5,70 @@ namespace yal
 
 static BuiltinType sTypeVoid(
         kVmTypeTotal,
+        kTypeFlagIsBuiltinType | kTypeFlagIsVoidType,
         0,
-        0);
+        BuiltinType::kVoid);
 
 static BuiltinType sTypeBool(
         kVmTypeUInt32,
         kTypeFlagIsBuiltinType | kTypeFlagIsInteger
         | kTypeFlagIs32BitsSized | kTypeFlagIsUnsignedType
         | kTypeFlagBooleanPromotable,
-        kOperatorMaskBoolean);
+        kOperatorMaskBoolean,
+        BuiltinType::kBool);
 
 static BuiltinType sTypeInt32(
         kVmTypeInt32,
         kTypeFlagIsBuiltinType | kTypeFlagIsInteger
         | kTypeFlagIs32BitsSized | kTypeFlagIsSignedType
         | kTypeFlagBooleanPromotable,
-        kOperatorMaskIntegers);
+        kOperatorMaskIntegers,
+        BuiltinType::kInt32);
 
 static BuiltinType sTypeUInt32(
         kVmTypeUInt32,
         kTypeFlagIsBuiltinType | kTypeFlagIsInteger
         | kTypeFlagIs32BitsSized | kTypeFlagIsUnsignedType
         | kTypeFlagBooleanPromotable,
-        kOperatorMaskIntegers);
+        kOperatorMaskIntegers,
+        BuiltinType::kUInt32);
 
 static BuiltinType sTypeInt64(
         kVmTypeInt64,
         kTypeFlagIsBuiltinType | kTypeFlagIsInteger
         | kTypeFlagIs64BitsSized | kTypeFlagIsSignedType
         | kTypeFlagBooleanPromotable,
-        kOperatorMaskIntegers);
+        kOperatorMaskIntegers,
+        BuiltinType::kInt64);
 
 static BuiltinType sTypeUInt64(
         kVmTypeUInt64,
         kTypeFlagIsBuiltinType | kTypeFlagIsInteger
         | kTypeFlagIs64BitsSized | kTypeFlagIsUnsignedType
         | kTypeFlagBooleanPromotable,
-        kOperatorMaskIntegers);
+        kOperatorMaskIntegers,
+        BuiltinType::kUInt64);
 
 static BuiltinType sTypeFloat32(
         kVmTypeFloat32,
         kTypeFlagIsBuiltinType | kTypeFlagIsDecimal
         | kTypeFlagIs32BitsSized | kTypeFlagIsSignedType
         | kTypeFlagBooleanPromotable,
-        kOperatorMaskDecimals);
+        kOperatorMaskDecimals,
+        BuiltinType::kFloat32);
 
 static BuiltinType sTypeFloat64(
         kVmTypeFloat64,
         kTypeFlagIsBuiltinType | kTypeFlagIsDecimal
         | kTypeFlagIs64BitsSized | kTypeFlagIsSignedType
         | kTypeFlagBooleanPromotable,
-        kOperatorMaskDecimals);
+        kOperatorMaskDecimals,
+        BuiltinType::kFloat64);
+
+YAL_TYPLE_IMPL_SRC(BuiltinType, 0x3aac95af)
 
 BuiltinType*
-BuiltinType::GetBuiltinType(const yal_u32 type)
+BuiltinType::GetBuiltinType(const Types type)
 {
     static BuiltinType* s_static_types[] =
     {
@@ -78,14 +88,63 @@ BuiltinType::GetBuiltinType(const yal_u32 type)
     return (type < kTotal) ? s_static_types[type] : nullptr;
 }
 
+BuiltinType*
+BuiltinType::GetBuiltinTypeForConstantType(const ConstantType type)
+{
+    switch(type)
+    {
+    case kConstantTypeNone:
+        return &sTypeVoid;
+    case kConstantTypeBool:
+    case kConstantTypeUInt32:
+        return &sTypeUInt32;
+    case kConstantTypeInt32:
+        return &sTypeInt32;
+    case kConstantTypeInt64:
+        return &sTypeInt64;
+    case kConstantTypeUInt64:
+        return &sTypeUInt64;
+    case kConstantTypeFloat32:
+        return &sTypeFloat32;
+    case kConstantTypeFloat64:
+        return &sTypeFloat64;
+    default:
+        return nullptr;
+    }
+}
+
 
 BuiltinType::BuiltinType(const VmType vmType,
                          const yal_u32 typeFlags,
-                         const yal_u32 operatorFlags):
-    Type(LanguageTypeId(), vmType)
+                         const yal_u32 operatorFlags,
+                         const Types builtinDataType):
+    Type(LanguageTypeId(), vmType, BuiltinType::ImpId),
+    _builtinType(builtinDataType)
 {
     _typeFlags = typeFlags;
     _operatorFlags = operatorFlags;
+}
+
+
+static const bool
+sTypePromotionTable [BuiltinType::kTotal][BuiltinType::kTotal] =
+{
+    //void  bool    i32     i64     u32     u64      f32     f64
+    {false, false,  false,  false,  false,  false,  false,  false}, // void
+    {false, true ,  false,  false,  false,  false,  false,  false}, // bool
+    {false, true ,  true,   true,   false,  false,  false,  false}, // i32
+    {false, true ,  false,  true,   false,  false,  false,  false}, // i64
+    {false, true ,  false,  false,  true,   true ,  false,  false}, // u32
+    {false, true ,  false,  false,  false,  true ,  false,  false}, // u64
+    {false, false,  false,  false,  false,  false,  true ,  true }, // f32
+    {false, false,  false,  false,  false,  false,  false,  true }  // f64
+};
+
+bool
+BuiltinType::isPromotableTo(const Type* t) const
+{
+    const BuiltinType* other = cast_type<const BuiltinType>(t);
+    return (other) ? sTypePromotionTable[_builtinType][other->_builtinType] : false;
 }
 
 }

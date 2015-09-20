@@ -14,7 +14,7 @@ public:
 
     AssignOperatorNode(const SourceLocationInfo& loc,
               const char* id,
-              const AssignOperatorType assignOp,
+              const OperatorType assignOp,
               ExpressionNode* exp);
 
     virtual ~AssignOperatorNode();
@@ -24,7 +24,7 @@ public:
         return _varName;
     }
 
-    AssignOperatorType assignOperatorType() const
+    OperatorType assignOperatorType() const
     {
         return _assignOpType;
     }
@@ -37,7 +37,7 @@ public:
 private:
     const char* _varName;
     ExpressionNode* _pExpression;
-    const AssignOperatorType _assignOpType;
+    const OperatorType _assignOpType;
 };
 
 }

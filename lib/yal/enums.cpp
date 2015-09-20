@@ -1,35 +1,87 @@
 #include "yal/enums.h"
+#include "yal/yal.h"
 
 namespace yal
 {
 
 const char*
-AssignOperatorTypeToSt(const enum AssignOperatorType val)
+OperatorTypeToStr(const enum OperatorType val)
 {
-    switch (val)
+    switch(val)
     {
-    case kAssignOperatorTypeSet:
-        return "AssignOperatorTypeSe";
-    case kAssignOperatorTypePlus:
-        return "AssignOperatorTypePlus";
-    case kAssignOperatorTypeMinus:
-        return "AssignOperatorTypeMinus";
-    case kAssignOperatorTypeMult:
-        return "AssignOperatorTypeMult";
-    case kAssignOperatorTypeDiv:
-        return "AssignOperatorTypeDiv";
-    case kAssignOperatorTypeAnd:
-        return "AssignOperatorTypeAnd";
-    case kAssignOperatorTypeOr:
-        return "kAssignOperatorTypeOr";
-    case kAssignOperatorTypeXor:
-        return "AssignOperatorTypeXor";
-    case kAssignOperatorTypeShiftLeft:
-        return "AssignOperatorTypeShiftLeft";
-    case kAssignOperatorTypeShiftRight:
-        return "AssignOperatorTypeShiftRight";
+    case kOperatorTypeCopy:
+        return "=";
+    case kOperatorTypePlus:
+        return "+";
+    case kOperatorTypeMinus:
+        return "-";
+    case kOperatorTypeMult:
+    return "*";
+    case kOperatorTypeDiv:
+        return "/";
+    case kOperatorTypeAnd:
+        return "and";
+    case kOperatorTypeOr:
+        return "or";
+    case kOperatorTypeNot:
+        return "not";
+    case kOperatorTypeBitAnd:
+        return "&";
+    case kOperatorTypeBitOr:
+        return "|";
+    case kOperatorTypeBitXor:
+        return "^";
+    case kOperatorTypeBitNot:
+        return "~";
+    case kOperatorTypeBitShiftLeft:
+        return "<<";
+    case kOperatorTypeBitShiftRight:
+        return ">>";
+    case kOperatorTypeGt:
+        return ">";
+    case kOperatorTypeGe:
+        return ">=";
+    case kOperatorTypeLe:
+        return "<=";
+    case kOperatorTypeLt:
+        return "<";
+    case kOperatorTypeEq:
+        return "==";
+    case kOperatorTypeNe:
+        return "!=";
+    case kOperatorTypeArray:
+        return "[]";
     default:
-        return "Uknown Assingn Operator Type";
+        return "Uknown";
+    }
+}
+
+bool
+OperatorRequiresUnsignedInt(const enum OperatorType val)
+{
+    switch(val)
+    {
+    case kOperatorTypeBitAnd:
+    case kOperatorTypeBitOr:
+    case kOperatorTypeBitXor:
+    case kOperatorTypeBitNot:
+    case kOperatorTypeBitShiftLeft:
+    case kOperatorTypeBitShiftRight:
+        return true;
+    default:
+        return false;
+    }
+}
+
+bool
+OperatorRequiresSignedInt(const enum OperatorType val)
+{
+    switch(val)
+    {
+    case kOperatorTypeMinus:
+        return true;
+    default:
+        return false;
     }
 }
 
@@ -58,78 +110,6 @@ ConstantTypeToStr(const enum ConstantType val)
         return "ConstantTypeFloat64";
     default:
         return "Uknown Contant Type";
-    }
-}
-
-const char*
-SingleOperatorTypeToStr(const enum SingleOperatorType val)
-{
-    switch (val)
-    {
-    case kSingleOperatorTypeBlock:
-        return "SingleOperatorTypeBlock";
-    case kSingleOperatorTypeNeg:
-        return "SingleOperatorTypeNeg";
-    case kSingleOperatorTypeNot:
-        return "SingleOperatorTypeNot";
-    case kSingleOperatorTypeTil:
-        return "SingleOperatorTypeTil";
-    default:
-        return "Uknown Single Operator Type";
-    }
-}
-
-const char*
-DualOperatorTypeToStr(const enum DualOperatorType val)
-{
-    switch (val)
-    {
-    case kDualOperatorTypeAdd:
-        return "DualOperatorTypeAdd";
-    case kDualOperatorTypeSub:
-        return "DualOperatorTypeSub";
-    case kDualOperatorTypeMult:
-        return "DualOperatorTypeMult";
-    case kDualOperatorTypeDiv:
-        return "DualOperatorTypeDiv";
-    case kDualOperatorTypeAnd:
-        return "DualOperatorTypeAnd";
-    case kDualOperatorTypeOr:
-        return "DualOperatorTypeOr";
-    case kDualOperatorTypeBitAnd:
-        return "DualOperatorTypeBitAnd";
-    case kDualOperatorTypeBitOr:
-        return "DualOperatorTypeBitOr";
-    case kDualOperatorTypeBitXor:
-        return "DualOperatorTypeBitXor";
-    case kDualOperatorTypeShiftLeft:
-        return "DualOperatorTypeShiftLeft";
-    case kDualOperatorTypeShiftRight:
-        return "DualOperatorTypeShiftRight";
-    default:
-        return "Uknown Dual Operator Type";
-    }
-}
-
-const char*
-CompareOperatorToStr(const enum CompareOperatorType val)
-{
-    switch (val)
-    {
-    case kCompareOperatorTypeGT:
-        return "CompareOperatorTypeGT";
-    case kCompareOperatorTypeGE:
-        return "CompareOperatorTypeGE";
-    case kCompareOperatorTypeLE:
-        return "CompareOperatorTypeLE";
-    case kCompareOperatorTypeLT:
-        return "CompareOperatorTypeLT";
-    case kCompareOperatorTypeEQ:
-        return "CompareOperatorTypeEQ";
-    case kCompareOperatorTypeNE:
-        return "CompareOperatorTypeNE";
-    default:
-        return "Uknown Compare Operator Type";
     }
 }
 
@@ -222,26 +202,4 @@ ConstantTypeIs64Bits(const ConstantType type)
         return false;
     }
 }
-
-bool
-DualOperatorTypeRequiresIntegerArgs(const DualOperatorType op)
-{
-    switch(op)
-    {
-    case kDualOperatorTypeAdd:
-    case kDualOperatorTypeSub:
-    case kDualOperatorTypeMult:
-    case kDualOperatorTypeDiv:
-        return false;
-    default:
-        return true;
-    }
-}
-
-bool
-SingleOperatorTypeRequiresIntegerArgs(const SingleOperatorType op)
-{
-    return op == kSingleOperatorTypeTil;
-}
-
 }

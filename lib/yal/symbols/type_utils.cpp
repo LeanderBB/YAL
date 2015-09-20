@@ -19,32 +19,7 @@ sTypePromotionTable [kConstantTypeMax][kConstantTypeMax] =
     {false, false,  false,  false,  false,  false,  false,  false,  false,  true }  // f64
 };
 
-bool
-CanTypeBePromoted(const DataType from,
-                  const DataType to)
-{
-    if (from.origin != kSymbolDataOriginBuiltin
-            || to.origin != kSymbolDataOriginBuiltin)
-    {
-        return false;
-    }
 
-    if(from.data.builtin >= kConstantTypeMax
-            || to.data.builtin >= kConstantTypeMax)
-    {
-        return false;
-    }
-
-    return sTypePromotionTable[from.data.builtin][to.data.builtin];
-}
-
-bool
-IsValidBoolean(const DataType from)
-{
-    return (from.origin == kSymbolDataOriginBuiltin)
-            ? sTypePromotionTable[from.data.builtin][kConstantTypeBool]
-            : false;
-}
 
 
 }

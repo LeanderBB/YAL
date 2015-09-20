@@ -15,7 +15,7 @@ class TypeRegistry
 public:
     TypeRegistry(Module& module);
 
-    FunctionType* registerFunction(const FunctionDeclNode* node);
+    FunctionType* registerFunction(FunctionDeclNode* node);
 
     Type* typeForId(const Type::TypeId_t& t) const;
 
@@ -31,8 +31,9 @@ private:
                       Type* t);
 
 private:
+    typedef std::unique_ptr<Type> TypePtr_t;
     typedef StrHashMap<Type*> TypeMap_t;
-    typedef std::vector<Type*> TypeVec_t;
+    typedef std::vector<TypePtr_t> TypeVec_t;
     Module& _module;
     TypeVec_t _types;
     TypeMap_t _typesByName;

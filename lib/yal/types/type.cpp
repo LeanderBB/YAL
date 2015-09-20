@@ -25,13 +25,21 @@ LanguageTypeId()
 }
 
 Type::Type(const TypeId_t& id,
-           const VmType vmType):
+           const VmType vmType,
+           const Id_t impId):
+    _impid(impId),
     _typeId(id),
     _vmType(vmType),
     _typeFlags(0),
     _operatorFlags(0)
 {
 
+}
+
+bool
+Type::isVoidType() const
+{
+    return _typeFlags & kTypeFlagIsVoidType;
 }
 
 bool
@@ -125,13 +133,13 @@ Type::isPointerSized() const
 }
 
 bool
-Type::isBooleanPromotable() const
+Type::isPromotableToBoolean() const
 {
     return _typeFlags & kTypeFlagBooleanPromotable;
 }
 
 bool
-Type::acceptsOperator(const Operator op) const
+Type::acceptsOperator(const OperatorType op) const
 {
     return _operatorFlags & op;
 }

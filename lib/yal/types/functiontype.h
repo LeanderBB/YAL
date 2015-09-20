@@ -31,6 +31,8 @@ public:
 
     Type* typeOfObject() const;
 
+    virtual bool isPromotableTo(const Type *t) const;
+
 private:
     const FunctionDeclNode* _pFunctionDecl;
 };

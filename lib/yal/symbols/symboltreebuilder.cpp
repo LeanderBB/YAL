@@ -16,12 +16,16 @@
 #include "yal/parser/parser_state.h"
 #include "yal/ast/printnode.h"
 #include "yal/ast/whileloopnode.h"
+#include "yal/types/typeregistry.h"
+#include "yal/types/functiontype.h"
+#include "yal/types/builtintype.h"
 
 #include <cstdio>
 
 namespace yal
 {
-SymbolTreeBuilder::SymbolTreeBuilder(ErrorHandler &errHandler):
+SymbolTreeBuilder::SymbolTreeBuilder(ErrorHandler &errHandler,
+                                     TypeRegistry &typeRegistry):
     AstNodeVisitor(),
     _parserState(nullptr),
     _globalSym(nullptr, 0),
@@ -29,6 +33,7 @@ SymbolTreeBuilder::SymbolTreeBuilder(ErrorHandler &errHandler):
     _curFunctionDecl(nullptr),
     _curFunctionCall(nullptr),
     _errHandler(errHandler),
+    _typeRegistry(typeRegistry),
     _scopeCounter(0),
     _error(false)
 {
@@ -101,7 +106,7 @@ SymbolTreeBuilder::visit(AssignOperatorNode& node)
     node.setSymbolTable(currentScope());
     // check if var has been declared
     const char* variable_name = node.variableName();
-    auto sym = _curScope->resolveSymbol(variable_name);
+    Symbol* sym = _curScope->resolveSymbol(variable_name);
     if (!sym)
     {
         _formater.format("Symbol '%s' has not been declared\n", variable_name);
@@ -109,34 +114,35 @@ SymbolTreeBuilder::visit(AssignOperatorNode& node)
         return;
     }
 
-    VariableSym* variable = symbol_cast<VariableSym>(sym);
-    if (!variable)
+    if (!sym->isAssignable())
     {
-        _formater.format("Cannot assign expression to symbol '%s', since it is not a variable \n", variable_name);
+        _formater.format("Cannot assign expression to symbol '%s', since it is not assignable \n", variable_name);
         logError(node);
         return;
     }
 
-    const DataType var_type = sym->returnType();
+    const AstBaseNode* ast_node = sym->astNode();
+    Type* var_type = ast_node->nodeType();
     node.expression()->accept(*this);
 
     // validate types
     if (!didError())
     {
-        if (!CanTypeBePromoted(_expResult, var_type))
+        if (_expResult->isPromotableTo(var_type))
         {
             _formater.format("Cannot assign expression to symbol '%s', expression type %s cannot be cast to %s\n",
                              variable_name,
-                             DataType::ToStr(_expResult),
-                             DataType::ToStr(var_type));
+                             _expResult->typeString(),
+                             var_type->typeString());
             logError(node);
             return;
         }
 
-        node.setTypeInfo(var_type, var_type);
+        node.setNodeType(var_type);
+        node.setExpressionType(var_type);
     }
 
-    variable->touchWrite();
+    sym->touchWrite();
 }
 
 void
@@ -162,7 +168,7 @@ SymbolTreeBuilder::visit(CompareOperatorNode& node)
     node.setSymbolTable(currentScope());
     node.leftExpression()->accept(*this);
 
-    const DataType left_type = _expResult;
+    Type* left_type = _expResult;
 
     if (!didError())
     {
@@ -170,8 +176,8 @@ SymbolTreeBuilder::visit(CompareOperatorNode& node)
     }
 
     // evaluate right type
-    const DataType right_type = _expResult;
-    if (!CanTypeBePromoted(right_type, left_type))
+    Type* right_type = _expResult;
+    if (right_type->isPromotableTo(left_type))
     {
         _formater.format("Cannot convert right type to left type\n");
         logError(node);
@@ -186,7 +192,8 @@ void
 SymbolTreeBuilder::visit(ConstantNode& node)
 {
     node.setSymbolTable(currentScope());
-    if (node.constantType() == DataType(kConstantTypeId))
+    const ConstantType const_type = node.constantValue().type();
+    if (const_type == kConstantTypeId)
     {
         const char* symbol_name = node.constantValue().valueAsId();
         auto sym = _curScope->resolveSymbol(symbol_name);
@@ -197,17 +204,16 @@ SymbolTreeBuilder::visit(ConstantNode& node)
             return;
         }
 
-        VariableSym* variable = symbol_cast<VariableSym>(sym);
-        if (!variable)
+        if (sym->isVariable())
         {
             _formater.format("Symbol '%s' is not a variable \n", symbol_name);
             logError(node);
             return;
         }
 
-        _expResult = sym->returnType();
-        node.setTypeInfo(node.constantType(), _expResult);
-        variable->touchRead();
+        _expResult = sym->astNode()->nodeType();
+        node.setTypeInfo(_expResult, _expResult);
+        sym->touchRead();
     }
     else
     {
@@ -230,7 +236,7 @@ void
 SymbolTreeBuilder::visit(ArgumentDeclNode& node)
 {
     node.setSymbolTable(currentScope());
-    if (node.isCostumType())
+    if (node.argumentId())
     {
         _formater.format("Custom types not yet supported!!!\n");
         logError(node);
@@ -248,7 +254,7 @@ SymbolTreeBuilder::visit(ArgumentDeclNode& node)
     }
 
     const ConstantType arg_type = node.argumentType();
-    DataType arg_data_type;
+    Type* arg_data_type;
     if (arg_type == kConstantTypeId)
     {
         sym = _curScope->resolveSymbol(node.argumentId());
@@ -260,7 +266,7 @@ SymbolTreeBuilder::visit(ArgumentDeclNode& node)
             return;
         }
 
-        if (sym && symbol_typeof<VariableSym>(sym))
+        if (sym->isVariable())
         {
             _formater.format("Symbol type '%s' cannot be a variable name\n",
                              node.argumentId());
@@ -268,18 +274,18 @@ SymbolTreeBuilder::visit(ArgumentDeclNode& node)
             return;
         }
 
-        arg_data_type = DataType(sym);
+        arg_data_type = sym->astNode()->nodeType();
     }
     else
     {
-        arg_data_type = DataType(arg_type);
+        arg_data_type = BuiltinType::GetBuiltinTypeForConstantType(arg_type);
     }
 
-    _curScope->declareSymbol(new VariableSym(node.argumentName(),
-                                             arg_data_type,
-                                             false,
-                                             currentScope()->level()));
-    _curFunctionDecl->addArgument(arg_data_type);
+    _curScope->declareSymbol(new Symbol(node.argumentName(),
+                                        currentScope()->level(),
+                                        &node,
+                                        Symbol::kFlagAssignable));
+    node.setNodeType(arg_data_type);
 }
 
 void
@@ -308,8 +314,10 @@ SymbolTreeBuilder::visit(FunctionCallArgsNode& node)
 {
     YAL_ASSERT(_curFunctionCall);
     node.setSymbolTable(currentScope());
-    const yal_u32 nargs = _curFunctionCall->argumentCount();
 
+    FunctionType* func_type = cast_type<FunctionType>(_curFunctionCall->astNode()->nodeType());
+    YAL_ASSERT(func_type);
+    const yal_u32 nargs = func_type->argumentCount();
     if (nargs != node.expressions.size())
     {
         _formater.format("Function '%s' expects %u arguments, you have provided %u\n",
@@ -325,13 +333,13 @@ SymbolTreeBuilder::visit(FunctionCallArgsNode& node)
         if (!didError())
         {
             v->accept(*this);
-            const DataType arg_type = _curFunctionCall->argumentTypeOf(idx);
-            if (!CanTypeBePromoted(_expResult, arg_type))
+            const Type* arg_type = func_type->typeOfArgument(idx);
+            if (!_expResult->isPromotableTo(arg_type))
             {
                 _formater.format("Function '%s' argument %u expects type %s, but has %s\n",
                                  _curFunctionCall->symbolName(), idx,
-                                 DataType::ToStr(arg_type),
-                                 DataType::ToStr(_expResult));
+                                 arg_type->typeString(),
+                                 _expResult->typeString());
                 logError(node);
                 return;
             }
@@ -353,27 +361,26 @@ SymbolTreeBuilder::visit(VariableDeclNode& node)
 
     if (sym)
     {
-        const VariableSym* var_sym = symbol_cast<VariableSym>(sym);
+        if (currentScope()->level() == sym->scope()->level())
+        {
+            _formater.format("Symbol '%s' has already been declared in the current scope\n",var_name);
+            logError(node);
+            return;
+        }
 
-        if (!var_sym)
+       /* if (!sym->isVariable())
         {
             _formater.format("Symbol '%s' is not a variable\n",var_name);
             logError(node);
             return;
-        }
+        }*/
 
-        if (currentScope()->level() == var_sym->scope()->level())
-        {
-            _formater.format("Variable '%s' has already been declared\n",var_name);
-            logError(node);
-            return;
-        }
     }
 
     node.expression()->accept(*this);
 
     // check if there is a return type
-    if (_expResult == DataType::VoidType)
+    if (_expResult->isVoidType())
     {
         _formater.format("Cannot assign void to variable '%s'\n", var_name);
         logError(node);
@@ -382,8 +389,10 @@ SymbolTreeBuilder::visit(VariableDeclNode& node)
     if (!didError())
     {
         const bool is_global_var = currentScopeIsGlobalScope();
-        auto sym_var = new VariableSym(var_name, _expResult, is_global_var,
-                                       currentScope()->level());
+        auto sym_var = new Symbol(var_name,
+                                  currentScope()->level(),
+                                  &node,
+                                  ((is_global_var) ? Symbol::kFlagGlobalSymbol : 0) | Symbol::kFlagAssignable);
         _curScope->declareSymbol(sym_var);
         node.setTypeInfo(_expResult, _expResult);
 
@@ -400,17 +409,16 @@ void
 SymbolTreeBuilder::visit(DualOperatorNode& node)
 {
 
-    bool requires_integer = DualOperatorTypeRequiresIntegerArgs(node.dualOperatorType());
-
     node.setSymbolTable(currentScope());
     node.leftExpression()->accept(*this);
+    const OperatorType op_type = node.dualOperatorType();
 
-    DataType cur_result_type = _expResult;
+    Type* cur_result_type = _expResult;
 
-    if (requires_integer && !DataType::IsInteger(_expResult))
+    if (!cur_result_type->acceptsOperator(op_type))
     {
-        _formater.format("'%s' requires that left expression has an integer result\n",
-                         DualOperatorTypeToStr(node.dualOperatorType()));
+        _formater.format("'%s' does not accept opertor '%s'\n",
+                         OperatorTypeToStr(op_type));
         logError(node);
         return;
     }
@@ -420,17 +428,19 @@ SymbolTreeBuilder::visit(DualOperatorNode& node)
         node.rightExpression()->accept(*this);
     }
 
-    if (requires_integer && !DataType::IsInteger(_expResult))
+    const bool requires_integer = OperatorRequiresUnsignedInt(op_type);
+    if (requires_integer && !_expResult->isUnsignedInteger())
     {
-        _formater.format("'%s' requires that left expression has an integer result\n",
-                         DualOperatorTypeToStr(node.dualOperatorType()));
+        _formater.format("Operator '%s' requires that right expression has an unsigned integer result\n",
+                         OperatorTypeToStr(op_type));
         logError(node);
         return;
     }
 
-    if (!CanTypeBePromoted(_expResult, cur_result_type))
+    if (_expResult->isPromotableTo(cur_result_type))
     {
-        _formater.format("Expression types do not match!!\n");
+        _formater.format("Can not promote '%s' to '%s\n",
+                         _expResult->typeString(), cur_result_type->typeString());
         logError(node);
         return;
     }
@@ -444,18 +454,23 @@ SymbolTreeBuilder::visit(SingleOperatorNode& node)
     node.setSymbolTable(currentScope());
     node.expression()->accept(*this);
 
-    if (SingleOperatorTypeRequiresIntegerArgs(node.singleOperatorType()) && !DataType::IsInteger(_expResult))
+    const OperatorType op_type = node.singleOperatorType();
+    const bool requires_signed_int = OperatorRequiresSignedInt(op_type);
+    const bool requires_unsigned_int = OperatorRequiresUnsignedInt(op_type);
+
+
+    if (requires_signed_int && !_expResult->isSignedInteger())
     {
-        _formater.format("'%s' requires that the expression has an integer result\n",
-                         SingleOperatorTypeToStr(node.singleOperatorType()));
+        _formater.format("Operator '%s' requires a signed integer\n",
+                         OperatorTypeToStr(node.singleOperatorType()));
         logError(node);
         return;
     }
 
-    if (node.singleOperatorType() == kSingleOperatorTypeNeg && !DataType::IsSigned(_expResult))
+    if (requires_unsigned_int && !_expResult->isUnsignedInteger())
     {
-        _formater.format("'%s' requires a signed data type\n",
-                         SingleOperatorTypeToStr(node.singleOperatorType()));
+        _formater.format("Operator '%s' requires an unsigend integer\n",
+                         OperatorTypeToStr(node.singleOperatorType()));
         logError(node);
         return;
     }
@@ -471,29 +486,31 @@ SymbolTreeBuilder::visit(FunctionCallNode& node)
     auto sym = _curScope->resolveSymbol(func_name);
     if (!sym)
     {
-        _formater.format("Function '%s' is undefined\n", func_name);
+        _formater.format("Symbol '%s' is undefined\n", func_name);
         logError(node);
         return;
     }
 
-    FunctionSym* func_symbol = symbol_cast<FunctionSym>(sym);
-    _curFunctionCall = func_symbol;
-
-    if (!_curFunctionCall)
+    if (!sym->isFunction())
     {
         _formater.format("Symbol '%s' is not a function\n", func_name);
         logError(node);
         return;
     }
 
+    _curFunctionCall = sym;
+
     if (node.hasFunctionArguments())
     {
         node.functionArguments()->accept(*this);
     }
 
-    func_symbol->touchCall();
+    sym->touchCall();
 
-    _expResult = sym->returnType();
+    const FunctionType* func_type = cast_type<FunctionType>(sym->astNode()->nodeType());
+    YAL_ASSERT(func_type);
+    _expResult = func_type->typeOfReturnValue();
+    node.setExpressionType(_expResult);
     _curFunctionCall = nullptr;
 }
 
@@ -506,14 +523,23 @@ SymbolTreeBuilder::visit(FunctionDeclNode& node)
     auto sym = _curScope->resolveSymbol(func_name);
     if (sym)
     {
-        _formater.format("Sumbol name '%s' already declared\n",
+        _formater.format("Symbol name '%s' already declared\n",
                          func_name);
         logError(node);
         return;
     }
 
     // declare func
-    _curFunctionDecl = new FunctionSym(func_name, node.returnType());
+    FunctionType* type = _typeRegistry.registerFunction(&node);
+    if (!type)
+    {
+        _formater.format("Failed to register function '%s'\n",
+                         func_name);
+        logError(node);
+        return;
+    }
+
+    _curFunctionDecl = new Symbol(func_name, currentScope()->level(), &node);
     _curScope->declareSymbol(_curFunctionDecl);
 
     // begin new scope
@@ -547,9 +573,9 @@ SymbolTreeBuilder::visit(ConditionNode& node)
         if (!didError())
         {
             // check condition expression
-            if (!IsValidBoolean(_expResult))
+            if (!_expResult->isPromotableToBoolean())
             {
-                _formater.format("Condition does not produce valid boolean\n");
+                _formater.format("Condition expression can not be promoted to boolean\n");
                 logError(node);
                 return;
             }
@@ -584,13 +610,14 @@ SymbolTreeBuilder::visit(ReturnNode& node)
     }
 
     const char* function_name = _curFunctionDecl->symbolName();
-    const DataType func_return = _curFunctionDecl->returnType();
+    const FunctionType* func_type = cast_type<FunctionType>(_curFunctionDecl->astNode()->nodeType());
+    const Type* func_return = func_type->typeOfReturnValue();
     // current return type
 
-    if (func_return != DataType::VoidType && !node.expression())
+    if (!func_return->isVoidType() && !node.expression())
     {
         _formater.format("Function '%s' has return value of %s, but we are not returning any\n",
-                         function_name, DataType::ToStr(_expResult));
+                         function_name, _expResult->typeString());
         logError(node);
         return;
     }
@@ -598,10 +625,10 @@ SymbolTreeBuilder::visit(ReturnNode& node)
 
     if (node.expression())
     {
-        if (func_return == DataType::VoidType)
+        if (func_return->isVoidType())
         {
             _formater.format("Function '%s' does not have a return value, but we are returning %s\n",
-                             function_name, DataType::ToStr(_expResult));
+                             function_name, _expResult->typeString());
             logError(node);
             return;
         }
@@ -611,12 +638,12 @@ SymbolTreeBuilder::visit(ReturnNode& node)
         if (!didError())
         {
             // check if the return types match
-            if(func_return != _expResult && !CanTypeBePromoted(_expResult, func_return))
+            if(_expResult->isPromotableTo(func_return))
             {
-                _formater.format("Function '%s' does has return type '%s', but we are returning %s\n",
+                _formater.format("Function '%s' returns '%s', but we are returning %s\n",
                                  function_name,
-                                 DataType::ToStr(func_return),
-                                 DataType::ToStr(_expResult));
+                                 func_return->typeString(),
+                                 _expResult->typeString());
                 logError(node);
                 return;
             }
@@ -636,7 +663,7 @@ SymbolTreeBuilder::visit(WhileLoopNode& node)
     if (!didError())
     {
         // check condition expression
-        if (!IsValidBoolean(_expResult))
+        if (!_expResult->isPromotableToBoolean())
         {
             _formater.format("Condition does not produce valid boolean\n");
             logError(node);

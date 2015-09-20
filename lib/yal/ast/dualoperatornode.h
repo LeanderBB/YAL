@@ -12,13 +12,13 @@ public:
     YAL_AST_NODE_ACCEPT_HDR(DualOperatorNode)
 
     DualOperatorNode(const SourceLocationInfo& loc,
-                const DualOperatorType optype,
+                const OperatorType optype,
                 ExpressionNode *expLeft,
                 ExpressionNode *expRight);
 
     virtual ~DualOperatorNode();
 
-    DualOperatorType dualOperatorType() const
+    OperatorType dualOperatorType() const
     {
         return _dualOperatorType;
     }
@@ -34,7 +34,7 @@ public:
     }
 
 private:
-    const DualOperatorType _dualOperatorType;
+    const OperatorType _dualOperatorType;
     ExpressionNode* _leftExp;
     ExpressionNode* _rightExp;
 };

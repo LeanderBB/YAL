@@ -25,6 +25,7 @@ enum TypeFlags
     kTypeFlagIs64BitsSized      = 1 << 13,
     kTypeFlagIsPtrSized         = 1 << 14,
     kTypeFlagBooleanPromotable  = 1 << 15,
+    kTypeFlagIsVoidType         = 1 << 16
 };
 
 
@@ -55,12 +56,12 @@ union TypeId
         yal_u32 dataTypeId;
     } split;
     yal_u64 id;
-};
 
-bool operator == (const TypeId& id1, const TypeId& id2)
-{
-    return id1.id == id2.id;
-}
+    bool operator == (const TypeId& other) const
+    {
+        return id == other.id;
+    }
+};
 
 yal_u32 LanguageModuleId();
 
@@ -72,9 +73,13 @@ class Type
 {
 public:
 
+    typedef yal_u32 Id_t;
+
     typedef TypeId TypeId_t;
 
     virtual ~Type() {}
+
+    bool isVoidType() const;
 
     bool isBuiltinType() const;
 
@@ -106,9 +111,9 @@ public:
 
     bool isPointerSized() const;
 
-    bool isBooleanPromotable() const;
+    bool isPromotableToBoolean() const;
 
-    bool acceptsOperator(const Operator op) const;
+    bool acceptsOperator(const OperatorType op) const;
 
     VmType vmType() const
     {
@@ -120,16 +125,25 @@ public:
         return _typeId;
     }
 
+    Id_t impId() const
+    {
+        return _impid;
+    }
+
     virtual void accept(TypeVisitor& visitor) = 0;
 
     virtual const char* typeString() const = 0;
 
+    virtual bool isPromotableTo(const Type* t) const = 0;
+
 protected:
 
     Type(const TypeId_t& id,
-         const VmType vmType);
+         const VmType vmType,
+         const Id_t impId);
 
 protected:
+    const Id_t _impid;
     const TypeId_t _typeId;
     const VmType _vmType;
     yal_u32 _typeFlags;
@@ -138,6 +152,7 @@ protected:
 };
 
 #define YAL_TYPE_IMPL_HDR(type) \
+    static Id_t ImpId;\
     inline virtual void accept(yal::TypeVisitor& visitor) override \
 { \
     visitor.visit(*this); \
@@ -145,6 +160,15 @@ protected:
     inline virtual const char* typeString() const override\
 {\
     return #type; \
+}
+
+#define YAL_TYPLE_IMPL_SRC(type, impid) \
+Type::Id_t type::ImpId = impid;
+
+template <class T, class U>
+T* cast_type(U* type)
+{
+    return (type->impId() == T::ImpId) ? static_cast<T*>(type) : nullptr;
 }
 
 

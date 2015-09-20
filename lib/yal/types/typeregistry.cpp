@@ -15,7 +15,7 @@ TypeRegistry::TypeRegistry(Module &module):
 }
 
 FunctionType*
-TypeRegistry::registerFunction(const FunctionDeclNode* node)
+TypeRegistry::registerFunction(FunctionDeclNode* node)
 {
     if (!canRegisterNewType(node->functionName()))
     {
@@ -27,6 +27,7 @@ TypeRegistry::registerFunction(const FunctionDeclNode* node)
     generateTypeId(id);
     result= new FunctionType(id, node);
     registerType(node->functionName(), result);
+    node->setNodeType(result);
     return result;
 }
 
@@ -37,7 +38,7 @@ TypeRegistry::typeForId(const Type::TypeId_t& t) const
     {
         if (v->typeId() == t)
         {
-            return v;
+            return v.get();
         }
     }
     return nullptr;
@@ -67,7 +68,7 @@ void
 TypeRegistry::registerType(const char* name,
                            Type* t)
 {
-    _types.push_back(t);
+    _types.push_back(TypePtr_t(t));
     YAL_ASSERT(_types.size() == t->typeId().split.dataTypeId + 1);
     _typesByName.insert(std::make_pair(name, t));
 }

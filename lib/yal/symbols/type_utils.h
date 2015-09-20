@@ -7,12 +7,7 @@
 namespace yal
 {
 
-bool
-CanTypeBePromoted(const DataType from,
-                  const DataType to);
 
-bool
-IsValidBoolean(const DataType from);
 
 }
 

@@ -161,10 +161,10 @@ BisonOnExpAssign(ParserState_t* state,
 
 void
 BisonOnAssignOp(ParserState_t* state,
-                const AssignOperatorType op)
+                const OperatorType op)
 {
     (void) state;
-    printf("AssignOp: %x(%s)\n", op, AssignOperatorTypeToSt(op));
+    printf("AssignOp: %x(%s)\n", op, OperatorTypeToStr(op));
 }
 
 void
@@ -222,26 +222,26 @@ BisonOnDeclArgName(ParserState_t* state,
 
 void
 BisonOnExpSingleArit(ParserState_t* state,
-                     const SingleOperatorType op)
+                     const OperatorType op)
 {
     (void) state;
-    printf("Exp Single Arit: %x(%s)\n", op, SingleOperatorTypeToStr(op));
+    printf("Exp Single Arit: %x(%s)\n", op, OperatorTypeToStr(op));
 }
 
 void
 BisonOnExpDualArit(ParserState_t* state,
-                   const DualOperatorType op)
+                   const OperatorType op)
 {
     (void) state;
-    printf("Exp Dual Arit: %x(%s)\n", op, DualOperatorTypeToStr(op));
+    printf("Exp Dual Arit: %x(%s)\n", op, OperatorTypeToStr(op));
 }
 
 void
 BisonOnExpCompare(ParserState_t* state,
-                  const CompareOperatorType op)
+                  const OperatorType op)
 {
     (void) state;
-    printf("Exp Compare: %x(%s)\n", op, CompareOperatorToStr(op));
+    printf("Exp Compare: %x(%s)\n", op, OperatorTypeToStr(op));
 }
 
 void

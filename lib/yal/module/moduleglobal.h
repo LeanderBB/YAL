@@ -14,7 +14,7 @@ class VariableSym;
 class ModuleGlobal : public ModuleIndexable
 {
 public:
-    ModuleGlobal(const VariableSym* symbol);
+    ModuleGlobal(const Symbol* symbol);
 
     virtual ~ModuleGlobal();
 
@@ -22,10 +22,10 @@ public:
 
     bool wasUsed() const;
 
-    DataType variableType() const;
+    Type* variableType() const;
 
 protected:
-    const VariableSym* _symbol;
+    const Symbol* _symbol;
 };
 
 }

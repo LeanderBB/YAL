@@ -3,8 +3,7 @@ namespace yal
 {
 
 AstBaseNode::AstBaseNode(const SourceLocationInfo& loc):
-    _loc(loc),
-    _typeInfo(kConstantTypeMax)
+    _loc(loc)
 {
 
 }

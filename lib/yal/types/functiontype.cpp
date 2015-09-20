@@ -5,9 +5,11 @@
 namespace yal
 {
 
+YAL_TYPLE_IMPL_SRC(FunctionType, 0xed3f0f48)
+
 FunctionType::FunctionType(const TypeId_t id,
                            const FunctionDeclNode* funcDecl):
-    Type(id, kVmTypeFunction),
+    Type(id, kVmTypeFunction, FunctionType::ImpId),
     _pFunctionDecl(funcDecl)
 {
     _typeFlags = kTypeFlagIsFunctionType;
@@ -42,7 +44,7 @@ Type*
 FunctionType::typeOfArgument(const yal_u32 argIdx) const
 {
     const ArgumentDeclNode* decl_node = _pFunctionDecl->functionArguments()->arguments()[argIdx];
-    return decl_node->type();
+    return decl_node->nodeType();
 }
 
 Type*
@@ -56,6 +58,12 @@ FunctionType::typeOfObject() const
 {
     //TODO: implement when needed
     return nullptr;
+}
+
+bool
+FunctionType::isPromotableTo(const Type*) const
+{
+    return false;
 }
 
 }

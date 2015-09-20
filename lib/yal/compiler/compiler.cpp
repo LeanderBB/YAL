@@ -10,7 +10,7 @@
 #include "yal/util/errorhandler.h"
 #include "yal/util/outputformater.h"
 #include "yal/bytecode/bytecodeprinter.h"
-
+#include "yal/types/typeregistry.h"
 namespace yal
 {
 
@@ -47,7 +47,9 @@ Compiler::compile()
         //yal::AstPrinter printer(_output);
         //printer.process(_state);
 
-        yal::SymbolTreeBuilder sym_builder(_errHandler);
+        yal::Module code_module;
+        yal::TypeRegistry type_registry(code_module);
+        yal::SymbolTreeBuilder sym_builder(_errHandler, type_registry);
         if(!sym_builder.process(_state))
         {
             return false;

@@ -38,8 +38,6 @@ set(YAL_HDR
     symbols/symboltable.h
     ast/astprinter.h
     symbols/symboltable.h
-    symbols/variablesym.h
-    symbols/functionsym.h
     symbols/symboltreebuilder.h
     symbols/type_utils.h
     types/type.h
@@ -92,8 +90,6 @@ set(YAL_SRC
     ast/printnode.cpp
     ast/whileloopnode.cpp
     symbols/symbol.cpp
-    symbols/variablesym.cpp
-    symbols/functionsym.cpp
     symbols/symboltable.cpp
     symbols/symboltreebuilder.cpp
     symbols/type_utils.cpp
