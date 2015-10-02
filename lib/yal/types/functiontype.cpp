@@ -50,7 +50,7 @@ FunctionType::typeOfArgument(const yal_u32 argIdx) const
 Type*
 FunctionType::typeOfReturnValue() const
 {
-    return (hasReturnValue()) ? _pFunctionDecl->returnValueType() : nullptr;
+    return  _pFunctionDecl->returnValueType();
 }
 
 Type*

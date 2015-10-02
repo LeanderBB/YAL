@@ -122,6 +122,7 @@ enum VmType
     kVmTypeObject,
     kVmTypeArray,
     kVmTypeString,
+    kVmTypeStringConstant,
     kVmTypeDictionary,
     kVmTypeFunction,
     kVmTypeTotal
@@ -132,10 +133,10 @@ const char*
 OperatorTypeToStr(const enum OperatorType val);
 
 bool
-OperatorRequiresUnsignedInt(const enum OperatorType val);
+OperatorRequiresInteger(const enum OperatorType val);
 
 bool
-OperatorRequiresSignedInt(const enum OperatorType val);
+OperatorRequiresSignedType(const enum OperatorType val);
 
 const char*
 ConstantTypeToStr(const ConstantType type);

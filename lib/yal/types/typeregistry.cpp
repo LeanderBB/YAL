@@ -2,7 +2,7 @@
 #include "yal/module/module.h"
 #include "yal/ast/functionnode.h"
 #include "yal/types/functiontype.h"
-
+#include "yal/types/undefined.h"
 namespace yal
 {
 
@@ -28,6 +28,21 @@ TypeRegistry::registerFunction(FunctionDeclNode* node)
     result= new FunctionType(id, node);
     registerType(node->functionName(), result);
     node->setNodeType(result);
+    return result;
+}
+
+Type*
+TypeRegistry::registerUndefined(const char* typeString)
+{
+    if (!canRegisterNewType(typeString))
+    {
+        return nullptr;
+    }
+
+    Type::TypeId_t id;
+    generateTypeId(id);
+    Type* result = new UndefinedType(id, typeString);
+    registerType(typeString, result);
     return result;
 }
 

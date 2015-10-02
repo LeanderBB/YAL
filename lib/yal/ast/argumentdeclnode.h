@@ -13,11 +13,7 @@ public:
     YAL_AST_NODE_ACCEPT_HDR(ArgumentDeclNode)
 
     ArgumentDeclNode(const SourceLocationInfo& loc,
-               const ConstantType type,
-               const char* name);
-
-    ArgumentDeclNode(const SourceLocationInfo& loc,
-               const char* id,
+               Type* type,
                const char* name);
 
     virtual ~ArgumentDeclNode();
@@ -27,22 +23,16 @@ public:
         return _argName;
     }
 
-    const char* argumentId() const
-    {
-        return _argId;
-    }
-
-    ConstantType argumentType() const
+    Type* argumentType() const
     {
         return _argType;
     }
 
-    bool isCostumType() const;
+    bool isCustomType() const;
 
 private:
     const char* _argName;
-    const char* _argId;
-    const ConstantType _argType;
+    Type* _argType;
 };
 
 typedef YALVector<ArgumentDeclNode*> ASTDeclArgVec_t;

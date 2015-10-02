@@ -65,6 +65,13 @@ static BuiltinType sTypeFloat64(
         kOperatorMaskDecimals,
         BuiltinType::kFloat64);
 
+static BuiltinType sTypeStringConstant(
+        kVmTypeStringConstant,
+        kTypeFlagIsBuiltinType | kTypeFlagIsStringConstant
+        | kTypeFlagIsPtrSized,
+        0,
+        BuiltinType::kStringConstant);
+
 YAL_TYPLE_IMPL_SRC(BuiltinType, 0x3aac95af)
 
 BuiltinType*
@@ -79,7 +86,8 @@ BuiltinType::GetBuiltinType(const Types type)
         &sTypeUInt32,
         &sTypeUInt64,
         &sTypeFloat32,
-        &sTypeFloat64
+        &sTypeFloat64,
+        &sTypeStringConstant
     };
 
     static_assert(YAL_ARRAY_SIZE(s_static_types) == kTotal,
@@ -108,7 +116,10 @@ BuiltinType::GetBuiltinTypeForConstantType(const ConstantType type)
         return &sTypeFloat32;
     case kConstantTypeFloat64:
         return &sTypeFloat64;
+    case kConstantTypeText:
+        return &sTypeStringConstant;
     default:
+        YAL_ASSERT(false && "Shouldn't be reached");
         return nullptr;
     }
 }
@@ -145,6 +156,28 @@ BuiltinType::isPromotableTo(const Type* t) const
 {
     const BuiltinType* other = cast_type<const BuiltinType>(t);
     return (other) ? sTypePromotionTable[_builtinType][other->_builtinType] : false;
+}
+
+const char*
+BuiltinType::typeString() const
+{
+    static const char* s_static_strings[] =
+    {
+        "void",
+        "bool",
+        "int32",
+        "int64",
+        "uint32",
+        "uint64",
+        "float32",
+        "float64",
+        "string (constant)"
+    };
+
+    static_assert(YAL_ARRAY_SIZE(s_static_strings) == kTotal,
+                  "Missing builtin type from array initialization");
+
+    return (_builtinType < kTotal) ? s_static_strings[_builtinType] : "Unknown";
 }
 
 }

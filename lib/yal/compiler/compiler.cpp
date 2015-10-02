@@ -47,9 +47,7 @@ Compiler::compile()
         //yal::AstPrinter printer(_output);
         //printer.process(_state);
 
-        yal::Module code_module;
-        yal::TypeRegistry type_registry(code_module);
-        yal::SymbolTreeBuilder sym_builder(_errHandler, type_registry);
+        yal::SymbolTreeBuilder sym_builder(_errHandler, _state.registry);
         if(!sym_builder.process(_state))
         {
             return false;

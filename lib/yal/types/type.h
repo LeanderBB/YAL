@@ -25,7 +25,10 @@ enum TypeFlags
     kTypeFlagIs64BitsSized      = 1 << 13,
     kTypeFlagIsPtrSized         = 1 << 14,
     kTypeFlagBooleanPromotable  = 1 << 15,
-    kTypeFlagIsVoidType         = 1 << 16
+    kTypeFlagIsVoidType         = 1 << 16,
+    kTypeFlagIsStringConstant   = 1 << 17,
+    kTypeFlagIsUndefined        = 1 << 18,
+    kTypeFlagIsImmutable        = 1 << 19
 };
 
 
@@ -113,6 +116,16 @@ public:
 
     bool isPromotableToBoolean() const;
 
+    bool isStringContant() const;
+
+    bool isImmutable() const;
+
+    bool isUndefined() const;
+
+    bool isSignedType() const;
+
+    bool isUnsignedType() const;
+
     bool acceptsOperator(const OperatorType op) const;
 
     VmType vmType() const
@@ -132,7 +145,10 @@ public:
 
     virtual void accept(TypeVisitor& visitor) = 0;
 
-    virtual const char* typeString() const = 0;
+    virtual const char* typeString() const
+    {
+        return typeStringImp();
+    }
 
     virtual bool isPromotableTo(const Type* t) const = 0;
 
@@ -141,6 +157,9 @@ protected:
     Type(const TypeId_t& id,
          const VmType vmType,
          const Id_t impId);
+
+private:
+    virtual const char* typeStringImp() const = 0;
 
 protected:
     const Id_t _impid;
@@ -157,10 +176,12 @@ protected:
 { \
     visitor.visit(*this); \
 } \
-    inline virtual const char* typeString() const override\
+private:    \
+    inline virtual const char* typeStringImp() const override\
 {\
     return #type; \
-}
+} \
+public:
 
 #define YAL_TYPLE_IMPL_SRC(type, impid) \
 Type::Id_t type::ImpId = impid;

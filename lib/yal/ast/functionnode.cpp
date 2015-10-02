@@ -29,13 +29,13 @@ YAL_AST_NODE_ACCEPT_IMP(FunctionDeclNode)
 FunctionDeclNode::FunctionDeclNode(const SourceLocationInfo& loc,
                                    const char* name,
                                    ArgumentDeclsNode *args,
-                                   const ConstantType returnType,
+                                   Type *returnType,
                                    CodeBodyNode *code):
     AstBaseNode(loc),
     _functionName(name),
     _functionArgs(args),
     _codeBody(code),
-    _returnValueType(BuiltinType::GetBuiltinTypeForConstantType(returnType))
+    _returnValueType(returnType)
 {
 
 }

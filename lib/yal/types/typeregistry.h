@@ -17,6 +17,8 @@ public:
 
     FunctionType* registerFunction(FunctionDeclNode* node);
 
+    Type* registerUndefined(const char* typeString);
+
     Type* typeForId(const Type::TypeId_t& t) const;
 
     Type* typeForName(const char* name) const;

@@ -116,18 +116,9 @@ void
 AstPrinter::visit(ArgumentDeclNode& node)
 {
     printIdent();
-    if (node.isCostumType())
-    {
-        _formater.format("%s> name:%s type:%s \n",node.astTypeStr(),
-                         node.argumentName(),
-                         node.argumentId());
-    }
-    else
-    {
-        _formater.format("%s> name:%s type:%s \n",node.astTypeStr(),
-                         node.argumentName(),
-                         ConstantTypeToStr(node.argumentType()));
-    }
+    _formater.format("%s> name:%s type:%s \n",node.astTypeStr(),
+                     node.argumentName(),
+                     node.argumentType()->typeString());
     _formater.write(_sink);
 }
 
@@ -366,9 +357,9 @@ AstPrinter::visit(WhileLoopNode& node)
     _formater.format("Condition>\n");
     _formater.write(_sink);
     _ident += kNumIdent;
-     node.condition()->accept(*this);
+    node.condition()->accept(*this);
 
-     printIdent();
+    printIdent();
     _formater.format("Code>\n");
     _formater.write(_sink);
     _ident += kNumIdent;

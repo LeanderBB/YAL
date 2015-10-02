@@ -68,7 +68,7 @@ public:
     FunctionDeclNode(const SourceLocationInfo& loc,
                      const char* name,
                      ArgumentDeclsNode* args,
-                     const ConstantType returnType,
+                     Type *returnType,
                      CodeBodyNode* code);
 
     virtual ~FunctionDeclNode();

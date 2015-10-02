@@ -150,7 +150,8 @@ Module::removeUnusedAndAssignIndices()
             }
             else
             {
-                YAL_ASSERT(global->variableType()->is64BitSized());
+                YAL_ASSERT(global->variableType()->is64BitSized()
+                           || global->variableType()->isPointerSized());
                 global->setModuleIndex(_globals64.size());
                 _globals64.push_back(global.get());
             }

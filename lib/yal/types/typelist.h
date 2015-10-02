@@ -3,3 +3,4 @@
  */
 YAL_TYPE_LIST_FUNC(BuiltinType)
 YAL_TYPE_LIST_FUNC(FunctionType)
+YAL_TYPE_LIST_FUNC(UndefinedType)

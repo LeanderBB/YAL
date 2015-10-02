@@ -22,6 +22,7 @@ public:
         kUInt64,
         kFloat32,
         kFloat64,
+        kStringConstant,
         kTotal
     };
 
@@ -43,9 +44,12 @@ public:
 
     virtual ~BuiltinType(){}
 
+    virtual const char* typeString() const override;
+
 protected:
     const Types _builtinType;
 };
+
 
 }
 

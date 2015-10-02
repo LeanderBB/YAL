@@ -139,6 +139,36 @@ Type::isPromotableToBoolean() const
 }
 
 bool
+Type::isStringContant() const
+{
+    return _typeFlags & kTypeFlagIsStringConstant;
+}
+
+bool
+Type::isUndefined() const
+{
+    return _typeFlags & kTypeFlagIsUndefined;
+}
+
+bool
+Type::isImmutable() const
+{
+    return _typeFlags & kTypeFlagIsImmutable;
+}
+
+bool
+Type::isSignedType() const
+{
+    return _typeFlags & kTypeFlagIsSignedType;
+}
+
+bool
+Type::isUnsignedType() const
+{
+     return _typeFlags & kTypeFlagIsUnsignedType;
+}
+
+bool
 Type::acceptsOperator(const OperatorType op) const
 {
     return _operatorFlags & op;

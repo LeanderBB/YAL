@@ -45,6 +45,7 @@ set(YAL_HDR
     types/builtintype.h
     types/functiontype.h
     types/typeregistry.h
+    types/undefined.h
     bytecode/bytecodebuffer.h
     bytecode/registerallocator.h
     bytecode/bytecodebuilder.h
@@ -97,6 +98,7 @@ set(YAL_SRC
     types/builtintype.cpp
     types/functiontype.cpp
     types/typeregistry.cpp
+    types/undefined.cpp
     bytecode/bytecodebuffer.cpp
     bytecode/registerallocator.cpp
     bytecode/bytecodebuilder.cpp

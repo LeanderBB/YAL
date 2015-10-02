@@ -1,7 +1,7 @@
 #include "yal/symbols/symbol.h"
 #include "yal/ast/functionnode.h"
 #include "yal/ast/variabledeclnode.h"
-
+#include "yal/ast/argumentdeclnode.h"
 namespace yal
 {
 
@@ -60,13 +60,14 @@ Symbol::isReadOnly() const
 bool
 Symbol::isVariable() const
 {
-    return ast_cast<VariableDeclNode>(_astNode) != nullptr;
+    return ast_typeof<VariableDeclNode>(_astNode)
+        || ast_typeof<ArgumentDeclNode>(_astNode);
 }
 
 bool
 Symbol::isFunction() const
 {
-    return ast_cast<FunctionDeclNode>(_astNode) != nullptr;
+    return ast_typeof<FunctionDeclNode>(_astNode);
 }
 
 }

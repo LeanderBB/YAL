@@ -128,7 +128,7 @@ SymbolTreeBuilder::visit(AssignOperatorNode& node)
     // validate types
     if (!didError())
     {
-        if (_expResult->isPromotableTo(var_type))
+        if (!_expResult->isPromotableTo(var_type))
         {
             _formater.format("Cannot assign expression to symbol '%s', expression type %s cannot be cast to %s\n",
                              variable_name,
@@ -177,7 +177,7 @@ SymbolTreeBuilder::visit(CompareOperatorNode& node)
 
     // evaluate right type
     Type* right_type = _expResult;
-    if (right_type->isPromotableTo(left_type))
+    if (!right_type->isPromotableTo(left_type))
     {
         _formater.format("Cannot convert right type to left type\n");
         logError(node);
@@ -204,7 +204,7 @@ SymbolTreeBuilder::visit(ConstantNode& node)
             return;
         }
 
-        if (sym->isVariable())
+        if (!sym->isVariable())
         {
             _formater.format("Symbol '%s' is not a variable \n", symbol_name);
             logError(node);
@@ -236,7 +236,7 @@ void
 SymbolTreeBuilder::visit(ArgumentDeclNode& node)
 {
     node.setSymbolTable(currentScope());
-    if (node.argumentId())
+    if (node.isCustomType())
     {
         _formater.format("Custom types not yet supported!!!\n");
         logError(node);
@@ -253,11 +253,10 @@ SymbolTreeBuilder::visit(ArgumentDeclNode& node)
         return;
     }
 
-    const ConstantType arg_type = node.argumentType();
-    Type* arg_data_type;
-    if (arg_type == kConstantTypeId)
+    Type* arg_data_type = node.argumentType();
+    if (node.isCustomType())
     {
-        sym = _curScope->resolveSymbol(node.argumentId());
+        /*sym = _curScope->resolveSymbol(node.argumentId());
         if (!sym)
         {
             _formater.format("Could not find type '%s'\n",
@@ -274,11 +273,7 @@ SymbolTreeBuilder::visit(ArgumentDeclNode& node)
             return;
         }
 
-        arg_data_type = sym->astNode()->nodeType();
-    }
-    else
-    {
-        arg_data_type = BuiltinType::GetBuiltinTypeForConstantType(arg_type);
+        arg_data_type = sym->astNode()->nodeType();*/
     }
 
     _curScope->declareSymbol(new Symbol(node.argumentName(),
@@ -428,16 +423,16 @@ SymbolTreeBuilder::visit(DualOperatorNode& node)
         node.rightExpression()->accept(*this);
     }
 
-    const bool requires_integer = OperatorRequiresUnsignedInt(op_type);
-    if (requires_integer && !_expResult->isUnsignedInteger())
+    const bool requires_integer = OperatorRequiresInteger(op_type);
+    if (requires_integer && !_expResult->isInteger())
     {
-        _formater.format("Operator '%s' requires that right expression has an unsigned integer result\n",
+        _formater.format("Operator '%s' requires that right expression has an integer result\n",
                          OperatorTypeToStr(op_type));
         logError(node);
         return;
     }
 
-    if (_expResult->isPromotableTo(cur_result_type))
+    if (!_expResult->isPromotableTo(cur_result_type))
     {
         _formater.format("Can not promote '%s' to '%s\n",
                          _expResult->typeString(), cur_result_type->typeString());
@@ -455,21 +450,21 @@ SymbolTreeBuilder::visit(SingleOperatorNode& node)
     node.expression()->accept(*this);
 
     const OperatorType op_type = node.singleOperatorType();
-    const bool requires_signed_int = OperatorRequiresSignedInt(op_type);
-    const bool requires_unsigned_int = OperatorRequiresUnsignedInt(op_type);
+    const bool requires_signed_int = OperatorRequiresSignedType(op_type);
+    const bool requires_integer = OperatorRequiresInteger(op_type);
 
 
-    if (requires_signed_int && !_expResult->isSignedInteger())
+    if (requires_signed_int && !_expResult->isSignedType())
     {
-        _formater.format("Operator '%s' requires a signed integer\n",
+        _formater.format("Operator '%s' requires a signed value\n",
                          OperatorTypeToStr(node.singleOperatorType()));
         logError(node);
         return;
     }
 
-    if (requires_unsigned_int && !_expResult->isUnsignedInteger())
+    if (requires_integer && !_expResult->isInteger())
     {
-        _formater.format("Operator '%s' requires an unsigend integer\n",
+        _formater.format("Operator '%s' requires an integer\n",
                          OperatorTypeToStr(node.singleOperatorType()));
         logError(node);
         return;
@@ -638,7 +633,7 @@ SymbolTreeBuilder::visit(ReturnNode& node)
         if (!didError())
         {
             // check if the return types match
-            if(_expResult->isPromotableTo(func_return))
+            if(!_expResult->isPromotableTo(func_return))
             {
                 _formater.format("Function '%s' returns '%s', but we are returning %s\n",
                                  function_name,

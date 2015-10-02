@@ -57,7 +57,7 @@ OperatorTypeToStr(const enum OperatorType val)
 }
 
 bool
-OperatorRequiresUnsignedInt(const enum OperatorType val)
+OperatorRequiresInteger(const enum OperatorType val)
 {
     switch(val)
     {
@@ -74,7 +74,7 @@ OperatorRequiresUnsignedInt(const enum OperatorType val)
 }
 
 bool
-OperatorRequiresSignedInt(const enum OperatorType val)
+OperatorRequiresSignedType(const enum OperatorType val)
 {
     switch(val)
     {
