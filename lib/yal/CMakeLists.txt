@@ -39,7 +39,6 @@ set(YAL_HDR
     ast/astprinter.h
     symbols/symboltable.h
     symbols/symboltreebuilder.h
-    symbols/type_utils.h
     types/type.h
     types/typelist.h
     types/builtintype.h
@@ -93,7 +92,6 @@ set(YAL_SRC
     symbols/symbol.cpp
     symbols/symboltable.cpp
     symbols/symboltreebuilder.cpp
-    symbols/type_utils.cpp
     types/type.cpp
     types/builtintype.cpp
     types/functiontype.cpp
@@ -121,7 +119,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${YAL_CXX_WERROR}")
 
 add_library(${YAL_LIB_CORE} STATIC ${YAL_SRC} ${YAL_HDR})
 
-target_link_libraries(${YAL_LIB_CORE} ${YAL_LIB_PARSER})
+target_link_libraries(${YAL_LIB_CORE})
 
 add_dependencies(${YAL_LIB_CORE} ${YAL_LIB_PARSER})
 add_dependencies(${YAL_LIB_CORE} yalvm)

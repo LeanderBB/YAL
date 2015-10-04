@@ -12,7 +12,6 @@
 #include "yal/ast/functionnode.h"
 #include "yal/ast/conditionnode.h"
 #include "yal/ast/returnnode.h"
-#include "yal/symbols/type_utils.h"
 #include "yal/parser/parser_state.h"
 #include "yal/ast/printnode.h"
 #include "yal/ast/whileloopnode.h"

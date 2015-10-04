@@ -5,7 +5,7 @@
 #include "yal/bytecode/bytecode_utils.h"
 #include "yal/util/inputsink.h"
 #include "yal/util/outputformater.h"
-#include "yalvm/yalvm_binary.h"
+#include <yalvm/yalvm_binary.h>
 
 namespace yal
 {

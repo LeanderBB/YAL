@@ -148,12 +148,16 @@ Module::removeUnusedAndAssignIndices()
                 global->setModuleIndex(_globals32.size());
                 _globals32.push_back(global.get());
             }
-            else
+            else if (global->variableType()->is64BitSized())
             {
-                YAL_ASSERT(global->variableType()->is64BitSized()
-                           || global->variableType()->isPointerSized());
                 global->setModuleIndex(_globals64.size());
                 _globals64.push_back(global.get());
+            }
+            else
+            {
+                YAL_ASSERT(global->variableType()->isPointerSized());
+                global->setModuleIndex(_globalsPtr.size());
+                _globalsPtr.push_back(global.get());
             }
             ++globals_it;
         }

@@ -16,6 +16,25 @@ enum Option
 };
 
 
+extern "C"
+{
+
+void*
+yalvm_malloc(size_t)
+{
+    YAL_ASSERT(false && "Should not be called, resolves linker dependency");
+    return NULL;
+}
+
+void
+yalvm_free(void*)
+{
+    YAL_ASSERT(false && "Should not be called, resolves linker dependency");
+}
+
+
+}
+
 int main(const int argc,
          const char** argv)
 {

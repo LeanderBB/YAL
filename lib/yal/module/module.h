@@ -63,6 +63,11 @@ public:
         return _globals64;
     }
 
+    const OrderedGlobalVec_t& globalsPtr() const
+    {
+        return _globalsPtr;
+    }
+
     const OrderedStringsVec_t& strings() const
     {
         return _stringsVec;
@@ -99,6 +104,7 @@ private:
     OrderedStringsVec_t _stringsVec;
     OrderedGlobalVec_t _globals32;
     OrderedGlobalVec_t _globals64;
+    OrderedGlobalVec_t _globalsPtr;
     OrderedFunctionVec_t _functions;
     size_t _totalStringSizeBytes;
 };

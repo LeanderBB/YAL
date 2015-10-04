@@ -16,9 +16,11 @@ static const char* yalvm_bytecode_inst_strings [] =
     /* Load Global */
     "load global32",
     "load global64",
+    "load globalptr",
      /* Store Global */
     "store global32",
     "store global64",
+    "store globalptr",
     /* Load value from memory */
     "load mem",
     /* Store value in memory */

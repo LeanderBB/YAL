@@ -13,9 +13,11 @@ enum yalvm_bytecode_inst
     /* Load Global */
     YALVM_BYTECODE_LOAD_GLOBAL_32,
     YALVM_BYTECODE_LOAD_GLOBAL_64,
+    YALVM_BYTECODE_LOAD_GLOBAL_PTR,
     /* Store Global */
     YALVM_BYTECODE_STORE_GLOBAL_32,
     YALVM_BYTECODE_STORE_GLOBAL_64,
+    YALVM_BYTECODE_STORE_GLOBAL_PTR,
     /* Load value from memory */
     YALVM_BYTECODE_LOAD_MEMORY,
     /* Store value in memory */

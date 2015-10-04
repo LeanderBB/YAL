@@ -159,11 +159,13 @@ ByteCodePrinter::print(const yalvm_func_header_t &function_header)
             /* Load Global */
         case YALVM_BYTECODE_LOAD_GLOBAL_32:
         case YALVM_BYTECODE_LOAD_GLOBAL_64:
+        case YALVM_BYTECODE_LOAD_GLOBAL_PTR:
             print2Argsu(code);
             break;
         /* Store Global */
         case YALVM_BYTECODE_STORE_GLOBAL_32:
         case YALVM_BYTECODE_STORE_GLOBAL_64:
+        case YALVM_BYTECODE_STORE_GLOBAL_PTR:
             print2Argsu(code);
             break;
         /* Load value from memory */
