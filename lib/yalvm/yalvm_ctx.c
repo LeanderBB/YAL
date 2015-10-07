@@ -3,115 +3,43 @@
 #include "yalvm/yalvm_hashing.h"
 #include "yalvm/yalvm_object.h"
 
-void
+yalvm_bool
 yalvm_ctx_create(yalvm_ctx_t* ctx,
+                 const yalvm_binary_t* binary,
                  void* stack,
                  const yalvm_size stack_size)
 {
+    /* valid input */
+    const yalvm_size globals_32 = sizeof(yalvm_u32) * yalvm_binary_num_globals32(binary);
+    const yalvm_size globals_64 = sizeof(yalvm_u64) * yalvm_binary_num_globals64(binary);
+    const yalvm_size globals_ptr = sizeof(yalvm_size) * yalvm_binary_num_globalsPtr(binary);
+    const yalvm_size globals_size = globals_32 + globals_64 + globals_ptr;
+
+    if (stack_size < globals_size)
+    {
+        return yalvm_false;
+    }
+
     yalvm_stack_init(&ctx->stack, stack, stack_size);
+    ctx->binary = binary;
     ctx->registers = NULL;
-    ctx->header = NULL;
-    ctx->constants32 = NULL;
-    ctx->constants64= NULL;
-    ctx->globals32 = NULL;
-    ctx->globals64 = NULL;
-    ctx->functions = NULL;
-    ctx->strings = NULL;
+    ctx->globals32 = globals_32 ? (yalvm_u32*) stack : NULL;
+    ctx->globals64 = globals_64 ? (yalvm_u64*)YALVM_PTR_ADD(stack, globals_32) : NULL;
+    ctx->globalsPtr = globals_ptr ? (yalvm_size*)YALVM_PTR_ADD(stack, globals_64) : NULL;
     ctx->pc = NULL;
+    ctx->globals_size = globals_size;
     ctx->print_buffer[0] = '\0';
+
+    return yalvm_true;
 }
 
 void
 yalvm_ctx_destroy(yalvm_ctx_t *ctx)
 {
-    if (ctx->functions)
-    {
-        yalvm_free(ctx->functions);
-        ctx->functions = NULL;
-    }
-
-    if (ctx->strings)
-    {
-        yalvm_free(ctx->strings);
-        ctx->strings = NULL;
-    }
+    (void) ctx;
+    /* nothing to do for now */
 }
 
-yalvm_bool
-yalvm_ctx_set_binary(yalvm_ctx_t* ctx,
-                     void* binary,
-                     const yalvm_size binary_size)
-{
-    yalvm_u8* input = (yalvm_u8*) binary;
-    const yalvm_u8* input_end = input + binary_size;
-
-    /* validate input */
-    const yalvm_bin_header_t* bin_header = (yalvm_bin_header_t*) input;
-
-    if (!yalvm_bin_header_valid_magic(bin_header))
-    {
-        return yalvm_false;
-    }
-
-    /* setup input ptrs */
-    ctx->header = bin_header;
-    ctx->binary = binary;
-    ctx->binary_end = input_end;
-
-    ctx->globals32 = (yalvm_bin_global32_t*) (input
-                                              + yalvm_bin_header_offset_global32(bin_header, 0));
-
-    ctx->globals64 = (yalvm_bin_global64_t*) (input
-                                              + yalvm_bin_header_offset_global64(bin_header, 0));
-
-    ctx->constants32 = (yalvm_u32*) (input
-                                     + yalvm_bin_header_offset_constant32(bin_header, 0));
-
-    ctx->constants64 = (yalvm_u64*) (input
-                                     + yalvm_bin_header_offset_constant32(bin_header, 0));
-
-
-    const void* string_offset = (input + yalvm_bin_header_offset_strings(bin_header));
-    /* cache string locations */
-    if (bin_header->n_strings)
-    {
-        ctx->strings = (const char**)yalvm_malloc(sizeof(char*) * bin_header->n_strings);
-        size_t offset = 0;
-        for (yalvm_u16 i = 0; i < bin_header->n_strings; ++i)
-        {
-            const void* cur_ptr = YALVM_PTR_ADD(string_offset, offset);
-            const yalvm_u32* string_size = (const yalvm_u32*) cur_ptr;
-            offset += sizeof(yalvm_u32);
-
-            ctx->strings[i] = (const char*) YALVM_PTR_ADD(string_offset, offset);
-            offset += (*string_size) + 1;
-        }
-    }
-
-    /* process functions */
-    ctx->functions = (const yalvm_func_header_t**)
-            yalvm_malloc(sizeof(yalvm_func_header_t) * bin_header->n_functions + 1);
-
-    input += yalvm_bin_header_offset_functions(bin_header);
-
-    for(yalvm_u32 i = 0; i < bin_header->n_functions; ++i)
-    {
-        yalvm_func_header_t* function_header = (yalvm_func_header_t*)input;
-
-        if (input >= input_end || !yalvm_func_header_valid_magic(function_header))
-        {
-            yalvm_ctx_destroy(ctx);
-            return yalvm_false;
-        }
-
-        ctx->functions[i] = function_header;
-
-        input += sizeof(yalvm_func_header_t)
-                + (sizeof(yalvm_bytecode_t) * function_header->code_size);
-    }
-
-    return yalvm_true;
-}
 
 
 
@@ -141,7 +69,7 @@ yalvm_ctx_execute(yalvm_ctx_t* ctx)
         return YALVM_ERROR_INVALID_CTX;
     }
 
-    while(ctx->pc && (yalvm_u8*)ctx->pc < ctx->binary_end)
+    while(ctx->pc && (yalvm_u8*)ctx->pc < ctx->binary->binary_end)
     {
         const yalvm_bytecode_t code = *(ctx->pc++);
         const yalvm_bytecode_inst_t inst = yalvm_bytecode_unpack_instruction(code);
@@ -156,7 +84,7 @@ yalvm_ctx_execute(yalvm_ctx_t* ctx)
             yalvm_u8 dst_reg;
             yalvm_u16 val;
             yalvm_bytecode_unpack_dst_value(code, &dst_reg, &val);
-            ctx->registers[dst_reg].reg32.value = ctx->globals32[val].val;
+            ctx->registers[dst_reg].reg32.value = ctx->globals32[val];
             break;
         }
         case YALVM_BYTECODE_LOAD_GLOBAL_64:
@@ -164,7 +92,15 @@ yalvm_ctx_execute(yalvm_ctx_t* ctx)
             yalvm_u8 dst_reg;
             yalvm_u16 val;
             yalvm_bytecode_unpack_dst_value(code, &dst_reg, &val);
-            ctx->registers[dst_reg].reg64.value = ctx->globals64[val].val;
+            ctx->registers[dst_reg].reg64.value = ctx->globals64[val];
+            break;
+        }
+        case YALVM_BYTECODE_LOAD_GLOBAL_PTR:
+        {
+            yalvm_u8 dst_reg;
+            yalvm_u16 val;
+            yalvm_bytecode_unpack_dst_value(code, &dst_reg, &val);
+            ctx->registers[dst_reg].ptr.value = (void*)ctx->globalsPtr[val];
             break;
         }
         case YALVM_BYTECODE_STORE_GLOBAL_32:
@@ -172,7 +108,7 @@ yalvm_ctx_execute(yalvm_ctx_t* ctx)
             yalvm_u8 dst_reg;
             yalvm_u16 val;
             yalvm_bytecode_unpack_dst_value(code, &dst_reg, &val);
-            ctx->globals32[val].val = ctx->registers[dst_reg].reg32.value;
+            ctx->globals32[val] = ctx->registers[dst_reg].reg32.value;
             break;
         }
         case YALVM_BYTECODE_STORE_GLOBAL_64:
@@ -180,7 +116,15 @@ yalvm_ctx_execute(yalvm_ctx_t* ctx)
             yalvm_u8 dst_reg;
             yalvm_u16 val;
             yalvm_bytecode_unpack_dst_value(code, &dst_reg, &val);
-            ctx->globals64[val].val = ctx->registers[dst_reg].reg64.value;
+            ctx->globals64[val] = ctx->registers[dst_reg].reg64.value;
+            break;
+        }
+        case YALVM_BYTECODE_STORE_GLOBAL_PTR:
+        {
+            yalvm_u8 dst_reg;
+            yalvm_u16 val;
+            yalvm_bytecode_unpack_dst_value(code, &dst_reg, &val);
+            ctx->globalsPtr[val] = (yalvm_size)ctx->registers[dst_reg].ptr.value;
             break;
         }
             /* Load value from memory */
@@ -204,7 +148,7 @@ yalvm_ctx_execute(yalvm_ctx_t* ctx)
             yalvm_u8 dst_reg;
             yalvm_u16 val;
             yalvm_bytecode_unpack_dst_value(code, &dst_reg, &val);
-            ctx->registers[dst_reg].reg32.value = ctx->constants32[val];
+            ctx->registers[dst_reg].reg32.value = ctx->binary->constants32[val];
             break;
         }
         case YALVM_BYTECODE_LOAD_CONST_64:
@@ -212,7 +156,7 @@ yalvm_ctx_execute(yalvm_ctx_t* ctx)
             yalvm_u8 dst_reg;
             yalvm_u16 val;
             yalvm_bytecode_unpack_dst_value(code, &dst_reg, &val);
-            ctx->registers[dst_reg].reg64.value = ctx->constants64[val];
+            ctx->registers[dst_reg].reg64.value = ctx->binary->constants64[val];
             break;
         }
             /* Summation instruction */
@@ -748,7 +692,7 @@ yalvm_ctx_execute(yalvm_ctx_t* ctx)
             yalvm_u8 dst;
             yalvm_u16 value;
             yalvm_bytecode_unpack_dst_value(code, &dst, &value);
-            const yalvm_func_header_t* function = ctx->functions[value];
+            const yalvm_func_header_t* function = ctx->binary->functions[value];
 
             /* create new stack frame */
             if (!yalvm_stack_frame_begin(&ctx->stack, function->n_registers))
@@ -842,7 +786,7 @@ yalvm_ctx_execute(yalvm_ctx_t* ctx)
             yalvm_u8 dst_reg;
             yalvm_u16 val;
             yalvm_bytecode_unpack_dst_value(code, &dst_reg, &val);
-            ctx->registers[dst_reg].ptr.value = (void*)ctx->strings[val];
+            ctx->registers[dst_reg].ptr.value = (void*)ctx->binary->strings[val];
             break;
         }
             /* Print instruction */
@@ -967,61 +911,37 @@ yalvm_ctx_execute(yalvm_ctx_t* ctx)
 yalvm_u32
 yalvm_ctx_num_globals32(const yalvm_ctx_t* ctx)
 {
-    return (ctx->header) ? ctx->header->n_globals32 : 0;
+    return (ctx->binary) ? yalvm_binary_num_globals32(ctx->binary) : 0;
 }
 
 yalvm_u32
 yalvm_ctx_num_globals64(const yalvm_ctx_t* ctx)
 {
-    return (ctx->header) ? ctx->header->n_globals64 : 0;
+    return (ctx->binary) ? yalvm_binary_num_globals64(ctx->binary) : 0;
+}
+
+yalvm_u32
+yalvm_ctx_num_globalsPtr(const yalvm_ctx_t* ctx)
+{
+    return (ctx->binary) ? yalvm_binary_num_globalsPtr(ctx->binary) : 0;
 }
 
 yalvm_u32
 yalvm_ctx_num_functions(const yalvm_ctx_t* ctx)
 {
-    return (ctx->header) ? ctx->header->n_functions : 0;
+    return (ctx->binary) ? yalvm_binary_num_functions(ctx->binary) : 0;
 }
 
-const yalvm_bin_global32_t*
+const yalvm_u32 *
 yalvm_ctx_globals32(const yalvm_ctx_t* ctx)
 {
-    return (ctx->header) ? ctx->globals32 : NULL;
+    return (ctx->globals32) ? ctx->globals32 : NULL;
 }
 
-const yalvm_bin_global64_t*
+const yalvm_u64 *
 yalvm_ctx_globals64(const yalvm_ctx_t* ctx)
 {
-    return (ctx->header) ? ctx->globals64 : NULL;
-}
-
-const yalvm_bin_global32_t*
-yalvm_ctx_globals32_by_name(const yalvm_ctx_t* ctx,
-                            const char* name)
-{
-    const yalvm_u32 hash = yalvm_one_at_a_time_hash(name);
-    for(yalvm_u32 i = 0; i < ctx->header->n_globals32; ++i)
-    {
-        if (ctx->globals32[i].hash == hash)
-        {
-            return &ctx->globals32[i];
-        }
-    }
-    return NULL;
-}
-
-const yalvm_bin_global64_t*
-yalvm_ctx_globals64_by_name(const yalvm_ctx_t* ctx,
-                            const char* name)
-{
-    const yalvm_u32 hash = yalvm_one_at_a_time_hash(name);
-    for(yalvm_u32 i = 0; i < ctx->header->n_globals64; ++i)
-    {
-        if (ctx->globals64[i].hash == hash)
-        {
-            return &ctx->globals64[i];
-        }
-    }
-    return NULL;
+    return (ctx->globals64) ? ctx->globals64 : NULL;
 }
 
 yalvm_bool
@@ -1040,12 +960,12 @@ yalvm_ctx_acquire_function(yalvm_ctx_t* ctx,
 
 
     const yalvm_func_header_t* function_header = NULL;
-    for(yalvm_i32 i = (yalvm_i32)ctx->header->n_functions - 1;
+    for(yalvm_i32 i = (yalvm_i32)ctx->binary->header->n_functions - 1;
         i >= 0 && !function_header; --i)
     {
-        if (ctx->functions[i]->hash == func_hash)
+        if (ctx->binary->functions[i]->hash == func_hash)
         {
-            function_header = ctx->functions[i];
+            function_header = ctx->binary->functions[i];
         }
     }
 

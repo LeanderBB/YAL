@@ -9,59 +9,25 @@ namespace yal
 
 typedef yal_u32 SymbolType_t;
 
-class Symbol;
-class DataType
-{
-public:
-
-    static const DataType VoidType;
-
-    static const char* ToStr(const DataType& type);
-
-    static bool IsInteger(const DataType& type);
-
-    static bool IsNumber(const DataType& type);
-
-    static bool IsSigned(const DataType& type);
-
-    static bool Is32Bits(const DataType& type);
-
-    static bool Is64Bits(const DataType& type);
-
-    static bool IsRefCounted(const DataType& type);
-
-    DataType();
-
-    explicit DataType(const ConstantType type);
-
-    explicit DataType(const Symbol* type);
-
-    inline bool isBuiltinType() const
-    {
-        return this->origin == kSymbolDataOriginBuiltin;
-    }
-
-    bool operator == (const DataType& other) const;
-
-    bool operator != (const DataType& other) const;
-
-public:
-    SymbolDataOrigin origin;
-    union
-    {
-        ConstantType builtin;
-        const Symbol* custom;
-    } data;
-};
-
-
+class Type;
 class SymbolTable;
+class AstBaseNode;
 class Symbol
 {
 public:
 
+    enum Flags
+    {
+        kFlagAssignable     = 1 << 0,
+        kFlagReadOnly       = 1 << 1,
+        kFlagGlobalSymbol   = 1 << 2
+    };
+
+\
     Symbol(const char* name,
-           const yal_u32 scopeLevel);
+           const yal_u32 scopeLevel,
+           AstBaseNode* astNode,
+           const yal_u32 flags = 0);
 
     virtual ~Symbol() {}
 
@@ -75,17 +41,6 @@ public:
     const SymbolTable* scope() const
     {
         return _pSymScope;
-    }
-
-    bool hasArguments() const
-    {
-        return argumentCount() != 0;
-    }
-
-    bool hasReturnValue() const
-    {
-        const DataType dt = returnType();
-        return dt != DataType::VoidType;
     }
 
     void touchRead();
@@ -114,41 +69,39 @@ public:
         return _scopeLevel;
     }
 
-    virtual SymbolType_t symbolType() const = 0;
+    yal_u32 symbolFlags() const
+    {
+        return _symbolFlags;
+    }
 
-    virtual DataType returnType() const = 0;
+    bool isAssignable() const;
 
-    virtual bool isCallable() const = 0;
+    bool isReadOnly() const;
 
-    virtual bool supportsVariableArguments() const = 0;
+    AstBaseNode* astNode() const
+    {
+        return _astNode;
+    }
 
-    virtual yal_u32 argumentCount() const = 0;
+    bool isVariable() const;
 
-    virtual DataType argumentTypeOf(const yal_u32 argIdx) const = 0;
+    bool isFunction() const;
 
-    virtual bool isRefCounted() const { return false; }
+    bool isGlobalSymbol() const
+    {
+        return _symbolFlags & kFlagGlobalSymbol;
+    }
 
 protected:
     const char* _symName;
     mutable const SymbolTable* _pSymScope;
+    AstBaseNode* _astNode;
     yal_u32 _readCount;
     yal_u32 _writeCount;
     yal_u32 _callCount;
     const yal_u32 _scopeLevel;
+    yal_u32 _symbolFlags;
 };
-
-template<class Sym>
-inline bool symbol_typeof(const Symbol* pSymbol)
-{
-    return pSymbol->symbolType() == Sym::SymbolType;
-}
-
-template<class Sym>
-inline Sym* symbol_cast(Symbol* pSymbol)
-{
-    return (symbol_typeof<Sym>(pSymbol)) ? static_cast<Sym*>(pSymbol) : nullptr;
-}
-
 
 }
 #endif

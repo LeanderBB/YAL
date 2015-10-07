@@ -113,7 +113,7 @@ public:
         _memorySink(1024*1024*10),
         _vm()
     {
-        yalvm_ctx_create(&_vm, stack, 1024 * 1024);
+        yalvm_binary_init(&_vmBinary);
         memset(&_funcHdl, 0, sizeof(_funcHdl));
     }
 
@@ -121,6 +121,7 @@ public:
     {
         yalvm_ctx_release_function(&_funcHdl);
         yalvm_ctx_destroy(&_vm);
+        yalvm_binary_destroy(&_vmBinary);
     }
 
     bool compile()
@@ -130,8 +131,13 @@ public:
 
         if (compile_result)
         {
-            if (yalvm_ctx_set_binary(&_vm, _memorySink.buffer(),
-                                     _memorySink.bufferSize()) != yalvm_true)
+            if (yalvm_binary_load(&_vmBinary,  _memorySink.buffer(),
+                                  _memorySink.bufferSize()) != yalvm_true)
+            {
+                return false;
+            }
+
+            if (yalvm_ctx_create(&_vm, &_vmBinary, stack, 1024 * 1024) != yalvm_true)
             {
                 return false;
             }
@@ -157,6 +163,7 @@ public:
 protected:
     const std::string _filePath;
     yal::MemoryOutputSink  _memorySink;
+    yalvm_binary_t _vmBinary;
     yalvm_ctx  _vm;
     char stack[1024 * 1024];
     yalvm_func_hdl_t _funcHdl;
@@ -176,7 +183,7 @@ TEST(ExecutionTest, WhileLoop)
         return;
     }
 
-    const bool setup_result = tvm.loadFunction(yalvm_func_global_name());
+    const bool setup_result = tvm.loadFunction("loop");
     EXPECT_EQ(setup_result, true);
 
     if (setup_result)
@@ -186,14 +193,7 @@ TEST(ExecutionTest, WhileLoop)
         const yalvm_u32 exec_val = yalvm_func_hdl_execute(func_hdl);
         EXPECT_EQ(exec_val, YALVM_ERROR_NONE);
 
-        const yalvm_bin_global32_t* global = yalvm_ctx_globals32_by_name(func_hdl->ctx,
-                                                                         "i");
-        EXPECT_NE(global, nullptr);
-
-        if (global)
-        {
-            EXPECT_EQ(global->val, 10u);
-        }
+        EXPECT_EQ(func_hdl->return_register.reg32.i, 10);
     }
 }
 
@@ -546,7 +546,7 @@ TEST(ExecutionTest, GlobalAccessOptimization1)
         return;
     }
 
-    const bool setup_result = tvm.loadFunction(yalvm_func_global_name());
+    const bool setup_result = tvm.loadFunction("access");
     EXPECT_EQ(setup_result, true);
 
     if (setup_result)
@@ -556,14 +556,7 @@ TEST(ExecutionTest, GlobalAccessOptimization1)
         const yalvm_u32 exec_val = yalvm_func_hdl_execute(func_hdl);
         EXPECT_EQ(exec_val, YALVM_ERROR_NONE);
 
-        const yalvm_bin_global32_t* global = yalvm_ctx_globals32_by_name(func_hdl->ctx,
-                                                                         "x");
-        EXPECT_NE(global, nullptr);
-
-        if (global)
-        {
-            EXPECT_EQ(global->val, 3u);
-        }
+        EXPECT_EQ(func_hdl->return_register.reg32.i, 3);
     }
 }
 

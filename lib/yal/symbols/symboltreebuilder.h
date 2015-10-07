@@ -3,20 +3,21 @@
 
 #include "yal/ast/astnodevisitor.h"
 #include "yal/symbols/symboltable.h"
-#include "yal/symbols/functionsym.h"
-#include "yal/symbols/variablesym.h"
 #include "yal/util/errorhandler.h"
 #include "yal/util/outputformater.h"
 #include "yal/parser/parser_state.h"
 #include <stack>
 
+
 namespace yal
 {
-
+class TypeRegistry;
+class Type;
 class SymbolTreeBuilder : public AstNodeVisitor
 {
 public:
-    SymbolTreeBuilder(ErrorHandler& errHandler);
+    SymbolTreeBuilder(ErrorHandler& errHandler,
+                      TypeRegistry& typeRegistry);
 
     virtual ~SymbolTreeBuilder();
 
@@ -56,11 +57,12 @@ private:
     ParserState* _parserState;
     SymbolTable _globalSym;
     SymbolTable* _curScope;
-    FunctionSym* _curFunctionDecl;
-    const FunctionSym* _curFunctionCall;
+    Symbol* _curFunctionDecl;
+    const Symbol* _curFunctionCall;
     ErrorHandler& _errHandler;
+    TypeRegistry& _typeRegistry;
     SymbolTableStack_t _scopeStack;
-    DataType _expResult;
+    Type* _expResult;
     OutputFormater _formater;
     yal_u32 _scopeCounter;
     bool _error;

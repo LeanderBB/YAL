@@ -12,7 +12,7 @@ public:
     YAL_AST_NODE_ACCEPT_HDR(SingleOperatorNode)
 
     SingleOperatorNode(const SourceLocationInfo& loc,
-                  const SingleOperatorType optype,
+                  const OperatorType optype,
                   ExpressionNode* exp);
 
     virtual ~SingleOperatorNode();
@@ -22,13 +22,13 @@ public:
         return _pExpression;
     }
 
-    SingleOperatorType singleOperatorType() const
+    OperatorType singleOperatorType() const
     {
         return _singleOperatorType;
     }
 
 private:
-    const SingleOperatorType _singleOperatorType;
+    const OperatorType _singleOperatorType;
     ExpressionNode* _pExpression;
 };
 

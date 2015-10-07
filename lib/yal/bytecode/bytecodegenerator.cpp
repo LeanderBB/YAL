@@ -13,11 +13,12 @@
 #include "yal/ast/conditionnode.h"
 #include "yal/ast/returnnode.h"
 #include "yal/symbols/symboltable.h"
-#include "yal/symbols/variablesym.h"
-#include "yal/symbols/functionsym.h"
 #include "yal/bytecode/bytecode_utils.h"
 #include "yal/ast/printnode.h"
 #include "yal/ast/whileloopnode.h"
+#include "yal/types/type.h"
+#include "yal/types/functiontype.h"
+#include "yal/types/builtintype.h"
 #include <cstdio>
 #include <limits>
 
@@ -42,7 +43,7 @@ class ByteCodeGenerator::GlobalScopeAction : public ByteCodeGenerator::IScopeAct
 public:
 
     GlobalScopeAction(const char* globalName,
-                      const DataType globalType,
+                      const Type* globalType,
                       const yal_u32 globalIdx,
                       Register reg):
         _global(globalName),
@@ -88,7 +89,7 @@ public:
 protected:
     const char* _global;
     Register _reg;
-    const DataType _globalType;
+    const Type* _globalType;
     const yal_u32 _globalIdx;
     bool _shouldRelease;
 };
@@ -243,10 +244,12 @@ ByteCodeGenerator::setupFunction(const yal::FunctionDeclNode &node)
         }
     }
 
-    FunctionSym* func_sym = symbol_cast<FunctionSym>(node.symbolTable()->resolveSymbol(node.functionName()));
-    YAL_ASSERT(func_sym);
+    Symbol* func_sym = node.symbolTable()->resolveSymbol(node.functionName());
+    YAL_ASSERT(func_sym && func_sym->isFunction());
 
-    return func_sym->hasReturnValue();
+    FunctionType* fn_type = cast_type<FunctionType>(func_sym->astNode()->nodeType());
+    YAL_ASSERT(fn_type);
+    return fn_type->hasReturnValue();
 }
 
 bool
@@ -258,7 +261,7 @@ ByteCodeGenerator::registerScope(const SymbolTable* table)
     for(; symbolit != symbolit_end; ++symbolit)
     {
         const SymbolTable::SymbolPtr_t& symbol = symbolit->second;
-        if(symbol_typeof<VariableSym>(symbol.get()))
+        if(symbol->isVariable())
         {
             yal_i32 result = _regAllocator.allocate(symbol->symbolName(),
                                                     table->level());
@@ -280,7 +283,7 @@ ByteCodeGenerator::unregisterScope(const SymbolTable* table)
     for(; symbolit != symbolit_end; ++symbolit)
     {
         const SymbolTable::SymbolPtr_t& symbol = symbolit->second;
-        if(symbol_typeof<VariableSym>(symbol.get()))
+        if(symbol->isVariable())
         {
             _regAllocator.deallocate(symbol->symbolName(),
                                      table->level());
@@ -459,14 +462,13 @@ ByteCodeGenerator::visit(AssignOperatorNode& node)
 
     const SymbolTable* sym_table = node.symbolTable();
 
-    Symbol* symbol = sym_table->resolveSymbol(node.variableName());
-    const VariableSym* var_symbol = symbol_cast<VariableSym>(symbol);
+    Symbol* var_symbol = sym_table->resolveSymbol(node.variableName());
     const char* variable_name = node.variableName();
 
-    YAL_ASSERT(var_symbol);
+    YAL_ASSERT(var_symbol->isVariable());
 
     Register var_register;
-    const bool var_is_global = var_symbol->isGlobal();
+    const bool var_is_global = var_symbol->isGlobalSymbol();
     yal_u32 global_idx = ModuleIndexable::IndexUnused;
     if (var_is_global)
     {
@@ -487,7 +489,7 @@ ByteCodeGenerator::visit(AssignOperatorNode& node)
             var_register.disablePopRelease();
             // register the global variable with the cache
             if (!addScopeAction(new GlobalScopeAction(var_symbol->symbolName(),
-                                                      var_symbol->returnType(),
+                                                      var_symbol->astNode()->nodeType(),
                                                       global_idx,
                                                       var_register)))
             {
@@ -523,11 +525,12 @@ ByteCodeGenerator::visit(AssignOperatorNode& node)
         return;
     }
 
-    if (node.typeInfo().isBuiltinType())
+    const Type* exp_type = node.expressionType();
+    if (exp_type->isBuiltinType())
     {
 
         yalvm_bytecode_inst_t inst =  AssignOperatorByteCodeInst(node.assignOperatorType(),
-                                                                 node.typeInfo().data.builtin);
+                                                                 exp_type);
 
 
         yalvm_bytecode_t code;
@@ -602,10 +605,11 @@ ByteCodeGenerator::visit(CompareOperatorNode& node)
     Register result_register(_regAllocator);
     pushRegister(result_register);
 
-    if (node.typeInfo().isBuiltinType())
+    const Type* exp_type = node.expressionType();
+    if (exp_type->isBuiltinType())
     {
         yalvm_bytecode_inst_t inst = CompareOperatorByteCodeInst(node.compareOperatorType(),
-                                                                 node.typeInfo().data.builtin);
+                                                                 exp_type);
 
         YAL_ASSERT(inst != YALVM_BYTECODE_TOTAL);
 
@@ -640,8 +644,9 @@ ByteCodeGenerator::visit(ConstantNode& node)
 
     Register cur_register = Register(_regAllocator);
 
-    YAL_ASSERT(node.constantType().isBuiltinType());
-    switch(node.constantType().data.builtin)
+    const Type* exp_type = node.expressionType();
+    YAL_ASSERT(exp_type->isBuiltinType());
+    switch(node.constantValue().type())
     {
     case kConstantTypeId:
     {
@@ -649,12 +654,11 @@ ByteCodeGenerator::visit(ConstantNode& node)
 
         const SymbolTable* sym_table = node.symbolTable();
 
-        Symbol* symbol = sym_table->resolveSymbol(var_name);
-        const VariableSym* var_symbol = symbol_cast<VariableSym>(symbol);
+        const Symbol* var_symbol = sym_table->resolveSymbol(var_name);
 
-        YAL_ASSERT(var_symbol);
+        YAL_ASSERT(var_symbol && var_symbol->isVariable());
 
-        const bool var_is_global = var_symbol->isGlobal();
+        const bool var_is_global = var_symbol->isGlobalSymbol();
         if (var_is_global)
         {
             // check if the global variable is cached in a local register
@@ -674,10 +678,11 @@ ByteCodeGenerator::visit(ConstantNode& node)
                 }
                 cur_register.disablePopRelease();
 
-                instruction = LoadGlobalByteCodeInst(var_symbol->returnType());
+                const Type* node_type = var_symbol->astNode()->nodeType();
+                instruction = LoadGlobalByteCodeInst(node_type);
                 // register the global variable with the cache
                 if (!addScopeAction(new GlobalScopeAction(var_symbol->symbolName(),
-                                                          var_symbol->returnType(),
+                                                          node_type,
                                                           inst_value,
                                                           cur_register)))
                 {
@@ -844,7 +849,7 @@ void
 ByteCodeGenerator::visit(ArgumentDeclNode& node)
 {
     (void) node;
-    _formater.format("Node '%s' Should not be reached\n", node.nodeTypeStr());
+    _formater.format("Node '%s' Should not be reached\n", node.astTypeStr());
     logError(node);
     return;
 }
@@ -853,7 +858,7 @@ void
 ByteCodeGenerator::visit(ArgumentDeclsNode& node)
 {
     (void) node;
-    _formater.format("Node '%s' Should not be reached\n", node.nodeTypeStr());
+    _formater.format("Node '%s' Should not be reached\n", node.astTypeStr());
     logError(node);
     return;
 }
@@ -914,12 +919,12 @@ ByteCodeGenerator::visit(DualOperatorNode& node)
 
     pushRegister(cur_register);
 
-    const DataType node_type = node.typeInfo();
+    const Type* exp_type = node.expressionType();
 
-    if (node_type.isBuiltinType())
+    if (exp_type->isBuiltinType())
     {
         yalvm_bytecode_inst_t inst = DualOperatorByteCodeInst(node.dualOperatorType(),
-                                                              node_type.data.builtin);
+                                                              exp_type);
 
         YAL_ASSERT(inst != YALVM_BYTECODE_TOTAL);
 
@@ -954,17 +959,17 @@ ByteCodeGenerator::visit(SingleOperatorNode& node)
     node.expression()->accept(*this);
 
     // nothing to do for block operator
-    if (!didError() && node.singleOperatorType() != kSingleOperatorTypeBlock)
+    if (!didError())
     {
 
         const Register& top = topRegister();
 
-        const DataType node_type = node.typeInfo();
+        const Type* exp_type = node.expressionType();
 
-        if (node_type.isBuiltinType())
+        if (exp_type->isBuiltinType())
         {
             yalvm_bytecode_inst_t inst = SingeOperatorByteCodeInst(node.singleOperatorType(),
-                                                                   node_type.data.builtin);
+                                                                   exp_type);
 
             YAL_ASSERT(inst != YALVM_BYTECODE_TOTAL);
 
@@ -989,7 +994,7 @@ ByteCodeGenerator::visit(FunctionCallNode& node)
     const char* function_name = node.functionName();
 
     // load function symbol
-    const FunctionSym* function_sym = symbol_cast<FunctionSym>(node.symbolTable()->resolveSymbol(function_name));
+    const Symbol* function_sym = node.symbolTable()->resolveSymbol(function_name);
     if (!function_sym)
     {
         _formater.format("Could not find function symbol for '%s'\n",
@@ -997,6 +1002,8 @@ ByteCodeGenerator::visit(FunctionCallNode& node)
         logError(node);
         return;
     }
+
+    YAL_ASSERT(function_sym->isFunction());
 
 
     yal_u32 function_idx = 0;
@@ -1011,8 +1018,9 @@ ByteCodeGenerator::visit(FunctionCallNode& node)
     Register function_call_reg = Register(_regAllocator);
     YAL_ASSERT(function_call_reg.isValid());
 
+    const FunctionType* func_type = cast_type<FunctionType>(function_sym->astNode()->nodeType());
     Register return_register;
-    if (function_sym->hasReturnValue())
+    if (func_type->hasReturnValue())
     {
         return_register = Register(_regAllocator);
         pushRegister(return_register);
@@ -1043,7 +1051,7 @@ void
 ByteCodeGenerator::visit(FunctionDeclNode& node)
 {
     (void) node;
-    _formater.format("Node '%s' Should not be reached\n", node.nodeTypeStr());
+    _formater.format("Node '%s' Should not be reached\n", node.astTypeStr());
     logError(node);
     return;
 }
@@ -1186,7 +1194,7 @@ ByteCodeGenerator::visit(PrintArgsNode& node)
         Register tmp_register  = popRegister();
         YAL_ASSERT(tmp_register.isValid());
 
-        const yalvm_bytecode_inst_t print_inst = PrintByteCodeInst(exp->returnTypeInfo());
+        const yalvm_bytecode_inst_t print_inst = PrintByteCodeInst(exp->expressionType());
         const yalvm_bytecode_t code = yalvm_bytecode_pack_one_register(print_inst,
                                                                        tmp_register.registerIdx());
         _buffer.append(code);

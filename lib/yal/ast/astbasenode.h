@@ -12,6 +12,7 @@ namespace yal
 {
 class SymbolTable;
 
+class Type;
 class AstBaseNode
 {
 public:
@@ -25,9 +26,9 @@ public:
 
     virtual void accept(AstNodeVisitor& visitor) = 0;
 
-    virtual AstType nodeType() const = 0;
+    virtual AstType astType() const = 0;
 
-    virtual const char* nodeTypeStr() const = 0;
+    virtual const char* astTypeStr() const = 0;
 
     const SourceLocationInfo& locationInfo() const
     {
@@ -44,28 +45,38 @@ public:
         _pSymTable = pSymTable;
     }
 
-    DataType typeInfo() const
+    void setNodeType(Type* type)
     {
-        return _typeInfo;
+        _nodeType = type;
     }
 
-    DataType returnTypeInfo() const
+    Type* nodeType() const
     {
-        return _returnTypeInfo;
+        return _nodeType;
     }
 
-    void setTypeInfo(const DataType type,
-                     const DataType returnType)
+    void setExpressionType(Type* type)
     {
-        _typeInfo = type;
-        _returnTypeInfo = returnType;
+        _expType = type;
+    }
+
+    Type* expressionType() const
+    {
+        return _expType;
+    }
+
+    void setTypeInfo(Type* nodeType,
+                     Type* expressionType)
+    {
+        _nodeType = nodeType;
+        _expType = expressionType;
     }
 
 protected:
     const SourceLocationInfo _loc;
-    DataType _typeInfo;
-    DataType _returnTypeInfo;
     SymbolTable* _pSymTable = nullptr;
+    Type* _nodeType = nullptr;
+    Type* _expType = nullptr;
 };
 
 
@@ -78,11 +89,11 @@ typedef YALVector<yal::AstBaseNode*> AstBaseNodeVec_t;
         visitor.visit(*this); \
     } \
     \
-    inline virtual yal::AstType nodeType() const override \
+    inline virtual yal::AstType astType() const override \
     { \
         return YAL_AST_NODE_TYPE(type); \
     } \
-    inline virtual const char* nodeTypeStr() const override\
+    inline virtual const char* astTypeStr() const override\
     {\
         return #type; \
     }
@@ -100,7 +111,7 @@ const yal::AstType type::NodeType = YAL_AST_NODE_TYPE(type);
 template<class Sym>
 inline bool ast_typeof(const AstBaseNode* pNode)
 {
-    return pNode->nodeType() == Sym::NodeType;
+    return pNode->astType() == Sym::NodeType;
 }
 
 template<class Sym>

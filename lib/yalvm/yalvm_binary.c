@@ -1,5 +1,7 @@
 #include "yalvm/yalvm_binary.h"
 #include "yalvm/yalvm_hashing.h"
+#include "yalvm/yalvm_bytecode.h"
+#include "yalvm/yalvm_external.h"
 
 static const yalvm_u32 yalvm_bin_header_magic  = 0x10e5af18;
 static const yalvm_u32 yalvm_func_header_magic = 0x04974ceb;
@@ -18,30 +20,6 @@ yalvm_bin_header_offset_functions(const yalvm_bin_header_t* header)
     return offset;
 }
 
-yalvm_u32
-yalvm_bin_header_offset_global32(const yalvm_bin_header_t* header,
-                          const yalvm_u16 index)
-{
-     yalvm_u32 offset = yalvm_bin_header_offset_constant64(header, header->n_constants64);
-    return (index <= header->n_globals32)
-            ? offset + (sizeof(yalvm_bin_global32_t) * index)
-            : YAVLM_BIN_INDEX_INVALID;
-}
-
-yalvm_u32
-yalvm_bin_header_offset_global64(const yalvm_bin_header_t* header,
-                          const yalvm_u16 index)
-{
-    yalvm_u32 offset = yalvm_bin_header_offset_global32(header, header->n_globals32);
-    if (index <= header->n_globals64)
-    {
-        return offset + (sizeof(yalvm_bin_global64_t) * index);
-    }
-    else
-    {
-        return YAVLM_BIN_INDEX_INVALID;
-    }
-}
 
 yalvm_u32
 yalvm_bin_header_offset_constant32(const yalvm_bin_header_t* header,
@@ -77,7 +55,7 @@ yalvm_u32
 yalvm_bin_header_offset_objdescs(const yalvm_bin_header_t* header,
                                  const yalvm_u16 index)
 {
-    yalvm_u32 offset = yalvm_bin_header_offset_global64(header, header->n_globals64);
+    yalvm_u32 offset = yalvm_bin_header_offset_constant64(header, header->n_constants64);
     if (index <= header->n_objdescs)
     {
         return offset + (sizeof(yalvm_obj_descriptor_t) * index);
@@ -138,6 +116,121 @@ yalvm_func_global_hash()
 {
     const yalvm_u32 hash = yalvm_one_at_a_time_hash(yalvm_func_global_name());
     return hash;
+}
+
+
+void
+yalvm_binary_init(yalvm_binary_t* binary)
+{
+    memset(binary, 0, sizeof(yalvm_binary_t));
+}
+
+void
+yalvm_binary_destroy(yalvm_binary_t* binary)
+{
+    if (binary->strings)
+    {
+        YALVM_SAFE_FREE(binary->strings);
+    }
+
+    if (binary->functions)
+    {
+        YALVM_SAFE_FREE(binary->functions);
+    }
+}
+
+yalvm_bool
+yalvm_binary_load(yalvm_binary_t* binary,
+                  const void* binary_data,
+                  const yalvm_size binary_size)
+{
+    const yalvm_u8* input = (const yalvm_u8*) binary_data;
+    const yalvm_u8* input_end = input + binary_size;
+
+    /* validate input */
+    const yalvm_bin_header_t* bin_header = (yalvm_bin_header_t*) input;
+
+    if (!yalvm_bin_header_valid_magic(bin_header))
+    {
+        return yalvm_false;
+    }
+
+    /* setup input ptrs */
+    binary->header = bin_header;
+    binary->binary = binary_data;
+    binary->binary_end = input_end;
+
+    binary->constants32 = (yalvm_u32*) (input
+                                     + yalvm_bin_header_offset_constant32(bin_header, 0));
+
+    binary->constants64 = (yalvm_u64*) (input
+                                     + yalvm_bin_header_offset_constant64(bin_header, 0));
+
+
+    const void* string_offset = (input + yalvm_bin_header_offset_strings(bin_header));
+    /* cache string locations */
+    if (bin_header->n_strings)
+    {
+        binary->strings = (const char**)yalvm_malloc(sizeof(char*) * bin_header->n_strings);
+        size_t offset = 0;
+        for (yalvm_u16 i = 0; i < bin_header->n_strings; ++i)
+        {
+            const void* cur_ptr = YALVM_PTR_ADD(string_offset, offset);
+            const yalvm_u32* string_size = (const yalvm_u32*) cur_ptr;
+            offset += sizeof(yalvm_u32);
+
+            binary->strings[i] = (const char*) YALVM_PTR_ADD(string_offset, offset);
+            offset += (*string_size) + 1;
+        }
+    }
+
+    /* process functions */
+    binary->functions = (const yalvm_func_header_t**)
+            yalvm_malloc(sizeof(yalvm_func_header_t) * bin_header->n_functions + 1);
+
+    input += yalvm_bin_header_offset_functions(bin_header);
+
+    for(yalvm_u32 i = 0; i < bin_header->n_functions; ++i)
+    {
+        yalvm_func_header_t* function_header = (yalvm_func_header_t*)input;
+
+        if (input >= input_end || !yalvm_func_header_valid_magic(function_header))
+        {
+            yalvm_binary_destroy(binary);
+            return yalvm_false;
+        }
+
+        binary->functions[i] = function_header;
+
+        input += sizeof(yalvm_func_header_t)
+                + (sizeof(yalvm_bytecode_t) * function_header->code_size);
+    }
+
+    return yalvm_true;
+}
+
+yalvm_u32
+yalvm_binary_num_globals32(const yalvm_binary_t* binary)
+{
+    return binary->header->n_globals32;
+}
+
+yalvm_u32
+yalvm_binary_num_globals64(const yalvm_binary_t* binary)
+{
+    return binary->header->n_globals64;
+}
+
+yalvm_u32
+yalvm_binary_num_globalsPtr(const yalvm_binary_t* binary)
+{
+    return binary->header->n_globalsPtr;
+}
+
+yalvm_u32
+yalvm_binary_num_functions(const yalvm_binary_t* binary)
+{
+    return binary->header->n_functions;
 }
 
 

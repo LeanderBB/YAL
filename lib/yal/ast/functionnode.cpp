@@ -1,4 +1,6 @@
 #include "yal/ast/functionnode.h"
+#include "yal/types/type.h"
+#include "yal/types/builtintype.h"
 
 namespace yal
 {
@@ -27,13 +29,13 @@ YAL_AST_NODE_ACCEPT_IMP(FunctionDeclNode)
 FunctionDeclNode::FunctionDeclNode(const SourceLocationInfo& loc,
                                    const char* name,
                                    ArgumentDeclsNode *args,
-                                   const ConstantType returnType,
+                                   Type *returnType,
                                    CodeBodyNode *code):
     AstBaseNode(loc),
     _functionName(name),
     _functionArgs(args),
     _codeBody(code),
-    _returnType(returnType)
+    _returnValueType(returnType)
 {
 
 }
@@ -41,6 +43,12 @@ FunctionDeclNode::FunctionDeclNode(const SourceLocationInfo& loc,
 FunctionDeclNode::~FunctionDeclNode()
 {
 
+}
+
+bool
+FunctionDeclNode::hasReturnValue() const
+{
+    return !_returnValueType->isVoidType();
 }
 
 

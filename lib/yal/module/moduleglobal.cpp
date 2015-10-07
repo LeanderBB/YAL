@@ -1,9 +1,9 @@
 #include "yal/module/moduleglobal.h"
-#include "yal/symbols/variablesym.h"
+#include "yal/ast/astbasenode.h"
 namespace yal
 {
 
-ModuleGlobal::ModuleGlobal(const VariableSym* symbol):
+ModuleGlobal::ModuleGlobal(const Symbol *symbol):
     _symbol(symbol)
 {
 
@@ -26,10 +26,9 @@ ModuleGlobal::wasUsed() const
     return _symbol->readCount() > 0 || _symbol->writeCount() > 0;
 }
 
-DataType
-ModuleGlobal::variableType() const
+Type *ModuleGlobal::variableType() const
 {
-    return _symbol->returnType();
+    return _symbol->astNode()->nodeType();
 }
 
 }

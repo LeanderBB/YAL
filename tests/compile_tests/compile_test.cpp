@@ -10,6 +10,25 @@
 
 static const std::string s_test_path = YAL_TEST_SOURCES_PATH;
 
+extern "C"
+{
+
+void*
+yalvm_malloc(size_t)
+{
+    YAL_ASSERT(false && "Should not be called, resolves linker dependency");
+    return NULL;
+}
+
+void
+yalvm_free(void*)
+{
+    YAL_ASSERT(false && "Should not be called, resolves linker dependency");
+}
+
+
+}
+
 static bool
 CompileCode(const char* code_file,
             yal::OutputSink& code_output)

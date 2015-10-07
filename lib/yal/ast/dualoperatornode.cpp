@@ -6,7 +6,7 @@ namespace yal
 YAL_AST_NODE_ACCEPT_IMP(DualOperatorNode)
 
 DualOperatorNode::DualOperatorNode(const SourceLocationInfo& loc,
-                         const DualOperatorType optype,
+                         const OperatorType optype,
                          ExpressionNode* expLeft,
                          ExpressionNode* expRight):
     ExpressionNode(loc),
@@ -14,7 +14,7 @@ DualOperatorNode::DualOperatorNode(const SourceLocationInfo& loc,
     _leftExp(expLeft),
     _rightExp(expRight)
 {
-
+    YAL_ASSERT(_dualOperatorType & (kOperatorMaskArithemetic | kOperatorMaskBit | kOperatorMaskLogic));
 }
 
 DualOperatorNode::~DualOperatorNode()

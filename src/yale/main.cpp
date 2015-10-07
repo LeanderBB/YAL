@@ -75,7 +75,7 @@ yalvm_memmove(void *dest,
 
 }
 
-static void
+void
 printRegister(yalvm_register_t* reg)
 {
     printf("  hex32: 0x%08" YALVM_PRI_HEX32 "\n",reg->reg32.value);
@@ -90,12 +90,14 @@ printRegister(yalvm_register_t* reg)
 
 
 static void
-printGlobals(const yalvm_ctx_t* ctx)
+printGlobals(const yalvm_ctx_t*)
 {
-    yalvm_register_t tmp_reg;
+
+     /*yalvm_register_t tmp_reg;
 
     const yalvm_u32 n_globlas32 = yalvm_ctx_num_globals32(ctx);
     const yalvm_u32 n_globlas64 = yalvm_ctx_num_globals64(ctx);
+
 
     const yalvm_bin_global32_t* globals_32 = yalvm_ctx_globals32(ctx);
     const yalvm_bin_global64_t* globals_64 = yalvm_ctx_globals64(ctx);
@@ -123,7 +125,7 @@ printGlobals(const yalvm_ctx_t* ctx)
             tmp_reg.reg64.value = cur_global->val;
             printRegister(&tmp_reg);
         }
-    }
+    } */
 }
 
 static const char* sDescription =
@@ -201,14 +203,23 @@ int main(const int argc,
 
     char stack[1024 * 1024];
 
+    yalvm_binary_t vm_binary;
+    yalvm_binary_init(&vm_binary);
+
+    if (yalvm_binary_load(&vm_binary, buffer, file_size) != yalvm_true)
+    {
+        fprintf(stderr, "Failed to load binary '%s'\n", argv[1]);
+        yalvm_binary_destroy(&vm_binary);
+        return EXIT_FAILURE;
+    }
+
     yalvm_ctx_t vm;
 
-    yalvm_ctx_create(&vm, stack, 1024 * 1024);
 
-    if (yalvm_ctx_set_binary(&vm, buffer, file_size) != yalvm_true)
+    if (yalvm_ctx_create(&vm, &vm_binary, stack, 1024 * 1024) != yalvm_true)
     {
-        fprintf(stderr, "Failed to load '%s' into context\n", argv[1]);
-        yalvm_ctx_destroy(&vm);
+        fprintf(stderr, "Failed to create execution context\n");
+        yalvm_binary_destroy(&vm_binary);
         return EXIT_FAILURE;
     }
 
@@ -217,7 +228,7 @@ int main(const int argc,
     if (yalvm_ctx_acquire_function(&vm, &func_hdl, yalvm_func_global_name()) != yalvm_true)
     {
         fprintf(stderr, "Failed to load global function into context\n");
-        yalvm_ctx_destroy(&vm);
+        yalvm_binary_destroy(&vm_binary);
         return EXIT_FAILURE;
     }
 
@@ -238,6 +249,7 @@ int main(const int argc,
 
     yalvm_ctx_release_function(&func_hdl);
     yalvm_ctx_destroy(&vm);
+    yalvm_binary_destroy(&vm_binary);
 
     return (exec_val == YALVM_ERROR_NONE) ? EXIT_SUCCESS : EXIT_FAILURE;
 }

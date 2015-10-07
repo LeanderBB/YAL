@@ -43,6 +43,7 @@ ByteCodeBuilder::writeModuleInfo(ParserState& state)
 
     const Module::OrderedGlobalVec_t& globals32_vec = module.globals32();
     const Module::OrderedGlobalVec_t& globals64_vec = module.globals64();
+    const Module::OrderedGlobalVec_t& globalsPtr_vec = module.globalsPtr();
 
     const Module::OrderedFunctionVec_t& function_vec = module.functions();
 
@@ -97,11 +98,11 @@ ByteCodeBuilder::writeModuleInfo(ParserState& state)
     // setup header
     yalvm_bin_header_t header;
     yalvm_bin_header_init(&header);
-
     header.n_constants32 = constants32_vec.size();
     header.n_constants64 = constants64_vec.size();
     header.n_globals32 = globals32_vec.size();
     header.n_globals64 = globals64_vec.size();
+    header.n_globalsPtr = globalsPtr_vec.size();
     header.n_functions = function_vec.size() + 1; // +1 for global code
     header.n_strings = strings_vec.size();
     header.strings_size = module.totalStringSizeBytes();
@@ -136,31 +137,6 @@ ByteCodeBuilder::writeModuleInfo(ParserState& state)
         }
     }
 
-    // write 32bit globals
-    for (auto& global : globals32_vec)
-    {
-        yalvm_bin_global32_t vm_global;
-        vm_global.val = 0;
-        vm_global.hash = yalvm_one_at_a_time_hash(global->variableName());
-        if (_codeOutput.write(&vm_global, sizeof(vm_global)) != sizeof(vm_global))
-        {
-            _errorHandler.onError("Could not write global 32 to code output", 0);
-            return false;
-        }
-    }
-
-    // write 64bit globals
-    for (auto& global : globals64_vec)
-    {
-        yalvm_bin_global64_t vm_global;
-        vm_global.val = 0;
-        vm_global.hash = yalvm_one_at_a_time_hash(global->variableName());
-        if (_codeOutput.write(&vm_global, sizeof(vm_global)) != sizeof(vm_global))
-        {
-            _errorHandler.onError("Could not write global 64 to code output", 0);
-            return false;
-        }
-    }
 
     // write strings
     for (auto& string: strings_vec)

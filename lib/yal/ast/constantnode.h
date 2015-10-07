@@ -3,7 +3,7 @@
 
 #include "yal/ast/astbasenode.h"
 #include "yal/util/constantvalue.h"
-
+#include "yal/types/builtintype.h"
 namespace yal
 {
 
@@ -17,9 +17,9 @@ public:
 
     virtual ~ConstantNode();
 
-    DataType constantType() const
+    Type* constantType() const
     {
-        return _constantValue.type();
+        return BuiltinType::GetBuiltinTypeForConstantType(_constantValue.type());
     }
 
     const ConstantValue constantValue() const

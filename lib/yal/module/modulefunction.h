@@ -7,13 +7,14 @@
 
 namespace yal
 {
+class Type;
 class FunctionSym;
 class FunctionDeclNode;
 /// Represents a function in a module
 class ModuleFunction : public ModuleIndexable
 {
 public:
-    ModuleFunction(const FunctionSym* symbol,
+    ModuleFunction(const Symbol* symbol,
                    FunctionDeclNode* astNode);
 
     virtual ~ModuleFunction();
@@ -22,12 +23,12 @@ public:
 
     bool wasUsed() const;
 
-    DataType returnType() const;
+    Type* returnType() const;
 
     FunctionDeclNode* functionNode() const;
 
 protected:
-    const FunctionSym* _symbol;
+    const Symbol* _symbol;
     FunctionDeclNode* _astNode;
 };
 

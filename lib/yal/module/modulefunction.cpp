@@ -1,9 +1,10 @@
 #include "yal/module/modulefunction.h"
-#include "yal/symbols/functionsym.h"
+#include "yal/ast/functionnode.h"
+#include "yal/types/functiontype.h"
 
 namespace yal
 {
-ModuleFunction::ModuleFunction(const FunctionSym* symbol,
+ModuleFunction::ModuleFunction(const Symbol *symbol,
                                FunctionDeclNode* astNode):
     _symbol(symbol),
     _astNode(astNode)
@@ -30,10 +31,12 @@ ModuleFunction::wasUsed() const
     return true;
 }
 
-DataType
+Type*
 ModuleFunction::returnType() const
 {
-    return _symbol->returnType();
+    const FunctionType* fn_type = cast_type<FunctionType>(_symbol->astNode()->nodeType());
+    YAL_ASSERT(fn_type);
+    return fn_type->typeOfReturnValue();
 }
 
 FunctionDeclNode *ModuleFunction::functionNode() const
