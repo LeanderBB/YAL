@@ -12,6 +12,7 @@
 #include "yal/ast/functionnode.h"
 #include "yal/ast/conditionnode.h"
 #include "yal/ast/returnnode.h"
+#include "yal/ast/variableaccessnode.h"
 #include "yal/symbols/symboltable.h"
 #include "yal/bytecode/bytecode_utils.h"
 #include "yal/ast/printnode.h"
@@ -648,67 +649,6 @@ ByteCodeGenerator::visit(ConstantNode& node)
     YAL_ASSERT(exp_type->isBuiltinType());
     switch(node.constantValue().type())
     {
-    case kConstantTypeId:
-    {
-        const char* var_name = node.constantValue().valueAsId();
-
-        const SymbolTable* sym_table = node.symbolTable();
-
-        const Symbol* var_symbol = sym_table->resolveSymbol(var_name);
-
-        YAL_ASSERT(var_symbol && var_symbol->isVariable());
-
-        const bool var_is_global = var_symbol->isGlobalSymbol();
-        if (var_is_global)
-        {
-            // check if the global variable is cached in a local register
-            const auto global_cache_it = _globalToLocalMap.find(var_symbol->symbolName());
-            if (global_cache_it != _globalToLocalMap.end())
-            {
-                cur_register.release(_regAllocator);
-                pushRegister(global_cache_it->second);
-                return;
-            }
-            else
-            {
-                if (!getGlobalVarIdx(inst_value, var_name))
-                {
-                    logError(node);
-                    return;
-                }
-                cur_register.disablePopRelease();
-
-                const Type* node_type = var_symbol->astNode()->nodeType();
-                instruction = LoadGlobalByteCodeInst(node_type);
-                // register the global variable with the cache
-                if (!addScopeAction(new GlobalScopeAction(var_symbol->symbolName(),
-                                                          node_type,
-                                                          inst_value,
-                                                          cur_register)))
-                {
-                    _formater.format("Could not add global variable scope action");
-                    logError(node);
-                    return;
-                }
-
-                break;
-            }
-        }
-        else
-        {
-            cur_register.release(_regAllocator);
-            cur_register = Register(_regAllocator, var_name,
-                                    var_symbol->scopeLevel());
-            if (!cur_register.isValid())
-            {
-                _formater.format("Variable '%s' has not been registered\n", var_name);
-                logError(node);
-                return;
-            }
-            pushRegister(cur_register);
-            return;
-        }
-    }
     case kConstantTypeText:
     {
         if (!getConstantIdx(inst_value, node.constantValue()))
@@ -1279,8 +1219,78 @@ ByteCodeGenerator::visit(WhileLoopNode& node)
                                                                                  tmp_register.registerIdx(),
                                                                                  diff));
 
-
     return;
+}
+
+void
+ByteCodeGenerator::visit(VariableAccessNode& node)
+{
+    yal_u32 inst_value = 0;
+    yalvm_bytecode_inst_t instruction = YALVM_BYTECODE_TOTAL;
+
+    Register cur_register;
+
+    const char* var_name = node.variableName();
+    const SymbolTable* sym_table = node.symbolTable();
+    const Symbol* var_symbol = sym_table->resolveSymbol(var_name);
+
+    YAL_ASSERT(var_symbol && var_symbol->isVariable());
+    const bool var_is_global = var_symbol->isGlobalSymbol();
+    if (var_is_global)
+    {
+
+        // check if the global variable is cached in a local register
+        const auto global_cache_it = _globalToLocalMap.find(var_symbol->symbolName());
+        if (global_cache_it != _globalToLocalMap.end())
+        {
+            pushRegister(global_cache_it->second);
+            return;
+        }
+        else
+        {
+            cur_register = Register(_regAllocator);
+            if (!getGlobalVarIdx(inst_value, var_name))
+            {
+                logError(node);
+                return;
+            }
+            cur_register.disablePopRelease();
+
+            const Type* node_type = var_symbol->astNode()->nodeType();
+            instruction = LoadGlobalByteCodeInst(node_type);
+            // register the global variable with the cache
+            if (!addScopeAction(new GlobalScopeAction(var_symbol->symbolName(),
+                                                      node_type,
+                                                      inst_value,
+                                                      cur_register)))
+            {
+                _formater.format("Could not add global variable scope action");
+                logError(node);
+                return;
+            }
+        }
+    }
+    else
+    {
+        cur_register = Register(_regAllocator, var_name,
+                                var_symbol->scopeLevel());
+        if (!cur_register.isValid())
+        {
+            _formater.format("Variable '%s' has not been registered\n", var_name);
+            logError(node);
+            return;
+        }
+        pushRegister(cur_register);
+        return;
+    }
+
+    pushRegister(cur_register);
+
+    yalvm_bytecode_t code = yalvm_bytecode_pack_dst_value(instruction,
+                                                          cur_register.registerIdx(),
+                                                          inst_value);
+    _buffer.append(code);
+
 }
 
 }

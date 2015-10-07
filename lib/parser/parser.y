@@ -55,6 +55,7 @@ extern void yyerror(YYLTYPE* location,
 #include <yal/ast/returnnode.h>
 #include <yal/ast/printnode.h>
 #include <yal/ast/whileloopnode.h>
+#include <yal/ast/variableaccessnode.h>
 #include <yal/types/type.h>
 #include <yal/types/builtintype.h>
 #include <yal/types/undefined.h>
@@ -302,8 +303,8 @@ constant: TK_BOOL { $$ = new yal::ConstantNode(yal::BisonYyltypeToLocation(yyllo
 | TK_UINT64 { $$ = new yal::ConstantNode(yal::BisonYyltypeToLocation(yylloc), yal::ConstantValue($1));}
 | TK_FLT32 { $$ = new yal::ConstantNode(yal::BisonYyltypeToLocation(yylloc), yal::ConstantValue($1));}
 | TK_FLT64 { $$ = new yal::ConstantNode(yal::BisonYyltypeToLocation(yylloc), yal::ConstantValue($1));}
-| TK_TEXT { $$ = new yal::ConstantNode(yal::BisonYyltypeToLocation(yylloc), yal::ConstantValue($1, true)); }
-| TK_ID { $$ = new yal::ConstantNode(yal::BisonYyltypeToLocation(yylloc), yal::ConstantValue($1, false)); }
+| TK_TEXT { $$ = new yal::ConstantNode(yal::BisonYyltypeToLocation(yylloc), yal::ConstantValue($1)); }
+| TK_ID { $$ = new yal::VariableAccessNode(yal::BisonYyltypeToLocation(yylloc), $1); }
 ;
 
 

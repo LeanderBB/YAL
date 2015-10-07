@@ -35,6 +35,7 @@ set(YAL_HDR
     ast/returnnode.h
     ast/printnode.h
     ast/whileloopnode.h
+    ast/variableaccessnode.h
     symbols/symboltable.h
     ast/astprinter.h
     symbols/symboltable.h
@@ -89,6 +90,7 @@ set(YAL_SRC
     ast/astprinter.cpp
     ast/printnode.cpp
     ast/whileloopnode.cpp
+    ast/variableaccessnode.cpp
     symbols/symbol.cpp
     symbols/symboltable.cpp
     symbols/symboltreebuilder.cpp

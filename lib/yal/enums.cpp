@@ -90,8 +90,6 @@ ConstantTypeToStr(const enum ConstantType val)
 {
     switch (val)
     {
-    case kConstantTypeId:
-        return "ConstantTypeId";
     case kConstantTypeText:
         return "ConstantTypeText";
     case kConstantTypeUInt32:

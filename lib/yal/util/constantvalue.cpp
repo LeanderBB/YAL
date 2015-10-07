@@ -46,11 +46,10 @@ ConstantValue::ConstantValue(const yal_f64 float64):
     _value.float64 = float64;
 }
 
-ConstantValue::ConstantValue(const char* id,
-                             const bool isText):
-    _type(isText ? kConstantTypeText : kConstantTypeId)
+ConstantValue::ConstantValue(const char* text):
+    _type(kConstantTypeText)
 {
-    _value.id = id;
+    _value.id = text;
 }
 
 ConstantValue::~ConstantValue()
@@ -118,13 +117,6 @@ yal_u64
 ConstantValue::valueAs64BitRaw() const
 {
     return _value.uinteger64;
-}
-
-const char*
-ConstantValue::valueAsId() const
-{
-    YAL_ASSERT(_type == kConstantTypeId);
-    return _value.id;
 }
 
 const char*
