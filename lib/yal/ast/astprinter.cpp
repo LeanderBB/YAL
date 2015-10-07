@@ -22,8 +22,7 @@ namespace yal
 
 AstPrinter::AstPrinter(OutputSink &sink):
     _formater(),
-    _sink(sink),
-    _ident(0)
+    _sink(sink)
 {
 
 }
@@ -36,78 +35,128 @@ AstPrinter::~AstPrinter()
 void
 AstPrinter::process(ParserState_t &state)
 {
+    _formater.format("Module\n");
+    _formater.write(_sink);
+    _idents.clear();
+
+    size_t idx = 1;
     for (auto& v : state.program)
     {
+        onDescent(idx == state.program.size());
         v->accept(*this);
+        onAscend();
+        ++idx;
     }
 }
 
 void
 AstPrinter::printIdent()
 {
-    for (size_t i = 0; i < _ident; ++i)
+    for (auto& ch : _idents)
     {
-        _formater.format(" ");
+        _formater.format("%c", ch);
         _formater.write(_sink);
     }
 }
 
 void
-AstPrinter::visit(AssignOperatorNode& node)
+AstPrinter::printNodeTitle(const AstBaseNode& node,
+                           const bool empty)
 {
     printIdent();
-    _formater.format("%s> %s var:%s\n", node.astTypeStr(),
+    const SourceLocationInfo& src_info = node.locationInfo();
+    if (!empty)
+    {
+        _formater.format("-%s <ln %d:%d cl %d:%d> ",
+                         node.astTypeStr(),
+                         src_info.firstLine,
+                         src_info.lastLine,
+                         src_info.firstColumn,
+                         src_info.lastColumn);
+    }
+    else
+    {
+        _formater.format("-%s <ln %d:%d  cl %d:%d>\n",
+                         node.astTypeStr(),
+                         src_info.firstLine,
+                         src_info.lastLine,
+                         src_info.firstColumn,
+                         src_info.lastColumn);
+    }
+    _formater.write(_sink);
+}
+
+void
+AstPrinter::onDescent(const bool lastNode)
+{
+    if (_idents.size() > 1)
+    {
+        auto it = _idents.rbegin();
+        if (*it == '`')
+        {
+            *it = ' ';
+        }
+    }
+    _idents.push_back(' ');
+    _idents.push_back(lastNode ? '`' : '|');
+}
+
+void
+AstPrinter::onAscend()
+{
+    const size_t size = _idents.size() - 2;
+    _idents.erase(_idents.begin() + size, _idents.end());
+}
+
+void
+AstPrinter::visit(AssignOperatorNode& node)
+{
+    printNodeTitle(node);
+    _formater.format(" %s var:%s\n",
                      OperatorTypeToStr(node.assignOperatorType()),
                      node.variableName());
     _formater.write(_sink);
 
-    _ident += kNumIdent;
+    onDescent(true);
     node.expression()->accept(*this);
-    _ident -= kNumIdent;
+    onAscend();
 }
 
 void
 AstPrinter::visit(CodeBodyNode& node)
 {
-    printIdent();
-    _formater.format("%s>\n", node.astTypeStr());
-    _formater.write(_sink);
-    _ident += kNumIdent;
+    printNodeTitle(node, true);
+
+    size_t idx = 1;
     for(auto& v : node.statements)
     {
+        onDescent(idx == node.statements.size());
         v->accept(*this);
+        onAscend();
+        ++idx;
     }
-    _ident -= kNumIdent;
 }
 
 void
 AstPrinter::visit(CompareOperatorNode& node)
 {
-    printIdent();
-    _formater.format("%s> %s \n", node.astTypeStr(),
+    printNodeTitle(node);
+    _formater.format("%s \n",
                      OperatorTypeToStr(node.compareOperatorType()));
     _formater.write(_sink);
-    _ident += kNumIdent;
-    printIdent();
-    _formater.format("Left>\n");
-    _formater.write(_sink);
-    _ident += kNumIdent;
+    onDescent(false);
     node.leftExpression()->accept(*this);
-    _ident -= kNumIdent;
-    printIdent();
-    _formater.format("Right>\n");
-    _formater.write(_sink);
-    _ident += kNumIdent;
+    onAscend();
+    onDescent(true);
     node.rightExpression()->accept(*this);
-    _ident -= kNumIdent;
-    _ident -= kNumIdent;
+    onAscend();
 }
 
 void
 AstPrinter::visit(ConstantNode& node)
 {
-    printIdent();
-    _formater.format("%s> type:%s \n", node.astTypeStr(),
+    printNodeTitle(node);
+    _formater.format("type:%s \n",
                      ConstantTypeToStr(node.constantValue().type()));
     _formater.write(_sink);
 }
@@ -115,8 +164,8 @@ AstPrinter::visit(ConstantNode& node)
 void
 AstPrinter::visit(ArgumentDeclNode& node)
 {
-    printIdent();
-    _formater.format("%s> name:%s type:%s \n",node.astTypeStr(),
+    printNodeTitle(node);
+    _formater.format(" name:%s type:%s \n",
                      node.argumentName(),
                      node.argumentType()->typeString());
     _formater.write(_sink);
@@ -125,250 +174,172 @@ AstPrinter::visit(ArgumentDeclNode& node)
 void
 AstPrinter::visit(ArgumentDeclsNode& node)
 {
-    printIdent();
-    _formater.format("%s>\n", node.astTypeStr());
-    _formater.write(_sink);
-    _ident += kNumIdent;
+    printNodeTitle(node, true);
+
+    yal_u32 idx = 1;
     for(auto& v : node.arguments())
     {
+        onDescent(idx == node.argumentCount());
         v->accept(*this);
+        onAscend();
+        ++idx;
     }
-    _ident -= kNumIdent;
 }
 
 void
 AstPrinter::visit(FunctionCallArgsNode& node)
 {
-    printIdent();
-    _formater.format("%s>\n", node.astTypeStr());
-    _formater.write(_sink);
-    _ident += kNumIdent;
+    printNodeTitle(node, true);
+    size_t idx = 1;
     for(auto& v : node.expressions)
     {
+        onDescent(idx == node.expressions.size());
         v->accept(*this);
+        onAscend();
     }
-    _ident -= kNumIdent;
 }
 
 void
 AstPrinter::visit(VariableDeclNode& node)
 {
-    printIdent();
-    _formater.format("%s> %s \n", node.astTypeStr(), node.variableName());
+    printNodeTitle(node);
+    _formater.format(" %s \n",  node.variableName());
     _formater.write(_sink);
-    _ident += kNumIdent;
+    onDescent(true);
     node.expression()->accept(*this);
-    _ident -= kNumIdent;
+    onAscend();
 }
 
 void
 AstPrinter::visit(DualOperatorNode& node)
 {
-    printIdent();
-    _formater.format("%s> %s \n", node.astTypeStr(),
+    printNodeTitle(node);
+    _formater.format("%s\n",
                      OperatorTypeToStr(node.dualOperatorType()));
     _formater.write(_sink);
-    _ident += kNumIdent;
-    printIdent();
-    _formater.format("Left>\n");
-    _formater.write(_sink);
-    _ident += kNumIdent;
+    onDescent(false);
     node.leftExpression()->accept(*this);
-    _ident -= kNumIdent;
-    printIdent();
-    _formater.format("Right>\n");
-    _formater.write(_sink);
-    _ident += kNumIdent;
+    onAscend();
+    onDescent(true);
     node.rightExpression()->accept(*this);
-    _ident -= kNumIdent;
-    _ident -= kNumIdent;
+    onAscend();
 }
-
-
 
 void
 AstPrinter::visit(SingleOperatorNode& node)
 {
-    printIdent();
-    _formater.format("%s> %s \n", node.astTypeStr(),
+    printNodeTitle(node);
+    _formater.format("%s \n",
                      OperatorTypeToStr(node.singleOperatorType()));
     _formater.write(_sink);
-    _ident += kNumIdent;
+    onDescent(true);
     node.expression()->accept(*this);
-    _ident -= kNumIdent;
+    onAscend();
 }
 
 void
 AstPrinter::visit(FunctionCallNode& node)
 {
-    printIdent();
-    _formater.format("%s> %s \n", node.astTypeStr(), node.functionName());
+    printNodeTitle(node);
+    _formater.format("%s \n", node.functionName());
     _formater.write(_sink);
-    _ident += kNumIdent;
-    printIdent();
-    _formater.format("Args>\n");
-    _formater.write(_sink);
-    _ident += kNumIdent;
     if (node.hasFunctionArguments())
     {
+        onDescent(true);
         node.functionArguments()->accept(*this);
+        onAscend();
     }
-    else
-    {
-        printIdent();
-        _formater.format("void\n");
-        _formater.write(_sink);
-    }
-    _ident -= kNumIdent;
-    _ident -= kNumIdent;
 }
 
 void
 AstPrinter::visit(FunctionDeclNode& node)
 {
-    printIdent();
-    _formater.format("%s> %s \n",node.astTypeStr(), node.functionName());
+    printNodeTitle(node);
+    _formater.format("%s \n", node.functionName());
     _formater.write(_sink);
-    _ident += kNumIdent;
-    printIdent();
-    _formater.format("Args>\n");
-    _formater.write(_sink);
-    _ident += kNumIdent;
+
     if (node.hasFunctionArguments())
     {
+        onDescent(false);
         node.functionArguments()->accept(*this);
+        onAscend();
     }
-    else
-    {
-        printIdent();
-        _formater.format("void\n");
-        _formater.write(_sink);
-    }
-    _ident -= kNumIdent;
-    printIdent();
-    _formater.format("Code>\n");
-    _formater.write(_sink);
-    _ident += kNumIdent;
+
+    onDescent(true);
     node.functionCode()->accept(*this);
-    _ident -= kNumIdent;
-    _ident -= kNumIdent;
+    onAscend();
 }
 
 void
 AstPrinter::visit(ConditionNode& node)
 {
-    printIdent();
-    _formater.format("%s>\n", node.astTypeStr());
-    _formater.write(_sink);
-    _ident += kNumIdent;
-    printIdent();
-    _formater.format("Condition>\n");
-    _formater.write(_sink);
-    _ident += kNumIdent;
+    printNodeTitle(node, true);
 
     if (node.condition())
     {
+        onDescent(!node.onTrue() && !node.onFalse());
         node.condition()->accept(*this);
+        onAscend();
     }
-    else
-    {
-        printIdent();
-        _formater.format("null\n");
-        _formater.write(_sink);
-    }
-    _ident -= kNumIdent;
-    printIdent();
-    _formater.format("True>\n");
-    _formater.write(_sink);
-    _ident += kNumIdent;
+
     if (node.onTrue())
     {
+        onDescent(!node.onFalse());
         node.onTrue()->accept(*this);
+        onAscend();
     }
-    else
-    {
-        printIdent();
-        _formater.format("null\n");
-        _formater.write(_sink);
-    }
-    _ident -= kNumIdent;
-    printIdent();
-    _formater.format("False>\n");
-    _formater.write(_sink);
-    _ident += kNumIdent;
+
     if (node.onFalse())
     {
+        onDescent(true);
         node.onFalse()->accept(*this);
+        onAscend();
     }
-    else
-    {
-        printIdent();
-        _formater.format("null\n");
-        _formater.write(_sink);
-    }
-    _ident -= kNumIdent;
-    _ident -= kNumIdent;
 }
 
 void
 AstPrinter::visit(ReturnNode& node)
 {
-    printIdent();
-    _formater.format("%s>\n", node.astTypeStr());
-    _formater.write(_sink);
-    _ident += kNumIdent;
+    printNodeTitle(node, true);
+    onDescent(true);
     node.expression()->accept(*this);
-    _ident -= kNumIdent;
+    onAscend();
 }
 
 void
 AstPrinter::visit(PrintNode& node)
 {
-    printIdent();
-    _formater.format("%s>\n", node.astTypeStr());
-    _formater.write(_sink);
-    _ident += kNumIdent;
+    printNodeTitle(node, true);
+    onDescent(true);
     node.arguments()->accept(*this);
-    _ident -= kNumIdent;
+    onAscend();
 }
 
 void
 AstPrinter::visit(PrintArgsNode& node)
 {
-    printIdent();
-    _formater.format("%s>\n", node.astTypeStr());
-    _formater.write(_sink);
-    _ident += kNumIdent;
+    printNodeTitle(node, true);
+    size_t idx = 1;
     for(auto& v : node.expressions)
     {
+        onDescent(idx == node.expressions.size());
         v->accept(*this);
+        onAscend();
     }
-    _ident -= kNumIdent;
 }
 
 void
 AstPrinter::visit(WhileLoopNode& node)
 {
-    printIdent();
-    _formater.format("%s>\n", node.astTypeStr());
-    _formater.write(_sink);
-    _ident += kNumIdent;
-    printIdent();
-    _formater.format("Condition>\n");
-    _formater.write(_sink);
-    _ident += kNumIdent;
+    printNodeTitle(node, true);
+
+    onDescent(false);
     node.condition()->accept(*this);
+    onAscend();
 
-    printIdent();
-    _formater.format("Code>\n");
-    _formater.write(_sink);
-    _ident += kNumIdent;
-
+    onDescent(true);
     node.code()->accept(*this);
-
-
-    _ident -= kNumIdent;
-    _ident -= kNumIdent;
+    onAscend();
 }
 
 }

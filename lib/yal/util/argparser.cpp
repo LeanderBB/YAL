@@ -4,6 +4,8 @@
 namespace yal
 {
 
+const char ArgParser::NoSingleCharOption = '\0';
+
 ArgParser::ArgParser():
     _nParsedOptions(-1),
     _nRequiredOptions(0),
@@ -32,6 +34,15 @@ ArgParser::add(const yal_u32 id,
         return true;
     }
     return false;
+}
+
+bool
+ArgParser::add(const yal_u32 id,
+               const char* longOpt,
+               const char* help,
+               const yal_u32 flags)
+{
+    return add(id, NoSingleCharOption, longOpt, help, flags);
 }
 
 
@@ -74,10 +85,20 @@ ArgParser::parse(const int argc,
 
                 if (p_cur_option->size <= 0 && (p_cur_option->flags & (kArgFlagSingleValue | kArgFlagMultiValue)))
                 {
-                    formater.formatAndWrite(errorOutput,
-                                            "Option (-%c, --%s) requires at least one value\n",
-                                            p_cur_option->shortopt,
-                                            p_cur_option->longopt);
+
+                    if (p_cur_option->shortopt != NoSingleCharOption)
+                    {
+                        formater.formatAndWrite(errorOutput,
+                                                "Option (-%c, --%s) requires at least one value\n",
+                                                p_cur_option->shortopt,
+                                                p_cur_option->longopt);
+                    }
+                    else
+                    {
+                        formater.formatAndWrite(errorOutput,
+                                                "Option (--%s) requires at least one value\n",
+                                                p_cur_option->longopt);
+                    }
                     return -1;
                 }
                 p_cur_option = nullptr;
@@ -99,7 +120,7 @@ ArgParser::parse(const int argc,
                 }
                 else
                 {
-                p_cur_option->size++;
+                    p_cur_option->size++;
                 }
             }
             ++i;
@@ -127,10 +148,19 @@ ArgParser::parse(const int argc,
 
             if (i + 1 >= argc && (p_cur_option->flags & (kArgFlagSingleValue | kArgFlagMultiValue)))
             {
-                formater.formatAndWrite(errorOutput,
-                                        "Option (-%c, --%s) requires at least one value\n",
-                                        p_cur_option->shortopt,
-                                        p_cur_option->longopt);
+                if (p_cur_option->shortopt != NoSingleCharOption)
+                {
+                    formater.formatAndWrite(errorOutput,
+                                            "Option (-%c, --%s) requires at least one value\n",
+                                            p_cur_option->shortopt,
+                                            p_cur_option->longopt);
+                }
+                else
+                {
+                    formater.formatAndWrite(errorOutput,
+                                            "Option (--%s) requires at least one value\n",
+                                            p_cur_option->longopt);
+                }
                 return -1;
             }
 
@@ -228,7 +258,14 @@ ArgParser::printHelp(OutputSink &output,
     {
         yal_u32 len = strlen(it->longopt);
 
-        formater.formatAndWrite(output, "    -%c, --%s", it->shortopt, it->longopt);
+        if (it->shortopt != NoSingleCharOption)
+        {
+            formater.formatAndWrite(output, "    -%c, --%s", it->shortopt, it->longopt);
+        }
+        else
+        {
+            formater.formatAndWrite(output, "        --%s", it->longopt);
+        }
 
         while(len < _maxOptionsLen)
         {
@@ -268,7 +305,7 @@ ArgParser::findOptionByShort(const char c)
 {
     for(auto it = _options.begin(); it != _options.end(); ++it)
     {
-        if (it->shortopt == c)
+        if (it->shortopt != NoSingleCharOption && it->shortopt == c)
         {
             return &(*it);
         }
@@ -301,7 +338,7 @@ ArgParser::checkDuplicate(const yal_u32 id,
         {
             return true;
         }
-        if (it->shortopt == shortop)
+        if (shortop != NoSingleCharOption && it->shortopt == shortop)
         {
             return true;
         }

@@ -12,7 +12,8 @@ static const char* sDescription =
 
 enum Option
 {
-    kOptionOutputFile = yal::KArgsOptionHelp + 1
+    kOptionOutputFile = yal::KArgsOptionHelp + 1,
+    kOptionDumpAst
 };
 
 
@@ -47,6 +48,7 @@ int main(const int argc,
     // setup arg parser
     yal::ArgParser arg_parser;
     arg_parser.add(kOptionOutputFile, 'o', "output", "Ouput file name", yal::kArgFlagSingleValue);
+    arg_parser.add(kOptionDumpAst, "dump-ast", "Dump abstract syntax tree", 0);
 
     const int parse_result = arg_parser.parse(argc, argv, err_output);
 
@@ -55,6 +57,8 @@ int main(const int argc,
         arg_parser.printHelp(io_output, sDescription);
         return EXIT_FAILURE;
     }
+
+    yal_u32 compiler_flags = 0;
 
     if (arg_parser.isSet(0))
     {
@@ -68,6 +72,11 @@ int main(const int argc,
     {
         const char* arg = arg_parser.getSingleArg(kOptionOutputFile);
         output_name = arg;
+    }
+
+    if (arg_parser.isSet(kOptionDumpAst))
+    {
+        compiler_flags |= yal::Compiler::kDumpAst;
     }
 
 
@@ -102,5 +111,5 @@ int main(const int argc,
     yal::SinkErrorHandler err_handler(err_output);
     yal::Compiler cl(io_input, io_output, code_output, err_handler);
 
-    return cl.compile() ? EXIT_SUCCESS : EXIT_FAILURE;
+    return cl.compile(compiler_flags) ? EXIT_SUCCESS : EXIT_FAILURE;
 }

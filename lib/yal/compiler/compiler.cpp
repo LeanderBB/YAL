@@ -28,7 +28,7 @@ Compiler::Compiler(InputSink& input,
 }
 
 bool
-Compiler::compile()
+Compiler::compile(const uint32_t flags)
 {
     // init flex
     yyscan_t scanner;
@@ -44,8 +44,11 @@ Compiler::compile()
 
     if (parse_result == 0)
     {
-        //yal::AstPrinter printer(_output);
-        //printer.process(_state);
+        if (flags & kDumpAst)
+        {
+            yal::AstPrinter printer(_output);
+            printer.process(_state);
+        }
 
         yal::SymbolTreeBuilder sym_builder(_errHandler, _state.registry);
         if(!sym_builder.process(_state))
