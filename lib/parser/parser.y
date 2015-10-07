@@ -20,7 +20,9 @@
 #include <yal/ast/functionnode.h>
 #include <yal/ast/conditionnode.h>
 #include <yal/ast/returnnode.h>
-
+#include <yal/types/builtintype.h>
+#include <yal/types/undefined.h>
+#include <yal/types/type.h>
 #include "yal_bison_parser.hpp"
 #include "yal_flex_lexer.h"
 using namespace yal;
@@ -53,6 +55,9 @@ extern void yyerror(YYLTYPE* location,
 #include <yal/ast/returnnode.h>
 #include <yal/ast/printnode.h>
 #include <yal/ast/whileloopnode.h>
+#include <yal/types/type.h>
+#include <yal/types/builtintype.h>
+#include <yal/types/undefined.h>
 
 }
 
@@ -70,7 +75,7 @@ extern void yyerror(YYLTYPE* location,
     yal_f32 float32;
     yal_f64 float64;
     yal_bool boolean;
-    yal::ConstantType builtinType;
+    yal::Type* type;
     char* text;
     class yal::ConditionNode* nodeIf;
     class yal::ExpressionNode* nodeExp;
@@ -173,7 +178,7 @@ extern void yyerror(YYLTYPE* location,
 %type <nodePrintArgs> print_args
 %type <nodeFunCallArgs> call_args
 %type <nodeCodeBody> code_body
-%type <builtinType> builtin_type func_return
+%type <type> type func_return
 %type <nodeDeclArg> decl_arg
 %type <nodeDeclArgs> decl_args
 %type <nodeWhileLoop> while_statement
@@ -188,9 +193,8 @@ program: program func_decl TK_NL  {state->program.push_back(static_cast<yal::Ast
 func_decl: TK_FUNC_BEGIN TK_ID '(' decl_args ')' func_return TK_NL code_body TK_END { $$ = new yal::FunctionDeclNode(yal::BisonYyltypeToLocation(yylloc), $2, $4, $6, $8); }
 ;
 
-func_return: %empty { $$ = yal::kConstantTypeNone; }
-| ':' builtin_type { $$ = $2; }
-| ':' TK_ID { $$ = yal::kConstantTypeId; }
+func_return: %empty { $$ = yal::BuiltinType::GetBuiltinType(yal::BuiltinType::kVoid); }
+| ':' type { $$ = $2; }
 ;
 
 code_body: st_upper  { $$ = new CodeBodyNode(yal::BisonYyltypeToLocation(yylloc)); if($1) {$$->addStatement($1);}}
@@ -227,37 +231,37 @@ if_statement_next: TK_ELIF '(' expression ')' TK_NL code_body if_statement_next 
 while_statement: TK_WHILE '(' expression ')' TK_NL code_body TK_END { $$ = new yal::WhileLoopNode(yal::BisonYyltypeToLocation(yylloc), $3, $6);}
 ;
 
-expression: '(' expression ')' {$$ = new yal::SingleOperatorNode(yal::BisonYyltypeToLocation(yylloc), kSingleOperatorTypeBlock, $2);}
-    | TK_OP_MINUS expression %prec TK_PREC_NEG {$$ = new yal::SingleOperatorNode(yal::BisonYyltypeToLocation(yylloc), kSingleOperatorTypeNeg, $2);}
-    | TK_NOT expression  %prec TK_PREC_NEG {$$ = new yal::SingleOperatorNode(yal::BisonYyltypeToLocation(yylloc), kSingleOperatorTypeNot, $2);}
-    | TK_BIT_TIL expression %prec TK_PREC_NEG {$$ = new yal::SingleOperatorNode(yal::BisonYyltypeToLocation(yylloc), kSingleOperatorTypeTil, $2);}
-    | expression TK_AND expression {$$ = new yal::DualOperatorNode(yal::BisonYyltypeToLocation(yylloc), kDualOperatorTypeAnd, $1, $3);}
-    | expression TK_OR expression {$$ = new yal::DualOperatorNode(yal::BisonYyltypeToLocation(yylloc), kDualOperatorTypeOr, $1, $3);}
-    | expression TK_CMP_GT expression {$$ = new yal::CompareOperatorNode(yal::BisonYyltypeToLocation(yylloc), kCompareOperatorTypeGT, $1, $3);}
-    | expression TK_CMP_GE expression {$$ = new yal::CompareOperatorNode(yal::BisonYyltypeToLocation(yylloc), kCompareOperatorTypeGE, $1, $3);}
-    | expression TK_CMP_LE expression {$$ = new yal::CompareOperatorNode(yal::BisonYyltypeToLocation(yylloc), kCompareOperatorTypeLE, $1, $3);}
-    | expression TK_CMP_LT expression {$$ = new yal::CompareOperatorNode(yal::BisonYyltypeToLocation(yylloc), kCompareOperatorTypeLT, $1, $3);}
-    | expression TK_CMP_EQ expression {$$ = new yal::CompareOperatorNode(yal::BisonYyltypeToLocation(yylloc), kCompareOperatorTypeEQ, $1, $3);}
-    | expression TK_CMP_NE expression {$$ = new yal::CompareOperatorNode(yal::BisonYyltypeToLocation(yylloc), kCompareOperatorTypeNE, $1, $3);}
-    | expression TK_OP_PLUS expression {$$ = new yal::DualOperatorNode(yal::BisonYyltypeToLocation(yylloc), kDualOperatorTypeAdd, $1, $3);}
-    | expression TK_OP_MINUS expression {$$ = new yal::DualOperatorNode(yal::BisonYyltypeToLocation(yylloc), kDualOperatorTypeSub, $1, $3);}
-    | expression TK_OP_MULT expression {$$ = new yal::DualOperatorNode(yal::BisonYyltypeToLocation(yylloc), kDualOperatorTypeMult, $1, $3);}
-    | expression TK_OP_DIV expression {$$ = new yal::DualOperatorNode(yal::BisonYyltypeToLocation(yylloc), kDualOperatorTypeDiv, $1, $3);}
-    | expression TK_BIT_OR expression {$$ = new yal::DualOperatorNode(yal::BisonYyltypeToLocation(yylloc), kDualOperatorTypeBitOr, $1, $3);}
-    | expression TK_BIT_XOR expression {$$ = new yal::DualOperatorNode(yal::BisonYyltypeToLocation(yylloc), kDualOperatorTypeBitXor, $1, $3);}
-    | expression TK_BIT_AND expression {$$ = new yal::DualOperatorNode(yal::BisonYyltypeToLocation(yylloc), kDualOperatorTypeBitAnd, $1, $3);}
-    | expression TK_SHIFT_LEFT expression {$$ = new yal::DualOperatorNode(yal::BisonYyltypeToLocation(yylloc), kDualOperatorTypeShiftLeft, $1, $3);}
-    | expression TK_SHIFT_RIGHT expression {$$ = new yal::DualOperatorNode(yal::BisonYyltypeToLocation(yylloc), kDualOperatorTypeShiftRight, $1, $3);}
-    | TK_ID TK_OP_ASSIGN expression %prec TK_PREC_ASSIGN { $$ = new yal::AssignOperatorNode(yal::BisonYyltypeToLocation(yylloc), $1, kAssignOperatorTypeSet, $3);}
-    | TK_ID TK_OP_ASSIGN_PLUS expression %prec TK_PREC_ASSIGN  { $$ = new yal::AssignOperatorNode(yal::BisonYyltypeToLocation(yylloc), $1, kAssignOperatorTypePlus, $3);}
-    | TK_ID TK_OP_ASSIGN_MINUS expression %prec TK_PREC_ASSIGN  { $$ = new yal::AssignOperatorNode(yal::BisonYyltypeToLocation(yylloc), $1, kAssignOperatorTypeMinus, $3);}
-    | TK_ID TK_OP_ASSIGN_MULT expression %prec TK_PREC_ASSIGN  { $$ = new yal::AssignOperatorNode(yal::BisonYyltypeToLocation(yylloc), $1, kAssignOperatorTypeMult, $3);}
-    | TK_ID TK_OP_ASSIGN_DIV expression %prec TK_PREC_ASSIGN  { $$ = new yal::AssignOperatorNode(yal::BisonYyltypeToLocation(yylloc), $1, kAssignOperatorTypeDiv, $3);}
-    | TK_ID TK_OP_ASSIGN_AND expression  %prec TK_PREC_ASSIGN  { $$ = new yal::AssignOperatorNode(yal::BisonYyltypeToLocation(yylloc), $1, kAssignOperatorTypeAnd, $3);}
-    | TK_ID TK_OP_ASSIGN_OR expression %prec TK_PREC_ASSIGN  { $$ = new yal::AssignOperatorNode(yal::BisonYyltypeToLocation(yylloc), $1, kAssignOperatorTypeOr, $3);}
-    | TK_ID TK_OP_ASSIGN_XOR expression %prec TK_PREC_ASSIGN  { $$ = new yal::AssignOperatorNode(yal::BisonYyltypeToLocation(yylloc), $1, kAssignOperatorTypeXor, $3);}
-    | TK_ID TK_OP_ASSIGN_SHIFT_LEFT expression %prec TK_PREC_ASSIGN  { $$ = new yal::AssignOperatorNode(yal::BisonYyltypeToLocation(yylloc), $1, kAssignOperatorTypeShiftLeft, $3);}
-    | TK_ID TK_OP_ASSIGN_SHIFT_RIGHT expression %prec TK_PREC_ASSIGN  { $$ = new yal::AssignOperatorNode(yal::BisonYyltypeToLocation(yylloc), $1, kAssignOperatorTypeShiftRight, $3);}
+expression: '(' expression ')' {$$ = $2 ;}
+    | TK_OP_MINUS expression %prec TK_PREC_NEG {$$ = new yal::SingleOperatorNode(yal::BisonYyltypeToLocation(yylloc), kOperatorTypeMinus, $2);}
+    | TK_NOT expression  %prec TK_PREC_NEG {$$ = new yal::SingleOperatorNode(yal::BisonYyltypeToLocation(yylloc), kOperatorTypeNot, $2);}
+    | TK_BIT_TIL expression %prec TK_PREC_NEG {$$ = new yal::SingleOperatorNode(yal::BisonYyltypeToLocation(yylloc), kOperatorTypeBitNot, $2);}
+    | expression TK_AND expression {$$ = new yal::DualOperatorNode(yal::BisonYyltypeToLocation(yylloc), kOperatorTypeAnd, $1, $3);}
+    | expression TK_OR expression {$$ = new yal::DualOperatorNode(yal::BisonYyltypeToLocation(yylloc), kOperatorTypeOr, $1, $3);}
+    | expression TK_CMP_GT expression {$$ = new yal::CompareOperatorNode(yal::BisonYyltypeToLocation(yylloc), kOperatorTypeGt, $1, $3);}
+    | expression TK_CMP_GE expression {$$ = new yal::CompareOperatorNode(yal::BisonYyltypeToLocation(yylloc), kOperatorTypeGe, $1, $3);}
+    | expression TK_CMP_LE expression {$$ = new yal::CompareOperatorNode(yal::BisonYyltypeToLocation(yylloc), kOperatorTypeLe, $1, $3);}
+    | expression TK_CMP_LT expression {$$ = new yal::CompareOperatorNode(yal::BisonYyltypeToLocation(yylloc), kOperatorTypeLt, $1, $3);}
+    | expression TK_CMP_EQ expression {$$ = new yal::CompareOperatorNode(yal::BisonYyltypeToLocation(yylloc), kOperatorTypeEq, $1, $3);}
+    | expression TK_CMP_NE expression {$$ = new yal::CompareOperatorNode(yal::BisonYyltypeToLocation(yylloc), kOperatorTypeNe, $1, $3);}
+    | expression TK_OP_PLUS expression {$$ = new yal::DualOperatorNode(yal::BisonYyltypeToLocation(yylloc), kOperatorTypePlus, $1, $3);}
+    | expression TK_OP_MINUS expression {$$ = new yal::DualOperatorNode(yal::BisonYyltypeToLocation(yylloc), kOperatorTypeMinus, $1, $3);}
+    | expression TK_OP_MULT expression {$$ = new yal::DualOperatorNode(yal::BisonYyltypeToLocation(yylloc), kOperatorTypeMult, $1, $3);}
+    | expression TK_OP_DIV expression {$$ = new yal::DualOperatorNode(yal::BisonYyltypeToLocation(yylloc), kOperatorTypeDiv, $1, $3);}
+    | expression TK_BIT_OR expression {$$ = new yal::DualOperatorNode(yal::BisonYyltypeToLocation(yylloc), kOperatorTypeBitOr, $1, $3);}
+    | expression TK_BIT_XOR expression {$$ = new yal::DualOperatorNode(yal::BisonYyltypeToLocation(yylloc), kOperatorTypeBitXor, $1, $3);}
+    | expression TK_BIT_AND expression {$$ = new yal::DualOperatorNode(yal::BisonYyltypeToLocation(yylloc), kOperatorTypeBitAnd, $1, $3);}
+    | expression TK_SHIFT_LEFT expression {$$ = new yal::DualOperatorNode(yal::BisonYyltypeToLocation(yylloc), kOperatorTypeBitShiftLeft, $1, $3);}
+    | expression TK_SHIFT_RIGHT expression {$$ = new yal::DualOperatorNode(yal::BisonYyltypeToLocation(yylloc), kOperatorTypeBitShiftRight, $1, $3);}
+    | TK_ID TK_OP_ASSIGN expression %prec TK_PREC_ASSIGN { $$ = new yal::AssignOperatorNode(yal::BisonYyltypeToLocation(yylloc), $1, kOperatorTypeCopy, $3);}
+    | TK_ID TK_OP_ASSIGN_PLUS expression %prec TK_PREC_ASSIGN  { $$ = new yal::AssignOperatorNode(yal::BisonYyltypeToLocation(yylloc), $1, kOperatorTypePlus, $3);}
+    | TK_ID TK_OP_ASSIGN_MINUS expression %prec TK_PREC_ASSIGN  { $$ = new yal::AssignOperatorNode(yal::BisonYyltypeToLocation(yylloc), $1, kOperatorTypeMinus, $3);}
+    | TK_ID TK_OP_ASSIGN_MULT expression %prec TK_PREC_ASSIGN  { $$ = new yal::AssignOperatorNode(yal::BisonYyltypeToLocation(yylloc), $1, kOperatorTypeMult, $3);}
+    | TK_ID TK_OP_ASSIGN_DIV expression %prec TK_PREC_ASSIGN  { $$ = new yal::AssignOperatorNode(yal::BisonYyltypeToLocation(yylloc), $1, kOperatorTypeDiv, $3);}
+    | TK_ID TK_OP_ASSIGN_AND expression  %prec TK_PREC_ASSIGN  { $$ = new yal::AssignOperatorNode(yal::BisonYyltypeToLocation(yylloc), $1, kOperatorTypeBitAnd, $3);}
+    | TK_ID TK_OP_ASSIGN_OR expression %prec TK_PREC_ASSIGN  { $$ = new yal::AssignOperatorNode(yal::BisonYyltypeToLocation(yylloc), $1, kOperatorTypeBitOr, $3);}
+    | TK_ID TK_OP_ASSIGN_XOR expression %prec TK_PREC_ASSIGN  { $$ = new yal::AssignOperatorNode(yal::BisonYyltypeToLocation(yylloc), $1, kOperatorTypeBitXor, $3);}
+    | TK_ID TK_OP_ASSIGN_SHIFT_LEFT expression %prec TK_PREC_ASSIGN  { $$ = new yal::AssignOperatorNode(yal::BisonYyltypeToLocation(yylloc), $1, kOperatorTypeBitShiftLeft, $3);}
+    | TK_ID TK_OP_ASSIGN_SHIFT_RIGHT expression %prec TK_PREC_ASSIGN  { $$ = new yal::AssignOperatorNode(yal::BisonYyltypeToLocation(yylloc), $1, kOperatorTypeBitShiftRight, $3);}
     | constant
     | func_call
     ;
@@ -275,20 +279,20 @@ decl_args : decl_args ','  decl_arg { $$->addArgument($3);}
     | %empty {$$ = new yal::ArgumentDeclsNode(yal::BisonYyltypeToLocation(yylloc));}
     ;
 
-decl_arg: builtin_type TK_ID {$$ = new yal::ArgumentDeclNode(yal::BisonYyltypeToLocation(yylloc), $1, $2);}
-    | TK_ID TK_ID {$$ = new yal::ArgumentDeclNode(yal::BisonYyltypeToLocation(yylloc), $1, $2);}
+decl_arg: type TK_ID {$$ = new yal::ArgumentDeclNode(yal::BisonYyltypeToLocation(yylloc), $1, $2);}
     ;
 
 var_decl: TK_VAR_DECL TK_ID TK_OP_ASSIGN expression { $$ = new yal::VariableDeclNode(yal::BisonYyltypeToLocation(yylloc), $2, $4);}
 ;
 
-builtin_type: TK_TYPE_BOOL {$$ = kConstantTypeBool;}
-| TK_TYPE_INT32 {$$ = kConstantTypeInt32;}
-| TK_TYPE_UINT32 {$$ = kConstantTypeUInt32;}
-| TK_TYPE_INT64 {$$ = kConstantTypeInt64;}
-| TK_TYPE_UINT64 {$$ = kConstantTypeUInt64;}
-| TK_TYPE_F32 {$$ = kConstantTypeFloat32;}
-| TK_TYPE_F64 {$$ = kConstantTypeFloat64;}
+type: TK_TYPE_BOOL {$$ = yal::BuiltinType::GetBuiltinType(yal::BuiltinType::kBool);}
+| TK_TYPE_INT32 {$$ = yal::BuiltinType::GetBuiltinType(yal::BuiltinType::kInt32);}
+| TK_TYPE_UINT32 {$$ = yal::BuiltinType::GetBuiltinType(yal::BuiltinType::kUInt32);}
+| TK_TYPE_INT64 {$$ = yal::BuiltinType::GetBuiltinType(yal::BuiltinType::kInt64);}
+| TK_TYPE_UINT64 {$$ = yal::BuiltinType::GetBuiltinType(yal::BuiltinType::kUInt64);}
+| TK_TYPE_F32 {$$ = yal::BuiltinType::GetBuiltinType(yal::BuiltinType::kFloat32);}
+| TK_TYPE_F64 {$$ = yal::BuiltinType::GetBuiltinType(yal::BuiltinType::kFloat64);}
+| TK_ID { $$ = state->registry.registerUndefined($1); yal_free($1);}
 ;
 
 constant: TK_BOOL { $$ = new yal::ConstantNode(yal::BisonYyltypeToLocation(yylloc), yal::ConstantValue($1));}

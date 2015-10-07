@@ -1,31 +1,19 @@
 #include "yal/ast/argumentdeclnode.h"
-
+#include "yal/types/type.h"
 namespace yal
 {
 
 YAL_AST_NODE_ACCEPT_IMP(ArgumentDeclNode)
 
 ArgumentDeclNode::ArgumentDeclNode(const SourceLocationInfo& loc,
-                                   const ConstantType type,
+                                   Type *type,
                                    const char* name):
     AstBaseNode(loc),
     _argName(name),
-    _argId(nullptr),
     _argType(type)
 {
-    YAL_ASSERT(type != kConstantTypeId);
 }
 
-ArgumentDeclNode::ArgumentDeclNode(const SourceLocationInfo& loc,
-                                   const char* id,
-                                   const char* name):
-    AstBaseNode(loc),
-    _argName(name),
-    _argId(id),
-    _argType(kConstantTypeId)
-{
-
-}
 
 ArgumentDeclNode::~ArgumentDeclNode()
 {
@@ -33,9 +21,9 @@ ArgumentDeclNode::~ArgumentDeclNode()
 }
 
 bool
-ArgumentDeclNode::isCostumType() const
+ArgumentDeclNode::isCustomType() const
 {
-    return _argType == kConstantTypeId;
+    return !_argType->isBuiltinType();
 }
 
 YAL_AST_NODE_ACCEPT_IMP(ArgumentDeclsNode)

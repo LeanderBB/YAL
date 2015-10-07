@@ -61,49 +61,49 @@ ConstantValue::~ConstantValue()
 yal_bool
 ConstantValue::valueAsBoolean() const
 {
-    YAL_ASSERT(_type.data.builtin == kConstantTypeBool);
+    YAL_ASSERT(_type == kConstantTypeBool);
     return _value.boolean;
 }
 
 yal_i32
 ConstantValue::valueAsInt32() const
 {
-    YAL_ASSERT(_type.data.builtin == kConstantTypeInt32);
+    YAL_ASSERT(_type == kConstantTypeInt32);
     return _value.integer32;
 }
 
 yal_u32
 ConstantValue::valueAsUInt32() const
 {
-    YAL_ASSERT(_type.data.builtin == kConstantTypeUInt32);
+    YAL_ASSERT(_type == kConstantTypeUInt32);
     return _value.uinteger32;
 }
 
 yal_i64
 ConstantValue::valueAsInt64() const
 {
-    YAL_ASSERT(_type.data.builtin == kConstantTypeInt64);
+    YAL_ASSERT(_type == kConstantTypeInt64);
     return _value.integer64;
 }
 
 yal_u64
 ConstantValue::valueAsUInt64() const
 {
-    YAL_ASSERT(_type.data.builtin == kConstantTypeUInt64);
+    YAL_ASSERT(_type == kConstantTypeUInt64);
     return _value.uinteger64;
 }
 
 yal_f32
 ConstantValue::valueAsFloat32() const
 {
-    YAL_ASSERT(_type.data.builtin == kConstantTypeFloat32);
+    YAL_ASSERT(_type == kConstantTypeFloat32);
     return _value.float32;
 }
 
 yal_f64
 ConstantValue::valueAsFloat64() const
 {
-    YAL_ASSERT(_type.data.builtin == kConstantTypeFloat64);
+    YAL_ASSERT(_type == kConstantTypeFloat64);
     return _value.float64;
 }
 
@@ -123,21 +123,21 @@ ConstantValue::valueAs64BitRaw() const
 const char*
 ConstantValue::valueAsId() const
 {
-    YAL_ASSERT(_type.data.builtin == kConstantTypeId);
+    YAL_ASSERT(_type == kConstantTypeId);
     return _value.id;
 }
 
 const char*
 ConstantValue::valueAsText() const
 {
-    YAL_ASSERT(_type.data.builtin == kConstantTypeText);
+    YAL_ASSERT(_type == kConstantTypeText);
     return _value.id;
 }
 
 bool
 ConstantValue::valueFitsInByteCode() const
 {
-    switch(_type.data.builtin)
+    switch(_type)
     {
     case kConstantTypeBool:
         return true;
@@ -173,13 +173,13 @@ ConstantValue::valueFitsInByteCode() const
 bool
 ConstantValue::valueIs32Bits() const
 {
-    return ConstantTypeIs32Bits(_type.data.builtin);
+    return ConstantTypeIs32Bits(_type);
 }
 
 bool
 ConstantValue::valueIs64Bits() const
 {
-    return ConstantTypeIs64Bits(_type.data.builtin);
+    return ConstantTypeIs64Bits(_type);
 }
 
 bool
@@ -190,7 +190,7 @@ ConstantValue::operator == (const ConstantValue& other) const
         return false;
     }
 
-    switch(_type.data.builtin)
+    switch(_type)
     {
     case kConstantTypeText:
         return strcmp(valueAsText(), other.valueAsText()) == 0;

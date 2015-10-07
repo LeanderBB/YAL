@@ -31,7 +31,7 @@ public:
 
     ~ConstantValue();
 
-    DataType type() const
+    ConstantType type() const
     {
         return _type;
     }
@@ -69,7 +69,7 @@ public:
     bool operator != (const ConstantValue& other) const;
 
 private:
-    const DataType _type;
+    const ConstantType _type;
     union
     {
         yal_bool boolean;

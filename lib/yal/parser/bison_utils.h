@@ -76,7 +76,7 @@ BisonOnExpAssign(ParserState_t* state,
 
 void
 BisonOnAssignOp(ParserState_t* state,
-                const AssignOperatorType op);
+                const OperatorType op);
 
 void
 BisonOnStatReturn(ParserState_t* state);
@@ -105,15 +105,15 @@ BisonOnDeclArgName(ParserState_t* state,
 
 void
 BisonOnExpSingleArit(ParserState_t* state,
-                     const SingleOperatorType);
+                     const OperatorType);
 
 void
 BisonOnExpDualArit(ParserState_t* state,
-                   const DualOperatorType);
+                   const OperatorType);
 
 void
 BisonOnExpCompare(ParserState_t* state,
-                  const CompareOperatorType);
+                  const OperatorType);
 
 void
 BisonOnScopeBegin(ParserState_t* state);

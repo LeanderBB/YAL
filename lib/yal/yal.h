@@ -52,4 +52,8 @@ enum
     kValue24SignedMin = 0x800001
 };
 
+
+/* Other --------------------------------------------------------------------*/
+
+#define YAL_ARRAY_SIZE(x) (sizeof(x)/sizeof(x[0]))
 #endif

@@ -1,6 +1,7 @@
 #include "yal/module/module.h"
 #include "yal/module/moduleindexable.h"
 #include "yal/util/outputformater.h"
+#include "yal/types/type.h"
 #include <cstring>
 namespace yal
 {
@@ -59,7 +60,7 @@ Module::addGlobal(const ModuleGlobal* global)
 ModuleConstant*
 Module::constant(const ConstantValue& value) const
 {
-    if (value.type() == DataType(kConstantTypeText))
+    if (value.type() == kConstantTypeText)
     {
         auto it = _strings.find(value.valueAsText());
         if (it != _strings.end())
@@ -83,7 +84,7 @@ Module::constant(const ConstantValue& value) const
 bool
 Module::addConstant(ModuleConstant* constant)
 {
-    if (constant->value().type() == DataType(kConstantTypeText))
+    if (constant->value().type() == kConstantTypeText)
     {
         auto it = _strings.find(constant->value().valueAsText());
         if (it != _strings.end())
@@ -142,16 +143,21 @@ Module::removeUnusedAndAssignIndices()
         const GlobalPtr_t& global = globals_it->second;
         //if (global->wasUsed())
         {
-            if (DataType::Is32Bits(global->variableType()))
+            if (global->variableType()->is32BitSized())
             {
                 global->setModuleIndex(_globals32.size());
                 _globals32.push_back(global.get());
             }
-            else
+            else if (global->variableType()->is64BitSized())
             {
-                YAL_ASSERT(DataType::Is64Bits(global->variableType()));
                 global->setModuleIndex(_globals64.size());
                 _globals64.push_back(global.get());
+            }
+            else
+            {
+                YAL_ASSERT(global->variableType()->isPointerSized());
+                global->setModuleIndex(_globalsPtr.size());
+                _globalsPtr.push_back(global.get());
             }
             ++globals_it;
         }

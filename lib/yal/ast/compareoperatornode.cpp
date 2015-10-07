@@ -5,7 +5,7 @@ namespace yal
 YAL_AST_NODE_ACCEPT_IMP(CompareOperatorNode)
 
 CompareOperatorNode::CompareOperatorNode(const SourceLocationInfo& loc,
-                           const CompareOperatorType optype,
+                           const OperatorType optype,
                            ExpressionNode *expLeft,
                            ExpressionNode *expRight):
     ExpressionNode(loc),
@@ -13,7 +13,7 @@ CompareOperatorNode::CompareOperatorNode(const SourceLocationInfo& loc,
     _leftExp(expLeft),
     _rightExp(expRight)
 {
-
+    YAL_ASSERT(_compareType & kOperatorMaskComparators);
 }
 
 CompareOperatorNode::~CompareOperatorNode()

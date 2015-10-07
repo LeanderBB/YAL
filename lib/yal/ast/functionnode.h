@@ -68,7 +68,7 @@ public:
     FunctionDeclNode(const SourceLocationInfo& loc,
                      const char* name,
                      ArgumentDeclsNode* args,
-                     const ConstantType returnType,
+                     Type *returnType,
                      CodeBodyNode* code);
 
     virtual ~FunctionDeclNode();
@@ -93,21 +93,18 @@ public:
         return _functionArgs;
     }
 
-    bool hasReturnType() const
-    {
-        return _returnType != kConstantTypeNone;
-    }
+    bool hasReturnValue() const;
 
-    ConstantType returnType() const
+    Type* returnValueType() const
     {
-        return _returnType;
+        return _returnValueType;
     }
 
 private:
     const char* _functionName;
     ArgumentDeclsNode* _functionArgs;
     CodeBodyNode* _codeBody;
-    const ConstantType _returnType;
+    Type* _returnValueType;
 };
 
 }

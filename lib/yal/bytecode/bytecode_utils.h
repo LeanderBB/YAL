@@ -11,33 +11,33 @@ namespace yal
 
 
 yalvm_bytecode_inst_t
-GlobalLoadForType(const ConstantType type);
+GlobalLoadForType(const Type* type);
 
 yalvm_bytecode_inst_t
-SingeOperatorByteCodeInst(const SingleOperatorType operatorType,
-                          const ConstantType dataType);
+SingeOperatorByteCodeInst(const OperatorType operatorType,
+                          const Type* dataType);
 
 yalvm_bytecode_inst_t
-DualOperatorByteCodeInst(const DualOperatorType operatorType,
-                         const ConstantType dataType);
+DualOperatorByteCodeInst(const OperatorType operatorType,
+                         const Type* dataType);
 
 yalvm_bytecode_inst_t
-CompareOperatorByteCodeInst(const CompareOperatorType operatorType,
-                            const ConstantType dataType);
+CompareOperatorByteCodeInst(const OperatorType operatorType,
+                            const Type* dataType);
 
 
 yalvm_bytecode_inst_t
-AssignOperatorByteCodeInst(const AssignOperatorType operatorType,
-                           const ConstantType dataType);
+AssignOperatorByteCodeInst(const OperatorType operatorType,
+                           const Type* dataType);
 
 yalvm_bytecode_inst_t
-LoadGlobalByteCodeInst(const DataType dataType);
+LoadGlobalByteCodeInst(const Type* dataType);
 
 yalvm_bytecode_inst_t
-StoreGlobalByteCodeInst(const DataType dataType);
+StoreGlobalByteCodeInst(const Type* dataType);
 
 yalvm_bytecode_inst_t
-PrintByteCodeInst(const DataType dataType);
+PrintByteCodeInst(const Type* dataType);
 
 }
 

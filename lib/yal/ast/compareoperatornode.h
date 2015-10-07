@@ -12,13 +12,13 @@ public:
     YAL_AST_NODE_ACCEPT_HDR(CompareOperatorNode)
 
     CompareOperatorNode(const SourceLocationInfo& loc,
-                 const CompareOperatorType optype,
+                 const OperatorType optype,
                  ExpressionNode* expLeft,
                  ExpressionNode* expRight);
 
     virtual ~CompareOperatorNode();
 
-    CompareOperatorType compareOperatorType() const
+    OperatorType compareOperatorType() const
     {
         return _compareType;
     }
@@ -34,7 +34,7 @@ public:
     }
 
 private:
-    const CompareOperatorType _compareType;
+    const OperatorType _compareType;
     ExpressionNode* _leftExp;
     ExpressionNode* _rightExp;
 };

@@ -15,12 +15,6 @@ YALVM_MODULE_BGN
  * [  constant 64 0    ]
  *       ...
  * [  constant 64 N    ]
- * [  globals  32 0    ]
- *       ...
- * [  globals  32 N    ]
- * [  globals  64 0    ]
- *       ...
- * [  globals  64 N    ]
  * [  obj descriptor 0 ]
  *       ...
  * [  obj descriptor N ]
@@ -63,6 +57,8 @@ typedef struct
     yalvm_u16 n_objdescs;     /* number of object descs    */
     yalvm_u16 n_strings;      /* number of strings         */
     yalvm_u16 strings_size;   /* total size of all strings */
+    yalvm_u16 n_globalsPtr;   /* number of Ptr globals */
+    yalvm_u16 _unusued;
 } yalvm_bin_header_t;
 #pragma pack(pop)
 
@@ -72,14 +68,6 @@ yalvm_bin_header_valid_magic(const yalvm_bin_header_t* header);
 
 yalvm_u32
 yalvm_bin_header_offset_functions(const yalvm_bin_header_t* header);
-
-yalvm_u32
-yalvm_bin_header_offset_global32(const yalvm_bin_header_t* header,
-                                 const yalvm_u16 index);
-
-yalvm_u32
-yalvm_bin_header_offset_global64(const yalvm_bin_header_t* header,
-                                 const yalvm_u16 index);
 
 yalvm_u32
 yalvm_bin_header_offset_constant32(const yalvm_bin_header_t* header,
@@ -98,31 +86,6 @@ yalvm_bin_header_offset_strings(const yalvm_bin_header_t* header);
 
 void
 yalvm_bin_header_init(yalvm_bin_header_t* header);
-
-/* Global 32 */
-#pragma pack(push, 1)
-typedef struct
-{
-    yalvm_u32 hash;
-    yalvm_u32 val;
-} yalvm_bin_global32_t;
-#pragma pack(pop)
-
-// YALVM_STATIC_ASSERT((sizeof(yalvm_bin_global32_t) == YALVM_BIN_SIZEOF_GLOBAL_32),
-//                    "yalvm_bin_global32_t does not mach enum size")
-
-/* Global 64 */
-#pragma pack(push, 1)
-typedef struct
-{
-    yalvm_u32 hash;
-    yalvm_u64 val;
-} yalvm_bin_global64_t;
-#pragma pack(pop)
-
-
-// YALVM_STATIC_ASSERT(sizeof(yalvm_bin_global64_t) == YALVM_BIN_SIZEOF_GLOBAL_64,
-//                    "yalvm_bin_global64_t does not mach enum size")
 
 /* Function header */
 #pragma pack(push, 1)
@@ -161,6 +124,41 @@ typedef struct
     yalvm_u16 __unused;     /* unused                    */
 } yalvm_obj_descriptor_t;
 #pragma pack(pop)
+
+
+typedef struct yalvm_binary
+{
+    const yalvm_bin_header_t*   header;
+    const yalvm_u8*             binary;
+    const yalvm_u8*             binary_end;
+    const yalvm_u32*            constants32;
+    const yalvm_u64*            constants64;
+    const char**                strings;
+    const yalvm_func_header_t** functions;
+} yalvm_binary_t;
+
+void
+yalvm_binary_init(yalvm_binary_t* binary);
+
+void
+yalvm_binary_destroy(yalvm_binary_t* binary);
+
+yalvm_bool
+yalvm_binary_load(yalvm_binary_t *binary,
+                  const void* binary_data,
+                  const yalvm_size binary_size);
+
+yalvm_u32
+yalvm_binary_num_globals32(const yalvm_binary_t* binary);
+
+yalvm_u32
+yalvm_binary_num_globals64(const yalvm_binary_t* binary);
+
+yalvm_u32
+yalvm_binary_num_globalsPtr(const yalvm_binary_t* binary);
+
+yalvm_u32
+yalvm_binary_num_functions(const yalvm_binary_t* binary);
 
 
 
