@@ -13,12 +13,19 @@ namespace yal
 class Compiler
 {
 public:
+
+    enum
+    {
+        kDumpAst = 1 << 0
+    };
+
+
     Compiler(InputSink& input,
              OutputSink& output,
              OutputSink& codeOutput,
              ErrorHandler& errHandler);
 
-    bool compile();
+    bool compile(const uint32_t flags = 0);
 
 protected:
     InputSink& _input;

@@ -22,10 +22,19 @@ enum
 class ArgParser
 {
 public:
+
+    static const char NoSingleCharOption;
+
     ArgParser();
 
     bool add(const yal_u32 id,
              const char shortOpt,
+             const char* longOpt,
+             const char* help,
+             const yal_u32 flags);
+
+
+    bool add(const yal_u32 id,
              const char* longOpt,
              const char* help,
              const yal_u32 flags);

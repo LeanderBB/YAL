@@ -5,6 +5,7 @@
 #include "yal/parser/parser_state.h"
 #include "yal/ast/astnodevisitor.h"
 #include "yal/util/outputformater.h"
+#include <vector>
 
 namespace yal
 {
@@ -14,7 +15,7 @@ class AstPrinter : public AstNodeVisitor
 public:
     enum
     {
-        kNumIdent = 2
+        kNumIdent = 1
     };
 
     AstPrinter(OutputSink& sink);
@@ -31,10 +32,20 @@ private:
 
     void printIdent();
 
+    void printNodeTitle(const AstBaseNode& node,
+                        const bool empty = false);
+
+    void onDescent(const bool lastNode);
+
+    void onAscend();
+
+    void onSubDescent();
+
+    void onSubAscend();
 private:
+    std::vector<char> _idents;
     OutputFormater _formater;
     OutputSink& _sink;
-    size_t _ident;
 };
 
 }
