@@ -15,6 +15,7 @@
 #include "yal/parser/parser_state.h"
 #include "yal/ast/printnode.h"
 #include "yal/ast/whileloopnode.h"
+#include "yal/ast/variableaccessnode.h"
 #include <cstdlib>
 
 namespace yal
@@ -340,6 +341,14 @@ AstPrinter::visit(WhileLoopNode& node)
     onDescent(true);
     node.code()->accept(*this);
     onAscend();
+}
+
+void
+AstPrinter::visit(VariableAccessNode& node)
+{
+    printNodeTitle(node);
+    _formater.format("%s\n", node.variableName());
+    _formater.write(_sink);
 }
 
 }

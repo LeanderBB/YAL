@@ -14,6 +14,7 @@
 #include "yal/ast/returnnode.h"
 #include "yal/parser/parser_state.h"
 #include "yal/ast/printnode.h"
+#include "yal/ast/variableaccessnode.h"
 #include "yal/ast/whileloopnode.h"
 #include "yal/types/typeregistry.h"
 #include "yal/types/functiontype.h"
@@ -191,44 +192,18 @@ void
 SymbolTreeBuilder::visit(ConstantNode& node)
 {
     node.setSymbolTable(currentScope());
-    const ConstantType const_type = node.constantValue().type();
-    if (const_type == kConstantTypeId)
+    // check module if a constant that matches this value is available
+    if (!node.constantValue().valueFitsInByteCode())
     {
-        const char* symbol_name = node.constantValue().valueAsId();
-        auto sym = _curScope->resolveSymbol(symbol_name);
-        if (!sym)
+        ModuleConstant* mod_constant = _parserState->module.constant(node.constantValue());
+        if (!mod_constant)
         {
-            _formater.format("Symbol '%s' has not been declared\n", symbol_name);
-            logError(node);
-            return;
+            _parserState->module.addConstant(new ModuleConstant(node.constantValue()));
         }
-
-        if (!sym->isVariable())
-        {
-            _formater.format("Symbol '%s' is not a variable \n", symbol_name);
-            logError(node);
-            return;
-        }
-
-        _expResult = sym->astNode()->nodeType();
-        node.setTypeInfo(_expResult, _expResult);
-        sym->touchRead();
     }
-    else
-    {
-        // check module if a constant that matches this value is available
-        if (!node.constantValue().valueFitsInByteCode())
-        {
-            ModuleConstant* mod_constant = _parserState->module.constant(node.constantValue());
-            if (!mod_constant)
-            {
-                _parserState->module.addConstant(new ModuleConstant(node.constantValue()));
-            }
-        }
 
-        _expResult = node.constantType();
-        node.setTypeInfo(_expResult, _expResult);
-    }
+    _expResult = node.constantType();
+    node.setTypeInfo(_expResult, _expResult);
 }
 
 void
@@ -696,6 +671,31 @@ SymbolTreeBuilder::visit(PrintArgsNode& node)
         }
         ++idx;
     }
+}
+
+void
+SymbolTreeBuilder::visit(VariableAccessNode& node)
+{
+    node.setSymbolTable(currentScope());
+    const char* symbol_name = node.variableName();
+    auto sym = _curScope->resolveSymbol(symbol_name);
+    if (!sym)
+    {
+        _formater.format("Symbol '%s' has not been declared\n", symbol_name);
+        logError(node);
+        return;
+    }
+
+    if (!sym->isVariable())
+    {
+        _formater.format("Symbol '%s' is not a variable \n", symbol_name);
+        logError(node);
+        return;
+    }
+
+    _expResult = sym->astNode()->nodeType();
+    node.setTypeInfo(_expResult, _expResult);
+    sym->touchRead();
 }
 
 }

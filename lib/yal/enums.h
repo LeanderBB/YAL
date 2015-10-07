@@ -20,7 +20,6 @@ enum AssignOperatorType
 enum ConstantType
 {
     kConstantTypeNone = 0,
-    kConstantTypeId,
     kConstantTypeText,
     kConstantTypeInt32,
     kConstantTypeUInt32,
