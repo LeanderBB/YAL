@@ -10,7 +10,7 @@
 
 namespace yal
 {
-class SymbolTable;
+class Scope;
 
 class Type;
 class AstBaseNode
@@ -35,14 +35,14 @@ public:
         return _loc;
     }
 
-    SymbolTable* symbolTable() const
+    Scope* scope() const
     {
-        return _pSymTable;
+        return _pScope;
     }
 
-    void setSymbolTable(SymbolTable* pSymTable)
+    void setScope(Scope* pScope)
     {
-        _pSymTable = pSymTable;
+        _pScope = pScope;
     }
 
     void setNodeType(Type* type)
@@ -74,7 +74,7 @@ public:
 
 protected:
     const SourceLocationInfo _loc;
-    SymbolTable* _pSymTable = nullptr;
+    Scope* _pScope = nullptr;
     Type* _nodeType = nullptr;
     Type* _expType = nullptr;
 };

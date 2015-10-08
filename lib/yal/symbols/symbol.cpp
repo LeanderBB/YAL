@@ -6,25 +6,18 @@ namespace yal
 {
 
 Symbol::Symbol(const char* name,
-               const yal_u32 scopeLevel,
+               const Scope* scope,
                AstBaseNode *astNode,
                const yal_u32 flags):
     _symName(name),
-    _pSymScope(nullptr),
+    _pSymScope(scope),
     _astNode(astNode),
     _readCount(0),
     _writeCount(0),
     _callCount(0),
-    _scopeLevel(scopeLevel),
     _symbolFlags(flags)
 {
 
-}
-
-void
-Symbol::setScope(const SymbolTable* scope) const
-{
-    _pSymScope = scope;
 }
 
 void

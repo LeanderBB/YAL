@@ -37,6 +37,9 @@ set(YAL_HDR
     ast/whileloopnode.h
     ast/variableaccessnode.h
     symbols/symboltable.h
+    symbols/scope.h
+    symbols/scopeaction.h
+    symbols/scopeactionlist.h
     ast/astprinter.h
     symbols/symboltable.h
     symbols/symboltreebuilder.h
@@ -94,6 +97,7 @@ set(YAL_SRC
     symbols/symbol.cpp
     symbols/symboltable.cpp
     symbols/symboltreebuilder.cpp
+    symbols/scope.cpp
     types/type.cpp
     types/builtintype.cpp
     types/functiontype.cpp

@@ -19,7 +19,6 @@
 #include "yal/types/typeregistry.h"
 #include "yal/types/functiontype.h"
 #include "yal/types/builtintype.h"
-
 #include <cstdio>
 
 namespace yal
@@ -28,13 +27,12 @@ SymbolTreeBuilder::SymbolTreeBuilder(ErrorHandler &errHandler,
                                      TypeRegistry &typeRegistry):
     AstNodeVisitor(),
     _parserState(nullptr),
-    _globalSym(nullptr, 0),
-    _curScope(&_globalSym),
+    _globalScope(nullptr, 0),
+    _curScope(&_globalScope),
     _curFunctionDecl(nullptr),
     _curFunctionCall(nullptr),
     _errHandler(errHandler),
     _typeRegistry(typeRegistry),
-    _scopeCounter(0),
     _error(false)
 {
 
@@ -65,9 +63,8 @@ void
 SymbolTreeBuilder::beginScope()
 {
     _scopeStack.push(_curScope);
-    SymbolTable* tmp = _curScope;
-    _curScope = new SymbolTable(tmp, ++_scopeCounter);
-    tmp->addChild(_curScope);
+    Scope* tmp = _curScope;
+    _curScope = tmp->createChildScope();
 }
 
 void
@@ -75,7 +72,6 @@ SymbolTreeBuilder::endScope()
 {
     if (!_scopeStack.empty())
     {
-        --_scopeCounter;
         _curScope = _scopeStack.top();
         _scopeStack.pop();
     }
@@ -88,7 +84,7 @@ SymbolTreeBuilder::endScope()
 bool
 SymbolTreeBuilder::currentScopeIsGlobalScope() const
 {
-    return _curScope == &_globalSym;
+    return _curScope == &_globalScope;
 }
 
 void
@@ -103,7 +99,7 @@ SymbolTreeBuilder::logError(const AstBaseNode& node)
 void
 SymbolTreeBuilder::visit(AssignOperatorNode& node)
 {
-    node.setSymbolTable(currentScope());
+    node.setScope(currentScope());
     // check if var has been declared
     const char* variable_name = node.variableName();
     Symbol* sym = _curScope->resolveSymbol(variable_name);
@@ -148,7 +144,7 @@ SymbolTreeBuilder::visit(AssignOperatorNode& node)
 void
 SymbolTreeBuilder::visit(CodeBodyNode& node)
 {
-    node.setSymbolTable(currentScope());
+    node.setScope(currentScope());
     for(auto& v : node.statements)
     {
         if (!didError())
@@ -165,7 +161,7 @@ SymbolTreeBuilder::visit(CodeBodyNode& node)
 void
 SymbolTreeBuilder::visit(CompareOperatorNode& node)
 {
-    node.setSymbolTable(currentScope());
+    node.setScope(currentScope());
     node.leftExpression()->accept(*this);
 
     Type* left_type = _expResult;
@@ -191,7 +187,7 @@ SymbolTreeBuilder::visit(CompareOperatorNode& node)
 void
 SymbolTreeBuilder::visit(ConstantNode& node)
 {
-    node.setSymbolTable(currentScope());
+    node.setScope(currentScope());
     // check module if a constant that matches this value is available
     if (!node.constantValue().valueFitsInByteCode())
     {
@@ -209,7 +205,7 @@ SymbolTreeBuilder::visit(ConstantNode& node)
 void
 SymbolTreeBuilder::visit(ArgumentDeclNode& node)
 {
-    node.setSymbolTable(currentScope());
+    node.setScope(currentScope());
     if (node.isCustomType())
     {
         _formater.format("Custom types not yet supported!!!\n");
@@ -250,10 +246,11 @@ SymbolTreeBuilder::visit(ArgumentDeclNode& node)
         arg_data_type = sym->astNode()->nodeType();*/
     }
 
-    _curScope->declareSymbol(new Symbol(node.argumentName(),
-                                        currentScope()->level(),
-                                        &node,
-                                        Symbol::kFlagAssignable));
+    const Symbol* result = _curScope->declareSymbol(node.argumentName(),
+                                                    &node,
+                                                    Symbol::kFlagAssignable);
+    (void) result;
+    YAL_ASSERT(result);
     node.setNodeType(arg_data_type);
 }
 
@@ -268,7 +265,7 @@ SymbolTreeBuilder::visit(ArgumentDeclsNode& node)
         return;
     }
 
-    node.setSymbolTable(currentScope());
+    node.setScope(currentScope());
     for(auto& v : node.arguments())
     {
         if (!didError())
@@ -282,7 +279,7 @@ void
 SymbolTreeBuilder::visit(FunctionCallArgsNode& node)
 {
     YAL_ASSERT(_curFunctionCall);
-    node.setSymbolTable(currentScope());
+    node.setScope(currentScope());
 
     FunctionType* func_type = cast_type<FunctionType>(_curFunctionCall->astNode()->nodeType());
     YAL_ASSERT(func_type);
@@ -324,20 +321,20 @@ SymbolTreeBuilder::visit(FunctionCallArgsNode& node)
 void
 SymbolTreeBuilder::visit(VariableDeclNode& node)
 {
-    node.setSymbolTable(currentScope());
+    node.setScope(currentScope());
     const char* var_name = node.variableName();
     auto sym = _curScope->resolveSymbol(var_name);
 
     if (sym)
     {
-        if (currentScope()->level() == sym->scope()->level())
+        if (currentScope() == sym->scope())
         {
             _formater.format("Symbol '%s' has already been declared in the current scope\n",var_name);
             logError(node);
             return;
         }
 
-       /* if (!sym->isVariable())
+        /* if (!sym->isVariable())
         {
             _formater.format("Symbol '%s' is not a variable\n",var_name);
             logError(node);
@@ -358,11 +355,10 @@ SymbolTreeBuilder::visit(VariableDeclNode& node)
     if (!didError())
     {
         const bool is_global_var = currentScopeIsGlobalScope();
-        auto sym_var = new Symbol(var_name,
-                                  currentScope()->level(),
-                                  &node,
-                                  ((is_global_var) ? Symbol::kFlagGlobalSymbol : 0) | Symbol::kFlagAssignable);
-        _curScope->declareSymbol(sym_var);
+        auto sym_var = _curScope->declareSymbol(var_name,
+                                                &node,
+                                                ((is_global_var) ? Symbol::kFlagGlobalSymbol : 0) | Symbol::kFlagAssignable);
+        YAL_ASSERT(sym_var);
         node.setTypeInfo(_expResult, _expResult);
 
         // register with module global
@@ -378,7 +374,7 @@ void
 SymbolTreeBuilder::visit(DualOperatorNode& node)
 {
 
-    node.setSymbolTable(currentScope());
+    node.setScope(currentScope());
     node.leftExpression()->accept(*this);
     const OperatorType op_type = node.dualOperatorType();
 
@@ -420,7 +416,7 @@ SymbolTreeBuilder::visit(DualOperatorNode& node)
 void
 SymbolTreeBuilder::visit(SingleOperatorNode& node)
 {
-    node.setSymbolTable(currentScope());
+    node.setScope(currentScope());
     node.expression()->accept(*this);
 
     const OperatorType op_type = node.singleOperatorType();
@@ -450,7 +446,7 @@ SymbolTreeBuilder::visit(SingleOperatorNode& node)
 void
 SymbolTreeBuilder::visit(FunctionCallNode& node)
 {
-    node.setSymbolTable(currentScope());
+    node.setScope(currentScope());
     const char* func_name = node.functionName();
     auto sym = _curScope->resolveSymbol(func_name);
     if (!sym)
@@ -486,7 +482,7 @@ SymbolTreeBuilder::visit(FunctionCallNode& node)
 void
 SymbolTreeBuilder::visit(FunctionDeclNode& node)
 {
-    node.setSymbolTable(currentScope());
+    node.setScope(currentScope());
 
     const char* func_name = node.functionName();
     auto sym = _curScope->resolveSymbol(func_name);
@@ -508,8 +504,8 @@ SymbolTreeBuilder::visit(FunctionDeclNode& node)
         return;
     }
 
-    _curFunctionDecl = new Symbol(func_name, currentScope()->level(), &node);
-    _curScope->declareSymbol(_curFunctionDecl);
+    _curFunctionDecl = _curScope->declareSymbol(func_name, &node, 0);
+    YAL_ASSERT(_curFunctionDecl);
 
     // begin new scope
     beginScope();
@@ -534,7 +530,7 @@ SymbolTreeBuilder::visit(FunctionDeclNode& node)
 void
 SymbolTreeBuilder::visit(ConditionNode& node)
 {
-    node.setSymbolTable(currentScope());
+    node.setScope(currentScope());
 
     if (node.hasConditionComponent())
     {
@@ -619,14 +615,14 @@ SymbolTreeBuilder::visit(ReturnNode& node)
         }
     }
 
-    node.setSymbolTable(currentScope());
+    node.setScope(currentScope());
     node.setTypeInfo(_expResult, _expResult);
 }
 
 void
 SymbolTreeBuilder::visit(WhileLoopNode& node)
 {
-    node.setSymbolTable(currentScope());
+    node.setScope(currentScope());
 
     node.condition()->accept(*this);
     if (!didError())
@@ -656,7 +652,7 @@ SymbolTreeBuilder::visit(PrintNode& node)
 void
 SymbolTreeBuilder::visit(PrintArgsNode& node)
 {
-    node.setSymbolTable(currentScope());
+    node.setScope(currentScope());
     yal_u32 idx = 0;
 
     for(auto& v : node.expressions)
@@ -676,7 +672,7 @@ SymbolTreeBuilder::visit(PrintArgsNode& node)
 void
 SymbolTreeBuilder::visit(VariableAccessNode& node)
 {
-    node.setSymbolTable(currentScope());
+    node.setScope(currentScope());
     const char* symbol_name = node.variableName();
     auto sym = _curScope->resolveSymbol(symbol_name);
     if (!sym)
