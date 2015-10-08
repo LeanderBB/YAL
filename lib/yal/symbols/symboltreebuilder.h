@@ -2,7 +2,7 @@
 #define __YAL_SYMBOLTREEBUILDER_H__
 
 #include "yal/ast/astnodevisitor.h"
-#include "yal/symbols/symboltable.h"
+#include "yal/symbols/scope.h"
 #include "yal/util/errorhandler.h"
 #include "yal/util/outputformater.h"
 #include "yal/parser/parser_state.h"
@@ -27,9 +27,9 @@ public:
 #include "yal/ast/astnodelist.h"
 #undef YAL_NODE_LIST_FUNC
 
-    const SymbolTable& globalTable() const
+    const Scope& globalScope() const
     {
-        return _globalSym;
+        return _globalScope;
     }
 
 protected:
@@ -45,7 +45,7 @@ protected:
         return _error;
     }
 
-    SymbolTable* currentScope()
+    Scope* currentScope()
     {
         return _curScope;
     }
@@ -53,10 +53,10 @@ protected:
     bool currentScopeIsGlobalScope() const;
 
 private:
-    typedef std::stack<SymbolTable*> SymbolTableStack_t;
+    typedef std::stack<Scope*> SymbolTableStack_t;
     ParserState* _parserState;
-    SymbolTable _globalSym;
-    SymbolTable* _curScope;
+    Scope _globalScope;
+    Scope* _curScope;
     Symbol* _curFunctionDecl;
     const Symbol* _curFunctionCall;
     ErrorHandler& _errHandler;
@@ -64,7 +64,6 @@ private:
     SymbolTableStack_t _scopeStack;
     Type* _expResult;
     OutputFormater _formater;
-    yal_u32 _scopeCounter;
     bool _error;
 };
 

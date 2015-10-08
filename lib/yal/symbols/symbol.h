@@ -10,7 +10,7 @@ namespace yal
 typedef yal_u32 SymbolType_t;
 
 class Type;
-class SymbolTable;
+class Scope;
 class AstBaseNode;
 class Symbol
 {
@@ -23,9 +23,8 @@ public:
         kFlagGlobalSymbol   = 1 << 2
     };
 
-\
     Symbol(const char* name,
-           const yal_u32 scopeLevel,
+           const Scope* scope,
            AstBaseNode* astNode,
            const yal_u32 flags = 0);
 
@@ -36,9 +35,7 @@ public:
         return _symName;
     }
 
-    void setScope(const SymbolTable* scope) const;
-
-    const SymbolTable* scope() const
+    const Scope* scope() const
     {
         return _pSymScope;
     }
@@ -62,11 +59,6 @@ public:
     yal_u32 callCount() const
     {
         return _callCount;
-    }
-
-    yal_u32 scopeLevel() const
-    {
-        return _scopeLevel;
     }
 
     yal_u32 symbolFlags() const
@@ -94,12 +86,11 @@ public:
 
 protected:
     const char* _symName;
-    mutable const SymbolTable* _pSymScope;
+    const Scope* _pSymScope;
     AstBaseNode* _astNode;
     yal_u32 _readCount;
     yal_u32 _writeCount;
     yal_u32 _callCount;
-    const yal_u32 _scopeLevel;
     yal_u32 _symbolFlags;
 };
 

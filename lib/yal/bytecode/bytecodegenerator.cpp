@@ -13,7 +13,7 @@
 #include "yal/ast/conditionnode.h"
 #include "yal/ast/returnnode.h"
 #include "yal/ast/variableaccessnode.h"
-#include "yal/symbols/symboltable.h"
+#include "yal/symbols/scope.h"
 #include "yal/bytecode/bytecode_utils.h"
 #include "yal/ast/printnode.h"
 #include "yal/ast/whileloopnode.h"
@@ -26,20 +26,9 @@
 namespace yal
 {
 
+/*
 
-class ByteCodeGenerator::IScopeAction
-{
-public:
-    virtual ~IScopeAction(){}
-
-    virtual bool onScopeEnter(ByteCodeGenerator& generator) = 0;
-
-    virtual bool onScopeExit(ByteCodeGenerator& generator) = 0;
-
-    virtual bool runScopeExitOnReturn() const = 0;
-};
-
-class ByteCodeGenerator::GlobalScopeAction : public ByteCodeGenerator::IScopeAction
+class GlobalScopeAction
 {
 public:
 
@@ -94,6 +83,7 @@ protected:
     const yal_u32 _globalIdx;
     bool _shouldRelease;
 };
+*/
 
 
 ByteCodeGenerator::Register::Register():
@@ -150,6 +140,7 @@ ByteCodeGenerator::ByteCodeGenerator(Module &moduleInfo,
     _errorHandler(errorHandler),
     _buffer(),
     _regAllocator(),
+    _scopeVisitor(*this),
     _didError(false)
 {
 
@@ -239,13 +230,13 @@ ByteCodeGenerator::setupFunction(const yal::FunctionDeclNode &node)
         const ArgumentDeclsNode* func_args = node.functionArguments();
         for (auto& arg : func_args->arguments())
         {
-            bool result = _regAllocator.allocate(arg->argumentName(), arg->symbolTable()->level());
+            bool result = _regAllocator.allocate(arg->argumentName(), arg->scope()->level());
             (void) result;
             YAL_ASSERT(result != RegisterAllocator::UnusedRegisterValue);
         }
     }
 
-    Symbol* func_sym = node.symbolTable()->resolveSymbol(node.functionName());
+    Symbol* func_sym = node.scope()->resolveSymbol(node.functionName());
     YAL_ASSERT(func_sym && func_sym->isFunction());
 
     FunctionType* fn_type = cast_type<FunctionType>(func_sym->astNode()->nodeType());
@@ -254,10 +245,12 @@ ByteCodeGenerator::setupFunction(const yal::FunctionDeclNode &node)
 }
 
 bool
-ByteCodeGenerator::registerScope(const SymbolTable* table)
+ByteCodeGenerator::registerScope(const Scope* scope)
 {
-    auto symbolit = table->symbolsBegin();
-    auto symbolit_end = table->symbolsEnd();
+    const SymbolTable& sym_table = scope->symbolTable();
+
+    auto symbolit = sym_table.symbolsBegin();
+    auto symbolit_end = sym_table.symbolsEnd();
 
     for(; symbolit != symbolit_end; ++symbolit)
     {
@@ -265,7 +258,7 @@ ByteCodeGenerator::registerScope(const SymbolTable* table)
         if(symbol->isVariable())
         {
             yal_i32 result = _regAllocator.allocate(symbol->symbolName(),
-                                                    table->level());
+                                                    scope->level());
             if (result == RegisterAllocator::UnusedRegisterValue)
             {
                 return false;
@@ -276,10 +269,12 @@ ByteCodeGenerator::registerScope(const SymbolTable* table)
 }
 
 void
-ByteCodeGenerator::unregisterScope(const SymbolTable* table)
+ByteCodeGenerator::unregisterScope(const Scope *scope)
 {
-    auto symbolit = table->symbolsBegin();
-    auto symbolit_end = table->symbolsEnd();
+    const SymbolTable& sym_table = scope->symbolTable();
+
+    auto symbolit = sym_table.symbolsBegin();
+    auto symbolit_end = sym_table.symbolsEnd();
 
     for(; symbolit != symbolit_end; ++symbolit)
     {
@@ -287,7 +282,7 @@ ByteCodeGenerator::unregisterScope(const SymbolTable* table)
         if(symbol->isVariable())
         {
             _regAllocator.deallocate(symbol->symbolName(),
-                                     table->level());
+                                     scope->level());
         }
     }
 }
@@ -381,79 +376,24 @@ ByteCodeGenerator::getConstantIdx(yal_u32& idx,
 bool
 ByteCodeGenerator::onScopeBegin(const AstBaseNode& node)
 {
-    _scopeActions.push(ScopeActionVecPtr_t(new ScopeActionVec_t()));
-    return registerScope(node.symbolTable());
+    const Scope* scope = node.scope();
+    if (registerScope(scope))
+    {
+        scope->onScopeEnter(_scopeVisitor);
+        return true;
+    }
+    return false;
 }
 
 bool
 ByteCodeGenerator::onScopeEnd(const AstBaseNode& node)
 {
     bool result = true;
-    if (!_scopeActions.empty())
-    {
-        result = runScopeEndActions();
-        _scopeActions.pop();
-        unregisterScope(node.symbolTable());
-    }
+    const Scope* scope = node.scope();
+    scope->onScopeExit(_scopeVisitor);
+    unregisterScope(scope);
     return result;
 }
-
-bool
-ByteCodeGenerator::onScopeBeginGlobal()
-{
-    _scopeActions.push(ScopeActionVecPtr_t(new ScopeActionVec_t()));
-    return true;
-}
-
-bool
-ByteCodeGenerator::onScopeEndGlobal()
-{
-    bool result = true;
-    if (!_scopeActions.empty())
-    {
-        result = runScopeEndActions();
-        _scopeActions.pop();
-    }
-    return result;
-}
-
-bool
-ByteCodeGenerator::runScopeEndActions(const bool exitCauseByReturn)
-{
-    ScopeActionVecPtr_t& actions = _scopeActions.top();
-    for(auto it = actions->rbegin(); it != actions->rend(); ++it)
-    {
-        if (exitCauseByReturn && !it->get()->runScopeExitOnReturn())
-        {
-            continue;
-        }
-        if (!it->get()->onScopeExit(*this))
-        {
-            return false;
-        }
-    }
-    return true;
-}
-
-bool
-ByteCodeGenerator::addScopeAction(ByteCodeGenerator::IScopeAction* action)
-{
-    if (_scopeActions.empty())
-    {
-        return false;
-    }
-
-    ScopeActionVecPtr_t& actions = _scopeActions.top();
-
-    if (action->onScopeEnter(*this))
-    {
-        actions->push_back(ScopeActionPtr_t(action));
-        return true;
-    }
-    return false;
-}
-
-
 
 void
 ByteCodeGenerator::visit(AssignOperatorNode& node)
@@ -461,9 +401,10 @@ ByteCodeGenerator::visit(AssignOperatorNode& node)
     (void) node;
     // lookup variable register
 
-    const SymbolTable* sym_table = node.symbolTable();
+    const Scope* scope = node.scope();
+    const SymbolTable& sym_table = scope->symbolTable();
 
-    Symbol* var_symbol = sym_table->resolveSymbol(node.variableName());
+    Symbol* var_symbol = sym_table.resolveSymbol(node.variableName());
     const char* variable_name = node.variableName();
 
     YAL_ASSERT(var_symbol->isVariable());
@@ -473,38 +414,17 @@ ByteCodeGenerator::visit(AssignOperatorNode& node)
     yal_u32 global_idx = ModuleIndexable::IndexUnused;
     if (var_is_global)
     {
-        const auto global_cache_it = _globalToLocalMap.find(var_symbol->symbolName());
-        if (global_cache_it != _globalToLocalMap.end())
+        var_register = Register(_regAllocator);
+        if(!getGlobalVarIdx(global_idx, variable_name))
         {
-            var_register = global_cache_it->second;
-        }
-        else
-        {
-            var_register = Register(_regAllocator);
-            if(!getGlobalVarIdx(global_idx, variable_name))
-            {
-                logError(node);
-                return;
-            }
-
-            var_register.disablePopRelease();
-            // register the global variable with the cache
-            if (!addScopeAction(new GlobalScopeAction(var_symbol->symbolName(),
-                                                      var_symbol->astNode()->nodeType(),
-                                                      global_idx,
-                                                      var_register)))
-            {
-                _formater.format("Could not add global variable scope action");
-                logError(node);
-                return;
-            }
-
+            logError(node);
+            return;
         }
     }
     else
     {
         var_register = Register(_regAllocator, variable_name,
-                                var_symbol->scopeLevel());
+                                var_symbol->scope()->level());
     }
 
     if (!var_register.isValid())
@@ -550,6 +470,16 @@ ByteCodeGenerator::visit(AssignOperatorNode& node)
 
         _buffer.append(code);
 
+        // store global result
+        if (var_is_global)
+        {
+            inst = StoreGlobalByteCodeInst(exp_type);
+
+            code = yalvm_bytecode_pack_dst_value(inst, var_register.registerIdx(), global_idx);
+
+            _buffer.append(code);
+        }
+
     }
     else
     {
@@ -557,6 +487,8 @@ ByteCodeGenerator::visit(AssignOperatorNode& node)
         logError(node);
         return;
     }
+
+
 
     if (tmp_register.popRelease())
     {
@@ -934,7 +866,7 @@ ByteCodeGenerator::visit(FunctionCallNode& node)
     const char* function_name = node.functionName();
 
     // load function symbol
-    const Symbol* function_sym = node.symbolTable()->resolveSymbol(function_name);
+    const Symbol* function_sym = node.scope()->resolveSymbol(function_name);
     if (!function_sym)
     {
         _formater.format("Could not find function symbol for '%s'\n",
@@ -1103,12 +1035,9 @@ ByteCodeGenerator::visit(ReturnNode& node)
         }
     }
 
-    if (!runScopeEndActions(true))
-    {
-        _formater.format("Failed to run scope exit actions");
-        logError(node);
-        return;
-    }
+
+    // run scope end actions
+    node.scope()->onScopeExit(_scopeVisitor);
 
     const yalvm_bytecode_t code = yalvm_bytecode_pack_dst_value(YALVM_BYTECODE_RETURN,
                                                                 register_idx,
@@ -1231,49 +1160,26 @@ ByteCodeGenerator::visit(VariableAccessNode& node)
     Register cur_register;
 
     const char* var_name = node.variableName();
-    const SymbolTable* sym_table = node.symbolTable();
-    const Symbol* var_symbol = sym_table->resolveSymbol(var_name);
+    const Scope* scope = node.scope();
+    const SymbolTable& sym_table = scope->symbolTable();
+    const Symbol* var_symbol = sym_table.resolveSymbol(var_name);
 
     YAL_ASSERT(var_symbol && var_symbol->isVariable());
     const bool var_is_global = var_symbol->isGlobalSymbol();
     if (var_is_global)
     {
-
-        // check if the global variable is cached in a local register
-        const auto global_cache_it = _globalToLocalMap.find(var_symbol->symbolName());
-        if (global_cache_it != _globalToLocalMap.end())
+        instruction = LoadGlobalByteCodeInst(var_symbol->astNode()->nodeType());
+        cur_register = Register(_regAllocator);
+        if (!getGlobalVarIdx(inst_value, var_name))
         {
-            pushRegister(global_cache_it->second);
+            logError(node);
             return;
-        }
-        else
-        {
-            cur_register = Register(_regAllocator);
-            if (!getGlobalVarIdx(inst_value, var_name))
-            {
-                logError(node);
-                return;
-            }
-            cur_register.disablePopRelease();
-
-            const Type* node_type = var_symbol->astNode()->nodeType();
-            instruction = LoadGlobalByteCodeInst(node_type);
-            // register the global variable with the cache
-            if (!addScopeAction(new GlobalScopeAction(var_symbol->symbolName(),
-                                                      node_type,
-                                                      inst_value,
-                                                      cur_register)))
-            {
-                _formater.format("Could not add global variable scope action");
-                logError(node);
-                return;
-            }
         }
     }
     else
     {
         cur_register = Register(_regAllocator, var_name,
-                                var_symbol->scopeLevel());
+                                var_symbol->scope()->level());
         if (!cur_register.isValid())
         {
             _formater.format("Variable '%s' has not been registered\n", var_name);

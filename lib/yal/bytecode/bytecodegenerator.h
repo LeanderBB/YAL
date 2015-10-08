@@ -9,6 +9,7 @@
 #include "yal/util/outputformater.h"
 #include "yal/module/module.h"
 #include "yal/util/str_utils.h"
+#include "yal/symbols/scopeaction.h"
 #include <stack>
 
 namespace yal
@@ -79,9 +80,6 @@ public:
 
 protected:
 
-    class IScopeAction;
-    class GlobalScopeAction;
-
 #define YAL_NODE_LIST_FUNC(CLASS) virtual void visit(CLASS& node) override;
 #include "yal/ast/astnodelist.h"
 #undef YAL_NODE_LIST_FUNC
@@ -101,9 +99,9 @@ protected:
     /// Return true if function has a return type;
     bool setupFunction(const yal::FunctionDeclNode &node);
 
-    bool registerScope(const SymbolTable *table);
+    bool registerScope(const Scope *scope);
 
-    void unregisterScope(const SymbolTable* table);
+    void unregisterScope(const Scope* scope);
 
     void pushRegister(const Register reg);
 
@@ -130,16 +128,29 @@ protected:
 
     bool onScopeEnd(const AstBaseNode& node);
 
-    bool addScopeAction(IScopeAction* action);
-
-    bool runScopeEndActions(const bool exitCauseByReturn = false);
-
 protected:
 
-    typedef std::unique_ptr<IScopeAction> ScopeActionPtr_t;
-    typedef std::vector<ScopeActionPtr_t> ScopeActionVec_t;
-    typedef std::unique_ptr<ScopeActionVec_t> ScopeActionVecPtr_t;
-    typedef std::stack<ScopeActionVecPtr_t> ScopeActionStack_t;
+
+    class ByteCodeGeneratorScopeActionVisitor : public ScopeActionVisitor
+    {
+    public:
+
+        ByteCodeGeneratorScopeActionVisitor(ByteCodeGenerator& generator):
+            _generator(generator)
+        {
+        }
+
+        virtual ~ByteCodeGeneratorScopeActionVisitor() {}
+
+#define YAL_SCOPE_ACTION_LIST_FUNC(x)\
+    virtual void visitOnEnter(const x& action) override; \
+    virtual void visitOnExit(const x& action) override;
+#include "yal/symbols/scopeactionlist.h"
+#undef YAL_SCOPE_ACTION_LIST_FUNC
+
+    private:
+        ByteCodeGenerator& _generator;
+    };
 
     Module& _moduleInfo;
     ErrorHandler& _errorHandler;
@@ -147,8 +158,7 @@ protected:
     ByteCodeBuffer _buffer;
     RegisterAllocator _regAllocator;
     OutputFormater _formater;
-    StrHashMap<Register> _globalToLocalMap;
-    ScopeActionStack_t _scopeActions;
+    ByteCodeGeneratorScopeActionVisitor _scopeVisitor;
     bool _didError;
 };
 

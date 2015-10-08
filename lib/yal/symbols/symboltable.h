@@ -10,6 +10,7 @@
 
 namespace yal
 {
+class Scope;
 class SymbolTable
 {
 public:
@@ -17,26 +18,22 @@ public:
     typedef std::unique_ptr<Symbol> SymbolPtr_t;
     typedef yal::StrHashMap<SymbolPtr_t> SymbolMap_t;
 
-    SymbolTable(const SymbolTable* parentTable,
-                const yal_u32 level);
+    SymbolTable(const Scope* scope);
 
     ~SymbolTable();
 
-    bool declareSymbol(Symbol *pSym);
+    Symbol* declareSymbol(const char* name,
+                       AstBaseNode* astNode,
+                       const yal_u32 flags);
 
     Symbol *resolveSymbol(const char* name) const;
 
-    const SymbolTable* parent() const
+    const Scope* scope() const
     {
-        return _parent;
+        return _scope;
     }
 
-    void addChild(const SymbolTable* table);
-
-    yal_u32 level() const
-    {
-        return _level;
-    }
+    const SymbolTable* parentTable() const;
 
     SymbolMap_t::const_iterator symbolsBegin() const
     {
@@ -49,13 +46,8 @@ public:
     }
 
 protected:
-    typedef std::unique_ptr<const SymbolTable> SymbolTablePtr_t;
-    typedef std::vector<SymbolTablePtr_t> SymbolTableStack_t;
-
-    const SymbolTable* _parent;
+    const Scope* _scope;
     SymbolMap_t _symbols;
-    SymbolTableStack_t _children;
-    const yal_u32 _level;
 };
 
 }
