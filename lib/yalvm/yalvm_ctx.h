@@ -38,8 +38,13 @@ yalvm_ctx_create(yalvm_ctx_t* ctx,
                  void* stack,
                  const yalvm_size stack_size);
 
-void
-yalvm_ctx_destroy(yalvm_ctx_t* ctx);
+yalvm_u32
+yalvm_ctx_globals_init(yalvm_ctx_t* ctx);
+
+yalvm_u32
+yalvm_ctx_globals_destroy(yalvm_ctx_t* ctx);
+
+yalvm_bool yalvm_ctx_destroy(yalvm_ctx_t* ctx);
 
 
 yalvm_u32

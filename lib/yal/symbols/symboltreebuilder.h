@@ -62,7 +62,7 @@ private:
     ErrorHandler& _errHandler;
     TypeRegistry& _typeRegistry;
     SymbolTableStack_t _scopeStack;
-    Type* _expResult;
+    ExpressionResult _expResult;
     OutputFormater _formater;
     bool _error;
 };

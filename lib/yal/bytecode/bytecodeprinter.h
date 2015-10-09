@@ -24,6 +24,10 @@ public:
 protected:
     bool print(const yalvm_func_header_t& function_header);
 
+    bool print(const yalvm_static_code_hdr_t& static_hdr);
+
+    bool print(const size_t max);
+
     void print3Args(const yalvm_bytecode_t code);
 
     void print2Argsi(const yalvm_bytecode_t code);

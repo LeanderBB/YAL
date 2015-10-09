@@ -30,6 +30,11 @@ public:
 
     virtual const char* astTypeStr() const = 0;
 
+    virtual bool isExpressionNode() const
+    {
+        return false;
+    }
+
     const SourceLocationInfo& locationInfo() const
     {
         return _loc;
@@ -55,28 +60,22 @@ public:
         return _nodeType;
     }
 
-    void setExpressionType(Type* type)
+    void setParentNode(AstBaseNode* parent)
     {
-        _expType = type;
+        YAL_ASSERT(parent != this);
+        _parentNode = parent;
     }
 
-    Type* expressionType() const
+    AstBaseNode* parentNode() const
     {
-        return _expType;
-    }
-
-    void setTypeInfo(Type* nodeType,
-                     Type* expressionType)
-    {
-        _nodeType = nodeType;
-        _expType = expressionType;
+        return _parentNode;
     }
 
 protected:
+    AstBaseNode* _parentNode = nullptr;
     const SourceLocationInfo _loc;
     Scope* _pScope = nullptr;
     Type* _nodeType = nullptr;
-    Type* _expType = nullptr;
 };
 
 
@@ -136,15 +135,48 @@ public:
 typedef YALVector<yal::StatementNode*> StatementNodeVec_t;
 
 
+class ExpressionResult
+{
+public:
+
+    ExpressionResult() : type(nullptr), symbol(nullptr) {}
+
+    ExpressionResult(Type* t): type(t), symbol(nullptr){}
+
+    ExpressionResult(Type *t, Symbol* s) : type(t), symbol(s) {}
+
+    Type* type;
+    Symbol* symbol;
+};
+
 class ExpressionNode : public StatementNode
 {
 public:
+
     ExpressionNode(const SourceLocationInfo& loc):
         StatementNode(loc)
     {
     }
 
+    void setExpressionResult(const ExpressionResult& result)
+    {
+        _expResult = result;
+    }
+
+    const ExpressionResult& expressionResult() const
+    {
+        return _expResult;
+    }
+
+    virtual bool isExpressionNode() const override
+    {
+        return true;
+    }
+
     virtual ~ExpressionNode() {}
+
+private:
+    ExpressionResult _expResult;
 };
 
 typedef YALVector<yal::ExpressionNode*> ExpressionNodeVec_t;

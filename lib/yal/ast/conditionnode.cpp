@@ -1,4 +1,5 @@
 #include "yal/ast/conditionnode.h"
+#include "yal/ast/codebodynode.h"
 
 namespace yal
 {
@@ -14,7 +15,20 @@ ConditionNode::ConditionNode(const SourceLocationInfo &loc,
     _pOnTrue(onTrue),
     _pOnFalse(onFalse)
 {
+    if(condition)
+    {
+        condition->setParentNode(this);
+    }
 
+    if (onTrue)
+    {
+        onTrue->setParentNode(this);
+    }
+
+    if (onFalse)
+    {
+        onFalse ->setParentNode(this);
+    }
 }
 
 ConditionNode::~ConditionNode()

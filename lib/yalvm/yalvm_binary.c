@@ -5,6 +5,7 @@
 
 static const yalvm_u32 yalvm_bin_header_magic  = 0x10e5af18;
 static const yalvm_u32 yalvm_func_header_magic = 0x04974ceb;
+static const yalvm_u32 yalvm_static_hader_magic = 0xe351dac4;
 
 yalvm_bool
 yalvm_bin_header_valid_magic(const yalvm_bin_header_t* header)
@@ -15,8 +16,8 @@ yalvm_bin_header_valid_magic(const yalvm_bin_header_t* header)
 yalvm_u32
 yalvm_bin_header_offset_functions(const yalvm_bin_header_t* header)
 {
-    yalvm_u32 offset = yalvm_bin_header_offset_strings(header);
-    offset += header->strings_size;
+    yalvm_u32 offset = yalvm_bin_header_offset_static_init(header);
+    offset += (header->static_size * 4);
     return offset;
 }
 
@@ -72,6 +73,14 @@ yalvm_bin_header_offset_strings(const yalvm_bin_header_t* header)
     return yalvm_bin_header_offset_objdescs(header, header->n_objdescs);
 }
 
+yalvm_u32
+yalvm_bin_header_offset_static_init(const yalvm_bin_header_t* header)
+{
+    yalvm_u32 offset = yalvm_bin_header_offset_strings(header);
+    offset += header->strings_size;
+    return offset;
+}
+
 
 void
 yalvm_bin_header_init(yalvm_bin_header_t* header)
@@ -85,7 +94,23 @@ yalvm_bin_header_init(yalvm_bin_header_t* header)
     header->n_globals64 = 0;
     header->n_strings = 0;
     header->strings_size = 0;
+    header->static_size = 0;
 }
+
+void
+yalvm_static_code_hdr_init(yalvm_static_code_hdr_t* hdr)
+{
+    hdr->magic = yalvm_static_hader_magic;
+    hdr->code_size = 0;
+    hdr->n_registers = 0;
+}
+
+yalvm_bool
+yalvm_static_code_hdr_valid_magic(const yalvm_static_code_hdr_t* header)
+{
+    return header->magic == yalvm_static_hader_magic;
+}
+
 
 void
 yalvm_func_header_init(yalvm_func_header_t* header,
@@ -182,6 +207,27 @@ yalvm_binary_load(yalvm_binary_t* binary,
             binary->strings[i] = (const char*) YALVM_PTR_ADD(string_offset, offset);
             offset += (*string_size) + 1;
         }
+    }
+
+    const yalvm_u32 global_init_offset = yalvm_bin_header_offset_static_init(bin_header);
+    binary->global_init_code = (yalvm_static_code_hdr_t*) YALVM_PTR_ADD(input, global_init_offset);
+
+    if (!yalvm_static_code_hdr_valid_magic(binary->global_init_code))
+    {
+        yalvm_binary_destroy(binary);
+        return yalvm_false;
+    }
+
+    const yalvm_u32 global_dtor_offset = global_init_offset
+            + sizeof(yalvm_static_code_hdr_t)
+            + binary->global_init_code->code_size * 4;
+
+    binary->global_dtor_code = (yalvm_static_code_hdr_t*) YALVM_PTR_ADD(input, global_dtor_offset);
+
+    if (!yalvm_static_code_hdr_valid_magic(binary->global_dtor_code))
+    {
+        yalvm_binary_destroy(binary);
+        return yalvm_false;
     }
 
     /* process functions */

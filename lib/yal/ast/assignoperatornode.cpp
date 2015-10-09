@@ -6,14 +6,16 @@ namespace yal
 YAL_AST_NODE_ACCEPT_IMP(AssignOperatorNode)
 
 AssignOperatorNode::AssignOperatorNode(const SourceLocationInfo &loc,
-                     const char* id,
-                     const OperatorType assignOp,
-                     ExpressionNode* exp):
+                                       ExpressionNode* expL,
+                                       const OperatorType assignOp,
+                                       ExpressionNode* expR):
     ExpressionNode(loc),
-    _varName(id),
-    _pExpression(exp),
+    _pExpressionLeft(expL),
+    _pExpressionRight(expR),
     _assignOpType(assignOp)
 {
+    expL->setParentNode(this);
+    expR->setParentNode(this);
     YAL_ASSERT(_assignOpType & (kOperatorMaskArithemetic | kOperatorMaskBit | kOperatorTypeCopy));
 }
 

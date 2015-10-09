@@ -1,5 +1,5 @@
 #include "yal/ast/whileloopnode.h"
-
+#include "yal/ast/codebodynode.h"
 namespace yal
 {
 
@@ -12,7 +12,8 @@ WhileLoopNode::WhileLoopNode(const SourceLocationInfo& loc,
     _condition(condition),
     _codeBody(code)
 {
-
+    condition->setParentNode(this);
+    code->setParentNode(this);
 }
 
 WhileLoopNode::~WhileLoopNode()

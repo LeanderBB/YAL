@@ -111,7 +111,7 @@ public:
     TestVM(const char* fileName):
         _filePath(s_test_path + "/" + fileName),
         _memorySink(1024*1024*10),
-        _vm()
+        _execCtx()
     {
         yalvm_binary_init(&_vmBinary);
         memset(&_funcHdl, 0, sizeof(_funcHdl));
@@ -120,7 +120,7 @@ public:
     ~TestVM()
     {
         yalvm_ctx_release_function(&_funcHdl);
-        yalvm_ctx_destroy(&_vm);
+        EXPECT_EQ(yalvm_ctx_destroy(&_execCtx), yalvm_true);
         yalvm_binary_destroy(&_vmBinary);
     }
 
@@ -137,7 +137,12 @@ public:
                 return false;
             }
 
-            if (yalvm_ctx_create(&_vm, &_vmBinary, stack, 1024 * 1024) != yalvm_true)
+            if (yalvm_ctx_create(&_execCtx, &_vmBinary, stack, 1024 * 1024) != yalvm_true)
+            {
+                return false;
+            }
+
+            if (yalvm_ctx_globals_init(&_execCtx) != YALVM_ERROR_NONE)
             {
                 return false;
             }
@@ -148,7 +153,7 @@ public:
     bool loadFunction(const char* functionName)
     {
         yalvm_ctx_release_function(&_funcHdl);
-        if (yalvm_ctx_acquire_function(&_vm, &_funcHdl, functionName) != yalvm_true)
+        if (yalvm_ctx_acquire_function(&_execCtx, &_funcHdl, functionName) != yalvm_true)
         {
             return false;
         }
@@ -164,7 +169,7 @@ protected:
     const std::string _filePath;
     yal::MemoryOutputSink  _memorySink;
     yalvm_binary_t _vmBinary;
-    yalvm_ctx  _vm;
+    yalvm_ctx  _execCtx;
     char stack[1024 * 1024];
     yalvm_func_hdl_t _funcHdl;
 };
@@ -607,6 +612,61 @@ TEST(ExecutionTest, ArithemticTest1)
         EXPECT_EQ(exec_val, YALVM_ERROR_NONE);
 
         EXPECT_EQ(func_hdl->return_register.reg32.value, 10u);
+
+    }
+}
+
+TEST(ExecutionTest, ArithemticTest2)
+{
+    TestVM tvm("arithemtic_test_2.yal");
+
+    const bool compile_result = tvm.compile();
+
+    EXPECT_EQ(compile_result, true);
+    if (!compile_result)
+    {
+        return;
+    }
+
+    bool setup_result = tvm.loadFunction("test");
+    EXPECT_EQ(setup_result, true);
+
+    if (setup_result)
+    {
+        yalvm_func_hdl_t* func_hdl = tvm.hdl();
+
+        const yalvm_u32 exec_val = yalvm_func_hdl_execute(func_hdl);
+        EXPECT_EQ(exec_val, YALVM_ERROR_NONE);
+
+        EXPECT_EQ(func_hdl->return_register.reg32.i, 16);
+
+    }
+
+    setup_result = tvm.loadFunction("test_self");
+    EXPECT_EQ(setup_result, true);
+
+    if (setup_result)
+    {
+        yalvm_func_hdl_t* func_hdl = tvm.hdl();
+
+        const yalvm_u32 exec_val = yalvm_func_hdl_execute(func_hdl);
+        EXPECT_EQ(exec_val, YALVM_ERROR_NONE);
+
+        EXPECT_EQ(func_hdl->return_register.reg32.i, 36);
+
+    }
+
+    setup_result = tvm.loadFunction("global_test");
+    EXPECT_EQ(setup_result, true);
+
+    if (setup_result)
+    {
+        yalvm_func_hdl_t* func_hdl = tvm.hdl();
+
+        const yalvm_u32 exec_val = yalvm_func_hdl_execute(func_hdl);
+        EXPECT_EQ(exec_val, YALVM_ERROR_NONE);
+
+        EXPECT_EQ(func_hdl->return_register.reg32.i, 36);
 
     }
 }

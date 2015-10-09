@@ -14,6 +14,8 @@ DualOperatorNode::DualOperatorNode(const SourceLocationInfo& loc,
     _leftExp(expLeft),
     _rightExp(expRight)
 {
+    expLeft->setParentNode(this);
+    expRight->setParentNode(this);
     YAL_ASSERT(_dualOperatorType & (kOperatorMaskArithemetic | kOperatorMaskBit | kOperatorMaskLogic));
 }
 

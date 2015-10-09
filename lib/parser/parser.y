@@ -156,8 +156,8 @@ extern void yyerror(YYLTYPE* location,
 %token TK_OP_MULT "*"
 
 
-//%left TK_OP_ASSIGN TK_OP_ASSIGN_PLUS TK_OP_ASSIGN_MINUS TK_OP_ASSIGN_MULT TK_OP_ASSIGN_DIV TK_OP_ASSIGN_AND TK_OP_ASSIGN_OR TK_OP_ASSIGN_XOR TK_OP_ASSIGN_SHIFT_LEFT TK_OP_ASSIGN_SHIFT_RIGHT
-%precedence TK_PREC_ASSIGN
+%left TK_OP_ASSIGN TK_OP_ASSIGN_PLUS TK_OP_ASSIGN_MINUS TK_OP_ASSIGN_MULT TK_OP_ASSIGN_DIV TK_OP_ASSIGN_AND TK_OP_ASSIGN_OR TK_OP_ASSIGN_XOR TK_OP_ASSIGN_SHIFT_LEFT TK_OP_ASSIGN_SHIFT_RIGHT
+//%precedence TK_PREC_ASSIGN
 %left TK_OR
 %left TK_AND
 %left TK_BIT_OR
@@ -253,16 +253,16 @@ expression: '(' expression ')' {$$ = $2 ;}
     | expression TK_BIT_AND expression {$$ = new yal::DualOperatorNode(yal::BisonYyltypeToLocation(yylloc), kOperatorTypeBitAnd, $1, $3);}
     | expression TK_SHIFT_LEFT expression {$$ = new yal::DualOperatorNode(yal::BisonYyltypeToLocation(yylloc), kOperatorTypeBitShiftLeft, $1, $3);}
     | expression TK_SHIFT_RIGHT expression {$$ = new yal::DualOperatorNode(yal::BisonYyltypeToLocation(yylloc), kOperatorTypeBitShiftRight, $1, $3);}
-    | TK_ID TK_OP_ASSIGN expression %prec TK_PREC_ASSIGN { $$ = new yal::AssignOperatorNode(yal::BisonYyltypeToLocation(yylloc), $1, kOperatorTypeCopy, $3);}
-    | TK_ID TK_OP_ASSIGN_PLUS expression %prec TK_PREC_ASSIGN  { $$ = new yal::AssignOperatorNode(yal::BisonYyltypeToLocation(yylloc), $1, kOperatorTypePlus, $3);}
-    | TK_ID TK_OP_ASSIGN_MINUS expression %prec TK_PREC_ASSIGN  { $$ = new yal::AssignOperatorNode(yal::BisonYyltypeToLocation(yylloc), $1, kOperatorTypeMinus, $3);}
-    | TK_ID TK_OP_ASSIGN_MULT expression %prec TK_PREC_ASSIGN  { $$ = new yal::AssignOperatorNode(yal::BisonYyltypeToLocation(yylloc), $1, kOperatorTypeMult, $3);}
-    | TK_ID TK_OP_ASSIGN_DIV expression %prec TK_PREC_ASSIGN  { $$ = new yal::AssignOperatorNode(yal::BisonYyltypeToLocation(yylloc), $1, kOperatorTypeDiv, $3);}
-    | TK_ID TK_OP_ASSIGN_AND expression  %prec TK_PREC_ASSIGN  { $$ = new yal::AssignOperatorNode(yal::BisonYyltypeToLocation(yylloc), $1, kOperatorTypeBitAnd, $3);}
-    | TK_ID TK_OP_ASSIGN_OR expression %prec TK_PREC_ASSIGN  { $$ = new yal::AssignOperatorNode(yal::BisonYyltypeToLocation(yylloc), $1, kOperatorTypeBitOr, $3);}
-    | TK_ID TK_OP_ASSIGN_XOR expression %prec TK_PREC_ASSIGN  { $$ = new yal::AssignOperatorNode(yal::BisonYyltypeToLocation(yylloc), $1, kOperatorTypeBitXor, $3);}
-    | TK_ID TK_OP_ASSIGN_SHIFT_LEFT expression %prec TK_PREC_ASSIGN  { $$ = new yal::AssignOperatorNode(yal::BisonYyltypeToLocation(yylloc), $1, kOperatorTypeBitShiftLeft, $3);}
-    | TK_ID TK_OP_ASSIGN_SHIFT_RIGHT expression %prec TK_PREC_ASSIGN  { $$ = new yal::AssignOperatorNode(yal::BisonYyltypeToLocation(yylloc), $1, kOperatorTypeBitShiftRight, $3);}
+    | expression TK_OP_ASSIGN expression { $$ = new yal::AssignOperatorNode(yal::BisonYyltypeToLocation(yylloc), $1, kOperatorTypeCopy, $3);}
+    | expression TK_OP_ASSIGN_PLUS expression  { $$ = new yal::AssignOperatorNode(yal::BisonYyltypeToLocation(yylloc), $1, kOperatorTypePlus, $3);}
+    | expression TK_OP_ASSIGN_MINUS expression { $$ = new yal::AssignOperatorNode(yal::BisonYyltypeToLocation(yylloc), $1, kOperatorTypeMinus, $3);}
+    | expression TK_OP_ASSIGN_MULT expression { $$ = new yal::AssignOperatorNode(yal::BisonYyltypeToLocation(yylloc), $1, kOperatorTypeMult, $3);}
+    | expression TK_OP_ASSIGN_DIV expression { $$ = new yal::AssignOperatorNode(yal::BisonYyltypeToLocation(yylloc), $1, kOperatorTypeDiv, $3);}
+    | expression TK_OP_ASSIGN_AND expression { $$ = new yal::AssignOperatorNode(yal::BisonYyltypeToLocation(yylloc), $1, kOperatorTypeBitAnd, $3);}
+    | expression TK_OP_ASSIGN_OR expression { $$ = new yal::AssignOperatorNode(yal::BisonYyltypeToLocation(yylloc), $1, kOperatorTypeBitOr, $3);}
+    | expression TK_OP_ASSIGN_XOR expression { $$ = new yal::AssignOperatorNode(yal::BisonYyltypeToLocation(yylloc), $1, kOperatorTypeBitXor, $3);}
+    | expression TK_OP_ASSIGN_SHIFT_LEFT expression { $$ = new yal::AssignOperatorNode(yal::BisonYyltypeToLocation(yylloc), $1, kOperatorTypeBitShiftLeft, $3);}
+    | expression TK_OP_ASSIGN_SHIFT_RIGHT expression { $$ = new yal::AssignOperatorNode(yal::BisonYyltypeToLocation(yylloc), $1, kOperatorTypeBitShiftRight, $3);}
     | constant
     | func_call
     ;

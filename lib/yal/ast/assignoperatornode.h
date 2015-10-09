@@ -13,30 +13,30 @@ public:
     YAL_AST_NODE_ACCEPT_HDR(AssignOperatorNode)
 
     AssignOperatorNode(const SourceLocationInfo& loc,
-              const char* id,
+              ExpressionNode* expL,
               const OperatorType assignOp,
-              ExpressionNode* exp);
+              ExpressionNode* expR);
 
     virtual ~AssignOperatorNode();
-
-    const char* variableName() const
-    {
-        return _varName;
-    }
 
     OperatorType assignOperatorType() const
     {
         return _assignOpType;
     }
 
-    ExpressionNode* expression() const
+    ExpressionNode* expressionLeft() const
     {
-        return _pExpression;
+        return _pExpressionLeft;
+    }
+
+    ExpressionNode* expressionRight() const
+    {
+        return _pExpressionRight;
     }
 
 private:
-    const char* _varName;
-    ExpressionNode* _pExpression;
+    ExpressionNode* _pExpressionLeft;
+    ExpressionNode* _pExpressionRight;
     const OperatorType _assignOpType;
 };
 

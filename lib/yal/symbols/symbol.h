@@ -84,6 +84,11 @@ public:
         return _symbolFlags & kFlagGlobalSymbol;
     }
 
+    bool isGlobalVariable() const
+    {
+        return isVariable() && isGlobalSymbol();
+    }
+
 protected:
     const char* _symName;
     const Scope* _pSymScope;

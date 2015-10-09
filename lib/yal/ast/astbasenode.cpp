@@ -19,7 +19,10 @@ ExpressionList::ExpressionList(const SourceLocationInfo& loc,
     AstBaseNode(loc),
     expressions(std::move(list))
 {
-
+    for (auto& exp : expressions)
+    {
+        exp->setParentNode(this);
+    }
 }
 
 ExpressionList::~ExpressionList()

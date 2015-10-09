@@ -3,6 +3,9 @@
 #include "yalvm/yalvm_hashing.h"
 #include "yalvm/yalvm_object.h"
 
+yalvm_u32
+yalvm_ctx_execute(yalvm_ctx_t* ctx);
+
 yalvm_bool
 yalvm_ctx_create(yalvm_ctx_t* ctx,
                  const yalvm_binary_t* binary,
@@ -19,8 +22,8 @@ yalvm_ctx_create(yalvm_ctx_t* ctx,
     {
         return yalvm_false;
     }
-
-    yalvm_stack_init(&ctx->stack, stack, stack_size);
+    const yalvm_size new_stack_size = stack_size - globals_size;
+    yalvm_stack_init(&ctx->stack, YALVM_PTR_ADD(stack, globals_size), new_stack_size);
     ctx->binary = binary;
     ctx->registers = NULL;
     ctx->globals32 = globals_32 ? (yalvm_u32*) stack : NULL;
@@ -30,17 +33,73 @@ yalvm_ctx_create(yalvm_ctx_t* ctx,
     ctx->globals_size = globals_size;
     ctx->print_buffer[0] = '\0';
 
-    return yalvm_true;
+    return yalvm_ctx_globals_init(ctx) == YALVM_ERROR_NONE;
 }
 
-void
+static yalvm_u32
+yalvm_ctx_globals_run(yalvm_ctx_t* ctx,
+                      const yalvm_static_code_hdr_t* code)
+{
+    if (code->code_size == 0)
+    {
+        /* no code to run return */
+        return YALVM_ERROR_NONE;
+    }
+
+    if (yalvm_stack_frame_begin(&ctx->stack, code->n_registers) == yalvm_false)
+    {
+        return YALVM_ERROR_STACK_OVERFLOW;
+    }
+
+    if (yalvm_false == yalvm_stack_function_begin(&ctx->stack,
+                                                  NULL,
+                                                  NULL,
+                                                  code->n_registers))
+    {
+        return YALVM_ERROR_INVALID_CTX;
+    }
+
+    ctx->pc = (const yalvm_bytecode_t*) (code + 1);
+    ctx->registers = yalvm_stack_local_registers(&ctx->stack);
+    YALVM_ASSERT(ctx->registers);
+
+    const yalvm_u32 result = yalvm_ctx_execute(ctx);
+
+    if (!yalvm_stack_frame_end(&ctx->stack, (const void **)&ctx->pc))
+    {
+        return YALVM_ERROR_STACK_UNDERFLOW;
+    }
+
+    ctx->pc = NULL;
+    ctx->registers = NULL;
+
+    return result;
+}
+
+yalvm_u32
+yalvm_ctx_globals_init(yalvm_ctx_t* ctx)
+{
+    const yalvm_static_code_hdr_t* code = ctx->binary->global_init_code;
+    return yalvm_ctx_globals_run(ctx, code);
+
+}
+
+yalvm_u32
+yalvm_ctx_globals_destroy(yalvm_ctx_t* ctx)
+{
+    const yalvm_static_code_hdr_t* code = ctx->binary->global_dtor_code;
+    return yalvm_ctx_globals_run(ctx, code);
+}
+
+yalvm_bool
 yalvm_ctx_destroy(yalvm_ctx_t *ctx)
 {
-    (void) ctx;
-    /* nothing to do for now */
+    if (ctx->binary)
+    {
+        return yalvm_ctx_globals_destroy(ctx) == YALVM_ERROR_NONE;
+    }
+    return yalvm_true;
 }
-
-
 
 
 #define YALVM_UNPACK_REGISTERS(type) \

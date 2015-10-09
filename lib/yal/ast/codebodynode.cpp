@@ -16,7 +16,10 @@ CodeBodyNode::CodeBodyNode(const SourceLocationInfo& loc,
     AstBaseNode(loc),
     statements(std::move(statementsVec))
 {
-
+    for (auto& node : statementsVec)
+    {
+        node->setParentNode(this);
+    }
 }
 
 CodeBodyNode::~CodeBodyNode()
@@ -27,6 +30,7 @@ CodeBodyNode::~CodeBodyNode()
 void
 CodeBodyNode::addStatement(StatementNode *statement)
 {
+    statement->setParentNode(this);
     statements.push_back(statement);
 }
 

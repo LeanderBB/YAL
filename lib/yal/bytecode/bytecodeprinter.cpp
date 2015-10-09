@@ -86,6 +86,51 @@ ByteCodePrinter::process()
         _formater.formatAndWrite(_sink, "> String %u: \"%s\"\n", i, buffer);
     }
 
+    // write global init code
+
+    yal_u32 global_init_offset = yalvm_bin_header_offset_static_init(&bin_header);
+
+    if (!_input.seekSet(global_init_offset))
+    {
+        _formater.formatAndWrite(_sink, "Could not seek to global init start\n");
+        return false;
+    }
+
+    yalvm_static_code_hdr_t static_hdr;
+    if (_input.read(&static_hdr, sizeof(static_hdr))
+                     != sizeof(static_hdr))
+    {
+        _formater.formatAndWrite(_sink, "Could not read static init header\n");
+        return false;
+    }
+
+    if (!yalvm_static_code_hdr_valid_magic(&static_hdr))
+    {
+        _formater.formatAndWrite(_sink, "Input data is not a static int header\n");
+        return false;
+    }
+
+    _formater.formatAndWrite(_sink, "\n> Global Init Code\n");
+    print(static_hdr);
+
+
+    // write global dtor code
+    if (_input.read(&static_hdr, sizeof(static_hdr))
+                     != sizeof(static_hdr))
+    {
+        _formater.formatAndWrite(_sink, "Could not read static dtor header\n");
+        return false;
+    }
+
+    if (!yalvm_static_code_hdr_valid_magic(&static_hdr))
+    {
+        _formater.formatAndWrite(_sink, "Input data is not a static dtor header\n");
+        return false;
+    }
+
+    _formater.formatAndWrite(_sink, "\n> Global Dtor Code\n");
+    print(static_hdr);
+
     // write functions
     yal_u32 functions_offset = yalvm_bin_header_offset_functions(&bin_header);
 
@@ -116,7 +161,7 @@ ByteCodePrinter::process()
             return false;
         }
         // log info
-        _formater.formatAndWrite(_sink, "> Function %u:%x\n", i,
+        _formater.formatAndWrite(_sink, "\n> Function %u:%x\n", i,
                                  function_header.hash);
         _formater.formatAndWrite(_sink, ">   Arguments: %u\n",
                                  function_header.n_arguments);
@@ -133,9 +178,19 @@ ByteCodePrinter::process()
 bool
 ByteCodePrinter::print(const yalvm_func_header_t &function_header)
 {
-    const yal_u32 buffer_size = function_header.code_size;
+    return print(function_header.code_size);
+}
 
-    for (yal_u32 i = 0; i < buffer_size; ++i)
+bool
+ByteCodePrinter::print(const yalvm_static_code_hdr_t& static_hdr)
+{
+    return print(static_hdr.code_size);
+}
+
+bool
+ByteCodePrinter::print(const size_t max)
+{
+    for (yal_u32 i = 0; i < max; ++i)
     {
         yalvm_bytecode_t code;
         if (_input.read(&code, sizeof(code)) != sizeof(code))
