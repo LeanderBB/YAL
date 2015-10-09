@@ -12,6 +12,7 @@ SingleOperatorNode::SingleOperatorNode(const SourceLocationInfo& loc,
     _singleOperatorType(optype),
     _pExpression(exp)
 {
+    exp->setParentNode(this);
     YAL_ASSERT(_singleOperatorType & kOperatorMaskSingle);
 }
 

@@ -21,10 +21,14 @@ YALVM_MODULE_BGN
  * [     string 0      ]
  *       ...
  * [     string N      ]
+ * [ static create code]
+ * [static destroy code]
  * [yalvm_func_header 0]
+ * [ ?function 0 name  ]
  * [  function 0       ]
  *
  * [yalvm_func_header N]
+ * [ ?function N name  ]
  * [  function N       ]
  * [yalvm_func_header N]
  * [yalvm_func_header g]
@@ -48,17 +52,17 @@ enum yalvm_bin_enums
 #pragma pack(push, 1)
 typedef struct
 {
-    yalvm_u32 magic;          /* magic number check        */
-    yalvm_u16 n_constants32;  /* number of 32bit constants */
-    yalvm_u16 n_constants64;  /* number of 64bit constants */
-    yalvm_u16 n_globals32;    /* number of 32bit globals   */
-    yalvm_u16 n_globals64;    /* number of 64bit globals   */
-    yalvm_u16 n_functions;    /* number of functions       */
-    yalvm_u16 n_objdescs;     /* number of object descs    */
-    yalvm_u16 n_strings;      /* number of strings         */
-    yalvm_u16 strings_size;   /* total size of all strings */
-    yalvm_u16 n_globalsPtr;   /* number of Ptr globals */
-    yalvm_u16 _unusued;
+    yalvm_u32 magic;          /* magic number check                          */
+    yalvm_u16 n_constants32;  /* number of 32bit constants                   */
+    yalvm_u16 n_constants64;  /* number of 64bit constants                   */
+    yalvm_u16 n_globals32;    /* number of 32bit globals                     */
+    yalvm_u16 n_globals64;    /* number of 64bit globals                     */
+    yalvm_u16 n_functions;    /* number of functions                         */
+    yalvm_u16 n_objdescs;     /* number of object descs                      */
+    yalvm_u16 n_strings;      /* number of strings                           */
+    yalvm_u16 strings_size;   /* total size of all strings                   */
+    yalvm_u16 n_globalsPtr;   /* number of Ptr globals                       */
+    yalvm_u16 static_size;    /* size of the static init/destroy regions / 4 */
 } yalvm_bin_header_t;
 #pragma pack(pop)
 
@@ -84,18 +88,40 @@ yalvm_bin_header_offset_objdescs(const yalvm_bin_header_t* header,
 yalvm_u32
 yalvm_bin_header_offset_strings(const yalvm_bin_header_t* header);
 
+yalvm_u32
+yalvm_bin_header_offset_static_init(const yalvm_bin_header_t* header);
+
+
 void
 yalvm_bin_header_init(yalvm_bin_header_t* header);
+
+
+/* globals init header */
+#pragma pack(push, 1)
+typedef struct
+{
+    yalvm_u32 magic;          /* magic number check          */
+    yalvm_u16 code_size;      /* code size  / 4              */
+    yalvm_u16 n_registers;    /* number or registers         */
+} yalvm_static_code_hdr_t;
+#pragma pack(pop)
+
+void
+yalvm_static_code_hdr_init(yalvm_static_code_hdr_t* hdr);
+
+yalvm_bool
+yalvm_static_code_hdr_valid_magic(const yalvm_static_code_hdr_t* header);
 
 /* Function header */
 #pragma pack(push, 1)
 typedef struct
 {
-    yalvm_u32 magic;          /* magic number check        */
-    yalvm_u32 hash;           /* function id hash */
-    yalvm_u8  n_arguments;    /* number of arguments       */
-    yalvm_u8  n_registers;    /* number or registers       */
-    yalvm_u16 code_size;      /* function code size  / 4   */
+    yalvm_u32 magic;          /* magic number check          */
+    yalvm_u32 hash;           /* function id hash            */
+    yalvm_u8  n_arguments;    /* number of arguments         */
+    yalvm_u8  n_registers;    /* number or registers         */
+    yalvm_u16 code_size;      /* function code size  / 4     */
+    yalvm_u16 name_len;       /* name of the function symbol */
 } yalvm_func_header_t;
 #pragma pack(pop)
 
@@ -128,13 +154,15 @@ typedef struct
 
 typedef struct yalvm_binary
 {
-    const yalvm_bin_header_t*   header;
-    const yalvm_u8*             binary;
-    const yalvm_u8*             binary_end;
-    const yalvm_u32*            constants32;
-    const yalvm_u64*            constants64;
-    const char**                strings;
-    const yalvm_func_header_t** functions;
+    const yalvm_bin_header_t*       header;
+    const yalvm_u8*                 binary;
+    const yalvm_u8*                 binary_end;
+    const yalvm_u32*                constants32;
+    const yalvm_u64*                constants64;
+    const char**                    strings;
+    const yalvm_func_header_t**     functions;
+    const yalvm_static_code_hdr_t*  global_init_code;
+    const yalvm_static_code_hdr_t*  global_dtor_code;
 } yalvm_binary_t;
 
 void

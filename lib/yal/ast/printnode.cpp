@@ -11,7 +11,7 @@ PrintNode::PrintNode(const SourceLocationInfo& loc,
     StatementNode(loc),
     _arguments(args)
 {
-
+    args->setParentNode(this);
 }
 
 }

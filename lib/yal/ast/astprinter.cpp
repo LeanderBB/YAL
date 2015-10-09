@@ -113,13 +113,14 @@ void
 AstPrinter::visit(AssignOperatorNode& node)
 {
     printNodeTitle(node);
-    _formater.format(" %s var:%s\n",
-                     OperatorTypeToStr(node.assignOperatorType()),
-                     node.variableName());
+    _formater.format("'%s='\n",
+                     OperatorTypeToStr(node.assignOperatorType()));
     _formater.write(_sink);
-
+    onDescent(false);
+    node.expressionLeft()->accept(*this);
+    onAscend();
     onDescent(true);
-    node.expression()->accept(*this);
+    node.expressionRight()->accept(*this);
     onAscend();
 }
 

@@ -11,6 +11,7 @@
 #include <yalvm/yalvm_hashing.h>
 #include "yal/ast/functionnode.h"
 #include "yal/ast/argumentdeclnode.h"
+#include "yal/ast/variabledeclnode.h"
 namespace yal
 {
 
@@ -95,6 +96,48 @@ ByteCodeBuilder::writeModuleInfo(ParserState& state)
         return false;
     }
 
+    // generate global and init code
+
+
+    ByteCodeGenerator static_init_code(state.module, _errorHandler);
+    ByteCodeGenerator static_destroy_code(state.module, _errorHandler);
+
+    ByteCodeGenerator global_function(state.module, _errorHandler);
+    for (auto& v : state.program)
+    {
+        // if symbol is not a function definition add it to the
+        // global function scope
+        if (!ast_typeof<FunctionDeclNode>(v))
+        {
+
+            ByteCodeGenerator& generator = (ast_typeof<VariableDeclNode>(v))
+                    ? static_init_code
+                    : global_function;
+
+            if (!generator.generate(*v))
+            {
+                return false;
+            }
+        }
+        // otherwise generate the bytecode for the function
+    }
+
+    // setup static code headers
+    yalvm_static_code_hdr_t static_init_hdr, static_dtr_hdr;
+
+    yalvm_static_code_hdr_init(&static_init_hdr);
+    yalvm_static_code_hdr_init(&static_dtr_hdr);
+
+    static_init_hdr.code_size = (static_init_code.buffer().size()
+                                 ? static_init_code.buffer().size() + 1
+                                 : 0);
+    static_init_hdr.n_registers = static_init_code.maxRegisterCount();
+    static_dtr_hdr.code_size = (static_destroy_code.buffer().size()
+                                ? static_destroy_code.buffer().size() + 1
+                                : 0);
+    static_dtr_hdr.n_registers = static_destroy_code.maxRegisterCount();
+
+
     // setup header
     yalvm_bin_header_t header;
     yalvm_bin_header_init(&header);
@@ -106,6 +149,10 @@ ByteCodeBuilder::writeModuleInfo(ParserState& state)
     header.n_functions = function_vec.size() + 1; // +1 for global code
     header.n_strings = strings_vec.size();
     header.strings_size = module.totalStringSizeBytes();
+    header.static_size = (sizeof(static_init_hdr) * 2 /4)
+            + static_init_hdr.code_size
+            + static_dtr_hdr.code_size;
+
 
     // write header
     if (_codeOutput.write(&header, sizeof(header)) != sizeof(header))
@@ -157,81 +204,130 @@ ByteCodeBuilder::writeModuleInfo(ParserState& state)
         }
     }
 
-    // write functions
-    ByteCodeGenerator function_code(state.module, _errorHandler);
-    for (auto& function : function_vec)
+
+    // write static init code
+
+    if (static_init_code.buffer().size())
     {
-        FunctionDeclNode* decl_node = function->functionNode();
-        const char* function_name = function->functionName();
-
-        // process bytecode
-        if (!function_code.generateFunction(*decl_node))
-        {
-            return false;
-        }
-
-        yalvm_func_header_t function_header;
-        yalvm_func_header_init(&function_header, function_name);
-
-        // set function args
-        if (decl_node->hasFunctionArguments())
-        {
-            function_header.n_arguments = decl_node->functionArguments()->arguments().size();
-        }
-
-        // set function register count
-        function_header.n_registers = function_code.maxRegisterCount();
-
-        // set function code size;
-        const size_t function_code_size = function_code.buffer().size();
+        static_init_code.addHaltInst();
+        const size_t function_code_size = static_init_code.buffer().size();
         if (function_code_size >= YALVM_BIN_MAX_FUNCTION_CODE_SIZE)
         {
-            _errorHandler.onError("Function code greater than maxium value", 0);
-            return false;
-        }
-
-        function_header.code_size = function_code_size;
-
-        if (_codeOutput.write(&function_header, sizeof(function_header))
-                != sizeof(function_header))
-        {
-            _errorHandler.onError("Could not write function header to code output", 0);
-            return false;
-        }
-
-        const size_t real_size = function_code_size * sizeof(yalvm_bytecode_t);
-        if (_codeOutput.write(function_code.buffer().buffer(), real_size)
-                != real_size)
-        {
-            _errorHandler.onError("Could not write function code to code output", 0);
+            _errorHandler.onError("Static init code sizer greater than maxium value", 0);
             return false;
         }
     }
 
-    // write global function
-    function_code.reset();
-
-    yalvm_func_header_t global_header;
-    yalvm_func_header_init(&global_header, yalvm_func_global_name());
-    for (auto& v : state.program)
+    if (_codeOutput.write(&static_init_hdr, sizeof(static_init_hdr))
+            != sizeof(static_init_hdr))
     {
-        // if symbol is not a function definition add it to the
-        // global function scope
-        if (!ast_typeof<FunctionDeclNode>(v))
+        _errorHandler.onError("Could not write static init header to code output", 0);
+        return false;
+    }
+
+    if (static_init_hdr.code_size)
+    {
+        const size_t real_size = static_init_hdr.code_size * sizeof(yalvm_bytecode_t);
+        if (_codeOutput.write(static_init_code.buffer().buffer(), real_size)
+                != real_size)
         {
-            if (!function_code.generate(*v))
+            _errorHandler.onError("Could not write static init code to code output", 0);
+            return false;
+        }
+    }
+
+    // write static destroy code
+    if (static_destroy_code.buffer().size())
+    {
+        static_destroy_code.addHaltInst();
+        const size_t function_code_size = static_destroy_code.buffer().size();
+        if (function_code_size >= YALVM_BIN_MAX_FUNCTION_CODE_SIZE)
+        {
+            _errorHandler.onError("Static init code sizer greater than maxium value", 0);
+            return false;
+        }
+    }
+
+    if (_codeOutput.write(&static_dtr_hdr, sizeof(static_dtr_hdr))
+            != sizeof(static_dtr_hdr))
+    {
+        _errorHandler.onError("Could not write static destroy header to code output", 0);
+        return false;
+    }
+
+    if (static_dtr_hdr.code_size)
+    {
+        const size_t real_size = static_dtr_hdr.code_size * sizeof(yalvm_bytecode_t);
+        if (_codeOutput.write(static_destroy_code.buffer().buffer(), real_size)
+                != real_size)
+        {
+            _errorHandler.onError("Could not write static destroy code to code output", 0);
+            return false;
+        }
+    }
+
+
+    // write functions
+    {
+        ByteCodeGenerator function_code(state.module, _errorHandler);
+        for (auto& function : function_vec)
+        {
+            FunctionDeclNode* decl_node = function->functionNode();
+            const char* function_name = function->functionName();
+
+            // process bytecode
+            if (!function_code.generateFunction(*decl_node))
             {
                 return false;
             }
-        }
-        // otherwise generate the bytecode for the function
-    }
 
-    if (function_code.buffer().size())
+            yalvm_func_header_t function_header;
+            yalvm_func_header_init(&function_header, function_name);
+
+            // set function args
+            if (decl_node->hasFunctionArguments())
+            {
+                function_header.n_arguments = decl_node->functionArguments()->arguments().size();
+            }
+
+            // set function register count
+            function_header.n_registers = function_code.maxRegisterCount();
+
+            // set function code size;
+            const size_t function_code_size = function_code.buffer().size();
+            if (function_code_size >= YALVM_BIN_MAX_FUNCTION_CODE_SIZE)
+            {
+                _errorHandler.onError("Function code greater than maxium value", 0);
+                return false;
+            }
+
+            function_header.code_size = function_code_size;
+
+            if (_codeOutput.write(&function_header, sizeof(function_header))
+                    != sizeof(function_header))
+            {
+                _errorHandler.onError("Could not write function header to code output", 0);
+                return false;
+            }
+
+            const size_t real_size = function_code_size * sizeof(yalvm_bytecode_t);
+            if (_codeOutput.write(function_code.buffer().buffer(), real_size)
+                    != real_size)
+            {
+                _errorHandler.onError("Could not write function code to code output", 0);
+                return false;
+            }
+        }
+    }
+    // write global function
+
+    yalvm_func_header_t global_header;
+    yalvm_func_header_init(&global_header, yalvm_func_global_name());
+    if (global_function.buffer().size())
     {
-        function_code.addHaltInst();
-        global_header.n_registers = function_code.maxRegisterCount();
-        const size_t function_code_size = function_code.buffer().size();
+        global_function.addHaltInst();
+        global_header.n_registers = global_function.maxRegisterCount();
+        const size_t function_code_size = global_function.buffer().size();
         if (function_code_size >= YALVM_BIN_MAX_FUNCTION_CODE_SIZE)
         {
             _errorHandler.onError("Global  code greater than maxium value", 0);
@@ -252,7 +348,7 @@ ByteCodeBuilder::writeModuleInfo(ParserState& state)
     if (global_header.code_size)
     {
         const size_t real_size = global_header.code_size * sizeof(yalvm_bytecode_t);
-        if (_codeOutput.write(function_code.buffer().buffer(), real_size)
+        if (_codeOutput.write(global_function.buffer().buffer(), real_size)
                 != real_size)
         {
             _errorHandler.onError("Could not write global code to code output", 0);

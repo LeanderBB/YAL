@@ -10,7 +10,10 @@ ReturnNode::ReturnNode(const SourceLocationInfo &loc,
     StatementNode(loc),
     _pExpression(expression)
 {
-
+    if (expression)
+    {
+        expression->setParentNode(this);
+    }
 }
 
 ReturnNode::~ReturnNode()

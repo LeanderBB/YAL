@@ -39,18 +39,10 @@ private:
         {
             return _registerIdx;
         }
-
-        void disablePopRelease();
-
-        bool popRelease() const
-        {
-            return _popRelease;
-        }
     private:
         yal_i32 _registerIdx;
         yal_u32 _scopeLevel;
         bool _isTemporary;
-        bool _popRelease;
     };
 
 public:

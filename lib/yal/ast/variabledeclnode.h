@@ -6,16 +6,30 @@
 namespace yal
 {
 
-class VariableDeclNode : public AssignOperatorNode
+class VariableDeclNode : public ExpressionNode
 {
 public:
-    YAL_AST_NODE_ACCEPT_HDR_BASE(VariableDeclNode, AssignOperatorNode)
+    YAL_AST_NODE_ACCEPT_HDR(VariableDeclNode)
 
     VariableDeclNode(const SourceLocationInfo& loc,
                const char* varName,
                ExpressionNode* pExp);
 
     virtual ~VariableDeclNode();
+
+    const char* variableName() const
+    {
+        return _varName;
+    }
+
+    ExpressionNode* expression() const
+    {
+        return _expression;
+    }
+
+protected:
+    const char* _varName;
+    ExpressionNode* _expression;
 };
 
 }

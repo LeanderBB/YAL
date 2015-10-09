@@ -39,7 +39,10 @@ ArgumentDeclsNode::ArgumentDeclsNode(const SourceLocationInfo& loc,
     AstBaseNode(loc),
     _arguments(std::move(argVec))
 {
-
+    for (auto& args : _arguments)
+    {
+        args->setParentNode(this);
+    }
 }
 
 ArgumentDeclsNode::~ArgumentDeclsNode()
@@ -50,6 +53,7 @@ ArgumentDeclsNode::~ArgumentDeclsNode()
 void
 ArgumentDeclsNode::addArgument(ArgumentDeclNode* node)
 {
+    node->setParentNode(this);
     _arguments.push_back(node);
 }
 

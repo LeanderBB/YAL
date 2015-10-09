@@ -1,0 +1,25 @@
+
+var global = 20
+
+func test() : int32
+ var a = 10
+ var b = 1
+ a += 2 * (b+= 2)
+ return a
+end
+
+func test_self() : int32
+ var a = 10
+ a += 2 * (a+= 2)
+ return a
+end
+
+func global_test() : int32
+  global += test()
+  return global
+end
+
+
+print( test() ) 
+print( test_self())
+print (global, ",", global_test())

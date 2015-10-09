@@ -146,6 +146,13 @@ TEST(CompileCode, FailEmptyReturn)
     EXPECT_EQ(compile_result, false);
 }
 
+TEST(CompileCode, ArithemticTest2)
+{
+    yal::MemoryOutputSink mem_sink(1024*1024*10);
+    const std::string path(s_test_path + "/arithemtic_test_2.yal");
+    const bool compile_result = CompileCode(path.c_str(), mem_sink);
+    EXPECT_EQ(compile_result, true);
+}
 
 int
 main(int argc,

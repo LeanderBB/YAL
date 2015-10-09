@@ -1,7 +1,8 @@
 #include "yal/ast/functionnode.h"
 #include "yal/types/type.h"
 #include "yal/types/builtintype.h"
-
+#include "yal/ast/argumentdeclnode.h"
+#include "yal/ast/codebodynode.h"
 namespace yal
 {
 
@@ -16,7 +17,7 @@ FunctionCallNode::FunctionCallNode(const SourceLocationInfo &loc,
     _functionName(name),
     _functionArgs(args)
 {
-
+    args->setParentNode(this);
 }
 
 FunctionCallNode::~FunctionCallNode()
@@ -37,7 +38,8 @@ FunctionDeclNode::FunctionDeclNode(const SourceLocationInfo& loc,
     _codeBody(code),
     _returnValueType(returnType)
 {
-
+    args->setParentNode(this);
+    code->setParentNode(this);
 }
 
 FunctionDeclNode::~FunctionDeclNode()
