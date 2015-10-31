@@ -35,7 +35,7 @@ public:
                 const yal_u32 operatorFlags,
                 const Types builtinDataType);
 
-    bool isPromotableTo(const Type* t) const;
+    bool isPromotableTo(const Type* t) const override;
 
     BuiltinType* builtinType() const
     {

@@ -66,9 +66,9 @@ public:
 
     yal_u8 maxRegisterCount() const;
 
-    bool onScopeBeginGlobal();
+    bool onScopeBeginGlobal(const Scope &scope);
 
-    bool onScopeEndGlobal();
+    bool onScopeEndGlobal(const Scope& scope);
 
 protected:
 
@@ -119,6 +119,9 @@ protected:
     bool onScopeBegin(const AstBaseNode& node);
 
     bool onScopeEnd(const AstBaseNode& node);
+
+    void loadVariableIntoRegister(const char *varName,
+                                  const AstBaseNode &node);
 
 protected:
 

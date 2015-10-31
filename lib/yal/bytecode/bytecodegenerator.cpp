@@ -1,25 +1,9 @@
 #include "yal/bytecode/bytecodegenerator.h"
-#include "yal/ast/astnodetypes.h"
-#include "yal/ast/astbasenode.h"
-#include "yal/ast/assignoperatornode.h"
-#include "yal/ast/codebodynode.h"
-#include "yal/ast/compareoperatornode.h"
-#include "yal/ast/constantnode.h"
-#include "yal/ast/argumentdeclnode.h"
-#include "yal/ast/variabledeclnode.h"
-#include "yal/ast/dualoperatornode.h"
-#include "yal/ast/singleoperatornode.h"
-#include "yal/ast/functionnode.h"
-#include "yal/ast/conditionnode.h"
-#include "yal/ast/returnnode.h"
-#include "yal/ast/variableaccessnode.h"
+#include "yal/ast/asthdrs.h"
+#include "yal/types/typehdrs.h"
 #include "yal/symbols/scope.h"
+#include "yal/symbols/objectscopeaction.h"
 #include "yal/bytecode/bytecode_utils.h"
-#include "yal/ast/printnode.h"
-#include "yal/ast/whileloopnode.h"
-#include "yal/types/type.h"
-#include "yal/types/functiontype.h"
-#include "yal/types/builtintype.h"
 #include <cstdio>
 #include <limits>
 
@@ -143,6 +127,20 @@ yal_u8
 ByteCodeGenerator::maxRegisterCount() const
 {
     return _regAllocator.maxRegisterCount();
+}
+
+bool
+ByteCodeGenerator::onScopeBeginGlobal(const Scope& scope)
+{
+    scope.onScopeEnter(_scopeVisitor);
+    return true;
+}
+
+bool
+ByteCodeGenerator::onScopeEndGlobal(const Scope &scope)
+{
+    scope.onScopeExit(_scopeVisitor);
+    return true;
 }
 
 void
@@ -325,6 +323,53 @@ ByteCodeGenerator::onScopeEnd(const AstBaseNode& node)
     scope->onScopeExit(_scopeVisitor);
     unregisterScope(scope);
     return result;
+}
+
+void
+ByteCodeGenerator::loadVariableIntoRegister(const char* varName,
+                                            const AstBaseNode& node)
+{
+    yal_u32 inst_value = 0;
+    yalvm_bytecode_inst_t instruction = YALVM_BYTECODE_TOTAL;
+
+    Register cur_register;
+
+    const Scope* scope = node.scope();
+    const SymbolTable& sym_table = scope->symbolTable();
+    const Symbol* var_symbol = sym_table.resolveSymbol(varName);
+
+    YAL_ASSERT(var_symbol && var_symbol->isVariable());
+    const bool var_is_global = var_symbol->isGlobalSymbol();
+    if (var_is_global)
+    {
+        instruction = LoadGlobalByteCodeInst(var_symbol->astNode()->nodeType());
+        cur_register = Register(_regAllocator);
+        if (!getGlobalVarIdx(inst_value, varName))
+        {
+            logError(node);
+            return;
+        }
+    }
+    else
+    {
+        cur_register = Register(_regAllocator, varName,
+                                var_symbol->scope()->level());
+        if (!cur_register.isValid())
+        {
+            _formater.format("Variable '%s' has not been registered\n", varName);
+            logError(node);
+            return;
+        }
+        pushRegister(cur_register);
+        return;
+    }
+
+    pushRegister(cur_register);
+
+    yalvm_bytecode_t code = yalvm_bytecode_pack_dst_value(instruction,
+                                                          cur_register.registerIdx(),
+                                                          inst_value);
+    _buffer.append(code);
 }
 
 void
@@ -1109,49 +1154,60 @@ ByteCodeGenerator::visit(WhileLoopNode& node)
 void
 ByteCodeGenerator::visit(VariableAccessNode& node)
 {
-    yal_u32 inst_value = 0;
-    yalvm_bytecode_inst_t instruction = YALVM_BYTECODE_TOTAL;
-
-    Register cur_register;
 
     const char* var_name = node.variableName();
-    const Scope* scope = node.scope();
-    const SymbolTable& sym_table = scope->symbolTable();
-    const Symbol* var_symbol = sym_table.resolveSymbol(var_name);
+    loadVariableIntoRegister(var_name, node);
 
-    YAL_ASSERT(var_symbol && var_symbol->isVariable());
-    const bool var_is_global = var_symbol->isGlobalSymbol();
-    if (var_is_global)
+}
+
+void
+ByteCodeGenerator::visit(StringCreateNode& node)
+{
+    // skip parsing constant node, load constant direcly in vm
+    yal_u32 constant_idx;
+    if (!getConstantIdx(constant_idx, node.constantNode()->constantValue()))
     {
-        instruction = LoadGlobalByteCodeInst(var_symbol->astNode()->nodeType());
-        cur_register = Register(_regAllocator);
-        if (!getGlobalVarIdx(inst_value, var_name))
-        {
-            logError(node);
-            return;
-        }
-    }
-    else
-    {
-        cur_register = Register(_regAllocator, var_name,
-                                var_symbol->scope()->level());
-        if (!cur_register.isValid())
-        {
-            _formater.format("Variable '%s' has not been registered\n", var_name);
-            logError(node);
-            return;
-        }
-        pushRegister(cur_register);
+        logError(node);
         return;
     }
 
-    pushRegister(cur_register);
+    Register reg_string(_regAllocator);
+    pushRegister(reg_string);
 
-    yalvm_bytecode_t code = yalvm_bytecode_pack_dst_value(instruction,
-                                                          cur_register.registerIdx(),
-                                                          inst_value);
+    yalvm_bytecode_t code = yalvm_bytecode_pack_dst_value(YALVM_BYTECODE_STRING_CREATE,
+                                                          reg_string.registerIdx(),
+                                                          constant_idx);
+
     _buffer.append(code);
+}
 
+
+void
+ByteCodeGenerator::ByteCodeGeneratorScopeActionVisitor::visitOnEnter(const ObjectScopeAction&)
+{
+    // do nothing
+}
+
+void
+ByteCodeGenerator::ByteCodeGeneratorScopeActionVisitor::visitOnExit(const ObjectScopeAction& action)
+{
+    const Symbol* sym = action.symbol();
+    const Type* sym_type = sym->astNode()->nodeType();
+    YAL_ASSERT(sym->isVariable() && sym_type->isObjectType());
+
+    //FIXME: Write type specific DTORS
+    _generator.loadVariableIntoRegister(sym->symbolName(), *sym->astNode());
+
+    Register var_reg = _generator.popRegister();
+
+    const yalvm_bytecode_inst_t inst = sym_type->isStringType()
+            ? YALVM_BYTECODE_STRING_RELEASE
+            : YALVM_BYTECODE_OBJECT_RELEASE;
+
+    const yalvm_bytecode_t code = yalvm_bytecode_pack_one_register(inst,
+                                                                   var_reg.registerIdx());
+
+    _generator._buffer.append(code);
 }
 
 }

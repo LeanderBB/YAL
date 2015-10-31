@@ -671,6 +671,32 @@ TEST(ExecutionTest, ArithemticTest2)
     }
 }
 
+TEST(ExecutionTest, HelloWorld)
+{
+    TestVM tvm("helloworld.yal");
+
+    const bool compile_result = tvm.compile();
+
+    EXPECT_EQ(compile_result, true);
+    if (!compile_result)
+    {
+        return;
+    }
+
+    bool setup_result = tvm.loadFunction(yalvm_func_global_name());
+    EXPECT_EQ(setup_result, true);
+
+    if (setup_result)
+    {
+        yalvm_func_hdl_t* func_hdl = tvm.hdl();
+
+        const yalvm_u32 exec_val = yalvm_func_hdl_execute(func_hdl);
+        EXPECT_EQ(exec_val, YALVM_ERROR_NONE);
+    }
+
+}
+
+
 int
 main(int argc,
      char **argv)

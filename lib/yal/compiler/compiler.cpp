@@ -44,16 +44,15 @@ Compiler::compile(const uint32_t flags)
 
     if (parse_result == 0)
     {
+        if(!_state.symbolTree.process(_state))
+        {
+            return false;
+        }
+
         if (flags & kDumpAst)
         {
             yal::AstPrinter printer(_output);
             printer.process(_state);
-        }
-
-        yal::SymbolTreeBuilder sym_builder(_errHandler, _state.registry);
-        if(!sym_builder.process(_state))
-        {
-            return false;
         }
 
         // remove unused globals and functions

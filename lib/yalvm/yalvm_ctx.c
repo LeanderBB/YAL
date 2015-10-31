@@ -2,6 +2,7 @@
 #include "yalvm/yalvm_error.h"
 #include "yalvm/yalvm_hashing.h"
 #include "yalvm/yalvm_object.h"
+#include "yalvm/yalvm_string.h"
 
 yalvm_u32
 yalvm_ctx_execute(yalvm_ctx_t* ctx);
@@ -28,7 +29,7 @@ yalvm_ctx_create(yalvm_ctx_t* ctx,
     ctx->registers = NULL;
     ctx->globals32 = globals_32 ? (yalvm_u32*) stack : NULL;
     ctx->globals64 = globals_64 ? (yalvm_u64*)YALVM_PTR_ADD(stack, globals_32) : NULL;
-    ctx->globalsPtr = globals_ptr ? (yalvm_size*)YALVM_PTR_ADD(stack, globals_64) : NULL;
+    ctx->globalsPtr = globals_ptr ? (yalvm_size*)YALVM_PTR_ADD(stack, (globals_32 + globals_64)) : NULL;
     ctx->pc = NULL;
     ctx->globals_size = globals_size;
     ctx->print_buffer[0] = '\0';
@@ -915,13 +916,23 @@ yalvm_ctx_execute(yalvm_ctx_t* ctx)
             yalvm_print(ctx, ctx->print_buffer);
             break;
         }
-        case YALVM_BYTECODE_PRINT_STR:
+        case YALVM_BYTECODE_PRINT_STR_CONSTANT:
         {
             yalvm_u8 dst_reg;
             yalvm_bytecode_unpack_register(code, &dst_reg);
             yalvm_print(ctx, (const char*)ctx->registers[dst_reg].ptr.value);
             break;
         }
+
+        case YALVM_BYTECODE_PRINT_STR_OBJECT:
+        {
+            yalvm_u8 dst_reg;
+            yalvm_bytecode_unpack_register(code, &dst_reg);
+            const yalvm_object_t* obj = (const yalvm_object_t*) ctx->registers[dst_reg].ptr.value;
+            yalvm_print(ctx, yalvm_string_str(obj));
+            break;
+        }
+
         case YALVM_BYTECODE_PRINT_NL:
         {
             yalvm_print(ctx, "\n");
@@ -947,16 +958,43 @@ yalvm_ctx_execute(yalvm_ctx_t* ctx)
             return YALVM_ERROR_INSTRUCTION_NOT_IMPLEMENTED;
         }
         case YALVM_BYTECODE_OBJECT_RELEASE:
-        {  /*
+        {
             yalvm_u8 dst_reg;
             yalvm_bytecode_unpack_register(code, &dst_reg);
-            if(yalvm_object_release((yalvm_object_t*)ctx->registers[dst_reg].ptr.value))
+            yalvm_object_t* obj = (yalvm_object_t*)ctx->registers[dst_reg].ptr.value;
+            if(yalvm_object_release(obj))
             {
-
+                yalvm_free(obj);
             }
             break;
-             */
-            return YALVM_ERROR_INSTRUCTION_NOT_IMPLEMENTED;
+        }
+
+         /* Strings Objects */
+        case YALVM_BYTECODE_STRING_CREATE:
+        {
+            yalvm_u8 dst;
+            yalvm_u16 value;
+            yalvm_bytecode_unpack_dst_value(code, &dst, &value);
+            const char* string = ctx->binary->strings[value];
+            yalvm_object_t* obj = yalvm_string_create_with_constant(string);
+            if (!obj)
+            {
+                return YALVM_ERROR_MEM_ALLOC;
+            }
+            ctx->registers[dst].ptr.value =  obj;
+            break;
+        }
+
+        case YALVM_BYTECODE_STRING_RELEASE:
+        {
+            yalvm_u8 dst_reg;
+            yalvm_bytecode_unpack_register(code, &dst_reg);
+            yalvm_object_t* obj = (yalvm_object_t*)ctx->registers[dst_reg].ptr.value;
+            if(yalvm_object_release(obj))
+            {
+                yalvm_string_destroy(obj);
+            }
+            break;
         }
 
         default:

@@ -4,12 +4,41 @@
 namespace yal
 {
 
-struct SourceLocationInfo
+class SourceLocationInfo
 {
-    int firstLine = 0;
-    int firstColumn = 0;
-    int lastLine = 0;
-    int lastColumn = 0;
+public:
+    SourceLocationInfo():
+        firstLine(-1),
+        firstColumn(-1),
+        lastLine(-1),
+        lastColumn(-1)
+    {
+    }
+
+    SourceLocationInfo(const int firstln,
+                       const int firstcl,
+                       const int lastln,
+                       const int lastcln):
+        firstLine(firstln),
+        firstColumn(firstcl),
+        lastLine(lastln),
+        lastColumn(lastcln)
+    {
+
+    }
+
+    bool valid() const
+    {
+        return firstLine != -1
+                && firstColumn != -1
+                && lastLine != -1
+                && lastColumn != -1;
+    }
+
+    int firstLine;
+    int firstColumn;
+    int lastLine;
+    int lastColumn;
 };
 
 
