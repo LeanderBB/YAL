@@ -14,6 +14,7 @@ enum yalvm_error
     YALVM_ERROR_STACK_OVERFLOW,
     YALVM_ERROR_STACK_UNDERFLOW,
     YALVM_ERROR_UNKNOW_INSTRUCTION,
+    YALVM_ERROR_MEM_ALLOC,
     /* placeholder do not use */
     YALVM_ERROR_COUNT
 };

@@ -8,6 +8,7 @@ static const char* yalvm_error_strs[YALVM_ERROR_COUNT] =
     "Instruction has not been implemented for the current configuration",
     "Context execution has exceeded the allocated stack size",
     "Context execution has no more stack frames to pop",
+    "Could not allocated memory"
     "Unknown instruction encountered",
 };
 

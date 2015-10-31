@@ -557,7 +557,7 @@ LoadGlobalByteCodeInst(const Type *dataType)
         }
         else if (dataType->isPointerSized())
         {
-            return YALVM_BYTECODE_STORE_GLOBAL_PTR;
+            return YALVM_BYTECODE_LOAD_GLOBAL_PTR;
         }
         else
         {
@@ -582,9 +582,7 @@ StoreGlobalByteCodeInst(const Type *dataType)
         }
         else if (dataType->is64BitSized())
         {
-            //FIXME: Create store insturction for pointer
             return YALVM_BYTECODE_STORE_GLOBAL_64;
-
         }
         else if (dataType->isPointerSized())
         {
@@ -622,7 +620,9 @@ PrintByteCodeInst(const Type *dataType)
         case kVmTypeFloat64:
             return YALVM_BYTECODE_PRINT_FL;
         case kVmTypeStringConstant:
-            return YALVM_BYTECODE_PRINT_STR;
+            return YALVM_BYTECODE_PRINT_STR_CONSTANT;
+        case kVmTypeString:
+            return YALVM_BYTECODE_PRINT_STR_OBJECT;
         default:
             YAL_ASSERT(false && "Should not be reached");
             return YALVM_BYTECODE_TOTAL;

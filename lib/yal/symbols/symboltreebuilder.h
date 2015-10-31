@@ -5,7 +5,7 @@
 #include "yal/symbols/scope.h"
 #include "yal/util/errorhandler.h"
 #include "yal/util/outputformater.h"
-#include "yal/parser/parser_state.h"
+#include "yal/ast/astbasenode.h"
 #include <stack>
 
 
@@ -13,6 +13,7 @@ namespace yal
 {
 class TypeRegistry;
 class Type;
+class ParserState;
 class SymbolTreeBuilder : public AstNodeVisitor
 {
 public:

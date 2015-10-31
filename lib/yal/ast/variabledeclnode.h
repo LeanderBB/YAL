@@ -27,6 +27,11 @@ public:
         return _expression;
     }
 
+    void setExpression(ExpressionNode* exp)
+    {
+        _expression = exp;
+    }
+
 protected:
     const char* _varName;
     ExpressionNode* _expression;

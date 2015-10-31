@@ -22,7 +22,7 @@ public:
         return BuiltinType::GetBuiltinTypeForConstantType(_constantValue.type());
     }
 
-    const ConstantValue constantValue() const
+    const ConstantValue& constantValue() const
     {
         return _constantValue;
     }

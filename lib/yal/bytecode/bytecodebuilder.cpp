@@ -103,6 +103,8 @@ ByteCodeBuilder::writeModuleInfo(ParserState& state)
     ByteCodeGenerator static_destroy_code(state.module, _errorHandler);
 
     ByteCodeGenerator global_function(state.module, _errorHandler);
+    static_init_code.onScopeBeginGlobal(state.symbolTree.globalScope());
+    static_destroy_code.onScopeEndGlobal(state.symbolTree.globalScope());
     for (auto& v : state.program)
     {
         // if symbol is not a function definition add it to the
@@ -149,7 +151,7 @@ ByteCodeBuilder::writeModuleInfo(ParserState& state)
     header.n_functions = function_vec.size() + 1; // +1 for global code
     header.n_strings = strings_vec.size();
     header.strings_size = module.totalStringSizeBytes();
-    header.static_size = (sizeof(static_init_hdr) * 2 /4)
+    header.static_size = (sizeof(static_init_hdr) * 2 / sizeof(yalvm_bytecode_t))
             + static_init_hdr.code_size
             + static_dtr_hdr.code_size;
 

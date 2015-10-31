@@ -1,24 +1,8 @@
 #include "yal/symbols/symboltreebuilder.h"
-#include "yal/ast/astnodetypes.h"
-#include "yal/ast/astbasenode.h"
-#include "yal/ast/assignoperatornode.h"
-#include "yal/ast/codebodynode.h"
-#include "yal/ast/compareoperatornode.h"
-#include "yal/ast/constantnode.h"
-#include "yal/ast/argumentdeclnode.h"
-#include "yal/ast/variabledeclnode.h"
-#include "yal/ast/dualoperatornode.h"
-#include "yal/ast/singleoperatornode.h"
-#include "yal/ast/functionnode.h"
-#include "yal/ast/conditionnode.h"
-#include "yal/ast/returnnode.h"
+#include "yal/ast/asthdrs.h"
+#include "yal/types/typehdrs.h"
+#include "yal/symbols/objectscopeaction.h"
 #include "yal/parser/parser_state.h"
-#include "yal/ast/printnode.h"
-#include "yal/ast/variableaccessnode.h"
-#include "yal/ast/whileloopnode.h"
-#include "yal/types/typeregistry.h"
-#include "yal/types/functiontype.h"
-#include "yal/types/builtintype.h"
 #include <cstdio>
 
 namespace yal
@@ -335,17 +319,24 @@ SymbolTreeBuilder::visit(VariableDeclNode& node)
             logError(node);
             return;
         }
+    }
 
-        /* if (!sym->isVariable())
-        {
-            _formater.format("Symbol '%s' is not a variable\n",var_name);
-            logError(node);
-            return;
-        }*/
+    ExpressionNode* exp = node.expression();
 
+    // Catch implicit String creation
+
+    ConstantNode* constant_node = ast_cast<ConstantNode>(exp);
+    if (constant_node && constant_node->constantType()->isStringContant())
+    {
+        node.setExpression(new StringCreateNode(constant_node));
     }
 
     node.expression()->accept(*this);
+
+    if (didError())
+    {
+        return;
+    }
 
     // check if there is a return type
     if (_expResult.type->isVoidType())
@@ -353,6 +344,7 @@ SymbolTreeBuilder::visit(VariableDeclNode& node)
         _formater.format("Cannot assign void to variable '%s'\n", var_name);
         logError(node);
     }
+
 
     if (!didError())
     {
@@ -369,6 +361,11 @@ SymbolTreeBuilder::visit(VariableDeclNode& node)
         {
             YAL_ASSERT(_parserState->module.global(var_name) == nullptr);
             _parserState->module.addGlobal(new ModuleGlobal(sym_var));
+        }
+
+        if (node.nodeType()->isObjectType())
+        {
+            currentScope()->addScopeAction(new ObjectScopeAction(sym_var));
         }
     }
 }
@@ -698,6 +695,16 @@ SymbolTreeBuilder::visit(VariableAccessNode& node)
     node.setNodeType(_expResult.type);
     node.setExpressionResult(_expResult);
     sym->touchRead();
+}
+
+void
+SymbolTreeBuilder::visit(StringCreateNode& node)
+{
+    node.setScope(currentScope());
+    node.constantNode()->accept(*this);
+    _expResult = ExpressionResult(StringType::GetType());
+    node.setNodeType(_expResult.type);
+    node.setExpressionResult(_expResult.type);
 }
 
 }

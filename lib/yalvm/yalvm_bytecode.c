@@ -154,11 +154,15 @@ static const char* yalvm_bytecode_inst_strings [] =
     "printf",
     "printfl",
     "printstr",
+    "printstrobj",
     "printnl",
     /* Objects */
     "obj alloc",
     "obj acquire",
-    "obj release"
+    "obj release",
+    /* Strings Objects */
+    "str create",
+    "str release"
     /* end of strings */
 };
 

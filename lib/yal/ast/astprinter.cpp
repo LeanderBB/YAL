@@ -16,6 +16,7 @@
 #include "yal/ast/printnode.h"
 #include "yal/ast/whileloopnode.h"
 #include "yal/ast/variableaccessnode.h"
+#include "yal/ast/stringcreatenode.h"
 #include <cstdlib>
 
 namespace yal
@@ -352,4 +353,12 @@ AstPrinter::visit(VariableAccessNode& node)
     _formater.write(_sink);
 }
 
+void
+AstPrinter::visit(StringCreateNode& node)
+{
+    printNodeTitle(node, true);
+    onDescent(true);
+    node.constantNode()->accept(*this);
+    onAscend();
+}
 }

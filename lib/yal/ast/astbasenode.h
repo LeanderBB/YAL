@@ -35,10 +35,7 @@ public:
         return false;
     }
 
-    const SourceLocationInfo& locationInfo() const
-    {
-        return _loc;
-    }
+    const SourceLocationInfo& locationInfo() const;
 
     Scope* scope() const
     {
@@ -70,6 +67,8 @@ public:
     {
         return _parentNode;
     }
+
+    bool isSourceAstNode() const;
 
 protected:
     AstBaseNode* _parentNode = nullptr;

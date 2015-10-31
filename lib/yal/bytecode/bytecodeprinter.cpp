@@ -29,13 +29,13 @@ ByteCodePrinter::process()
     if (_input.read(&bin_header, sizeof(bin_header)) != sizeof(bin_header))
     {
         _formater.formatAndWrite(_sink, "Could not read binary header\n");
-       return false;
+        return false;
     }
 
     if(!yalvm_bin_header_valid_magic(&bin_header))
     {
         _formater.formatAndWrite(_sink, "Input is not a valid yalvm binary\n");
-       return false;
+        return false;
     }
 
     // print header info
@@ -98,7 +98,7 @@ ByteCodePrinter::process()
 
     yalvm_static_code_hdr_t static_hdr;
     if (_input.read(&static_hdr, sizeof(static_hdr))
-                     != sizeof(static_hdr))
+            != sizeof(static_hdr))
     {
         _formater.formatAndWrite(_sink, "Could not read static init header\n");
         return false;
@@ -116,7 +116,7 @@ ByteCodePrinter::process()
 
     // write global dtor code
     if (_input.read(&static_hdr, sizeof(static_hdr))
-                     != sizeof(static_hdr))
+            != sizeof(static_hdr))
     {
         _formater.formatAndWrite(_sink, "Could not read static dtor header\n");
         return false;
@@ -147,7 +147,7 @@ ByteCodePrinter::process()
     {
         yalvm_func_header_t function_header;
         if (_input.read(&function_header, sizeof(function_header))
-                         != sizeof(function_header))
+                != sizeof(function_header))
         {
             _formater.formatAndWrite(_sink, "Could not read function header (%u)\n",
                                      i);
@@ -195,7 +195,7 @@ ByteCodePrinter::print(const size_t max)
         yalvm_bytecode_t code;
         if (_input.read(&code, sizeof(code)) != sizeof(code))
         {
-             _formater.formatAndWrite(_sink, "Could not read function code %u\n", i);
+            _formater.formatAndWrite(_sink, "Could not read function code %u\n", i);
             return false;
         }
 
@@ -217,51 +217,51 @@ ByteCodePrinter::print(const size_t max)
         case YALVM_BYTECODE_LOAD_GLOBAL_PTR:
             print2Argsu(code);
             break;
-        /* Store Global */
+            /* Store Global */
         case YALVM_BYTECODE_STORE_GLOBAL_32:
         case YALVM_BYTECODE_STORE_GLOBAL_64:
         case YALVM_BYTECODE_STORE_GLOBAL_PTR:
             print2Argsu(code);
             break;
-        /* Load value from memory */
+            /* Load value from memory */
         case YALVM_BYTECODE_LOAD_MEMORY:
             print3Args(code);
             break;
-        /* Store value in memory */
+            /* Store value in memory */
         case YALVM_BYTECODE_STORE_MEMORY:
             print3Args(code);
             break;
-        /* Load value from bytecode */
+            /* Load value from bytecode */
         case YALVM_BYTECODE_LOAD_VALUE:
             print2Argsu(code);
             break;
-        /* Load constant  */
+            /* Load constant  */
         case YALVM_BYTECODE_LOAD_CONST_32:
         case YALVM_BYTECODE_LOAD_CONST_64:
             print2Argsu(code);
             break;
-        /* Summation instruction */
+            /* Summation instruction */
         case YALVM_BYTECODE_ADD_I:
         case YALVM_BYTECODE_ADD_IL:
         case YALVM_BYTECODE_ADD_U:
         case YALVM_BYTECODE_ADD_UL:
         case YALVM_BYTECODE_ADD_F:
         case YALVM_BYTECODE_ADD_FL:
-        /* Substraction instruction */
+            /* Substraction instruction */
         case YALVM_BYTECODE_SUB_I:
         case YALVM_BYTECODE_SUB_IL:
         case YALVM_BYTECODE_SUB_U:
         case YALVM_BYTECODE_SUB_UL:
         case YALVM_BYTECODE_SUB_F:
         case YALVM_BYTECODE_SUB_FL:
-        /* Multiplication instruction */
+            /* Multiplication instruction */
         case YALVM_BYTECODE_MUL_I:
         case YALVM_BYTECODE_MUL_IL:
         case YALVM_BYTECODE_MUL_U:
         case YALVM_BYTECODE_MUL_UL:
         case YALVM_BYTECODE_MUL_F:
         case YALVM_BYTECODE_MUL_FL:
-        /* Division instruction */
+            /* Division instruction */
         case YALVM_BYTECODE_DIV_I:
         case YALVM_BYTECODE_DIV_IL:
         case YALVM_BYTECODE_DIV_U:
@@ -270,81 +270,81 @@ ByteCodePrinter::print(const size_t max)
         case YALVM_BYTECODE_DIV_FL:
             print3Args(code);
             break;
-        /* Negative (-var) */
+            /* Negative (-var) */
         case YALVM_BYTECODE_NEG_I:
         case YALVM_BYTECODE_NEG_IL:
         case YALVM_BYTECODE_NEG_F:
         case YALVM_BYTECODE_NEG_FL:
             print1Reg(code);
             break;
-        /* Bit and */
+            /* Bit and */
         case YALVM_BYTECODE_BIT_AND_32:
         case YALVM_BYTECODE_BIT_AND_64:
-        /* Bit or */
+            /* Bit or */
         case YALVM_BYTECODE_BIT_OR_32:
         case YALVM_BYTECODE_BIT_OR_64:
-        /* Bit xor */
+            /* Bit xor */
         case YALVM_BYTECODE_BIT_XOR_32:
         case YALVM_BYTECODE_BIT_XOR_64:
             print3Args(code);
             break;
-        /* Bit not */
+            /* Bit not */
         case YALVM_BYTECODE_BIT_NOT_32:
         case YALVM_BYTECODE_BIT_NOT_64:
             print1Reg(code);
             break;
-        /* Shift Left */
+            /* Shift Left */
         case YALVM_BYTECODE_SHIFTL_32:
         case YALVM_BYTECODE_SHIFTL_64:
-        /* Shift Right */
+            /* Shift Right */
         case YALVM_BYTECODE_SHIFTR_32:
         case  YALVM_BYTECODE_SHIFTR_64:
-        /* Logical And */
+            /* Logical And */
         case  YALVM_BYTECODE_AND:
-        /* Logical Or */
+            /* Logical Or */
         case YALVM_BYTECODE_OR:
             print3Args(code);
             break;
-        /* Logical not */
+            /* Logical not */
         case YALVM_BYTECODE_NOT:
             print2Regs(code);
             break;
-        /* Compare Greater */
+            /* Compare Greater */
         case YALVM_BYTECODE_COMPARE_GT_I:
         case YALVM_BYTECODE_COMPARE_GT_IL:
         case YALVM_BYTECODE_COMPARE_GT_U:
         case YALVM_BYTECODE_COMPARE_GT_UL:
         case YALVM_BYTECODE_COMPARE_GT_F:
         case YALVM_BYTECODE_COMPARE_GT_FL:
-        /* Compare Greater or Equal */
+            /* Compare Greater or Equal */
         case YALVM_BYTECODE_COMPARE_GE_I:
         case YALVM_BYTECODE_COMPARE_GE_IL:
         case YALVM_BYTECODE_COMPARE_GE_U:
         case YALVM_BYTECODE_COMPARE_GE_UL:
         case YALVM_BYTECODE_COMPARE_GE_F:
         case YALVM_BYTECODE_COMPARE_GE_FL:
-        /* Compare Lesser */
+            /* Compare Lesser */
         case YALVM_BYTECODE_COMPARE_LT_I:
         case YALVM_BYTECODE_COMPARE_LT_IL:
         case YALVM_BYTECODE_COMPARE_LT_U:
         case YALVM_BYTECODE_COMPARE_LT_UL:
         case YALVM_BYTECODE_COMPARE_LT_F:
         case YALVM_BYTECODE_COMPARE_LT_FL:
-        /* Compare Lesser or Equal */
+            /* Compare Lesser or Equal */
         case YALVM_BYTECODE_COMPARE_LE_I:
         case YALVM_BYTECODE_COMPARE_LE_IL:
         case YALVM_BYTECODE_COMPARE_LE_U:
         case YALVM_BYTECODE_COMPARE_LE_UL:
         case YALVM_BYTECODE_COMPARE_LE_F:
         case YALVM_BYTECODE_COMPARE_LE_FL:
-        /* Compare Equal */
+            /* Compare Equal */
         case YALVM_BYTECODE_COMPARE_EQ_I:
         case YALVM_BYTECODE_COMPARE_EQ_IL:
         case YALVM_BYTECODE_COMPARE_EQ_U:
         case YALVM_BYTECODE_COMPARE_EQ_UL:
         case YALVM_BYTECODE_COMPARE_EQ_F:
         case YALVM_BYTECODE_COMPARE_EQ_FL:
-        /* Compare not Equal*/
+            /* Compare not Equal*/
         case YALVM_BYTECODE_COMPARE_NE_I:
         case YALVM_BYTECODE_COMPARE_NE_IL:
         case YALVM_BYTECODE_COMPARE_NE_U:
@@ -353,36 +353,36 @@ ByteCodePrinter::print(const size_t max)
         case YALVM_BYTECODE_COMPARE_NE_FL:
             print3Args(code);
             break;
-        /* Uncoditional Jmp */
+            /* Uncoditional Jmp */
         case YALVM_BYTECODE_JUMP:
             print1Argsi(code);
             break;
-        /* Conditional Jmp */
+            /* Conditional Jmp */
         case YALVM_BYTECODE_JUMP_TRUE:
         case YALVM_BYTECODE_JUMP_FALSE:
             print2Argsi(code);
             break;
-        /* Load Function */
+            /* Load Function */
         case YALVM_BYTECODE_LOAD_FUNCTION:
             print2Argsu(code);
             break;
-        /* Push Function Argument */
+            /* Push Function Argument */
         case YALVM_BYTECODE_PUSH_ARG:
             print1Reg(code);
             break;
-        /* Call function */
+            /* Call function */
         case YALVM_BYTECODE_CALL:
             print2Regs(code);
             break;
-        /* Return Instruction */
+            /* Return Instruction */
         case YALVM_BYTECODE_RETURN:
             print1Reg(code);
             break;
-        /* Copy Register */
+            /* Copy Register */
         case YALVM_BYTECODE_COPY_REGISTER:
             print2Regs(code);
             break;
-        /* Load String */
+            /* Load String */
         case YALVM_BYTECODE_LOAD_STRING:
             print2Argsu(code);
             break;
@@ -393,14 +393,34 @@ ByteCodePrinter::print(const size_t max)
         case YALVM_BYTECODE_PRINT_UL:
         case YALVM_BYTECODE_PRINT_F:
         case YALVM_BYTECODE_PRINT_FL:
-        case YALVM_BYTECODE_PRINT_STR:
+        case YALVM_BYTECODE_PRINT_STR_CONSTANT:
+            print1Reg(code);
+            break;
+        case YALVM_BYTECODE_PRINT_STR_OBJECT:
+            print1Reg(code);
+            break;
+            /* Objects */
+        case YALVM_BYTECODE_OBJECT_ALLOC:
+            print2Argsu(code);
+            break;
+        case YALVM_BYTECODE_OBJECT_ACQUIRE:
+            print1Reg(code);
+            break;
+        case YALVM_BYTECODE_OBJECT_RELEASE:
+            print2Argsu(code);
+            break;
+            /* Strings Objects */
+        case YALVM_BYTECODE_STRING_CREATE:
+            print2Argsu(code);
+            break;
+        case YALVM_BYTECODE_STRING_RELEASE:
             print1Reg(code);
             break;
         case YALVM_BYTECODE_PRINT_NL:
-           printf("\n");
-           break;
+            printf("\n");
+            break;
         default:
-            printf("Uknow byte code \n");
+            printf(" Unknown byte code \n");
             return false;
         }
     }

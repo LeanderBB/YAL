@@ -36,10 +36,13 @@ set(YAL_HDR
     ast/printnode.h
     ast/whileloopnode.h
     ast/variableaccessnode.h
+    ast/stringcreatenode.h
+    ast/asthdrs.h
     symbols/symboltable.h
     symbols/scope.h
     symbols/scopeaction.h
     symbols/scopeactionlist.h
+    symbols/objectscopeaction.h
     ast/astprinter.h
     symbols/symboltable.h
     symbols/symboltreebuilder.h
@@ -49,6 +52,8 @@ set(YAL_HDR
     types/functiontype.h
     types/typeregistry.h
     types/undefined.h
+    types/stringtype.h
+    types/typehdrs.h
     bytecode/bytecodebuffer.h
     bytecode/registerallocator.h
     bytecode/bytecodebuilder.h
@@ -94,15 +99,18 @@ set(YAL_SRC
     ast/printnode.cpp
     ast/whileloopnode.cpp
     ast/variableaccessnode.cpp
+    ast/stringcreatenode.cpp
     symbols/symbol.cpp
     symbols/symboltable.cpp
     symbols/symboltreebuilder.cpp
     symbols/scope.cpp
+    symbols/objectscopeaction.cpp
     types/type.cpp
     types/builtintype.cpp
     types/functiontype.cpp
     types/typeregistry.cpp
     types/undefined.cpp
+    types/stringtype.cpp
     bytecode/bytecodebuffer.cpp
     bytecode/registerallocator.cpp
     bytecode/bytecodebuilder.cpp
