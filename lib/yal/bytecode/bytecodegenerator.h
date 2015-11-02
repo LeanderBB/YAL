@@ -6,7 +6,6 @@
 #include "yal/bytecode/registerallocator.h"
 #include "yal/bytecode/bytecodegenerator.h"
 #include "yal/util/errorhandler.h"
-#include "yal/util/outputformater.h"
 #include "yal/module/module.h"
 #include "yal/util/str_utils.h"
 #include "yal/symbols/scopeaction.h"
@@ -46,12 +45,11 @@ private:
     };
 
 public:
-    ByteCodeGenerator(Module& moduleInfo,
-                      ErrorHandler& errorHandler);
+    ByteCodeGenerator(Module& moduleInfo);
 
     virtual ~ByteCodeGenerator();
 
-    bool generateFunction(yal::FunctionDeclNode &node);
+    void generateFunction(yal::FunctionDeclNode &node);
 
     bool generate(AstBaseNode& node);
 
@@ -76,18 +74,6 @@ protected:
 #include "yal/ast/astnodelist.h"
 #undef YAL_NODE_LIST_FUNC
 
-    bool didError() const
-    {
-        return _didError;
-    }
-
-    void setError()
-    {
-        _didError = true;
-    }
-
-    void logError(const AstBaseNode& node);
-
     /// Return true if function has a return type;
     bool setupFunction(const yal::FunctionDeclNode &node);
 
@@ -107,14 +93,17 @@ protected:
 
     void releaseRegister();
 
-    bool getGlobalVarIdx(yal_u32& idx,
-                         const char* varName);
+    void getGlobalVarIdx(yal_u32& idx,
+                         const char* varName,
+                         const AstBaseNode& node);
 
-    bool getFunctionIdx(yal_u32& idx,
-                        const char* functionName);
+    void getFunctionIdx(yal_u32& idx,
+                        const char* functionName,
+                        const AstBaseNode& node);
 
-    bool getConstantIdx(yal_u32& idx,
-                        const ConstantValue& val);
+    void getConstantIdx(yal_u32& idx,
+                        const ConstantValue& val,
+                        const AstBaseNode& node);
 
     bool onScopeBegin(const AstBaseNode& node);
 
@@ -148,14 +137,10 @@ protected:
     };
 
     Module& _moduleInfo;
-    ErrorHandler& _errorHandler;
     std::stack<Register> _registerStack;
     ByteCodeBuffer _buffer;
     RegisterAllocator _regAllocator;
-    OutputFormater _formater;
     ByteCodeGeneratorScopeActionVisitor _scopeVisitor;
-    bool _didError;
 };
-
 }
 #endif

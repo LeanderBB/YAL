@@ -1,10 +1,10 @@
 #ifndef __YAL_BYTECODEPRINTER_H__
 #define __YAL_BYTECODEPRINTER_H__
 
+#include <ostream>
 #include <yalvm/yalvm_bytecode.h>
 #include "yal/bytecode/bytecode_utils.h"
 #include "yal/util/inputsink.h"
-#include "yal/util/outputformater.h"
 #include <yalvm/yalvm_binary.h>
 
 namespace yal
@@ -15,10 +15,13 @@ class ByteCodePrinter
 {
 public:
     ByteCodePrinter(InputSink& input,
-                    OutputSink& sink);
+                    std::ostream& sink);
 
     ~ByteCodePrinter();
 
+    /**
+     * @throws std::runtime_error
+     */
     bool process();
 
 protected:
@@ -44,8 +47,7 @@ protected:
 
 protected:
     InputSink& _input;
-    OutputSink& _sink;
-    OutputFormater _formater;
+    std::ostream& _sink;
 };
 
 }

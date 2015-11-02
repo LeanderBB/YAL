@@ -6,7 +6,6 @@
 #include "yal/bytecode/bytecodeprinter.h"
 #include "yal/ast/variabledeclnode.h"
 #include "yal/bytecode/bytecodegenerator.h"
-#include "yal/util/outputformater.h"
 #include <yalvm/yalvm_binary.h>
 #include <yalvm/yalvm_hashing.h>
 #include "yal/ast/functionnode.h"
@@ -15,10 +14,8 @@
 namespace yal
 {
 
-ByteCodeBuilder::ByteCodeBuilder(OutputSink &codeOutput,
-                                 ErrorHandler &errorHandler):
-    _codeOutput(codeOutput),
-    _errorHandler(errorHandler)
+ByteCodeBuilder::ByteCodeBuilder(OutputSink &codeOutput):
+    _codeOutput(codeOutput)
 {
 
 }
@@ -53,13 +50,13 @@ ByteCodeBuilder::writeModuleInfo(ParserState& state)
     // validate constant count
     if (constants32_vec.size() >= YALVM_BIN_MAX_CONSTANTS)
     {
-        _errorHandler.onError("Constant 32bit count exceeds maximum value", 0);
+        //_errorHandler.onError("Constant 32bit count exceeds maximum value", 0);
         return false;
     }
 
     if (constants64_vec.size() >= YALVM_BIN_MAX_CONSTANTS)
     {
-        _errorHandler.onError("Constant 64bit count exceeds maximum value", 0);
+        //_errorHandler.onError("Constant 64bit count exceeds maximum value", 0);
         return false;
     }
 
@@ -67,42 +64,42 @@ ByteCodeBuilder::writeModuleInfo(ParserState& state)
     // validate global count
     if (globals32_vec.size() >= YALVM_BIN_MAX_GLOBALS)
     {
-        _errorHandler.onError("Global 32bit count exceeds maximum value", 0);
+        //_errorHandler.onError("Global 32bit count exceeds maximum value", 0);
         return false;
     }
 
     if (globals64_vec.size() >= YALVM_BIN_MAX_GLOBALS)
     {
-        _errorHandler.onError("Global 64bit count exceeds maximum value", 0);
+        //_errorHandler.onError("Global 64bit count exceeds maximum value", 0);
         return false;
     }
 
     // validate function count
     if (function_vec.size() >= YALVM_BIN_MAX_FUNCTIONS)
     {
-        _errorHandler.onError("Function count exceeds maximum value", 0);
+        //_errorHandler.onError("Function count exceeds maximum value", 0);
         return false;
     }
 
     if (strings_vec.size() >= YALVM_BIN_MAX_STRINGS)
     {
-        _errorHandler.onError("String count exceeds maximum value", 0);
+        //_errorHandler.onError("String count exceeds maximum value", 0);
         return false;
     }
 
     if (module.totalStringSizeBytes() >= YALVM_BIN_MAX_STRINGS_SIZE)
     {
-        _errorHandler.onError("Exceeded maximum string storage capacity", 0);
+        //_errorHandler.onError("Exceeded maximum string storage capacity", 0);
         return false;
     }
 
     // generate global and init code
 
 
-    ByteCodeGenerator static_init_code(state.module, _errorHandler);
-    ByteCodeGenerator static_destroy_code(state.module, _errorHandler);
+    ByteCodeGenerator static_init_code(state.module);
+    ByteCodeGenerator static_destroy_code(state.module);
 
-    ByteCodeGenerator global_function(state.module, _errorHandler);
+    ByteCodeGenerator global_function(state.module);
     static_init_code.onScopeBeginGlobal(state.symbolTree.globalScope());
     static_destroy_code.onScopeEndGlobal(state.symbolTree.globalScope());
     for (auto& v : state.program)
@@ -159,7 +156,7 @@ ByteCodeBuilder::writeModuleInfo(ParserState& state)
     // write header
     if (_codeOutput.write(&header, sizeof(header)) != sizeof(header))
     {
-        _errorHandler.onError("Could not write header to code output", 0);
+        //_errorHandler.onError("Could not write header to code output", 0);
         return false;
     }
 
@@ -170,7 +167,7 @@ ByteCodeBuilder::writeModuleInfo(ParserState& state)
         const yal_u32 val = constant->value().valueAs32BitRaw();
         if (_codeOutput.write(&val, sizeof(val)) != sizeof(val))
         {
-            _errorHandler.onError("Could not write constant 32 to code output", 0);
+            //_errorHandler.onError("Could not write constant 32 to code output", 0);
             return false;
         }
     }
@@ -181,7 +178,7 @@ ByteCodeBuilder::writeModuleInfo(ParserState& state)
         const yal_u64 val = constant->value().valueAs64BitRaw();
         if (_codeOutput.write(&val, sizeof(val)) != sizeof(val))
         {
-            _errorHandler.onError("Could not write constant 64 to code output", 0);
+            //_errorHandler.onError("Could not write constant 64 to code output", 0);
             return false;
         }
     }
@@ -195,13 +192,13 @@ ByteCodeBuilder::writeModuleInfo(ParserState& state)
 
         if (_codeOutput.write(&string_len, sizeof(string_len)) != sizeof(string_len))
         {
-            _errorHandler.onError("Could not write string size to code output", 0);
+            //_errorHandler.onError("Could not write string size to code output", 0);
             return false;
         }
 
         if (_codeOutput.write(text, string_len + 1) != string_len + 1)
         {
-            _errorHandler.onError("Could not write string to code output", 0);
+            //_errorHandler.onError("Could not write string to code output", 0);
             return false;
         }
     }
@@ -215,7 +212,7 @@ ByteCodeBuilder::writeModuleInfo(ParserState& state)
         const size_t function_code_size = static_init_code.buffer().size();
         if (function_code_size >= YALVM_BIN_MAX_FUNCTION_CODE_SIZE)
         {
-            _errorHandler.onError("Static init code sizer greater than maxium value", 0);
+            //_errorHandler.onError("Static init code sizer greater than maxium value", 0);
             return false;
         }
     }
@@ -223,7 +220,7 @@ ByteCodeBuilder::writeModuleInfo(ParserState& state)
     if (_codeOutput.write(&static_init_hdr, sizeof(static_init_hdr))
             != sizeof(static_init_hdr))
     {
-        _errorHandler.onError("Could not write static init header to code output", 0);
+        //_errorHandler.onError("Could not write static init header to code output", 0);
         return false;
     }
 
@@ -233,7 +230,7 @@ ByteCodeBuilder::writeModuleInfo(ParserState& state)
         if (_codeOutput.write(static_init_code.buffer().buffer(), real_size)
                 != real_size)
         {
-            _errorHandler.onError("Could not write static init code to code output", 0);
+           // _errorHandler.onError("Could not write static init code to code output", 0);
             return false;
         }
     }
@@ -245,7 +242,7 @@ ByteCodeBuilder::writeModuleInfo(ParserState& state)
         const size_t function_code_size = static_destroy_code.buffer().size();
         if (function_code_size >= YALVM_BIN_MAX_FUNCTION_CODE_SIZE)
         {
-            _errorHandler.onError("Static init code sizer greater than maxium value", 0);
+            //_errorHandler.onError("Static init code sizer greater than maxium value", 0);
             return false;
         }
     }
@@ -253,7 +250,7 @@ ByteCodeBuilder::writeModuleInfo(ParserState& state)
     if (_codeOutput.write(&static_dtr_hdr, sizeof(static_dtr_hdr))
             != sizeof(static_dtr_hdr))
     {
-        _errorHandler.onError("Could not write static destroy header to code output", 0);
+        //_errorHandler.onError("Could not write static destroy header to code output", 0);
         return false;
     }
 
@@ -263,7 +260,7 @@ ByteCodeBuilder::writeModuleInfo(ParserState& state)
         if (_codeOutput.write(static_destroy_code.buffer().buffer(), real_size)
                 != real_size)
         {
-            _errorHandler.onError("Could not write static destroy code to code output", 0);
+            //_errorHandler.onError("Could not write static destroy code to code output", 0);
             return false;
         }
     }
@@ -271,17 +268,15 @@ ByteCodeBuilder::writeModuleInfo(ParserState& state)
 
     // write functions
     {
-        ByteCodeGenerator function_code(state.module, _errorHandler);
+        ByteCodeGenerator function_code(state.module);
         for (auto& function : function_vec)
         {
             FunctionDeclNode* decl_node = function->functionNode();
             const char* function_name = function->functionName();
 
             // process bytecode
-            if (!function_code.generateFunction(*decl_node))
-            {
-                return false;
-            }
+            function_code.generateFunction(*decl_node);
+
 
             yalvm_func_header_t function_header;
             yalvm_func_header_init(&function_header, function_name);
@@ -299,7 +294,7 @@ ByteCodeBuilder::writeModuleInfo(ParserState& state)
             const size_t function_code_size = function_code.buffer().size();
             if (function_code_size >= YALVM_BIN_MAX_FUNCTION_CODE_SIZE)
             {
-                _errorHandler.onError("Function code greater than maxium value", 0);
+                //_errorHandler.onError("Function code greater than maxium value", 0);
                 return false;
             }
 
@@ -308,7 +303,7 @@ ByteCodeBuilder::writeModuleInfo(ParserState& state)
             if (_codeOutput.write(&function_header, sizeof(function_header))
                     != sizeof(function_header))
             {
-                _errorHandler.onError("Could not write function header to code output", 0);
+                //_errorHandler.onError("Could not write function header to code output", 0);
                 return false;
             }
 
@@ -316,7 +311,7 @@ ByteCodeBuilder::writeModuleInfo(ParserState& state)
             if (_codeOutput.write(function_code.buffer().buffer(), real_size)
                     != real_size)
             {
-                _errorHandler.onError("Could not write function code to code output", 0);
+                //_errorHandler.onError("Could not write function code to code output", 0);
                 return false;
             }
         }
@@ -332,7 +327,7 @@ ByteCodeBuilder::writeModuleInfo(ParserState& state)
         const size_t function_code_size = global_function.buffer().size();
         if (function_code_size >= YALVM_BIN_MAX_FUNCTION_CODE_SIZE)
         {
-            _errorHandler.onError("Global  code greater than maxium value", 0);
+           // _errorHandler.onError("Global  code greater than maxium value", 0);
             return false;
         }
         global_header.code_size = function_code_size;
@@ -342,7 +337,7 @@ ByteCodeBuilder::writeModuleInfo(ParserState& state)
     if (_codeOutput.write(&global_header, sizeof(global_header))
             != sizeof(global_header))
     {
-        _errorHandler.onError("Could not write global header to code output", 0);
+        //_errorHandler.onError("Could not write global header to code output", 0);
         return false;
     }
 
@@ -353,7 +348,7 @@ ByteCodeBuilder::writeModuleInfo(ParserState& state)
         if (_codeOutput.write(global_function.buffer().buffer(), real_size)
                 != real_size)
         {
-            _errorHandler.onError("Could not write global code to code output", 0);
+            //_errorHandler.onError("Could not write global code to code output", 0);
             return false;
         }
     }

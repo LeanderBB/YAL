@@ -1,4 +1,7 @@
 #include "yal/compiler/compiler.h"
+
+#include <iostream>
+
 #include "yal/parser/flex_utils.h"
 #include "yal/parser/bison_utils.h"
 #include "yal/parser/parser_state.h"
@@ -8,21 +11,16 @@
 #include "yal/symbols/symboltreebuilder.h"
 #include "yal/bytecode/bytecodebuilder.h"
 #include "yal/util/errorhandler.h"
-#include "yal/util/outputformater.h"
 #include "yal/bytecode/bytecodeprinter.h"
 #include "yal/types/typeregistry.h"
 namespace yal
 {
 
 Compiler::Compiler(InputSink& input,
-                   OutputSink& output,
-                   OutputSink &codeOutput,
-                   ErrorHandler& errHandler):
+                   OutputSink &codeOutput):
     _input(input),
-    _output(output),
     _codeOutput(codeOutput),
-    _errHandler(errHandler),
-    _state(_errHandler)
+    _state()
 {
 
 }
@@ -44,14 +42,11 @@ Compiler::compile(const uint32_t flags)
 
     if (parse_result == 0)
     {
-        if(!_state.symbolTree.process(_state))
-        {
-            return false;
-        }
+        _state.symbolTree.process(_state);
 
         if (flags & kDumpAst)
         {
-            yal::AstPrinter printer(_output);
+            yal::AstPrinter printer(std::cout);
             printer.process(_state);
         }
 
@@ -59,7 +54,7 @@ Compiler::compile(const uint32_t flags)
         _state.module.removeUnusedAndAssignIndices();
        // _state.module.logInfo(_output);
 
-        yal::ByteCodeBuilder bt_builder(_codeOutput, _errHandler);
+        yal::ByteCodeBuilder bt_builder(_codeOutput);
         if (!bt_builder.process(_state)) {return false; }
         return true;
     }

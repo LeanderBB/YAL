@@ -4,8 +4,8 @@
 #include "yal/yal.h"
 #include "yal/parser/parser_state.h"
 #include "yal/ast/astnodevisitor.h"
-#include "yal/util/outputformater.h"
 #include <vector>
+#include <ostream>
 
 namespace yal
 {
@@ -18,7 +18,7 @@ public:
         kNumIdent = 1
     };
 
-    AstPrinter(OutputSink& sink);
+    AstPrinter(std::ostream& sink);
 
     virtual ~AstPrinter();
 
@@ -26,7 +26,7 @@ public:
 #include "yal/ast/astnodelist.h"
 #undef YAL_NODE_LIST_FUNC
 
-    void process(ParserState_t& state);
+    void process(const ParserState_t& state);
 
 private:
 
@@ -44,8 +44,7 @@ private:
     void onSubAscend();
 private:
     std::vector<char> _idents;
-    OutputFormater _formater;
-    OutputSink& _sink;
+    std::ostream& _sink;
 };
 
 }

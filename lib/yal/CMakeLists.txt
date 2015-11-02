@@ -6,6 +6,7 @@ set(YAL_HDR
     parser/bison_utils.h
     parser/flex_utils.h
     parser/parser_state.h
+    parser/parseexception.h
     memory/memory_utils.h
     util/str_utils.h
     util/stl_utils.h
@@ -13,7 +14,6 @@ set(YAL_HDR
     util/inputsink.h
     util/filesink.h
     util/stringinputsink.h
-    util/outputformater.h
     util/errorhandler.h
     util/constantvalue.h
     util/memorysink.h
@@ -38,6 +38,7 @@ set(YAL_HDR
     ast/variableaccessnode.h
     ast/stringcreatenode.h
     ast/asthdrs.h
+    symbols/semanticexception.h
     symbols/symboltable.h
     symbols/scope.h
     symbols/scopeaction.h
@@ -54,6 +55,7 @@ set(YAL_HDR
     types/undefined.h
     types/stringtype.h
     types/typehdrs.h
+    bytecode/bytecodegenexception.h
     bytecode/bytecodebuffer.h
     bytecode/registerallocator.h
     bytecode/bytecodebuilder.h
@@ -77,7 +79,6 @@ set(YAL_SRC
     memory/memory_utils.cpp
     util/str_utils.cpp
     util/filesink.cpp
-    util/outputformater.cpp
     util/stringinputsink.cpp
     util/constantvalue.cpp
     util/memorysink.cpp

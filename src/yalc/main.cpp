@@ -1,14 +1,15 @@
+#include <iostream>
 #include <yal/yal.h>
 #include <yal/compiler/compiler.h>
-#include <cstdio>
 #include <yal/util/filesink.h>
-#include <yal/util/sinkerrorhandler.h>
 #include <yal/util/argparser.h>
-
+#include <yal/parser/parseexception.h>
+#include <yal/symbols/semanticexception.h>
+#include <yal/bytecode/bytecodegenexception.h>
 
 static const char* sDescription =
         "yalc - Yet Anoter Language Compiler (" YAL_VERSION_STR ")\n"
-        "usage: yalc [options] <input file>\n";
+                                                                "usage: yalc [options] <input file>\n";
 
 enum Option
 {
@@ -36,25 +37,36 @@ yalvm_free(void*)
 
 }
 
+static void
+printLocatioInfo(const yal::SourceLocationInfo& info,
+                 std::ostream& stream)
+{
+    stream << "[" << info.firstLine << ":" << info.firstColumn << "] ";
+}
+
 int main(const int argc,
          const char** argv)
 {
-    // output sink
-    yal::FileOutputSink io_output(stdout);
-    // error sink
-    yal::FileOutputSink err_output(stderr);
-
-
     // setup arg parser
     yal::ArgParser arg_parser;
     arg_parser.add(kOptionOutputFile, 'o', "output", "Ouput file name", yal::kArgFlagSingleValue);
     arg_parser.add(kOptionDumpAst, "dump-ast", "Dump abstract syntax tree", 0);
 
-    const int parse_result = arg_parser.parse(argc, argv, err_output);
+    int parse_result = -1;
+
+    try
+    {
+        parse_result  = arg_parser.parse(argc, argv);
+    } catch(yal::ArgParserException& argException)
+    {
+        std::cerr << argException.what() << std::endl;
+        arg_parser.printHelp(std::cerr, sDescription);
+        return EXIT_FAILURE;
+    }
 
     if (parse_result < 0)
     {
-        arg_parser.printHelp(io_output, sDescription);
+        arg_parser.printHelp(std::cerr, sDescription);
         return EXIT_FAILURE;
     }
 
@@ -62,7 +74,7 @@ int main(const int argc,
 
     if (arg_parser.isSet(0))
     {
-        arg_parser.printHelp(io_output, sDescription);
+        arg_parser.printHelp(std::cout, sDescription);
         return EXIT_SUCCESS;
     }
 
@@ -108,8 +120,26 @@ int main(const int argc,
     yal::FileOutputSink code_output(output);
     // error sink
 
-    yal::SinkErrorHandler err_handler(err_output);
-    yal::Compiler cl(io_input, io_output, code_output, err_handler);
-
-    return cl.compile(compiler_flags) ? EXIT_SUCCESS : EXIT_FAILURE;
+    try
+    {
+        yal::Compiler cl(io_input, code_output);
+        return cl.compile(compiler_flags) ? EXIT_SUCCESS : EXIT_FAILURE;
+    }
+    catch(const yal::ParseException& parseException)
+    {
+        std::cerr << "Parse Error: ";
+        printLocatioInfo(parseException.location(), std::cerr);
+        std::cerr << parseException.what();
+    }
+    catch(const yal::SemanticException& semanticException)
+    {
+        std::cerr<< "Semantic Error: ";
+        printLocatioInfo(semanticException.astNode().locationInfo(), std::cerr);
+        std::cerr << semanticException.what();
+    }
+    catch(const yal::ByteCodeGenException& byteCodeGenException)
+    {
+        std::cerr<< "ByteCodeGen Error: ";
+        std::cerr << byteCodeGenException.what();
+    }
 }

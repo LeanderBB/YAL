@@ -1,7 +1,6 @@
 #include <yal/yal.h>
 #include <yal/compiler/compiler.h>
 #include <yal/util/filesink.h>
-#include <yal/util/sinkerrorhandler.h>
 #include <yal/util/stringinputsink.h>
 #include <yal/util/memorysink.h>
 #include <cstring>
@@ -92,15 +91,8 @@ CompileCode(const char* code_file,
     }
 
     yal::FileInputSink io_input(input_file);
-    // output sink
-    yal::NullOutputSink io_output;
 
-    // code output sink,
-
-    // error sink
-    yal::FileOutputSink err_output(stdout);
-    yal::SinkErrorHandler err_handler(err_output);
-    yal::Compiler cl(io_input, io_output, code_output, err_handler);
+    yal::Compiler cl(io_input, code_output);
 
     return cl.compile();
 }

@@ -21,17 +21,13 @@ public:
 
 
     Compiler(InputSink& input,
-             OutputSink& output,
-             OutputSink& codeOutput,
-             ErrorHandler& errHandler);
+             OutputSink& codeOutput);
 
     bool compile(const uint32_t flags = 0);
 
 protected:
     InputSink& _input;
-    OutputSink& _output;
     OutputSink& _codeOutput;
-    ErrorHandler& _errHandler;
     ParserState _state;
 };
 

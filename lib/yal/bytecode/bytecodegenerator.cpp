@@ -1,11 +1,15 @@
 #include "yal/bytecode/bytecodegenerator.h"
+
+#include <cstdio>
+#include <limits>
+#include <sstream>
+
 #include "yal/ast/asthdrs.h"
 #include "yal/types/typehdrs.h"
 #include "yal/symbols/scope.h"
 #include "yal/symbols/objectscopeaction.h"
 #include "yal/bytecode/bytecode_utils.h"
-#include <cstdio>
-#include <limits>
+#include "yal/bytecode/bytecodegenexception.h"
 
 namespace yal
 {
@@ -50,14 +54,11 @@ ByteCodeGenerator::Register::release(RegisterAllocator& alloctor)
 }
 
 
-ByteCodeGenerator::ByteCodeGenerator(Module &moduleInfo,
-                                     ErrorHandler &errorHandler):
+ByteCodeGenerator::ByteCodeGenerator(Module &moduleInfo):
     _moduleInfo(moduleInfo),
-    _errorHandler(errorHandler),
     _buffer(),
     _regAllocator(),
-    _scopeVisitor(*this),
-    _didError(false)
+    _scopeVisitor(*this)
 {
 
 }
@@ -67,7 +68,7 @@ ByteCodeGenerator::~ByteCodeGenerator()
 
 }
 
-bool
+void
 ByteCodeGenerator::generateFunction(FunctionDeclNode& node)
 {
     reset();
@@ -75,13 +76,19 @@ ByteCodeGenerator::generateFunction(FunctionDeclNode& node)
 
     if (!onScopeBegin(*node.functionCode()))
     {
-        return false;
+        std::stringstream stream;
+        stream << "Failed to open scope for function '"
+               << node.functionName() << "'" << std::endl;
+        throw ByteCodeGenException(stream.str(), node);
     }
 
     node.functionCode()->accept(*this);
     if (!onScopeEnd(*node.functionCode()))
     {
-        return false;
+        std::stringstream stream;
+        stream << "Failed to close scope for function '"
+               << node.functionName() << "'" << std::endl;
+        throw ByteCodeGenException(stream.str(), node);
     }
 
     yalvm_bytecode_t code;
@@ -95,14 +102,13 @@ ByteCodeGenerator::generateFunction(FunctionDeclNode& node)
         code = yalvm_bytecode_pack_dst_value(YALVM_BYTECODE_RETURN, 0xFF, 0);
     }
     _buffer.append(code);
-    return !didError();
 }
 
 bool
 ByteCodeGenerator::generate(AstBaseNode &node)
 {
     node.accept(*this);
-    return !didError();
+    return true;
 }
 
 void
@@ -114,7 +120,6 @@ ByteCodeGenerator::reset()
     {
         _registerStack.pop();
     }
-    _didError = false;
 }
 
 void
@@ -141,13 +146,6 @@ ByteCodeGenerator::onScopeEndGlobal(const Scope &scope)
 {
     scope.onScopeExit(_scopeVisitor);
     return true;
-}
-
-void
-ByteCodeGenerator::logError(const AstBaseNode& node)
-{
-    _errorHandler.onCompileError(_formater.str(), _formater.strLen(), node.locationInfo());
-    setError();
 }
 
 bool
@@ -244,63 +242,70 @@ ByteCodeGenerator::topRegister() const
     return _registerStack.top();
 }
 
-bool
+void
 ByteCodeGenerator::getGlobalVarIdx(yal_u32& idx,
-                                   const char* varName)
+                                   const char* varName,
+                                   const AstBaseNode &node)
 {
     const ModuleGlobal* global_var = _moduleInfo.global(varName);
     if (!global_var)
     {
-        _formater.format("Could not find global variable '%s'", varName);
-        return false;
+        std::stringstream stream;
+        stream << "Global Index: could not find variable '"
+               << varName<< "'" << std::endl;
+        throw ByteCodeGenException(stream.str(), node);
     }
     idx = global_var->moduleIndex();
     if (idx == ModuleIndexable::IndexUnused)
     {
-        _formater.format("Global variable '%s' has not been registered",
-                         varName);
-        return false;
+        std::stringstream stream;
+        stream << "Global Index: variable '"
+               << varName<< "' has not been registered" << std::endl;
+        throw ByteCodeGenException(stream.str(), node);
     }
-    return true;
 }
 
-bool
+void
 ByteCodeGenerator::getFunctionIdx(yal_u32& idx,
-                                  const char* functionName)
+                                  const char* functionName,
+                                  const AstBaseNode& node)
 {
     const ModuleFunction* function = _moduleInfo.function(functionName);
     if (!function)
     {
-        _formater.format("Could not find function '%s'", functionName);
-        return false;
+        std::stringstream stream;
+        stream << "Global Index: could not find function '"
+               << functionName<< "'" << std::endl;
+        throw ByteCodeGenException(stream.str(), node);
     }
     idx = function->moduleIndex();
     if (idx == ModuleIndexable::IndexUnused)
     {
-        _formater.format("Function '%s' has not been registered",
-                         functionName);
-        return false;
+        std::stringstream stream;
+        stream << "Global Index: function '"
+               << functionName<< "' has not been registered." << std::endl;
+        throw ByteCodeGenException(stream.str(), node);
     }
-    return true;
 }
 
-bool
-ByteCodeGenerator::getConstantIdx(yal_u32& idx,
-                                  const ConstantValue& val)
+void ByteCodeGenerator::getConstantIdx(yal_u32& idx,
+                                       const ConstantValue& val,
+                                       const AstBaseNode& node)
 {
     const ModuleConstant* constant = _moduleInfo.constant(val);
     if (!constant)
     {
-        _formater.format("Could not find a matching constant");
-        return false;
+        std::stringstream stream;
+        stream << "Global Index: Could not find a matching constant." << std::endl;
+        throw ByteCodeGenException(stream.str(), node);
     }
     idx = constant->moduleIndex();
     if (idx == ModuleIndexable::IndexUnused)
     {
-        _formater.format("Constant has not been registered");
-        return false;
+        std::stringstream stream;
+        stream << "Global Index: Constant has not been registered." << std::endl;
+        throw ByteCodeGenException(stream.str(), node);
     }
-    return true;
 }
 
 bool
@@ -344,11 +349,7 @@ ByteCodeGenerator::loadVariableIntoRegister(const char* varName,
     {
         instruction = LoadGlobalByteCodeInst(var_symbol->astNode()->nodeType());
         cur_register = Register(_regAllocator);
-        if (!getGlobalVarIdx(inst_value, varName))
-        {
-            logError(node);
-            return;
-        }
+        getGlobalVarIdx(inst_value, varName, node);
     }
     else
     {
@@ -356,9 +357,10 @@ ByteCodeGenerator::loadVariableIntoRegister(const char* varName,
                                 var_symbol->scope()->level());
         if (!cur_register.isValid())
         {
-            _formater.format("Variable '%s' has not been registered\n", varName);
-            logError(node);
-            return;
+            std::stringstream stream;
+            stream << "Variable '"
+                   << varName<< "' has not been mapped to a register." << std::endl;
+            throw ByteCodeGenException(stream.str(), node);
         }
         pushRegister(cur_register);
         return;
@@ -380,21 +382,11 @@ ByteCodeGenerator::visit(AssignOperatorNode& node)
     Register left_register = popRegister();
     YAL_ASSERT(left_register.isValid());
 
-    if (didError())
-    {
-        return;
-    }
-
-
     // process right part
     node.expressionRight()->accept(*this);
     Register right_register = popRegister();
     YAL_ASSERT(right_register.isValid());
 
-    if (didError())
-    {
-        return;
-    }
 
     const ExpressionResult& exp_type = node.expressionResult();
     if (exp_type.type->isBuiltinType())
@@ -427,11 +419,7 @@ ByteCodeGenerator::visit(AssignOperatorNode& node)
             inst = StoreGlobalByteCodeInst(exp_type.type);
 
             yal_u32 global_idx = ModuleIndexable::IndexUnused;
-            if(!getGlobalVarIdx(global_idx, assign_sym->symbolName()))
-            {
-                logError(node);
-                return;
-            }
+            getGlobalVarIdx(global_idx, assign_sym->symbolName(), node);
 
             code = yalvm_bytecode_pack_dst_value(inst, left_register.registerIdx(), global_idx);
 
@@ -441,9 +429,9 @@ ByteCodeGenerator::visit(AssignOperatorNode& node)
     }
     else
     {
-        _formater.format("Assignment of custom data types not yet implemented\n");
-        logError(node);
-        return;
+        std::stringstream stream;
+        stream << "Assignment of custom types not yet implemented" << std::endl;
+        throw ByteCodeGenException(stream.str(), node);
     }
 
 
@@ -464,14 +452,7 @@ ByteCodeGenerator::visit(CodeBodyNode& node)
 {
     for(auto& v : node.statements)
     {
-        if (!didError())
-        {
-            v->accept(*this);
-        }
-        else
-        {
-            return;
-        }
+        v->accept(*this);
     }
 }
 
@@ -483,12 +464,6 @@ ByteCodeGenerator::visit(CompareOperatorNode& node)
     node.leftExpression()->accept(*this);
     Register left_register = popRegister();
     YAL_ASSERT(left_register.isValid());
-
-
-    if (didError())
-    {
-        return;
-    }
 
     // process right part
     node.rightExpression()->accept(*this);
@@ -517,9 +492,9 @@ ByteCodeGenerator::visit(CompareOperatorNode& node)
     }
     else
     {
-        _formater.format("Compare of custom data types not yet implemented\n");
-        logError(node);
-        return;
+        std::stringstream stream;
+        stream << "Comparison of custom types not yet implemented" << std::endl;
+        throw ByteCodeGenException(stream.str(), node);
     }
 
     left_register.release(_regAllocator);
@@ -535,16 +510,13 @@ ByteCodeGenerator::visit(ConstantNode& node)
     Register cur_register = Register(_regAllocator);
 
     const Type* exp_type = node.expressionResult().type;
+    (void) exp_type;
     YAL_ASSERT(exp_type->isBuiltinType());
     switch(node.constantValue().type())
     {
     case kConstantTypeText:
     {
-        if (!getConstantIdx(inst_value, node.constantValue()))
-        {
-            logError(node);
-            return;
-        }
+        getConstantIdx(inst_value, node.constantValue(), node);
         instruction = YALVM_BYTECODE_LOAD_STRING;
         break;
     }
@@ -563,11 +535,7 @@ ByteCodeGenerator::visit(ConstantNode& node)
         }
         else
         {
-            if (!getConstantIdx(inst_value, node.constantValue()))
-            {
-                logError(node);
-                return;
-            }
+            getConstantIdx(inst_value, node.constantValue(), node);
             instruction = YALVM_BYTECODE_LOAD_CONST_32;
         }
         break;
@@ -582,11 +550,7 @@ ByteCodeGenerator::visit(ConstantNode& node)
         }
         else
         {
-            if (!getConstantIdx(inst_value, node.constantValue()))
-            {
-                logError(node);
-                return;
-            }
+            getConstantIdx(inst_value, node.constantValue(), node);
             instruction = YALVM_BYTECODE_LOAD_CONST_32;
         }
         break;
@@ -606,11 +570,7 @@ ByteCodeGenerator::visit(ConstantNode& node)
         }
         else
         {
-            if (!getConstantIdx(inst_value, node.constantValue()))
-            {
-                logError(node);
-                return;
-            }
+            getConstantIdx(inst_value, node.constantValue(), node);
             instruction = YALVM_BYTECODE_LOAD_CONST_64;
         }
         break;
@@ -625,11 +585,7 @@ ByteCodeGenerator::visit(ConstantNode& node)
         }
         else
         {
-            if (!getConstantIdx(inst_value, node.constantValue()))
-            {
-                logError(node);
-                return;
-            }
+            getConstantIdx(inst_value, node.constantValue(), node);
             instruction = YALVM_BYTECODE_LOAD_CONST_64;
         }
         break;
@@ -642,27 +598,18 @@ ByteCodeGenerator::visit(ConstantNode& node)
     }
     case kConstantTypeFloat32:
     {
-        if (!getConstantIdx(inst_value, node.constantValue()))
-        {
-            logError(node);
-            return;
-        }
+        getConstantIdx(inst_value, node.constantValue(), node);
         instruction = YALVM_BYTECODE_LOAD_CONST_32;
         break;
     }
     case kConstantTypeFloat64:
     {
-        if (!getConstantIdx(inst_value, node.constantValue()))
-        {
-            logError(node);
-            return;
-        }
+        getConstantIdx(inst_value, node.constantValue(), node);
         instruction = YALVM_BYTECODE_LOAD_CONST_64;
         break;
     }
     default:
         YAL_ASSERT(false && "should not be reached\n");
-        setError();
         return;
     }
 
@@ -678,18 +625,14 @@ void
 ByteCodeGenerator::visit(ArgumentDeclNode& node)
 {
     (void) node;
-    _formater.format("Node '%s' Should not be reached\n", node.astTypeStr());
-    logError(node);
-    return;
+    YAL_ASSERT(false && "should not be reached");
 }
 
 void
 ByteCodeGenerator::visit(ArgumentDeclsNode& node)
 {
     (void) node;
-    _formater.format("Node '%s' Should not be reached\n", node.astTypeStr());
-    logError(node);
-    return;
+    YAL_ASSERT(false && "should not be reached");
 }
 
 void
@@ -726,11 +669,7 @@ ByteCodeGenerator::visit(VariableDeclNode& node)
     if (var_is_global)
     {
         var_register = Register(_regAllocator);
-        if(!getGlobalVarIdx(global_idx, variable_name))
-        {
-            logError(node);
-            return;
-        }
+        getGlobalVarIdx(global_idx, variable_name, node);
     }
     else
     {
@@ -740,17 +679,14 @@ ByteCodeGenerator::visit(VariableDeclNode& node)
 
     if (!var_register.isValid())
     {
-        _formater.format("Variable '%s' is not registered\n", variable_name);
-        logError(node);
-        return;
+        std::stringstream stream;
+        stream << "Variable '"
+               << variable_name<< "' has not been mapped to a register." << std::endl;
+        throw ByteCodeGenException(stream.str(), node);
     }
 
     node.expression()->accept(*this);
 
-    if (didError())
-    {
-        return;
-    }
 
     Register tmp = popRegister();
     YAL_ASSERT(tmp.isValid());
@@ -765,11 +701,7 @@ ByteCodeGenerator::visit(VariableDeclNode& node)
         const yalvm_bytecode_inst_t inst = StoreGlobalByteCodeInst(var_symbol->astNode()->nodeType());
 
         yal_u32 global_idx = ModuleIndexable::IndexUnused;
-        if(!getGlobalVarIdx(global_idx, variable_name))
-        {
-            logError(node);
-            return;
-        }
+        getGlobalVarIdx(global_idx, variable_name, node);
 
         code = yalvm_bytecode_pack_dst_value(inst, var_register.registerIdx(), global_idx);
 
@@ -791,21 +723,10 @@ ByteCodeGenerator::visit(DualOperatorNode& node)
     Register left_register = popRegister();
     YAL_ASSERT(left_register.isValid());
 
-    if (didError())
-    {
-        return;
-    }
-
     // process right part
     node.rightExpression()->accept(*this);
     Register right_register = popRegister();
     YAL_ASSERT(right_register.isValid());
-
-    if (didError())
-    {
-        return;
-    }
-
 
     Register cur_register = Register(_regAllocator);
 
@@ -827,9 +748,9 @@ ByteCodeGenerator::visit(DualOperatorNode& node)
     }
     else
     {
-        _formater.format("Dual operators for custom data types not yet implemented\n");
-        logError(node);
-        return;
+        std::stringstream stream;
+        stream << "Operators on custom data types not yet supported." << std::endl;
+        throw ByteCodeGenException(stream.str(), node);
     }
 
     left_register.release(_regAllocator);
@@ -844,31 +765,28 @@ ByteCodeGenerator::visit(SingleOperatorNode& node)
     node.expression()->accept(*this);
 
     // nothing to do for block operator
-    if (!didError())
+
+    const Register& top = topRegister();
+
+    const Type* exp_type = node.expressionResult().type;
+
+    if (exp_type->isBuiltinType())
     {
+        yalvm_bytecode_inst_t inst = SingeOperatorByteCodeInst(node.singleOperatorType(),
+                                                               exp_type);
 
-        const Register& top = topRegister();
+        YAL_ASSERT(inst != YALVM_BYTECODE_TOTAL);
 
-        const Type* exp_type = node.expressionResult().type;
+        yalvm_bytecode_t code = yalvm_bytecode_pack_one_register(inst,
+                                                                 top.registerIdx());
 
-        if (exp_type->isBuiltinType())
-        {
-            yalvm_bytecode_inst_t inst = SingeOperatorByteCodeInst(node.singleOperatorType(),
-                                                                   exp_type);
-
-            YAL_ASSERT(inst != YALVM_BYTECODE_TOTAL);
-
-            yalvm_bytecode_t code = yalvm_bytecode_pack_one_register(inst,
-                                                                     top.registerIdx());
-
-            _buffer.append(code);
-        }
-        else
-        {
-            _formater.format("Dual operators for custom data types not yet implemented\n");
-            logError(node);
-            return;
-        }
+        _buffer.append(code);
+    }
+    else
+    {
+        std::stringstream stream;
+        stream << "Operators on custom data types not yet supported." << std::endl;
+        throw ByteCodeGenException(stream.str(), node);
     }
 }
 
@@ -882,23 +800,17 @@ ByteCodeGenerator::visit(FunctionCallNode& node)
     const Symbol* function_sym = node.scope()->resolveSymbol(function_name);
     if (!function_sym)
     {
-        _formater.format("Could not find function symbol for '%s'\n",
-                         function_name);
-        logError(node);
-        return;
+        std::stringstream stream;
+        stream << "Could not find function symbol with name '"
+               << function_name << "'" << std::endl;
+        throw ByteCodeGenException(stream.str(), node);
     }
 
     YAL_ASSERT(function_sym->isFunction());
 
 
     yal_u32 function_idx = 0;
-    if (!getFunctionIdx(function_idx, function_name))
-    {
-        _formater.format("Could not find function number for  '%s'\n",
-                         function_name);
-        logError(node);
-        return;
-    }
+    getFunctionIdx(function_idx, function_name, node);
 
     Register function_call_reg = Register(_regAllocator);
     YAL_ASSERT(function_call_reg.isValid());
@@ -936,9 +848,7 @@ void
 ByteCodeGenerator::visit(FunctionDeclNode& node)
 {
     (void) node;
-    _formater.format("Node '%s' Should not be reached\n", node.astTypeStr());
-    logError(node);
-    return;
+    YAL_ASSERT(false && "Should not be reached");
 }
 
 void
@@ -952,12 +862,6 @@ ByteCodeGenerator::visit(ConditionNode& node)
         node.condition()->accept(*this);
         tmp_register  = popRegister();
         YAL_ASSERT(tmp_register.isValid());
-
-        // check of error
-        if (didError())
-        {
-            return;
-        }
 
         yalvm_bytecode_t condition_code = yalvm_bytecode_pack_dst_value(YALVM_BYTECODE_JUMP_FALSE,
                                                                         tmp_register.registerIdx(),
@@ -981,9 +885,9 @@ ByteCodeGenerator::visit(ConditionNode& node)
         yal_i32 diff = current_offset - static_cast<yal_i32>(jump_to_false_offset);
         if (diff >= std::numeric_limits<yal_i16>::max())
         {
-            _formater.format("Condition jump instruction exceeds maximum jump offset\n");
-            logError(node);
-            return;
+            std::stringstream stream;
+            stream << "Condition jump (true) instruction exceeds maximum jump offset." << std::endl;
+            throw ByteCodeGenException(stream.str(), node);
         }
         _buffer.replace(jump_to_false_offset, yalvm_bytecode_pack_dst_value_signed(YALVM_BYTECODE_JUMP_FALSE,
                                                                                    tmp_register.registerIdx(),
@@ -998,11 +902,7 @@ ByteCodeGenerator::visit(ConditionNode& node)
         onScopeBegin(*node.onFalse());
         node.onFalse()->accept(*this);
         onScopeEnd(*node.onFalse());
-        // check of error
-        if (didError())
-        {
-            return;
-        }
+
 
         // update jmp instruction
         const size_t buffer_size = _buffer.size() - 1;
@@ -1011,9 +911,9 @@ ByteCodeGenerator::visit(ConditionNode& node)
         const yal_i32 diff = current_offset - static_cast<yal_i32>(jump_to_end_offset);
         if (diff >= std::numeric_limits<yal_i16>::max())
         {
-            _formater.format("Condition jump instruction exceeds maximum jump offset\n");
-            logError(node);
-            return;
+            std::stringstream stream;
+            stream << "Condition jump (false) instruction exceeds maximum jump offset." << std::endl;
+            throw ByteCodeGenException(stream.str(), node);
         }
 
         _buffer.replace(jump_to_end_offset, yalvm_bytecode_pack_value_signed(YALVM_BYTECODE_JUMP,
@@ -1032,16 +932,10 @@ ByteCodeGenerator::visit(ReturnNode& node)
         node.expression()->accept(*this);
         Register tmp_register = popRegister();
         YAL_ASSERT(tmp_register.isValid());
-        if (didError())
-        {
-            return;
-        }
 
         register_idx = tmp_register.registerIdx();
         tmp_register.release(_regAllocator);
-
     }
-
 
     // run scope end actions
     node.scope()->onScopeExit(_scopeVisitor);
@@ -1092,13 +986,6 @@ ByteCodeGenerator::visit(WhileLoopNode& node)
     tmp_register  = popRegister();
     YAL_ASSERT(tmp_register.isValid());
 
-
-    // check of error
-    if (didError())
-    {
-        return;
-    }
-
     const yalvm_bytecode_t condition_code = yalvm_bytecode_pack_dst_value(YALVM_BYTECODE_JUMP_FALSE,
                                                                           tmp_register.registerIdx(),
                                                                           1);
@@ -1112,12 +999,6 @@ ByteCodeGenerator::visit(WhileLoopNode& node)
     node.code()->accept(*this);
     onScopeEnd(*node.code());
 
-    // check of error
-    if (didError())
-    {
-        return;
-    }
-
     // jump back to condition
     size_t buffer_size = _buffer.size();
     YAL_ASSERT(buffer_size <  std::numeric_limits<yal_i32>::max());
@@ -1125,9 +1006,9 @@ ByteCodeGenerator::visit(WhileLoopNode& node)
     yal_i32 diff = static_cast<yal_i32>(jump_to_condition) - (current_offset + 1);
     if (diff <= std::numeric_limits<yal_i16>::min())
     {
-        _formater.format("While loop jump instruction exceeds maximum jump offset\n");
-        logError(node);
-        return;
+        std::stringstream stream;
+        stream << "Condition jump (while onFalse) instruction exceeds maximum jump offset." << std::endl;
+        throw ByteCodeGenException(stream.str(), node);
     }
 
     const yalvm_bytecode_t jump_code = yalvm_bytecode_pack_value_signed(YALVM_BYTECODE_JUMP,
@@ -1140,9 +1021,9 @@ ByteCodeGenerator::visit(WhileLoopNode& node)
     diff = current_offset - static_cast<yal_i32>(jump_on_false_inst_loc);
     if (diff >= std::numeric_limits<yal_i16>::max())
     {
-        _formater.format("Condition jump instruction exceeds maximum jump offset\n");
-        logError(node);
-        return;
+        std::stringstream stream;
+        stream << "Condition jump (while onLoop) instruction exceeds maximum jump offset." << std::endl;
+        throw ByteCodeGenException(stream.str(), node);
     }
     _buffer.replace(jump_on_false_inst_loc, yalvm_bytecode_pack_dst_value_signed(YALVM_BYTECODE_JUMP_FALSE,
                                                                                  tmp_register.registerIdx(),
@@ -1165,11 +1046,7 @@ ByteCodeGenerator::visit(StringCreateNode& node)
 {
     // skip parsing constant node, load constant direcly in vm
     yal_u32 constant_idx;
-    if (!getConstantIdx(constant_idx, node.constantNode()->constantValue()))
-    {
-        logError(node);
-        return;
-    }
+    getConstantIdx(constant_idx, node.constantNode()->constantValue(), node);
 
     Register reg_string(_regAllocator);
     pushRegister(reg_string);

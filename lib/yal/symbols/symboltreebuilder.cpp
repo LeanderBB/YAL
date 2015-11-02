@@ -3,21 +3,19 @@
 #include "yal/types/typehdrs.h"
 #include "yal/symbols/objectscopeaction.h"
 #include "yal/parser/parser_state.h"
+#include "yal/symbols/semanticexception.h"
 #include <cstdio>
 
 namespace yal
 {
-SymbolTreeBuilder::SymbolTreeBuilder(ErrorHandler &errHandler,
-                                     TypeRegistry &typeRegistry):
+SymbolTreeBuilder::SymbolTreeBuilder(TypeRegistry &typeRegistry):
     AstNodeVisitor(),
     _parserState(nullptr),
     _globalScope(nullptr, 0),
     _curScope(&_globalScope),
     _curFunctionDecl(nullptr),
     _curFunctionCall(nullptr),
-    _errHandler(errHandler),
-    _typeRegistry(typeRegistry),
-    _error(false)
+    _typeRegistry(typeRegistry)
 {
 
 }
@@ -27,20 +25,14 @@ SymbolTreeBuilder::~SymbolTreeBuilder()
 
 }
 
-bool
+void
 SymbolTreeBuilder::process(ParserState& state)
 {
     _parserState = &state;
     for (auto& v : state.program)
     {
         v->accept(*this);
-        if (didError())
-        {
-            break;
-        }
     }
-
-    return !didError();
 }
 
 void
@@ -72,15 +64,6 @@ SymbolTreeBuilder::currentScopeIsGlobalScope() const
 }
 
 void
-SymbolTreeBuilder::logError(const AstBaseNode& node)
-{
-    (void) node;
-    const SourceLocationInfo& loc = node.locationInfo();
-    _errHandler.onCompileError(_formater.str(), _formater.strLen(), loc);
-    _error = true;
-}
-
-void
 SymbolTreeBuilder::visit(AssignOperatorNode& node)
 {
     node.setScope(currentScope());
@@ -88,35 +71,25 @@ SymbolTreeBuilder::visit(AssignOperatorNode& node)
 
     node.expressionLeft()->accept(*this);
 
-    if (didError())
-    {
-        return;
-    }
-
     ExpressionResult left_exp_result = _expResult;
 
     if (!left_exp_result.symbol || (left_exp_result.symbol && !left_exp_result.symbol->isAssignable()))
     {
-        _formater.format("Expression is not assignable");
-        logError(node);
-        return;
+        throw SemanticException("Expression is not assignable", node);
     }
 
     node.expressionRight()->accept(*this);
 
     // validate types
-    if (didError())
-    {
-        return;
-    }
-
     if (!_expResult.type->isPromotableTo(left_exp_result.type))
     {
-        _formater.format("Cannot convert right expression to left, expression type %s cannot be cast to %s\n",
-                         _expResult.type->typeString(),
-                         left_exp_result.type->typeString());
-        logError(node);
-        return;
+        std::stringstream stream;
+        stream <<"Cannot convert right expression to left, expression type "
+              << _expResult.type->typeString()
+              <<" cannot be cast to "
+             << left_exp_result.type->typeString()
+             << std::endl;
+        throw SemanticException(stream.str(), node);
     }
 
     node.setNodeType(left_exp_result.type);
@@ -131,14 +104,7 @@ SymbolTreeBuilder::visit(CodeBodyNode& node)
     node.setScope(currentScope());
     for(auto& v : node.statements)
     {
-        if (!didError())
-        {
-            v->accept(*this);
-        }
-        else
-        {
-            return;
-        }
+        v->accept(*this);
     }
 }
 
@@ -150,18 +116,19 @@ SymbolTreeBuilder::visit(CompareOperatorNode& node)
 
     ExpressionResult left_type = _expResult;
 
-    if (!didError())
-    {
-        node.rightExpression()->accept(*this);
-    }
+    node.rightExpression()->accept(*this);
 
     // evaluate right type
     ExpressionResult right_type = _expResult;
     if (!right_type.type->isPromotableTo(left_type.type))
     {
-        _formater.format("Cannot convert right type to left type\n");
-        logError(node);
-        return;
+        std::stringstream stream;
+        stream <<"Cannot convert right expression to left, expression type "
+              << _expResult.type->typeString()
+              <<" cannot be cast to "
+             << left_type.type->typeString()
+             << std::endl;
+        throw SemanticException(stream.str(), node);
     }
 
     _expResult = left_type;
@@ -194,8 +161,7 @@ SymbolTreeBuilder::visit(ArgumentDeclNode& node)
     node.setScope(currentScope());
     if (node.isCustomType())
     {
-        _formater.format("Custom types not yet supported!!!\n");
-        logError(node);
+        throw SemanticException("Custom types not yet supported!!!\n", node);
     }
 
     YAL_ASSERT(_curFunctionDecl);
@@ -203,10 +169,12 @@ SymbolTreeBuilder::visit(ArgumentDeclNode& node)
     auto sym = _curScope->resolveSymbol(node.argumentName());
     if (sym && sym->scope() == _curScope)
     {
-        _formater.format("Variable '%s' has already been declared as an argument\n",
-                         node.argumentName());
-        logError(node);
-        return;
+        std::stringstream stream;
+        stream <<"Variable '"
+              << node.argumentName()
+              << "' has already been declared as an argument"
+              << std::endl;
+        throw SemanticException(stream.str(), node);
     }
 
     Type* arg_data_type = node.argumentType();
@@ -245,19 +213,19 @@ SymbolTreeBuilder::visit(ArgumentDeclsNode& node)
 {
     if (node.arguments().size() > kMaxFunctionArgs)
     {
-        _formater.format("Function '%s' exceeds maximum arg count (%u)\n",
-                         _curFunctionCall->symbolName(), kMaxFunctionArgs);
-        logError(node);
-        return;
+        std::stringstream stream;
+        stream <<"Function '"
+              <<_curFunctionCall->symbolName()
+             << "' exceeds maximum arg count ("
+             << kMaxFunctionArgs << ")"
+             << std::endl;
+        throw SemanticException(stream.str(), node);
     }
 
     node.setScope(currentScope());
     for(auto& v : node.arguments())
     {
-        if (!didError())
-        {
-            v->accept(*this);
-        }
+        v->accept(*this);
     }
 }
 
@@ -272,33 +240,30 @@ SymbolTreeBuilder::visit(FunctionCallArgsNode& node)
     const yal_u32 nargs = func_type->argumentCount();
     if (nargs != node.expressions.size())
     {
-        _formater.format("Function '%s' expects %u arguments, you have provided %u\n",
-                         _curFunctionCall->symbolName(), nargs,
-                         static_cast<yal_u32>(node.expressions.size()));
-        logError(node);
-        return;
+        std::stringstream stream;
+        stream <<"Function '"
+              <<_curFunctionCall->symbolName()
+             << "' expects"<< nargs << "arguments, you have provided "
+             << node.expressions.size()
+             << std::endl;
+        throw SemanticException(stream.str(), node);
     }
 
     yal_u32 idx = 0;
     for(auto& v : node.expressions)
     {
-        if (!didError())
+        v->accept(*this);
+        const Type* arg_type = func_type->typeOfArgument(idx);
+        if (!_expResult.type->isPromotableTo(arg_type))
         {
-            v->accept(*this);
-            const Type* arg_type = func_type->typeOfArgument(idx);
-            if (!_expResult.type->isPromotableTo(arg_type))
-            {
-                _formater.format("Function '%s' argument %u expects type %s, but has %s\n",
-                                 _curFunctionCall->symbolName(), idx,
-                                 arg_type->typeString(),
-                                 _expResult.type->typeString());
-                logError(node);
-                return;
-            }
-        }
-        else
-        {
-            return;
+            std::stringstream stream;
+            stream <<"Function '"
+                  <<_curFunctionCall->symbolName()
+                 << "' argument "<< idx << "expects type '"
+                 << arg_type->typeString() << "', but you have provided type '"
+                 << _expResult.type->typeString() << "'"
+                 << std::endl;
+            throw SemanticException(stream.str(), node);
         }
         ++idx;
     }
@@ -315,9 +280,12 @@ SymbolTreeBuilder::visit(VariableDeclNode& node)
     {
         if (currentScope() == sym->scope())
         {
-            _formater.format("Symbol '%s' has already been declared in the current scope\n",var_name);
-            logError(node);
-            return;
+            std::stringstream stream;
+            stream <<"Symbol '"
+                  << var_name
+                  << "' has already been declared in the current scope"
+                  << std::endl;
+            throw SemanticException(stream.str(), node);
         }
     }
 
@@ -333,41 +301,36 @@ SymbolTreeBuilder::visit(VariableDeclNode& node)
 
     node.expression()->accept(*this);
 
-    if (didError())
-    {
-        return;
-    }
-
     // check if there is a return type
     if (_expResult.type->isVoidType())
     {
-        _formater.format("Cannot assign void to variable '%s'\n", var_name);
-        logError(node);
+        std::stringstream stream;
+        stream <<"Cannot assign void to variable '"
+              << var_name << "'"
+              << std::endl;
+        throw SemanticException(stream.str(), node);
     }
 
+    const bool is_global_var = currentScopeIsGlobalScope();
+    auto sym_var = _curScope->declareSymbol(var_name,
+                                            &node,
+                                            ((is_global_var) ? Symbol::kFlagGlobalSymbol : 0) | Symbol::kFlagAssignable);
+    YAL_ASSERT(sym_var);
+    node.setNodeType(_expResult.type);
+    node.setExpressionResult(_expResult);
 
-    if (!didError())
+    // register with module global
+    if (is_global_var)
     {
-        const bool is_global_var = currentScopeIsGlobalScope();
-        auto sym_var = _curScope->declareSymbol(var_name,
-                                                &node,
-                                                ((is_global_var) ? Symbol::kFlagGlobalSymbol : 0) | Symbol::kFlagAssignable);
-        YAL_ASSERT(sym_var);
-        node.setNodeType(_expResult.type);
-        node.setExpressionResult(_expResult);
-
-        // register with module global
-        if (is_global_var)
-        {
-            YAL_ASSERT(_parserState->module.global(var_name) == nullptr);
-            _parserState->module.addGlobal(new ModuleGlobal(sym_var));
-        }
-
-        if (node.nodeType()->isObjectType())
-        {
-            currentScope()->addScopeAction(new ObjectScopeAction(sym_var));
-        }
+        YAL_ASSERT(_parserState->module.global(var_name) == nullptr);
+        _parserState->module.addGlobal(new ModuleGlobal(sym_var));
     }
+
+    if (node.nodeType()->isObjectType())
+    {
+        currentScope()->addScopeAction(new ObjectScopeAction(sym_var));
+    }
+
 }
 
 void
@@ -382,32 +345,35 @@ SymbolTreeBuilder::visit(DualOperatorNode& node)
 
     if (!cur_result.type->acceptsOperator(op_type))
     {
-        _formater.format("'%s' does not accept opertor '%s'\n",
-                         OperatorTypeToStr(op_type));
-        logError(node);
-        return;
+        std::stringstream stream;
+        stream << "Type '" << cur_result.type->typeString()
+               << "' does not accept opertor '"
+               << OperatorTypeToStr(op_type) << "'"
+               << std::endl;
+        throw SemanticException(stream.str(), node);
     }
 
-    if (!didError())
-    {
-        node.rightExpression()->accept(*this);
-    }
+    node.rightExpression()->accept(*this);
 
     const bool requires_integer = OperatorRequiresInteger(op_type);
     if (requires_integer && !_expResult.type->isInteger())
     {
-        _formater.format("Operator '%s' requires that right expression has an integer result\n",
-                         OperatorTypeToStr(op_type));
-        logError(node);
-        return;
+        std::stringstream stream;
+        stream << "Operator '" << OperatorTypeToStr(op_type)
+               << "' requires that right expression has an integer result"
+               << std::endl;
+        throw SemanticException(stream.str(), node);
     }
 
     if (!_expResult.type->isPromotableTo(cur_result.type))
     {
-        _formater.format("Can not promote '%s' to '%s\n",
-                         _expResult.type->typeString(), cur_result.type->typeString());
-        logError(node);
-        return;
+        std::stringstream stream;
+        stream <<"Cannot convert right expression to left, expression type "
+              << _expResult.type->typeString()
+              <<" cannot be cast to "
+             << cur_result.type->typeString()
+             << std::endl;
+        throw SemanticException(stream.str(), node);
     }
 
     node.setNodeType(_expResult.type);
@@ -427,18 +393,20 @@ SymbolTreeBuilder::visit(SingleOperatorNode& node)
 
     if (requires_signed_int && !_expResult.type->isSignedType())
     {
-        _formater.format("Operator '%s' requires a signed value\n",
-                         OperatorTypeToStr(node.singleOperatorType()));
-        logError(node);
-        return;
+        std::stringstream stream;
+        stream << "Operator '" << OperatorTypeToStr(node.singleOperatorType())
+               << "' requires that right expression has a signed type"
+               << std::endl;
+        throw SemanticException(stream.str(), node);
     }
 
     if (requires_integer && !_expResult.type->isInteger())
     {
-        _formater.format("Operator '%s' requires an integer\n",
-                         OperatorTypeToStr(node.singleOperatorType()));
-        logError(node);
-        return;
+        std::stringstream stream;
+        stream << "Operator '" << OperatorTypeToStr(node.singleOperatorType())
+               << "' requires that right expression has an integer result"
+               << std::endl;
+        throw SemanticException(stream.str(), node);
     }
 
     node.setNodeType(_expResult.type);
@@ -453,16 +421,20 @@ SymbolTreeBuilder::visit(FunctionCallNode& node)
     auto sym = _curScope->resolveSymbol(func_name);
     if (!sym)
     {
-        _formater.format("Symbol '%s' is undefined\n", func_name);
-        logError(node);
-        return;
+        std::stringstream stream;
+        stream << "Symbol '" << func_name
+               << "' is undefined"
+               << std::endl;
+        throw SemanticException(stream.str(), node);
     }
 
     if (!sym->isFunction())
     {
-        _formater.format("Symbol '%s' is not a function\n", func_name);
-        logError(node);
-        return;
+        std::stringstream stream;
+        stream << "Symbol '" << func_name
+               << "' is not a function"
+               << std::endl;
+        throw SemanticException(stream.str(), node);
     }
 
     _curFunctionCall = sym;
@@ -490,20 +462,22 @@ SymbolTreeBuilder::visit(FunctionDeclNode& node)
     auto sym = _curScope->resolveSymbol(func_name);
     if (sym)
     {
-        _formater.format("Symbol name '%s' already declared\n",
-                         func_name);
-        logError(node);
-        return;
+        std::stringstream stream;
+        stream << "Symbol name '" << func_name
+               << "' already delcared"
+               << std::endl;
+        throw SemanticException(stream.str(), node);
     }
 
     // declare func
     FunctionType* type = _typeRegistry.registerFunction(&node);
     if (!type)
     {
-        _formater.format("Failed to register function '%s'\n",
-                         func_name);
-        logError(node);
-        return;
+        std::stringstream stream;
+        stream << "Failed to register '" << func_name
+               << "'"
+               << std::endl;
+        throw SemanticException(stream.str(), node);
     }
 
     _curFunctionDecl = _curScope->declareSymbol(func_name, &node, 0);
@@ -514,10 +488,8 @@ SymbolTreeBuilder::visit(FunctionDeclNode& node)
 
     node.functionArguments()->accept(*this);
 
-    if (!didError())
-    {
-        node.functionCode()->accept(*this);
-    }
+
+    node.functionCode()->accept(*this);
 
     // register function in module
     YAL_ASSERT(_parserState->module.function(func_name) == nullptr);
@@ -537,19 +509,15 @@ SymbolTreeBuilder::visit(ConditionNode& node)
     if (node.hasConditionComponent())
     {
         node.condition()->accept(*this);
-        if (!didError())
+        // check condition expression
+        if (!_expResult.type->isPromotableToBoolean())
         {
-            // check condition expression
-            if (!_expResult.type->isPromotableToBoolean())
-            {
-                _formater.format("Condition expression can not be promoted to boolean\n");
-                logError(node);
-                return;
-            }
+            throw SemanticException("Condition expression can not be promoted to boolean\n",
+                                    node);
         }
     }
 
-    if (node.hasOnTrueComponent()  && !didError())
+    if (node.hasOnTrueComponent())
     {
         // begin new scope
         beginScope();
@@ -557,7 +525,7 @@ SymbolTreeBuilder::visit(ConditionNode& node)
         endScope();
     }
 
-    if (node.hasOnFalseComponent() && !didError())
+    if (node.hasOnFalseComponent())
     {
         // begin new scope
         beginScope();
@@ -571,9 +539,8 @@ SymbolTreeBuilder::visit(ReturnNode& node)
 {
     if (!_curFunctionDecl)
     {
-        _formater.format("Return statement outside function scope\n");
-        logError(node);
-        return;
+        throw SemanticException("Return statement outside function scope\n",
+                                node);
     }
 
     const char* function_name = _curFunctionDecl->symbolName();
@@ -583,10 +550,13 @@ SymbolTreeBuilder::visit(ReturnNode& node)
 
     if (!func_return->isVoidType() && !node.expression())
     {
-        _formater.format("Function '%s' has return value of %s, but we are not returning any\n",
-                         function_name, func_return->typeString());
-        logError(node);
-        return;
+        std::stringstream stream;
+        stream <<"Function '"
+              << function_name
+              << "' has return type '"
+              << func_return->typeString()
+              << "', but we are not returning any" << std::endl;
+        throw SemanticException(stream.str(), node);
     }
 
 
@@ -594,27 +564,31 @@ SymbolTreeBuilder::visit(ReturnNode& node)
     {
         if (func_return->isVoidType())
         {
-            _formater.format("Function '%s' does not have a return value, but we are returning %s\n",
-                             function_name, _expResult.type->typeString());
-            logError(node);
-            return;
+            std::stringstream stream;
+            stream <<"Function '"
+                  << function_name
+                  << "' has return type '"
+                  << func_return->typeString()
+                  << "', but we are returning type '"
+                  << _expResult.type->typeString() <<"'" <<  std::endl;
+            throw SemanticException(stream.str(), node);
         }
 
         node.expression()->accept(*this);
 
-        if (!didError())
+        // check if the return types match
+        if(!_expResult.type->isPromotableTo(func_return))
         {
-            // check if the return types match
-            if(!_expResult.type->isPromotableTo(func_return))
-            {
-                _formater.format("Function '%s' returns '%s', but we are returning %s\n",
-                                 function_name,
-                                 func_return->typeString(),
-                                 _expResult.type->typeString());
-                logError(node);
-                return;
-            }
+            std::stringstream stream;
+            stream <<"Function '"
+                  << function_name
+                  << "' has return type '"
+                  << func_return->typeString()
+                  << "', but we are returning type '"
+                  << _expResult.type->typeString() <<"'" <<  std::endl;
+            throw SemanticException(stream.str(), node);
         }
+
     }
 
     node.setScope(currentScope());
@@ -627,21 +601,17 @@ SymbolTreeBuilder::visit(WhileLoopNode& node)
     node.setScope(currentScope());
 
     node.condition()->accept(*this);
-    if (!didError())
+    // check condition expression
+    if (!_expResult.type->isPromotableToBoolean())
     {
-        // check condition expression
-        if (!_expResult.type->isPromotableToBoolean())
-        {
-            _formater.format("Condition does not produce valid boolean\n");
-            logError(node);
-            return;
-        }
-
-        // begin new scope
-        beginScope();
-        node.code()->accept(*this);
-        endScope();
+        throw SemanticException("Condition expression can not be promoted to boolean\n",
+                                node);
     }
+
+    // begin new scope
+    beginScope();
+    node.code()->accept(*this);
+    endScope();
 }
 
 void
@@ -655,19 +625,10 @@ void
 SymbolTreeBuilder::visit(PrintArgsNode& node)
 {
     node.setScope(currentScope());
-    yal_u32 idx = 0;
 
     for(auto& v : node.expressions)
     {
-        if (!didError())
-        {
-            v->accept(*this);
-        }
-        else
-        {
-            return;
-        }
-        ++idx;
+        v->accept(*this);
     }
 }
 
@@ -679,16 +640,20 @@ SymbolTreeBuilder::visit(VariableAccessNode& node)
     auto sym = _curScope->resolveSymbol(symbol_name);
     if (!sym)
     {
-        _formater.format("Symbol '%s' has not been declared\n", symbol_name);
-        logError(node);
-        return;
+        std::stringstream stream;
+        stream << "Symbol '" << symbol_name
+               << "' is undefined"
+               << std::endl;
+        throw SemanticException(stream.str(), node);
     }
 
     if (!sym->isVariable())
     {
-        _formater.format("Symbol '%s' is not a variable \n", symbol_name);
-        logError(node);
-        return;
+        std::stringstream stream;
+        stream << "Symbol '" << symbol_name
+               << "' is not a variable"
+               << std::endl;
+        throw SemanticException(stream.str(), node);
     }
 
     _expResult = ExpressionResult(sym->astNode()->nodeType(), sym);

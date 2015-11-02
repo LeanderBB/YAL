@@ -1,13 +1,12 @@
 #include <yal/yal.h>
 #include <yal/compiler/compiler.h>
 #include <yal/util/filesink.h>
-#include <yal/util/sinkerrorhandler.h>
 #include <yal/util/stringinputsink.h>
 #include <yal/util/memorysink.h>
 #include <cstring>
 #include <string>
 #include <gtest/gtest.h>
-
+#include <yal/symbols/semanticexception.h>
 static const std::string s_test_path = YAL_TEST_SOURCES_PATH;
 
 extern "C"
@@ -42,15 +41,8 @@ CompileCode(const char* code_file,
     }
 
     yal::FileInputSink io_input(input_file);
-    // output sink
-    yal::NullOutputSink io_output;
 
-    // code output sink,
-
-    // error sink
-    yal::FileOutputSink err_output(stdout);
-    yal::SinkErrorHandler err_handler(err_output);
-    yal::Compiler cl(io_input, io_output, code_output, err_handler);
+    yal::Compiler cl(io_input, code_output);
 
     return cl.compile();
 }
@@ -142,8 +134,7 @@ TEST(CompileCode, FailEmptyReturn)
 {
     yal::MemoryOutputSink mem_sink(1024*1024*10);
     const std::string path(s_test_path + "/fail_empty_return.yal");
-    const bool compile_result = CompileCode(path.c_str(), mem_sink);
-    EXPECT_EQ(compile_result, false);
+    EXPECT_THROW(CompileCode(path.c_str(), mem_sink), yal::SemanticException);
 }
 
 TEST(CompileCode, ArithemticTest2)

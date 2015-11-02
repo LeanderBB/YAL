@@ -1,6 +1,6 @@
 #include "yal/util/argparser.h"
 #include <cstring>
-#include <yal/util/outputformater.h>
+#include <sstream>
 namespace yal
 {
 
@@ -48,10 +48,8 @@ ArgParser::add(const yal_u32 id,
 
 int
 ArgParser::parse(const int argc,
-                 const char** argv,
-                 OutputSink& errorOutput)
+                 const char** argv)
 {
-    OutputFormater formater;
     Option* p_cur_option = nullptr;
     int n_options = 0;
     int n_options_req = 0;
@@ -62,8 +60,9 @@ ArgParser::parse(const int argc,
 
         if (!len)
         {
-            formater.formatAndWrite(errorOutput, "Invalid option at index %u.\n", i);
-            return -1;
+            std::stringstream stream;
+            stream << "Invalid option at index " << i << "." << std::endl;
+            throw ArgParserException(stream.str());
         }
 
 
@@ -88,18 +87,20 @@ ArgParser::parse(const int argc,
 
                     if (p_cur_option->shortopt != NoSingleCharOption)
                     {
-                        formater.formatAndWrite(errorOutput,
-                                                "Option (-%c, --%s) requires at least one value\n",
-                                                p_cur_option->shortopt,
-                                                p_cur_option->longopt);
+                        std::stringstream stream;
+                        stream << "Option (-" << p_cur_option->shortopt
+                               << ", --" << p_cur_option->longopt
+                               << ") requires at least one value." << std::endl;
+                        throw ArgParserException(stream.str());
                     }
                     else
                     {
-                        formater.formatAndWrite(errorOutput,
-                                                "Option (--%s) requires at least one value\n",
-                                                p_cur_option->longopt);
+                        std::stringstream stream;
+                        stream << "Option (--" << p_cur_option->longopt
+                               << ") requires at least one value." << std::endl;
+                        throw ArgParserException(stream.str());
                     }
-                    return -1;
+
                 }
                 p_cur_option = nullptr;
                 continue;
@@ -139,8 +140,10 @@ ArgParser::parse(const int argc,
 
             if (!p_cur_option)
             {
-                formater.formatAndWrite(errorOutput, "Unknown option '%s'.\n", argv[i]);
-                return -1;
+                std::stringstream stream;
+                stream << "Unknown option '" << argv[i]
+                          << "'." << std::endl;
+                throw ArgParserException(stream.str());
             }
 
             // mark found
@@ -150,18 +153,19 @@ ArgParser::parse(const int argc,
             {
                 if (p_cur_option->shortopt != NoSingleCharOption)
                 {
-                    formater.formatAndWrite(errorOutput,
-                                            "Option (-%c, --%s) requires at least one value\n",
-                                            p_cur_option->shortopt,
-                                            p_cur_option->longopt);
+                    std::stringstream stream;
+                    stream << "Option (-" << p_cur_option->shortopt
+                           << ", --" << p_cur_option->longopt
+                           << ") requires at least one value." << std::endl;
+                    throw ArgParserException(stream.str());
                 }
                 else
                 {
-                    formater.formatAndWrite(errorOutput,
-                                            "Option (--%s) requires at least one value\n",
-                                            p_cur_option->longopt);
+                    std::stringstream stream;
+                    stream << "Option (--" << p_cur_option->longopt
+                           << ") requires at least one value." << std::endl;
+                    throw ArgParserException(stream.str());
                 }
-                return -1;
             }
 
             if (p_cur_option->flags & kArgFlagRequired)
@@ -189,8 +193,7 @@ ArgParser::parse(const int argc,
     }
     else
     {
-        formater.formatAndWrite(errorOutput, "Not all required options have been specified\n");
-        return -1;
+        throw ArgParserException("Not all required options have been specified\n");
     }
 }
 
@@ -244,47 +247,47 @@ ArgParser::clear()
 }
 
 void
-ArgParser::printHelp(OutputSink &output,
+ArgParser::printHelp(std::ostream &output,
                      const char *description) const
 {
-    OutputFormater formater;
     if (description)
     {
-        formater.formatAndWrite(output, "\n%s\n", description);
+        output << std::endl << description << std::endl;
     }
 
-    formater.formatAndWrite(output, "Options: \n");
+    output << "Options: " << std::endl;
     for(auto it = _options.begin(); it != _options.end(); ++it)
     {
         yal_u32 len = strlen(it->longopt);
 
         if (it->shortopt != NoSingleCharOption)
         {
-            formater.formatAndWrite(output, "    -%c, --%s", it->shortopt, it->longopt);
+            output << "    -"<< it->shortopt << ", --" << it->longopt;
         }
         else
         {
-            formater.formatAndWrite(output, "        --%s", it->longopt);
+            output << "        --%s" << it->longopt;
         }
 
         while(len < _maxOptionsLen)
         {
-            formater.formatAndWrite(output, " ");
+            //TODO: Improve?
+            output << " ";
             ++len;
         }
         if (it->flags & kArgFlagRequired)
         {
-            formater.formatAndWrite(output, " : [REQUIRED] ");
+            output << " : [REQUIRED] ";
         }
         else
         {
-            formater.formatAndWrite(output, " : [OPTIONAL] ");
+            output << " : [OPTIONAL] ";
         }
 
-        formater.formatAndWrite(output, "%s\n", it->help);
+        output << it->help << std::endl;
     }
 
-    formater.formatAndWrite(output, "\n");
+     output << std::endl;
 }
 
 const ArgParser::Option*
