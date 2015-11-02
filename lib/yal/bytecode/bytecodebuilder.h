@@ -14,8 +14,7 @@ class SymbolTreeBuilder;
 class ByteCodeBuilder
 {
 public:
-    ByteCodeBuilder(OutputSink &codeOutput,
-                    ErrorHandler& errorHandler);
+    ByteCodeBuilder(OutputSink &codeOutput);
 
     ~ByteCodeBuilder();
 
@@ -28,7 +27,6 @@ protected:
 
 private:
     OutputSink& _codeOutput;
-    ErrorHandler& _errorHandler;
 };
 
 }

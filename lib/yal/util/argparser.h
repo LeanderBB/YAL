@@ -4,6 +4,8 @@
 #include <yal/yal.h>
 #include <yal/util/outputsink.h>
 #include <vector>
+#include <exception>
+#include <string>
 
 namespace yal
 {
@@ -18,6 +20,29 @@ enum
 {
     KArgsOptionHelp = 0
 };
+
+class ArgParserException : public std::exception
+{
+public:
+    ArgParserException(const char* text):
+        _message(text)
+    {
+    }
+
+    ArgParserException(const std::string& str):
+        _message(str)
+    {
+    }
+
+
+    virtual const char* what() const throw()
+    {
+        return _message.c_str();
+    }
+private:
+    const std::string _message;
+};
+
 
 class ArgParser
 {
@@ -42,8 +67,7 @@ public:
 
     /// @return Number of options pared. On error, it will return -1.
     int parse(const int argc,
-              const char** argv,
-              OutputSink& errorOutput);
+              const char** argv);
 
     bool isSet(const yal_u32 id) const;
 
@@ -57,7 +81,7 @@ public:
 
     void clear();
 
-    void printHelp(OutputSink& output,
+    void printHelp(std::ostream &output,
                    const char* description = nullptr) const;
 
 protected:

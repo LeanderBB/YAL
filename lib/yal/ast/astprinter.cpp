@@ -22,8 +22,7 @@
 namespace yal
 {
 
-AstPrinter::AstPrinter(OutputSink &sink):
-    _formater(),
+AstPrinter::AstPrinter(std::ostream &sink):
     _sink(sink)
 {
 
@@ -35,10 +34,9 @@ AstPrinter::~AstPrinter()
 }
 
 void
-AstPrinter::process(ParserState_t &state)
+AstPrinter::process(const ParserState_t &state)
 {
-    _formater.format("Module\n");
-    _formater.write(_sink);
+    _sink << "Module" << std::endl;
     _idents.clear();
 
     size_t idx = 1;
@@ -56,8 +54,7 @@ AstPrinter::printIdent()
 {
     for (auto& ch : _idents)
     {
-        _formater.format("%c", ch);
-        _formater.write(_sink);
+        _sink << ch;
     }
 }
 
@@ -67,25 +64,16 @@ AstPrinter::printNodeTitle(const AstBaseNode& node,
 {
     printIdent();
     const SourceLocationInfo& src_info = node.locationInfo();
-    if (!empty)
+
+    _sink <<"-" <<  node.astTypeStr()
+         <<"<ln " << src_info.firstLine
+        << ":" << src_info.lastLine
+        << "  cl " << src_info.firstColumn
+        << ":" << src_info.lastColumn << "> ";
+    if (empty)
     {
-        _formater.format("-%s <ln %d:%d cl %d:%d> ",
-                         node.astTypeStr(),
-                         src_info.firstLine,
-                         src_info.lastLine,
-                         src_info.firstColumn,
-                         src_info.lastColumn);
+        _sink << std::endl;
     }
-    else
-    {
-        _formater.format("-%s <ln %d:%d  cl %d:%d>\n",
-                         node.astTypeStr(),
-                         src_info.firstLine,
-                         src_info.lastLine,
-                         src_info.firstColumn,
-                         src_info.lastColumn);
-    }
-    _formater.write(_sink);
 }
 
 void
@@ -114,9 +102,10 @@ void
 AstPrinter::visit(AssignOperatorNode& node)
 {
     printNodeTitle(node);
-    _formater.format("'%s='\n",
-                     OperatorTypeToStr(node.assignOperatorType()));
-    _formater.write(_sink);
+    _sink <<"'" << OperatorTypeToStr(node.assignOperatorType())
+         << (node.assignOperatorType() == kOperatorTypeCopy ? "" : "=")
+         << " '" << std::endl;
+
     onDescent(false);
     node.expressionLeft()->accept(*this);
     onAscend();
@@ -144,9 +133,7 @@ void
 AstPrinter::visit(CompareOperatorNode& node)
 {
     printNodeTitle(node);
-    _formater.format("%s \n",
-                     OperatorTypeToStr(node.compareOperatorType()));
-    _formater.write(_sink);
+    _sink <<"'" << OperatorTypeToStr(node.compareOperatorType()) << "'" << std::endl;
     onDescent(false);
     node.leftExpression()->accept(*this);
     onAscend();
@@ -159,19 +146,15 @@ void
 AstPrinter::visit(ConstantNode& node)
 {
     printNodeTitle(node);
-    _formater.format("type:%s \n",
-                     ConstantTypeToStr(node.constantValue().type()));
-    _formater.write(_sink);
+    _sink << "type:" << ConstantTypeToStr(node.constantValue().type()) << std::endl;
 }
 
 void
 AstPrinter::visit(ArgumentDeclNode& node)
 {
     printNodeTitle(node);
-    _formater.format(" name:%s type:%s \n",
-                     node.argumentName(),
-                     node.argumentType()->typeString());
-    _formater.write(_sink);
+    _sink << "name: '" << node.argumentName()
+          << "' type:'" <<  node.argumentType()->typeString() << "'" << std::endl;
 }
 
 void
@@ -206,8 +189,7 @@ void
 AstPrinter::visit(VariableDeclNode& node)
 {
     printNodeTitle(node);
-    _formater.format(" %s \n",  node.variableName());
-    _formater.write(_sink);
+    _sink << "'" << node.variableName() << "'" << std::endl;
     onDescent(true);
     node.expression()->accept(*this);
     onAscend();
@@ -217,9 +199,7 @@ void
 AstPrinter::visit(DualOperatorNode& node)
 {
     printNodeTitle(node);
-    _formater.format("%s\n",
-                     OperatorTypeToStr(node.dualOperatorType()));
-    _formater.write(_sink);
+    _sink << "'" << OperatorTypeToStr(node.dualOperatorType()) << "'" << std::endl;
     onDescent(false);
     node.leftExpression()->accept(*this);
     onAscend();
@@ -232,9 +212,7 @@ void
 AstPrinter::visit(SingleOperatorNode& node)
 {
     printNodeTitle(node);
-    _formater.format("%s \n",
-                     OperatorTypeToStr(node.singleOperatorType()));
-    _formater.write(_sink);
+    _sink << "'" << OperatorTypeToStr(node.singleOperatorType()) << "'" << std::endl;
     onDescent(true);
     node.expression()->accept(*this);
     onAscend();
@@ -244,8 +222,7 @@ void
 AstPrinter::visit(FunctionCallNode& node)
 {
     printNodeTitle(node);
-    _formater.format("%s \n", node.functionName());
-    _formater.write(_sink);
+    _sink << "'" << node.functionName() << "'" << std::endl;
     if (node.hasFunctionArguments())
     {
         onDescent(true);
@@ -258,8 +235,7 @@ void
 AstPrinter::visit(FunctionDeclNode& node)
 {
     printNodeTitle(node);
-    _formater.format("%s \n", node.functionName());
-    _formater.write(_sink);
+    _sink << "'" << node.functionName() << "'" << std::endl;
 
     if (node.hasFunctionArguments())
     {
@@ -349,8 +325,7 @@ void
 AstPrinter::visit(VariableAccessNode& node)
 {
     printNodeTitle(node);
-    _formater.format("%s\n", node.variableName());
-    _formater.write(_sink);
+    _sink << "'" << node.variableName() << "'" << std::endl;
 }
 
 void

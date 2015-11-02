@@ -14,7 +14,7 @@ if (NOT MVSC)
     set(YAL_C_FLAGS "-std=c99 -Wall -Wextra -Werror -pedantic")
     set(YAL_C_FLAGS_DEBUG "-DYAL_DEBUG")
     set(YAL_CXX_WERROR "-Werror")
-    set(YAL_CXX_FLAGS "-Wall -Wextra -std=c++11 -fno-exceptions -fno-rtti")
+    set(YAL_CXX_FLAGS "-Wall -Wextra -std=c++11 -fexceptions -fno-rtti")
     set(YAL_CXX_FLAGS_DEBUG "-DYAL_DEBUG -fno-inline")
 else()
 

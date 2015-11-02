@@ -1,15 +1,17 @@
 #include "yal/bytecode/bytecodeprinter.h"
 #include "yal/bytecode/bytecodebuffer.h"
 #include "yal/bytecode/bytecodebuilder.h"
-
+#include <exception>
+#include <sstream>
+#include <iostream>
+#include <iomanip>
 namespace yal
 {
 
 ByteCodePrinter::ByteCodePrinter(InputSink& input,
-                                 OutputSink &sink):
+                                 std::ostream &sink):
     _input(input),
-    _sink(sink),
-    _formater()
+    _sink(sink)
 {
 
 }
@@ -28,32 +30,23 @@ ByteCodePrinter::process()
 
     if (_input.read(&bin_header, sizeof(bin_header)) != sizeof(bin_header))
     {
-        _formater.formatAndWrite(_sink, "Could not read binary header\n");
-        return false;
+        throw std::runtime_error("Could not read binary header");
     }
 
     if(!yalvm_bin_header_valid_magic(&bin_header))
     {
-        _formater.formatAndWrite(_sink, "Input is not a valid yalvm binary\n");
-        return false;
+        throw std::runtime_error("Input is not a valid yalvm binary");
     }
 
     // print header info
-    _formater.formatAndWrite(_sink, "# Constants 32: %u\n",
-                             bin_header.n_constants32);
-    _formater.formatAndWrite(_sink, "# Constants 64: %u\n",
-                             bin_header.n_constants64);
-    _formater.formatAndWrite(_sink, "# Globals   32: %u\n",
-                             bin_header.n_globals32);
-    _formater.formatAndWrite(_sink, "# Globals   64: %u\n",
-                             bin_header.n_globals64);
-    _formater.formatAndWrite(_sink, "# functions   : %u\n",
-                             bin_header.n_functions);
-    _formater.formatAndWrite(_sink, "# strings     : %u\n",
-                             bin_header.n_strings);
-    _formater.formatAndWrite(_sink, "# string size : %u\n",
-                             bin_header.strings_size);
-    _formater.formatAndWrite(_sink, "\n");
+    _sink << "# Constants 32: " << bin_header.n_constants32 << std::endl;
+    _sink << "# Constants 64: " << bin_header.n_constants64 << std::endl;
+    _sink << "# Globals   32: " << bin_header.n_globals32 << std::endl;
+    _sink << "# Globals   64: " << bin_header.n_globals64 << std::endl;
+    _sink << "# functions   : " << bin_header.n_functions << std::endl;
+    _sink << "# strings     : " << bin_header.n_strings << std::endl;
+    _sink << "# string size : " << bin_header.strings_size << std::endl;
+    _sink << std::endl;
 
     // print strings
 
@@ -61,8 +54,7 @@ ByteCodePrinter::process()
 
     if (!_input.seekSet(string_offset))
     {
-        _formater.formatAndWrite(_sink, "Could not seek to string start\n");
-        return false;
+        throw std::runtime_error("Could not seek to string start");
     }
 
     for (yal_u32 i = 0; i < bin_header.n_strings; ++i)
@@ -71,19 +63,18 @@ ByteCodePrinter::process()
 
         if (_input.read(&size, sizeof(size)) != sizeof(size))
         {
-            _formater.formatAndWrite(_sink, "Could not read string size\n");
-            return false;
+            throw std::runtime_error("Could not read string size");
         }
 
         char buffer[size + 1];
 
         if (_input.read(buffer, sizeof(buffer)) != sizeof(buffer))
         {
-            _formater.formatAndWrite(_sink, "Could not read string\n");
+            throw std::runtime_error("Could not read string");
             return false;
         }
 
-        _formater.formatAndWrite(_sink, "> String %u: \"%s\"\n", i, buffer);
+        _sink << "> String " << i << ": \"" << buffer << "\"" << std::endl;
     }
 
     // write global init code
@@ -92,7 +83,7 @@ ByteCodePrinter::process()
 
     if (!_input.seekSet(global_init_offset))
     {
-        _formater.formatAndWrite(_sink, "Could not seek to global init start\n");
+        throw std::runtime_error("Could not seek to global init start");
         return false;
     }
 
@@ -100,17 +91,15 @@ ByteCodePrinter::process()
     if (_input.read(&static_hdr, sizeof(static_hdr))
             != sizeof(static_hdr))
     {
-        _formater.formatAndWrite(_sink, "Could not read static init header\n");
-        return false;
+        throw std::runtime_error("Could not read static init header");
     }
 
     if (!yalvm_static_code_hdr_valid_magic(&static_hdr))
     {
-        _formater.formatAndWrite(_sink, "Input data is not a static int header\n");
-        return false;
+        throw std::runtime_error("Input data is not a static int header");
     }
 
-    _formater.formatAndWrite(_sink, "\n> Global Init Code\n");
+    _sink << std::endl << "> Global Init Code" << std::endl;
     print(static_hdr);
 
 
@@ -118,17 +107,15 @@ ByteCodePrinter::process()
     if (_input.read(&static_hdr, sizeof(static_hdr))
             != sizeof(static_hdr))
     {
-        _formater.formatAndWrite(_sink, "Could not read static dtor header\n");
-        return false;
+        throw std::runtime_error("Could not read static dtor header");
     }
 
     if (!yalvm_static_code_hdr_valid_magic(&static_hdr))
     {
-        _formater.formatAndWrite(_sink, "Input data is not a static dtor header\n");
-        return false;
+        throw std::runtime_error("Input data is not a static dtor header");
     }
 
-    _formater.formatAndWrite(_sink, "\n> Global Dtor Code\n");
+    _sink << std::endl << "> Global Dtor Code" << std::endl;
     print(static_hdr);
 
     // write functions
@@ -136,8 +123,7 @@ ByteCodePrinter::process()
 
     if (!_input.seekSet(functions_offset))
     {
-        _formater.formatAndWrite(_sink, "Could not seek to function start\n");
-        return false;
+        throw std::runtime_error("Could not seek to function start");
     }
 
     YAL_ASSERT(functions_offset == _input.tell());
@@ -149,24 +135,22 @@ ByteCodePrinter::process()
         if (_input.read(&function_header, sizeof(function_header))
                 != sizeof(function_header))
         {
-            _formater.formatAndWrite(_sink, "Could not read function header (%u)\n",
-                                     i);
-            return false;
+            std::stringstream stream;
+            stream << "Could not read function header (" << i << ")";
+            throw std::runtime_error(stream.str());
         }
 
         if (!yalvm_func_header_valid_magic(&function_header))
         {
-            _formater.formatAndWrite(_sink, "Input data is not a valid function header (%u)\n",
-                                     i);
-            return false;
+            std::stringstream stream;
+            stream << "Input data is not a valid function header (" << i << ")";
+            throw std::runtime_error(stream.str());
         }
         // log info
-        _formater.formatAndWrite(_sink, "\n> Function %u:%x\n", i,
-                                 function_header.hash);
-        _formater.formatAndWrite(_sink, ">   Arguments: %u\n",
-                                 function_header.n_arguments);
-        _formater.formatAndWrite(_sink, ">   Registers: %u\n",
-                                 function_header.n_registers);
+        _sink << std::endl <<  "> Function " << i << ": " << std::setbase(16)
+              << function_header.hash << std::endl;
+        _sink << ">   Arguments: " << (yal_u32) function_header.n_arguments << std::endl;
+        _sink << ">   Registers: " << (yal_u32) function_header.n_registers << std::endl;
         if (!print(function_header))
         {
             return false;
@@ -195,21 +179,26 @@ ByteCodePrinter::print(const size_t max)
         yalvm_bytecode_t code;
         if (_input.read(&code, sizeof(code)) != sizeof(code))
         {
-            _formater.formatAndWrite(_sink, "Could not read function code %u\n", i);
-            return false;
+            std::stringstream stream;
+            stream << "Could not read function code (" << i << ")";
+            throw std::runtime_error(stream.str());
         }
 
         const yalvm_bytecode_inst_t inst = yalvm_bytecode_unpack_instruction(code);
 
         const char* code_str = yalvm_bytecode_inst_to_str(inst);
-        _formater.formatAndWrite(_sink, "[%04u] %08X %15s:", i, code, code_str);
+        _sink << std::setfill('0');
+        _sink  << "[" << std::setw(4) << i << "] "
+              << std::setw(8) << std::setbase(16) << code << " "
+              << std::setfill(' ') << std::setw(15) << code_str << ": ";
+        //i, code, code_str);
 
 
         switch(inst)
         {
         /* End of execution */
         case YALVM_BYTECODE_HALT:
-            _formater.formatAndWrite(_sink, "\n");
+            _sink << std::endl;
             break;
             /* Load Global */
         case YALVM_BYTECODE_LOAD_GLOBAL_32:
@@ -417,12 +406,12 @@ ByteCodePrinter::print(const size_t max)
             print1Reg(code);
             break;
         case YALVM_BYTECODE_PRINT_NL:
-            printf("\n");
             break;
         default:
-            printf(" Unknown byte code \n");
+            _sink << "Unknown byte code ";
             return false;
         }
+        _sink << std::endl;
     }
     return true;
 }
@@ -432,7 +421,11 @@ ByteCodePrinter::print3Args(const yalvm_bytecode_t code)
 {
     yal_u8 dst, src1, src2;
     yalvm_bytecode_unpack_registers(code, &dst, &src1, &src2);
-    _formater.formatAndWrite(_sink," r%03u, r%03u, r%03u\n", dst, src1, src2);
+
+    _sink << std::setfill('0');
+    _sink << "r" << std::setw(3)  << (yal_u32) dst << ", "
+          << "r" << std::setw(3)  << (yal_u32) src1 << ", "
+          << "r" << std::setw(3)  << (yal_u32) src2;
 }
 
 void
@@ -441,7 +434,9 @@ ByteCodePrinter::print2Argsi(const yalvm_bytecode_t code)
     yal_u8 dst;
     yalvm_i16 val;
     yalvm_bytecode_unpack_dst_value_signed(code, &dst, &val);
-    _formater.formatAndWrite(_sink," r%03u, %i\n", dst, val);
+    _sink << std::setfill('0');
+    _sink << "r" << std::setw(3)  <<  (yal_u32) dst << ", "
+          << (yal_i16) val;
 }
 
 void
@@ -450,7 +445,9 @@ ByteCodePrinter::print2Argsu(const yalvm_bytecode_t code)
     yal_u8 dst;
     yal_u16 val;
     yalvm_bytecode_unpack_dst_value(code, &dst, &val);
-    _formater.formatAndWrite(_sink," r%03u, %u\n", dst, val);
+    _sink << std::setfill('0');
+    _sink << "r" << std::setw(3)  <<  (yal_u32) dst << ", "
+          << (yal_u16) val;
 }
 
 void
@@ -458,7 +455,7 @@ ByteCodePrinter::print1Argsu(const yalvm_bytecode_t code)
 {
     yal_u32 val;
     yalvm_bytecode_unpack_value(code, &val);
-    _formater.formatAndWrite(_sink," %u\n",val);
+    _sink << val;
 }
 
 void
@@ -466,7 +463,7 @@ ByteCodePrinter::print1Argsi(const yalvm_bytecode_t code)
 {
     yal_i32 val;
     yalvm_bytecode_unpack_value_signed(code, &val);
-    _formater.formatAndWrite(_sink," %d\n",val);
+    _sink << val;
 }
 
 
@@ -475,7 +472,10 @@ ByteCodePrinter::print2Regs(const yalvm_bytecode_t code)
 {
     yal_u8 dst, src1, src2;
     yalvm_bytecode_unpack_registers(code, &dst, &src1, &src2);
-    _formater.formatAndWrite(_sink," r%03u, r%03u\n", dst, src1);
+
+    _sink << std::setfill('0');
+    _sink << "r" << std::setw(3)  <<  (yal_u32) dst << ", "
+          << "r" << std::setw(3)  <<  (yal_u32) src1;
 }
 
 void
@@ -483,7 +483,9 @@ ByteCodePrinter::print1Reg(const yalvm_bytecode_t code)
 {
     yal_u8 dst, src1, src2;
     yalvm_bytecode_unpack_registers(code, &dst, &src1, &src2);
-    _formater.formatAndWrite(_sink," r%03u\n", dst);
+
+    _sink << std::setfill('0');
+    _sink << "r" << std::setw(3)  <<  (yal_u32) dst;
 }
 
 }

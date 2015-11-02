@@ -1,8 +1,7 @@
 #include <yal/yal.h>
-#include <cstdio>
+#include <iostream>
 #include <cstring>
 #include <yal/util/filesink.h>
-#include <yal/util/sinkerrorhandler.h>
 #include <yal/util/argparser.h>
 #include <yalvm/yalvm_ctx.h>
 #include <yalvm/yalvm_error.h>
@@ -153,17 +152,25 @@ int main(const int argc,
     arg_parser.add(kOptionPrintGlobals, 'g', "print-globals",
                    "Print global variables after execution", 0);
 
-    const int parse_result = arg_parser.parse(argc, argv, err_output);
+    int parse_result = -1;
+    try
+    {
+        parse_result = arg_parser.parse(argc, argv);
+    }
+    catch (const yal::ArgParserException ex)
+    {
+        std::cerr << ex.what() << std::endl;
+    }
 
     if (parse_result < 0)
     {
-        arg_parser.printHelp(io_output, sDescription);
+        arg_parser.printHelp(std::cerr, sDescription);
         return EXIT_FAILURE;
     }
 
     if (arg_parser.isSet(0))
     {
-        arg_parser.printHelp(io_output, sDescription);
+        arg_parser.printHelp(std::cout, sDescription);
         return EXIT_SUCCESS;
     }
 
@@ -175,13 +182,13 @@ int main(const int argc,
         input = fopen(argv[parse_result], "r");
         if (!input)
         {
-            fprintf(stderr, "Could not open '%s'\n", argv[parse_result]);
+            std::cerr << "Could not open '" << argv[parse_result] << "'" << std::endl;
             return EXIT_FAILURE;
         }
     }
     else
     {
-        arg_parser.printHelp(io_output, sDescription);
+        arg_parser.printHelp(std::cout, sDescription);
         return EXIT_FAILURE;
     }
 

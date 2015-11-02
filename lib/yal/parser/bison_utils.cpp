@@ -4,8 +4,7 @@
 #include <stdint.h>
 #include <inttypes.h>
 #include "yal_bison_parser.hpp"
-#include "yal/util/outputformater.h"
-
+#include "yal/parser/parseexception.h"
 
 void yyerror(YYLTYPE* location,
              void* scanner,
@@ -14,11 +13,8 @@ void yyerror(YYLTYPE* location,
 {
     (void) scanner;
     (void) state;
-    yal::OutputFormater formater;
-
     yal::SourceLocationInfo loc_info = yal::BisonYyltypeToLocation(*location);
-    formater.format("%s\n",s);
-    state->errHandler.onCompileError(formater.str(), formater.strLen(), loc_info);
+    throw yal::ParseException(s, loc_info);
 }
 
 

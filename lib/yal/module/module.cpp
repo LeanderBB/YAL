@@ -1,6 +1,5 @@
 #include "yal/module/module.h"
 #include "yal/module/moduleindexable.h"
-#include "yal/util/outputformater.h"
 #include "yal/types/type.h"
 #include <cstring>
 namespace yal
