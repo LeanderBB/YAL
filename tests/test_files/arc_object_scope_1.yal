@@ -1,0 +1,21 @@
+# Test object scope managment with scope changes between global 
+# function and local scopes.
+
+var global= "hello"
+
+func test()
+ 
+var str1 = " ZZZZ "
+
+if ( 20 > 10)
+   str1 = "XXX"
+else
+   var str2 = "YYY"
+   var str3 = str2
+   global = str2
+end
+end
+
+print (global)
+test()
+print (global)

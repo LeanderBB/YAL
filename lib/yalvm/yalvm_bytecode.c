@@ -160,9 +160,10 @@ static const char* yalvm_bytecode_inst_strings [] =
     "obj alloc",
     "obj acquire",
     "obj release",
+    "obj dealloc",
     /* Strings Objects */
-    "str create",
-    "str release"
+    "str alloc",
+    "str dealloc"
     /* end of strings */
 };
 

@@ -8,11 +8,9 @@ YAL_AST_NODE_ACCEPT_IMP(SingleOperatorNode)
 SingleOperatorNode::SingleOperatorNode(const SourceLocationInfo& loc,
                              const OperatorType optype,
                              ExpressionNode* exp):
-    ExpressionNode(loc),
-    _singleOperatorType(optype),
-    _pExpression(exp)
+    UnaryExpressionNode(loc, exp),
+    _singleOperatorType(optype)
 {
-    exp->setParentNode(this);
     YAL_ASSERT(_singleOperatorType & kOperatorMaskSingle);
 }
 

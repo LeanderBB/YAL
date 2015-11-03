@@ -190,7 +190,7 @@ ByteCodePrinter::print(const size_t max)
         _sink << std::setfill('0');
         _sink  << "[" << std::setw(4) << i << "] "
               << std::setw(8) << std::setbase(16) << code << " "
-              << std::setfill(' ') << std::setw(15) << code_str << ": ";
+              << std::setfill(' ') <<std::setbase(10) << std::setw(15) << code_str << ": ";
         //i, code, code_str);
 
 
@@ -399,10 +399,10 @@ ByteCodePrinter::print(const size_t max)
             print2Argsu(code);
             break;
             /* Strings Objects */
-        case YALVM_BYTECODE_STRING_CREATE:
+        case YALVM_BYTECODE_STRING_ALLOC:
             print2Argsu(code);
             break;
-        case YALVM_BYTECODE_STRING_RELEASE:
+        case YALVM_BYTECODE_STRING_DEALLOC:
             print1Reg(code);
             break;
         case YALVM_BYTECODE_PRINT_NL:

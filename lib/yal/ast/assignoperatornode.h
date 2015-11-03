@@ -6,7 +6,7 @@
 namespace yal
 {
 
-class AssignOperatorNode : public ExpressionNode
+class AssignOperatorNode : public BinaryExpressionNode
 {
 public:
 
@@ -24,19 +24,7 @@ public:
         return _assignOpType;
     }
 
-    ExpressionNode* expressionLeft() const
-    {
-        return _pExpressionLeft;
-    }
-
-    ExpressionNode* expressionRight() const
-    {
-        return _pExpressionRight;
-    }
-
 private:
-    ExpressionNode* _pExpressionLeft;
-    ExpressionNode* _pExpressionRight;
     const OperatorType _assignOpType;
 };
 

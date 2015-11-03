@@ -23,6 +23,9 @@ yalvm_object_acquire(yalvm_object_t* obj);
 yalvm_bool
 yalvm_object_release(yalvm_object_t* obj);
 
+void
+yalvm_object_dealloc(yalvm_object_t* obj);
+
 YALVM_MODULE_END
 
 #endif

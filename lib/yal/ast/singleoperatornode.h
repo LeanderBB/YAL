@@ -6,7 +6,7 @@
 namespace yal
 {
 
-class SingleOperatorNode : public ExpressionNode
+class SingleOperatorNode : public UnaryExpressionNode
 {
 public:
     YAL_AST_NODE_ACCEPT_HDR(SingleOperatorNode)
@@ -17,11 +17,6 @@ public:
 
     virtual ~SingleOperatorNode();
 
-    ExpressionNode* expression() const
-    {
-        return _pExpression;
-    }
-
     OperatorType singleOperatorType() const
     {
         return _singleOperatorType;
@@ -29,7 +24,6 @@ public:
 
 private:
     const OperatorType _singleOperatorType;
-    ExpressionNode* _pExpression;
 };
 
 }

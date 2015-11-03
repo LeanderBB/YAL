@@ -13,6 +13,7 @@
 #include "yal/util/errorhandler.h"
 #include "yal/bytecode/bytecodeprinter.h"
 #include "yal/types/typeregistry.h"
+#include "yal/memory/arcpass.h"
 namespace yal
 {
 
@@ -43,6 +44,9 @@ Compiler::compile(const uint32_t flags)
     if (parse_result == 0)
     {
         _state.symbolTree.process(_state);
+
+        ArcPass arc_pass;
+        arc_pass.process(_state);
 
         if (flags & kDumpAst)
         {

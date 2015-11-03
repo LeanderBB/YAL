@@ -25,3 +25,9 @@ yalvm_object_release(yalvm_object_t* obj)
     --obj->nref;
     return (obj->nref <= 0) ? yalvm_true : yalvm_false;
 }
+
+void
+yalvm_object_dealloc(yalvm_object_t* obj)
+{
+    yalvm_free(obj);
+}

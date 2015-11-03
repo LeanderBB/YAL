@@ -375,6 +375,73 @@ ByteCodeGenerator::loadVariableIntoRegister(const char* varName,
 }
 
 void
+ByteCodeGenerator::releaseObject(const Symbol &sym,
+                                 const Register& reg)
+{
+    Type* node_type = sym.astNode()->nodeType();
+
+    class ObjectTypeVisitor : public TypeVisitor
+    {
+    public:
+        ObjectTypeVisitor(ByteCodeGenerator& generator,
+                          const Register& reg):
+            _generator(generator),
+            _register(reg)
+        {
+
+        }
+
+        void visit(const StringType&) override
+        {
+            const yalvm_bytecode_t code = yalvm_bytecode_pack_one_register(YALVM_BYTECODE_STRING_DEALLOC,
+                                                                           _register.registerIdx());
+            _generator._buffer.append(code);
+        }
+
+        void visit(const BuiltinType&) override
+        {
+            YAL_ASSERT(false && "Should not be reached");
+        }
+
+        void visit(const FunctionType&) override
+        {
+            YAL_ASSERT(false && "Should not be reached");
+        }
+
+        void visit(const UndefinedType&) override
+        {
+            YAL_ASSERT(false && "Should not be reached");
+        }
+
+    private:
+        ByteCodeGenerator& _generator;
+        const Register&  _register;
+
+    } visitor(*this, reg);
+
+
+    yalvm_bytecode_t code = 0;
+    // add empty code and replace later on
+    size_t code_offset = _buffer.append(code);
+    // generate dtor code
+    node_type->accept(visitor);
+    // calculate difference
+    size_t diff = _buffer.size() - (code_offset + 1);
+
+    if (diff > std::numeric_limits<yal_u16>::max())
+    {
+        throw ByteCodeGenException("Object release code exceeds maximum jump call",
+                                   *sym.astNode());
+    }
+
+    // replace instruction
+    code = yalvm_bytecode_pack_dst_value(YALVM_BYTECODE_OBJECT_RELEASE,
+                                         reg.registerIdx(),
+                                         static_cast<yal_u32>(diff));
+    _buffer.replace(code_offset, code);
+}
+
+void
 ByteCodeGenerator::visit(AssignOperatorNode& node)
 {
     // process left part
@@ -387,6 +454,15 @@ ByteCodeGenerator::visit(AssignOperatorNode& node)
     Register right_register = popRegister();
     YAL_ASSERT(right_register.isValid());
 
+    const ExpressionResult& left_exp_result = node.expressionLeft()->expressionResult();
+
+
+    if (left_exp_result.type->isObjectType())
+    {
+        // Remove reference and call dtor
+        YAL_ASSERT(left_exp_result.symbol);
+        releaseObject(*left_exp_result.symbol, left_register);
+    }
 
     const ExpressionResult& exp_type = node.expressionResult();
     if (exp_type.type->isBuiltinType())
@@ -394,8 +470,6 @@ ByteCodeGenerator::visit(AssignOperatorNode& node)
 
         yalvm_bytecode_inst_t inst =  AssignOperatorByteCodeInst(node.assignOperatorType(),
                                                                  exp_type.type);
-
-
         yalvm_bytecode_t code;
 
         if (inst != YALVM_BYTECODE_COPY_REGISTER)
@@ -413,7 +487,7 @@ ByteCodeGenerator::visit(AssignOperatorNode& node)
         _buffer.append(code);
 
         // store global result
-        const Symbol* assign_sym = node.expressionLeft()->expressionResult().symbol;
+        const Symbol* assign_sym = left_exp_result.symbol;
         if (assign_sym->isGlobalVariable())
         {
             inst = StoreGlobalByteCodeInst(exp_type.type);
@@ -461,12 +535,12 @@ ByteCodeGenerator::visit(CompareOperatorNode& node)
 {
 
     // process left part
-    node.leftExpression()->accept(*this);
+    node.expressionLeft()->accept(*this);
     Register left_register = popRegister();
     YAL_ASSERT(left_register.isValid());
 
     // process right part
-    node.rightExpression()->accept(*this);
+    node.expressionRight()->accept(*this);
     Register right_register = popRegister();
     YAL_ASSERT(right_register.isValid());
 
@@ -691,9 +765,11 @@ ByteCodeGenerator::visit(VariableDeclNode& node)
     Register tmp = popRegister();
     YAL_ASSERT(tmp.isValid());
 
-    yalvm_bytecode_t code = yalvm_bytecode_pack_two_registers(YALVM_BYTECODE_COPY_REGISTER,
-                                                              var_register.registerIdx(),
-                                                              tmp.registerIdx());
+    yalvm_bytecode_t code;
+
+    code = yalvm_bytecode_pack_two_registers(YALVM_BYTECODE_COPY_REGISTER,
+                                             var_register.registerIdx(),
+                                             tmp.registerIdx());
     _buffer.append(code);
 
     if (var_symbol->isGlobalVariable())
@@ -719,12 +795,12 @@ ByteCodeGenerator::visit(DualOperatorNode& node)
 
 
     // process left part
-    node.leftExpression()->accept(*this);
+    node.expressionLeft()->accept(*this);
     Register left_register = popRegister();
     YAL_ASSERT(left_register.isValid());
 
     // process right part
-    node.rightExpression()->accept(*this);
+    node.expressionRight()->accept(*this);
     Register right_register = popRegister();
     YAL_ASSERT(right_register.isValid());
 
@@ -1051,7 +1127,7 @@ ByteCodeGenerator::visit(StringCreateNode& node)
     Register reg_string(_regAllocator);
     pushRegister(reg_string);
 
-    yalvm_bytecode_t code = yalvm_bytecode_pack_dst_value(YALVM_BYTECODE_STRING_CREATE,
+    yalvm_bytecode_t code = yalvm_bytecode_pack_dst_value(YALVM_BYTECODE_STRING_ALLOC,
                                                           reg_string.registerIdx(),
                                                           constant_idx);
 
@@ -1072,19 +1148,34 @@ ByteCodeGenerator::ByteCodeGeneratorScopeActionVisitor::visitOnExit(const Object
     const Type* sym_type = sym->astNode()->nodeType();
     YAL_ASSERT(sym->isVariable() && sym_type->isObjectType());
 
-    //FIXME: Write type specific DTORS
     _generator.loadVariableIntoRegister(sym->symbolName(), *sym->astNode());
-
     Register var_reg = _generator.popRegister();
-
-    const yalvm_bytecode_inst_t inst = sym_type->isStringType()
-            ? YALVM_BYTECODE_STRING_RELEASE
-            : YALVM_BYTECODE_OBJECT_RELEASE;
-
-    const yalvm_bytecode_t code = yalvm_bytecode_pack_one_register(inst,
-                                                                   var_reg.registerIdx());
-
-    _generator._buffer.append(code);
+    _generator.releaseObject(*sym, var_reg);
 }
+
+void
+ByteCodeGenerator::visit(ObjectCreateNode& node)
+{
+    node.expression()->accept(*this);
+}
+
+void
+ByteCodeGenerator::visit(ObjectRetainNode& node)
+{
+    node.expression()->accept(*this);
+    const Register& top_register = topRegister();
+    YAL_ASSERT (node.expressionResult().type->isObjectType());
+
+    const yalvm_bytecode_t code = yalvm_bytecode_pack_one_register(YALVM_BYTECODE_OBJECT_ACQUIRE,
+                                                                   top_register.registerIdx());
+    _buffer.append(code);
+}
+
+void
+ByteCodeGenerator::visit(ObjectReleaseNode&)
+{
+    YAL_ASSERT(false && "Should not be reached");
+}
+
 
 }

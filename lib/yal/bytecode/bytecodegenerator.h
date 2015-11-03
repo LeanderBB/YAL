@@ -112,6 +112,9 @@ protected:
     void loadVariableIntoRegister(const char *varName,
                                   const AstBaseNode &node);
 
+    void releaseObject(const Symbol& sym,
+                       const Register& reg);
+
 protected:
 
 

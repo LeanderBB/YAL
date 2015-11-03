@@ -8,13 +8,9 @@ CompareOperatorNode::CompareOperatorNode(const SourceLocationInfo& loc,
                            const OperatorType optype,
                            ExpressionNode *expLeft,
                            ExpressionNode *expRight):
-    ExpressionNode(loc),
-    _compareType(optype),
-    _leftExp(expLeft),
-    _rightExp(expRight)
+    BinaryExpressionNode(loc, expLeft, expRight),
+    _compareType(optype)
 {
-    expLeft->setParentNode(this);
-    expRight->setParentNode(this);
     YAL_ASSERT(_compareType & kOperatorMaskComparators);
 }
 

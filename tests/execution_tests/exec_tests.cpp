@@ -12,20 +12,60 @@
 
 static const std::string s_test_path = YAL_TEST_SOURCES_PATH;
 
+#define EXEC_TEST_MEMCHECK
+#if defined(EXEC_TEST_MEMCHECK)
+#define EXEC_TEST_MEMCHECK_BEGIN { \
+    BytesAllocated = 0;
+
+#define EXEC_TEST_MEMCHECK_END } \
+    EXPECT_EQ(BytesAllocated, 0);
+
+#else
+#define EXEC_TEST_MEMCHECK_BEGIN
+
+#define EXEC_TEST_MEMCHECK_END
+#endif
+
 // yalvm external function that need to be implemented
 extern "C"
 {
-
+#if defined(EXEC_TEST_MEMCHECK)
+static yalvm_size BytesAllocated;
+#endif
 void*
 yalvm_malloc(yalvm_size size)
 {
+#if defined(EXEC_TEST_MEMCHECK)
+    void* ptr = malloc(size + sizeof(yalvm_size));
+    if (ptr)
+    {
+        yalvm_size* sptr = (yalvm_size*)ptr;
+        sptr[0] = size;
+        BytesAllocated += size;
+        return ++sptr;
+    }
+    return NULL;
+#else
     return malloc(size);
+#endif
+
 }
 
 void
 yalvm_free(void* ptr)
 {
-    return free(ptr);
+#if defined(EXEC_TEST_MEMCHECK)
+    if (ptr)
+    {
+        yalvm_size* sptr = (yalvm_size*)ptr;
+        --sptr;
+        yalvm_size size = *sptr;
+        BytesAllocated-= size;
+        free(sptr);
+    }
+#else
+    free(ptr);
+#endif
 }
 
 void
@@ -64,9 +104,26 @@ yalvm_snprintf(char *str,
 void*
 yalvm_realloc(void* ptr, yalvm_size size)
 {
+#if defined(EXEC_TEST_MEMCHECK)
+    if (!ptr)
+    {
+        return yalvm_malloc(size);
+    }
+    else
+    {
+        yalvm_size* sptr = (yalvm_size*)ptr;
+        --sptr;
+        yalvm_size cur_size = *sptr;
+        BytesAllocated += size;
+        BytesAllocated -= cur_size;
+        sptr = (yalvm_size*) realloc(sptr, size + sizeof(yalvm_size));
+        sptr[0] = size;
+        return ++sptr;
+    }
+#else
     return realloc(ptr, size);
+#endif
 }
-
 void*
 yalvm_memmove(void *dest,
               const void *src,
@@ -112,7 +169,8 @@ public:
     ~TestVM()
     {
         yalvm_ctx_release_function(&_funcHdl);
-        EXPECT_EQ(yalvm_ctx_destroy(&_execCtx), yalvm_true);
+        yalvm_bool result = yalvm_ctx_destroy(&_execCtx);
+        EXPECT_EQ(result, yalvm_true);
         yalvm_binary_destroy(&_vmBinary);
     }
 
@@ -130,11 +188,6 @@ public:
             }
 
             if (yalvm_ctx_create(&_execCtx, &_vmBinary, stack, 1024 * 1024) != yalvm_true)
-            {
-                return false;
-            }
-
-            if (yalvm_ctx_globals_init(&_execCtx) != YALVM_ERROR_NONE)
             {
                 return false;
             }
@@ -170,7 +223,9 @@ protected:
 
 TEST(ExecutionTest, WhileLoop)
 {
-    TestVM tvm("while_loop.yal");
+    EXEC_TEST_MEMCHECK_BEGIN
+
+            TestVM tvm("while_loop.yal");
 
     const bool compile_result = tvm.compile();
 
@@ -192,12 +247,15 @@ TEST(ExecutionTest, WhileLoop)
 
         EXPECT_EQ(func_hdl->return_register.reg32.i, 10);
     }
+
+    EXEC_TEST_MEMCHECK_END
 }
 
 
 TEST(ExecutionTest, CompareOperators)
 {
-    TestVM tvm("compare_operators_test.yal");
+    EXEC_TEST_MEMCHECK_BEGIN
+            TestVM tvm("compare_operators_test.yal");
 
     const bool compile_result = tvm.compile();
 
@@ -529,11 +587,13 @@ TEST(ExecutionTest, CompareOperators)
         EXPECT_EQ(func_hdl->return_register.reg32.value, 0u);
 
     }
+    EXEC_TEST_MEMCHECK_END
 }
 
 TEST(ExecutionTest, GlobalAccessOptimization1)
 {
-    TestVM tvm("global_access_optimization1.yal");
+    EXEC_TEST_MEMCHECK_BEGIN
+            TestVM tvm("global_access_optimization1.yal");
 
     const bool compile_result = tvm.compile();
 
@@ -555,11 +615,13 @@ TEST(ExecutionTest, GlobalAccessOptimization1)
 
         EXPECT_EQ(func_hdl->return_register.reg32.i, 3);
     }
+    EXEC_TEST_MEMCHECK_END
 }
 
 TEST(ExecutionTest, ArithemticTest1)
 {
-    TestVM tvm("arithemtic_test_1.yal");
+    EXEC_TEST_MEMCHECK_BEGIN
+            TestVM tvm("arithemtic_test_1.yal");
 
     const bool compile_result = tvm.compile();
 
@@ -606,11 +668,14 @@ TEST(ExecutionTest, ArithemticTest1)
         EXPECT_EQ(func_hdl->return_register.reg32.value, 10u);
 
     }
+    EXEC_TEST_MEMCHECK_END
 }
 
 TEST(ExecutionTest, ArithemticTest2)
 {
-    TestVM tvm("arithemtic_test_2.yal");
+    EXEC_TEST_MEMCHECK_BEGIN
+
+            TestVM tvm("arithemtic_test_2.yal");
 
     const bool compile_result = tvm.compile();
 
@@ -661,11 +726,15 @@ TEST(ExecutionTest, ArithemticTest2)
         EXPECT_EQ(func_hdl->return_register.reg32.i, 36);
 
     }
+
+    EXEC_TEST_MEMCHECK_END
 }
 
 TEST(ExecutionTest, HelloWorld)
 {
-    TestVM tvm("helloworld.yal");
+    EXEC_TEST_MEMCHECK_BEGIN
+
+            TestVM tvm("helloworld.yal");
 
     const bool compile_result = tvm.compile();
 
@@ -686,6 +755,35 @@ TEST(ExecutionTest, HelloWorld)
         EXPECT_EQ(exec_val, YALVM_ERROR_NONE);
     }
 
+    EXEC_TEST_MEMCHECK_END
+}
+
+TEST(ExecutionTest, ArcObjectScope1)
+{
+    EXEC_TEST_MEMCHECK_BEGIN
+
+            TestVM tvm("arc_object_scope_1.yal");
+
+    const bool compile_result = tvm.compile();
+
+    EXPECT_EQ(compile_result, true);
+    if (!compile_result)
+    {
+        return;
+    }
+
+    bool setup_result = tvm.loadFunction(yalvm_func_global_name());
+    EXPECT_EQ(setup_result, true);
+
+    if (setup_result)
+    {
+        yalvm_func_hdl_t* func_hdl = tvm.hdl();
+
+        const yalvm_u32 exec_val = yalvm_func_hdl_execute(func_hdl);
+        EXPECT_EQ(exec_val, YALVM_ERROR_NONE);
+    }
+
+    EXEC_TEST_MEMCHECK_END
 }
 
 

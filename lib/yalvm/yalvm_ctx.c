@@ -949,28 +949,35 @@ yalvm_ctx_execute(yalvm_ctx_t* ctx)
         }
         case YALVM_BYTECODE_OBJECT_ACQUIRE:
         {
-            /*
             yalvm_u8 dst_reg;
             yalvm_bytecode_unpack_register(code, &dst_reg);
             yalvm_object_acquire((yalvm_object_t*)ctx->registers[dst_reg].ptr.value);
             break;
-            */
-            return YALVM_ERROR_INSTRUCTION_NOT_IMPLEMENTED;
         }
         case YALVM_BYTECODE_OBJECT_RELEASE:
         {
             yalvm_u8 dst_reg;
-            yalvm_bytecode_unpack_register(code, &dst_reg);
+            yalvm_u16 jmp;
+            yalvm_bytecode_unpack_dst_value(code, &dst_reg, &jmp);
             yalvm_object_t* obj = (yalvm_object_t*)ctx->registers[dst_reg].ptr.value;
-            if(yalvm_object_release(obj))
+            if(!yalvm_object_release(obj))
             {
-                yalvm_free(obj);
+                ctx->pc += jmp;
             }
             break;
         }
 
+        case YALVM_BYTECODE_OBJECT_DEALLOC:
+        {
+            yalvm_u8 dst_reg;
+            yalvm_bytecode_unpack_register(code, &dst_reg);
+            yalvm_object_t* obj = (yalvm_object_t*)ctx->registers[dst_reg].ptr.value;
+            yalvm_object_dealloc(obj);
+            break;
+        }
+
          /* Strings Objects */
-        case YALVM_BYTECODE_STRING_CREATE:
+        case YALVM_BYTECODE_STRING_ALLOC:
         {
             yalvm_u8 dst;
             yalvm_u16 value;
@@ -985,15 +992,12 @@ yalvm_ctx_execute(yalvm_ctx_t* ctx)
             break;
         }
 
-        case YALVM_BYTECODE_STRING_RELEASE:
+        case YALVM_BYTECODE_STRING_DEALLOC:
         {
             yalvm_u8 dst_reg;
             yalvm_bytecode_unpack_register(code, &dst_reg);
             yalvm_object_t* obj = (yalvm_object_t*)ctx->registers[dst_reg].ptr.value;
-            if(yalvm_object_release(obj))
-            {
-                yalvm_string_destroy(obj);
-            }
+            yalvm_string_destroy(obj);
             break;
         }
 

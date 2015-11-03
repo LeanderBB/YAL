@@ -18,6 +18,6 @@
 #include "yal/ast/printnode.h"
 #include "yal/ast/whileloopnode.h"
 #include "yal/ast/stringcreatenode.h"
-
+#include "yal/ast/objectnodes.h"
 #endif // ASTHDRS
 

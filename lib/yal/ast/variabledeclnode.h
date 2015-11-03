@@ -6,7 +6,7 @@
 namespace yal
 {
 
-class VariableDeclNode : public ExpressionNode
+class VariableDeclNode : public UnaryExpressionNode
 {
 public:
     YAL_AST_NODE_ACCEPT_HDR(VariableDeclNode)
@@ -22,19 +22,8 @@ public:
         return _varName;
     }
 
-    ExpressionNode* expression() const
-    {
-        return _expression;
-    }
-
-    void setExpression(ExpressionNode* exp)
-    {
-        _expression = exp;
-    }
-
 protected:
     const char* _varName;
-    ExpressionNode* _expression;
 };
 
 }

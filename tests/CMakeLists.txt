@@ -26,7 +26,8 @@ add_definitions("-DYAL_TEST_SOURCES_PATH=\"${CMAKE_CURRENT_SOURCE_DIR}/test_file
 # test macro_util
 macro(YAL_TEST_DEP TARGET)
 include_directories(${YAL_INCLUDE_DIRS})
-target_link_libraries(${TARGET} ${YAL_CORE_LIBRARIES} ${YALVM_LIBRARIES} ${GTEST_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT})
+target_link_libraries(${TARGET} ${YAL_CORE_LIBRARIES} ${YALVM_LIBRARIES} ${GTEST_LIBRARIES})
+target_link_libraries(${TARGET} ${CMAKE_THREAD_LIBS_INIT} pthread)
 add_dependencies(${TARGET} gtest)
 add_test(NAME ${TARGET}
         COMMAND ${CMAKE_CURRENT_BINARY_DIR}/${TARGET}
