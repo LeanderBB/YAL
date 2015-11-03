@@ -6,7 +6,7 @@
 namespace yal
 {
 
-class DualOperatorNode : public ExpressionNode
+class DualOperatorNode : public BinaryExpressionNode
 {
 public:
     YAL_AST_NODE_ACCEPT_HDR(DualOperatorNode)
@@ -22,21 +22,9 @@ public:
     {
         return _dualOperatorType;
     }
-
-    ExpressionNode* leftExpression() const
-    {
-        return _leftExp;
-    }
-
-    ExpressionNode* rightExpression() const
-    {
-        return _rightExp;
-    }
-
 private:
     const OperatorType _dualOperatorType;
-    ExpressionNode* _leftExp;
-    ExpressionNode* _rightExp;
+
 };
 
 }

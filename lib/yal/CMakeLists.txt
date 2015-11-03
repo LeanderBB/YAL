@@ -8,6 +8,7 @@ set(YAL_HDR
     parser/parser_state.h
     parser/parseexception.h
     memory/memory_utils.h
+    memory/arcpass.h
     util/str_utils.h
     util/stl_utils.h
     util/outputsink.h
@@ -38,6 +39,7 @@ set(YAL_HDR
     ast/variableaccessnode.h
     ast/stringcreatenode.h
     ast/asthdrs.h
+    ast/objectnodes.h
     symbols/semanticexception.h
     symbols/symboltable.h
     symbols/scope.h
@@ -77,6 +79,7 @@ set(YAL_SRC
     parser/bison_utils.cpp
     parser/flex_utils.cpp
     memory/memory_utils.cpp
+    memory/arcpass.cpp
     util/str_utils.cpp
     util/filesink.cpp
     util/stringinputsink.cpp
@@ -101,6 +104,7 @@ set(YAL_SRC
     ast/whileloopnode.cpp
     ast/variableaccessnode.cpp
     ast/stringcreatenode.cpp
+    ast/objectnodes.cpp
     symbols/symbol.cpp
     symbols/symboltable.cpp
     symbols/symboltreebuilder.cpp

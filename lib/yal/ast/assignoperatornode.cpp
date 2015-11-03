@@ -9,13 +9,9 @@ AssignOperatorNode::AssignOperatorNode(const SourceLocationInfo &loc,
                                        ExpressionNode* expL,
                                        const OperatorType assignOp,
                                        ExpressionNode* expR):
-    ExpressionNode(loc),
-    _pExpressionLeft(expL),
-    _pExpressionRight(expR),
+    BinaryExpressionNode(loc, expL, expR),
     _assignOpType(assignOp)
 {
-    expL->setParentNode(this);
-    expR->setParentNode(this);
     YAL_ASSERT(_assignOpType & (kOperatorMaskArithemetic | kOperatorMaskBit | kOperatorTypeCopy));
 }
 
@@ -23,6 +19,5 @@ AssignOperatorNode::~AssignOperatorNode()
 {
 
 }
-
 }
 

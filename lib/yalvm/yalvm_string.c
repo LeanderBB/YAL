@@ -33,7 +33,7 @@ yalvm_string_destroy(yalvm_object_t* obj)
 {
     yalvm_string_t* string = (yalvm_string_t*) obj->ptr;
     yalvm_array_base_destroy(&string->array);
-    yalvm_free(obj);
+    yalvm_object_dealloc(obj);
 }
 
 const char*

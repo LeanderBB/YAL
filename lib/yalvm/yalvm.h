@@ -40,7 +40,7 @@ typedef yalvm_i8   yalvm_bool;
 
 #define YALVM_PTR_ADD(ptr, value) (((yalvm_u8*)ptr) + value)
 #define YALVM_ARRAY_SIZE(x) (sizeof(x)/sizeof(x[0]))
-#define YALVM_SAFE_FREE(x)  free(x); x = NULL
+#define YALVM_SAFE_FREE(x)  yalvm_free(x); x = NULL
 YALVM_MODULE_END
 
 #endif

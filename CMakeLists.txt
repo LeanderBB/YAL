@@ -27,7 +27,7 @@ set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} ${YAL_CXX_FLAGS_DEBUG}")
 
 find_package(BISON 3 REQUIRED)
 find_package(FLEX REQUIRED)
-find_package (Threads REQUIRED)
+find_package(Threads REQUIRED)
 
 include_directories(include)
 

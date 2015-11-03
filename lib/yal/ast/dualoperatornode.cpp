@@ -9,13 +9,9 @@ DualOperatorNode::DualOperatorNode(const SourceLocationInfo& loc,
                          const OperatorType optype,
                          ExpressionNode* expLeft,
                          ExpressionNode* expRight):
-    ExpressionNode(loc),
-    _dualOperatorType(optype),
-    _leftExp(expLeft),
-    _rightExp(expRight)
+    BinaryExpressionNode(loc, expLeft, expRight),
+    _dualOperatorType(optype)
 {
-    expLeft->setParentNode(this);
-    expRight->setParentNode(this);
     YAL_ASSERT(_dualOperatorType & (kOperatorMaskArithemetic | kOperatorMaskBit | kOperatorMaskLogic));
 }
 

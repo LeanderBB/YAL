@@ -8,9 +8,8 @@ YAL_AST_NODE_ACCEPT_IMP(VariableDeclNode)
 VariableDeclNode::VariableDeclNode(const SourceLocationInfo& loc,
                        const char *varName,
                        ExpressionNode *pExp):
-    ExpressionNode(loc),
-    _varName(varName),
-    _expression(pExp)
+    UnaryExpressionNode(loc, pExp),
+    _varName(varName)
 {
     _expression->setParentNode(this);
 }

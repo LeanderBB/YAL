@@ -44,7 +44,7 @@ public:
 
     virtual ~TypeVisitor() {}
 
-#define YAL_TYPE_LIST_FUNC(CLASS) virtual void visit(const CLASS& node) = 0;
+#define YAL_TYPE_LIST_FUNC(CLASS) virtual void visit(const CLASS& type) = 0;
 #include "yal/types/typelist.h"
 #undef YAL_TYPE_LIST_FUNC
 

@@ -83,28 +83,28 @@ typedef YALVector<yal::AstBaseNode*> AstBaseNodeVec_t;
 #define YAL_AST_NODE_ACCEPT_HDR(type) \
     static const yal::AstType NodeType;\
     inline virtual void accept(yal::AstNodeVisitor& visitor) override \
-    { \
-        visitor.visit(*this); \
-    } \
+{ \
+    visitor.visit(*this); \
+} \
     \
     inline virtual yal::AstType astType() const override \
-    { \
-        return YAL_AST_NODE_TYPE(type); \
-    } \
+{ \
+    return YAL_AST_NODE_TYPE(type); \
+} \
     inline virtual const char* astTypeStr() const override\
-    {\
-        return #type; \
-    }
+{\
+    return #type; \
+}
 
 #define YAL_AST_NODE_ACCEPT_HDR_BASE(type, base) \
     YAL_AST_NODE_ACCEPT_HDR(type) \
     inline virtual void acceptBase(yal::AstNodeVisitor& visitor) \
-    { \
-        base::accept(visitor); \
-    }
+{ \
+    base::accept(visitor); \
+}
 
 #define YAL_AST_NODE_ACCEPT_IMP(type) \
-const yal::AstType type::NodeType = YAL_AST_NODE_TYPE(type);
+    const yal::AstType type::NodeType = YAL_AST_NODE_TYPE(type);
 
 template<class Sym>
 inline bool ast_typeof(const AstBaseNode* pNode)
@@ -178,6 +178,78 @@ private:
     ExpressionResult _expResult;
 };
 
+class UnaryExpressionNode : public ExpressionNode
+{
+public:
+    UnaryExpressionNode(const SourceLocationInfo& loc,
+                        ExpressionNode* node):
+        ExpressionNode(loc),
+        _expression(node)
+    {
+        node->setParentNode(this);
+    }
+
+    virtual ~UnaryExpressionNode() {}
+
+    ExpressionNode* expression() const
+    {
+        return _expression;
+    }
+
+    void replaceExpression(ExpressionNode* node)
+    {
+        node->setParentNode(this);
+        _expression = node;
+    }
+
+protected:
+    ExpressionNode* _expression;
+};
+
+class BinaryExpressionNode : public ExpressionNode
+{
+public:
+    BinaryExpressionNode(const SourceLocationInfo& loc,
+                     ExpressionNode* left,
+                     ExpressionNode* right):
+        ExpressionNode(loc),
+        _expressionLeft(left),
+        _expressionRight(right)
+    {
+        _expressionLeft->setParentNode(this);
+        _expressionRight->setParentNode(this);
+    }
+
+    virtual ~BinaryExpressionNode() {}
+
+    ExpressionNode* expressionRight() const
+    {
+        return _expressionRight;
+    }
+
+    ExpressionNode* expressionLeft() const
+    {
+        return _expressionLeft;
+    }
+
+    void replaceExpressionRight(ExpressionNode* node)
+    {
+        node->setParentNode(this);
+        _expressionRight = node;
+    }
+
+    void replaceExpressionLeft(ExpressionNode* node)
+    {
+        node->setParentNode(this);
+        _expressionLeft = node;
+    }
+
+protected:
+    ExpressionNode* _expressionLeft;
+    ExpressionNode* _expressionRight;
+
+};
+
 typedef YALVector<yal::ExpressionNode*> ExpressionNodeVec_t;
 
 
@@ -187,7 +259,7 @@ public:
     ExpressionList(const SourceLocationInfo& loc);
 
     ExpressionList(const SourceLocationInfo& loc,
-                      ExpressionNodeVec_t&& list);
+                   ExpressionNodeVec_t&& list);
 
     virtual ~ExpressionList();
 

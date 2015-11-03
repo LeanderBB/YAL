@@ -1,22 +1,5 @@
 #include "yal/ast/astprinter.h"
-#include "yal/ast/astnodetypes.h"
-#include "yal/ast/astbasenode.h"
-#include "yal/ast/assignoperatornode.h"
-#include "yal/ast/codebodynode.h"
-#include "yal/ast/compareoperatornode.h"
-#include "yal/ast/constantnode.h"
-#include "yal/ast/argumentdeclnode.h"
-#include "yal/ast/variabledeclnode.h"
-#include "yal/ast/dualoperatornode.h"
-#include "yal/ast/singleoperatornode.h"
-#include "yal/ast/functionnode.h"
-#include "yal/ast/conditionnode.h"
-#include "yal/ast/returnnode.h"
-#include "yal/parser/parser_state.h"
-#include "yal/ast/printnode.h"
-#include "yal/ast/whileloopnode.h"
-#include "yal/ast/variableaccessnode.h"
-#include "yal/ast/stringcreatenode.h"
+#include "yal/ast/asthdrs.h"
 #include <cstdlib>
 
 namespace yal
@@ -65,11 +48,19 @@ AstPrinter::printNodeTitle(const AstBaseNode& node,
     printIdent();
     const SourceLocationInfo& src_info = node.locationInfo();
 
-    _sink <<"-" <<  node.astTypeStr()
-         <<"<ln " << src_info.firstLine
-        << ":" << src_info.lastLine
-        << "  cl " << src_info.firstColumn
-        << ":" << src_info.lastColumn << "> ";
+    if (node.isSourceAstNode())
+    {
+        _sink <<"-" <<  node.astTypeStr()
+            <<"<ln " << src_info.firstLine
+            << ":" << src_info.lastLine
+            << "  cl " << src_info.firstColumn
+            << ":" << src_info.lastColumn << "> ";
+    }
+    else
+    {
+        _sink <<"-" <<  node.astTypeStr() << " ";
+    }
+
     if (empty)
     {
         _sink << std::endl;
@@ -135,10 +126,10 @@ AstPrinter::visit(CompareOperatorNode& node)
     printNodeTitle(node);
     _sink <<"'" << OperatorTypeToStr(node.compareOperatorType()) << "'" << std::endl;
     onDescent(false);
-    node.leftExpression()->accept(*this);
+    node.expressionLeft()->accept(*this);
     onAscend();
     onDescent(true);
-    node.rightExpression()->accept(*this);
+    node.expressionRight()->accept(*this);
     onAscend();
 }
 
@@ -201,10 +192,10 @@ AstPrinter::visit(DualOperatorNode& node)
     printNodeTitle(node);
     _sink << "'" << OperatorTypeToStr(node.dualOperatorType()) << "'" << std::endl;
     onDescent(false);
-    node.leftExpression()->accept(*this);
+    node.expressionLeft()->accept(*this);
     onAscend();
     onDescent(true);
-    node.rightExpression()->accept(*this);
+    node.expressionRight()->accept(*this);
     onAscend();
 }
 
@@ -336,4 +327,32 @@ AstPrinter::visit(StringCreateNode& node)
     node.constantNode()->accept(*this);
     onAscend();
 }
+
+void
+AstPrinter::visit(ObjectCreateNode& node)
+{
+    printNodeTitle(node, true);
+    onDescent(true);
+    node.expression()->accept(*this);
+    onAscend();
+}
+
+void
+AstPrinter::visit(ObjectRetainNode& node)
+{
+    printNodeTitle(node, true);
+    onDescent(true);
+    node.expression()->accept(*this);
+    onAscend();
+}
+
+void
+AstPrinter::visit(ObjectReleaseNode& node)
+{
+    printNodeTitle(node, true);
+    onDescent(true);
+    node.expression()->accept(*this);
+    onAscend();
+}
+
 }

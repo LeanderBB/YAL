@@ -6,7 +6,7 @@
 namespace yal
 {
 
-class CompareOperatorNode : public ExpressionNode
+class CompareOperatorNode : public BinaryExpressionNode
 {
 public:
     YAL_AST_NODE_ACCEPT_HDR(CompareOperatorNode)
@@ -23,20 +23,8 @@ public:
         return _compareType;
     }
 
-    ExpressionNode* leftExpression() const
-    {
-        return _leftExp;
-    }
-
-    ExpressionNode* rightExpression() const
-    {
-        return _rightExp;
-    }
-
 private:
     const OperatorType _compareType;
-    ExpressionNode* _leftExp;
-    ExpressionNode* _rightExp;
 };
 
 }

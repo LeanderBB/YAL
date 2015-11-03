@@ -78,6 +78,17 @@ SymbolTreeBuilder::visit(AssignOperatorNode& node)
         throw SemanticException("Expression is not assignable", node);
     }
 
+
+    // Catch implicit String creation
+
+    ConstantNode* constant_node = ast_cast<ConstantNode>(node.expressionRight());
+    if (constant_node && constant_node->constantType()->isStringContant())
+    {
+        node.replaceExpressionRight(new ObjectCreateNode( new StringCreateNode(constant_node)));
+    }
+
+
+
     node.expressionRight()->accept(*this);
 
     // validate types
@@ -112,11 +123,11 @@ void
 SymbolTreeBuilder::visit(CompareOperatorNode& node)
 {
     node.setScope(currentScope());
-    node.leftExpression()->accept(*this);
+    node.expressionLeft()->accept(*this);
 
     ExpressionResult left_type = _expResult;
 
-    node.rightExpression()->accept(*this);
+    node.expressionRight()->accept(*this);
 
     // evaluate right type
     ExpressionResult right_type = _expResult;
@@ -292,11 +303,10 @@ SymbolTreeBuilder::visit(VariableDeclNode& node)
     ExpressionNode* exp = node.expression();
 
     // Catch implicit String creation
-
     ConstantNode* constant_node = ast_cast<ConstantNode>(exp);
     if (constant_node && constant_node->constantType()->isStringContant())
     {
-        node.setExpression(new StringCreateNode(constant_node));
+        node.replaceExpression(new ObjectCreateNode(new StringCreateNode(constant_node)));
     }
 
     node.expression()->accept(*this);
@@ -338,7 +348,7 @@ SymbolTreeBuilder::visit(DualOperatorNode& node)
 {
 
     node.setScope(currentScope());
-    node.leftExpression()->accept(*this);
+    node.expressionLeft()->accept(*this);
     const OperatorType op_type = node.dualOperatorType();
 
     ExpressionResult cur_result= _expResult;
@@ -353,7 +363,7 @@ SymbolTreeBuilder::visit(DualOperatorNode& node)
         throw SemanticException(stream.str(), node);
     }
 
-    node.rightExpression()->accept(*this);
+    node.expressionRight()->accept(*this);
 
     const bool requires_integer = OperatorRequiresInteger(op_type);
     if (requires_integer && !_expResult.type->isInteger())
@@ -670,6 +680,27 @@ SymbolTreeBuilder::visit(StringCreateNode& node)
     _expResult = ExpressionResult(StringType::GetType());
     node.setNodeType(_expResult.type);
     node.setExpressionResult(_expResult.type);
+}
+
+void
+SymbolTreeBuilder::visit(ObjectCreateNode& node)
+{
+     node.setScope(currentScope());
+     node.expression()->accept(*this);
+     node.setNodeType(_expResult.type);
+     node.setExpressionResult(_expResult.type);
+}
+
+void
+SymbolTreeBuilder::visit(ObjectRetainNode&)
+{
+    YAL_ASSERT(false && "Should not be reached");
+}
+
+void
+SymbolTreeBuilder::visit(ObjectReleaseNode&)
+{
+    YAL_ASSERT(false && "Should not be reached");
 }
 
 }
