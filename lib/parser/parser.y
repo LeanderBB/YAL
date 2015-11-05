@@ -98,6 +98,7 @@ extern void yyerror(YYLTYPE* location,
 %token TK_TYPE_UINT64 "type unsigned integer 64bit"
 %token TK_TYPE_F32 "type decimal 32bit"
 %token TK_TYPE_F64 "type decimal 64bit"
+%token TK_TYPE_STRING "type string"
 
 %token TK_IF "if"
 %token TK_ELIF "elif"
@@ -168,7 +169,7 @@ extern void yyerror(YYLTYPE* location,
 %type <nodeWhileLoop> while_statement
 %%
 
-program: program func_decl TK_NL  {state->program.push_back(static_cast<yal::AstBaseNode*>(yal::BisonYyltypeToLocation(yylloc),$2));}
+program: program func_decl TK_NL  {state->program.push_back(static_cast<yal::StatementNode*>(yal::BisonYyltypeToLocation(yylloc),$2));}
 | program statement TK_NL{state->program.push_back($2);}
 | program TK_NL
 | %empty
@@ -277,6 +278,7 @@ type: TK_TYPE_BOOL {$$ = yal::BuiltinType::GetBuiltinType(yal::BuiltinType::kBoo
 | TK_TYPE_F32 {$$ = yal::BuiltinType::GetBuiltinType(yal::BuiltinType::kFloat32);}
 | TK_TYPE_F64 {$$ = yal::BuiltinType::GetBuiltinType(yal::BuiltinType::kFloat64);}
 | TK_ID { $$ = state->registry.registerUndefined($1); yal_free($1);}
+| TK_TYPE_STRING { $$ = yal::StringType::GetType(); }
 ;
 
 constant: TK_BOOL { $$ = new yal::ConstantNode(yal::BisonYyltypeToLocation(yylloc), yal::ConstantValue($1));}
@@ -286,7 +288,7 @@ constant: TK_BOOL { $$ = new yal::ConstantNode(yal::BisonYyltypeToLocation(yyllo
 | TK_UINT64 { $$ = new yal::ConstantNode(yal::BisonYyltypeToLocation(yylloc), yal::ConstantValue($1));}
 | TK_FLT32 { $$ = new yal::ConstantNode(yal::BisonYyltypeToLocation(yylloc), yal::ConstantValue($1));}
 | TK_FLT64 { $$ = new yal::ConstantNode(yal::BisonYyltypeToLocation(yylloc), yal::ConstantValue($1));}
-| TK_TEXT { $$ = new yal::ConstantNode(yal::BisonYyltypeToLocation(yylloc), yal::ConstantValue($1)); }
+| TK_TEXT { $$ =  new yal::ObjectCreateNode(new yal::StringCreateNode (new yal::ConstantNode(yal::BisonYyltypeToLocation(yylloc), yal::ConstantValue($1))));}
 | TK_ID { $$ = new yal::VariableAccessNode(yal::BisonYyltypeToLocation(yylloc), $1); }
 ;
 

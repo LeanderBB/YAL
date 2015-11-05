@@ -47,6 +47,7 @@ protected:
 
 private:
     typedef std::stack<Scope*> SymbolTableStack_t;
+    typedef std::stack<Symbol*> SymbolStack_t;
     ParserState* _parserState;
     Scope _globalScope;
     Scope* _curScope;
@@ -55,6 +56,8 @@ private:
     TypeRegistry& _typeRegistry;
     SymbolTableStack_t _scopeStack;
     ExpressionResult _expResult;
+    StatementNode* _curStatment;
+    SymbolStack_t _symStack;
 };
 
 }

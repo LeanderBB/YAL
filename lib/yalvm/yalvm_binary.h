@@ -147,7 +147,7 @@ typedef struct
     yalvm_u16 mem_size;     /* memory size               */
     yalvm_u16 ctor_idx;     /* constructor function idx  */
     yalvm_u16 dtor_idx;     /* destructor function idx   */
-    yalvm_u16 __unused;     /* unused                    */
+    yalvm_u16 _unused;      /* unused                    */
 } yalvm_obj_descriptor_t;
 #pragma pack(pop)
 

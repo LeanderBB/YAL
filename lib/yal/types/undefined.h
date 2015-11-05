@@ -16,7 +16,7 @@ public:
     UndefinedType(const TypeId_t &id,
                   const char* typeString);
 
-    bool isPromotableTo(const Type*) const
+    bool isPromotableTo(const Type*) const override
     {
         return false;
     }

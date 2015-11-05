@@ -123,12 +123,30 @@ inline Sym* ast_cast(AstBaseNode* pNode)
 class StatementNode : public AstBaseNode
 {
 public:
+    typedef std::vector<Symbol*> SymScope_t;
+
     StatementNode(const SourceLocationInfo& loc):
         AstBaseNode(loc)
     {
     }
 
     virtual ~StatementNode() {}
+
+
+    const SymScope_t& symbolScope() const
+    {
+        return _stSymbolScope;
+    }
+
+    void addSymbolToScope(Symbol* sym)
+    {
+        _stSymbolScope.push_back(sym);
+    }
+
+    bool removeSymbolFromScope(Symbol* sym);
+
+protected:
+    SymScope_t _stSymbolScope;
 };
 
 typedef YALVector<yal::StatementNode*> StatementNodeVec_t;
@@ -140,9 +158,9 @@ public:
 
     ExpressionResult() : type(nullptr), symbol(nullptr) {}
 
-    ExpressionResult(Type* t): type(t), symbol(nullptr){}
+    //ExpressionResult(Type* t): type(t), symbol(nullptr){ YAL_ASSERT(t);}
 
-    ExpressionResult(Type *t, Symbol* s) : type(t), symbol(s) {}
+    ExpressionResult(Type *t, Symbol* s) : type(t), symbol(s) {YAL_ASSERT(t); YAL_ASSERT(s);}
 
     Type* type;
     Symbol* symbol;

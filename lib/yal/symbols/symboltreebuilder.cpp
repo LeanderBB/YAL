@@ -31,6 +31,7 @@ SymbolTreeBuilder::process(ParserState& state)
     _parserState = &state;
     for (auto& v : state.program)
     {
+        _curStatment = v;
         v->accept(*this);
     }
 }
@@ -78,17 +79,6 @@ SymbolTreeBuilder::visit(AssignOperatorNode& node)
         throw SemanticException("Expression is not assignable", node);
     }
 
-
-    // Catch implicit String creation
-
-    ConstantNode* constant_node = ast_cast<ConstantNode>(node.expressionRight());
-    if (constant_node && constant_node->constantType()->isStringContant())
-    {
-        node.replaceExpressionRight(new ObjectCreateNode( new StringCreateNode(constant_node)));
-    }
-
-
-
     node.expressionRight()->accept(*this);
 
     // validate types
@@ -103,6 +93,8 @@ SymbolTreeBuilder::visit(AssignOperatorNode& node)
         throw SemanticException(stream.str(), node);
     }
 
+    _expResult.symbol->markAssigned();
+
     node.setNodeType(left_exp_result.type);
     node.setExpressionResult(left_exp_result);
 
@@ -115,6 +107,7 @@ SymbolTreeBuilder::visit(CodeBodyNode& node)
     node.setScope(currentScope());
     for(auto& v : node.statements)
     {
+        _curStatment = v;
         v->accept(*this);
     }
 }
@@ -143,7 +136,13 @@ SymbolTreeBuilder::visit(CompareOperatorNode& node)
     }
 
     _expResult = left_type;
-    node.setNodeType(left_type.type);
+
+    Symbol* tmp_sym = _curScope->declareTemporarySymbol(&node);
+    YAL_ASSERT(tmp_sym);
+    _curStatment->addSymbolToScope(tmp_sym);
+
+    _expResult = ExpressionResult(BuiltinType::GetBuiltinType(BuiltinType::kBool), tmp_sym);
+    node.setNodeType(_expResult.type);
     node.setExpressionResult(_expResult);
 }
 
@@ -161,7 +160,10 @@ SymbolTreeBuilder::visit(ConstantNode& node)
         }
     }
 
-    _expResult = ExpressionResult(node.constantType());
+    Symbol* tmp_sym = _curScope->declareTemporarySymbol(&node);
+    YAL_ASSERT(tmp_sym);
+    _curStatment->addSymbolToScope(tmp_sym);
+    _expResult = ExpressionResult(node.constantType(), tmp_sym);
     node.setNodeType(_expResult.type);
     node.setExpressionResult(_expResult);
 }
@@ -300,15 +302,6 @@ SymbolTreeBuilder::visit(VariableDeclNode& node)
         }
     }
 
-    ExpressionNode* exp = node.expression();
-
-    // Catch implicit String creation
-    ConstantNode* constant_node = ast_cast<ConstantNode>(exp);
-    if (constant_node && constant_node->constantType()->isStringContant())
-    {
-        node.replaceExpression(new ObjectCreateNode(new StringCreateNode(constant_node)));
-    }
-
     node.expression()->accept(*this);
 
     // check if there is a return type
@@ -327,7 +320,8 @@ SymbolTreeBuilder::visit(VariableDeclNode& node)
                                             ((is_global_var) ? Symbol::kFlagGlobalSymbol : 0) | Symbol::kFlagAssignable);
     YAL_ASSERT(sym_var);
     node.setNodeType(_expResult.type);
-    node.setExpressionResult(_expResult);
+    _expResult.symbol->markAssigned();
+    node.setExpressionResult(ExpressionResult(_expResult.type, sym_var));
 
     // register with module global
     if (is_global_var)
@@ -386,8 +380,13 @@ SymbolTreeBuilder::visit(DualOperatorNode& node)
         throw SemanticException(stream.str(), node);
     }
 
+    Symbol* tmp_sym = _curScope->declareTemporarySymbol(&node, cur_result.type->isObjectType() ? Symbol::kFlagNewObject : 0);
+    _curStatment->addSymbolToScope(tmp_sym);
+
+    _expResult = ExpressionResult(cur_result.type, tmp_sym);
     node.setNodeType(_expResult.type);
     node.setExpressionResult(_expResult);
+
 }
 
 void
@@ -418,6 +417,11 @@ SymbolTreeBuilder::visit(SingleOperatorNode& node)
                << std::endl;
         throw SemanticException(stream.str(), node);
     }
+
+    Symbol* tmp_sym = _curScope->declareTemporarySymbol(&node, _expResult.type->isObjectType() ? Symbol::kFlagNewObject : 0);
+    _curStatment->addSymbolToScope(tmp_sym);
+
+    _expResult = ExpressionResult(_expResult.type, tmp_sym);
 
     node.setNodeType(_expResult.type);
     node.setExpressionResult(_expResult);
@@ -458,9 +462,15 @@ SymbolTreeBuilder::visit(FunctionCallNode& node)
 
     const FunctionType* func_type = cast_type<FunctionType>(sym->astNode()->nodeType());
     YAL_ASSERT(func_type);
-    _expResult = func_type->typeOfReturnValue();
+    Type* return_type = func_type->typeOfReturnValue();
+
+    Symbol* tmp_sym = _curScope->declareTemporarySymbol(&node, return_type->isObjectType() ? Symbol::kFlagNewObject : 0);
+    _curStatment->addSymbolToScope(tmp_sym);
+
+    _expResult = ExpressionResult(return_type, tmp_sym);
     node.setExpressionResult(_expResult);
     _curFunctionCall = nullptr;
+    node.setNodeType(return_type);
 }
 
 void
@@ -518,6 +528,7 @@ SymbolTreeBuilder::visit(ConditionNode& node)
 
     if (node.hasConditionComponent())
     {
+        _curStatment = node.condition();
         node.condition()->accept(*this);
         // check condition expression
         if (!_expResult.type->isPromotableToBoolean())
@@ -598,7 +609,7 @@ SymbolTreeBuilder::visit(ReturnNode& node)
                   << _expResult.type->typeString() <<"'" <<  std::endl;
             throw SemanticException(stream.str(), node);
         }
-
+        _expResult.symbol->markReturnValue();
     }
 
     node.setScope(currentScope());
@@ -610,6 +621,7 @@ SymbolTreeBuilder::visit(WhileLoopNode& node)
 {
     node.setScope(currentScope());
 
+    _curStatment = &node;
     node.condition()->accept(*this);
     // check condition expression
     if (!_expResult.type->isPromotableToBoolean())
@@ -627,6 +639,7 @@ SymbolTreeBuilder::visit(WhileLoopNode& node)
 void
 SymbolTreeBuilder::visit(PrintNode& node)
 {
+    _curStatment = &node;
     node.arguments()->accept(*this);
 }
 
@@ -677,9 +690,11 @@ SymbolTreeBuilder::visit(StringCreateNode& node)
 {
     node.setScope(currentScope());
     node.constantNode()->accept(*this);
-    _expResult = ExpressionResult(StringType::GetType());
+    Symbol* tmp_sym = _curScope->declareTemporarySymbol(&node, Symbol::kFlagNewObject);
+    _curStatment->addSymbolToScope(tmp_sym);
+    _expResult = ExpressionResult(StringType::GetType(), tmp_sym);
     node.setNodeType(_expResult.type);
-    node.setExpressionResult(_expResult.type);
+    node.setExpressionResult(_expResult);
 }
 
 void
@@ -688,7 +703,7 @@ SymbolTreeBuilder::visit(ObjectCreateNode& node)
      node.setScope(currentScope());
      node.expression()->accept(*this);
      node.setNodeType(_expResult.type);
-     node.setExpressionResult(_expResult.type);
+     node.setExpressionResult(_expResult);
 }
 
 void

@@ -26,6 +26,9 @@ public:
                        AstBaseNode* astNode,
                        const yal_u32 flags);
 
+    Symbol* declareTemporarySymbol(AstBaseNode* astNode,
+                                   const yal_u32 symFlags = 0);
+
     Symbol *resolveSymbol(const char* name) const;
 
     const Scope* scope() const
@@ -48,6 +51,7 @@ public:
 protected:
     const Scope* _scope;
     SymbolMap_t _symbols;
+    yal_u32 _tmpCounter;
 };
 
 }

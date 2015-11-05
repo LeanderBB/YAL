@@ -54,13 +54,61 @@ bool
 Symbol::isVariable() const
 {
     return ast_typeof<VariableDeclNode>(_astNode)
-        || ast_typeof<ArgumentDeclNode>(_astNode);
+            || ast_typeof<ArgumentDeclNode>(_astNode);
 }
 
 bool
 Symbol::isFunction() const
 {
     return ast_typeof<FunctionDeclNode>(_astNode);
+}
+
+bool
+Symbol::isGlobalSymbol() const
+{
+    return _symbolFlags & kFlagGlobalSymbol;
+}
+
+bool
+Symbol::isGlobalVariable() const
+{
+    return isVariable() && isGlobalSymbol();
+}
+
+bool
+Symbol::isTemporary() const
+{
+    return _symbolFlags & kFlagTemporary;
+}
+
+bool
+Symbol::isNewObject() const
+{
+    return _symbolFlags & kFlagNewObject;
+}
+
+bool
+Symbol::isAssigned() const
+{
+    return _symbolFlags & kFlagAssigned;
+}
+
+bool
+Symbol::isReturnValue() const
+{
+    return _symbolFlags & kFlagReturnValue;
+}
+
+void
+Symbol::markAssigned()
+{
+    _symbolFlags |= kFlagAssigned;
+}
+
+void
+Symbol::markReturnValue()
+{
+    _symbolFlags |= kFlagReturnValue;
 }
 
 }

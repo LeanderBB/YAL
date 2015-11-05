@@ -16,6 +16,7 @@ namespace yal
 
 class FunctionCache;
 class SymbolTable;
+class StatementNode;
 class ByteCodeGenerator : public AstNodeVisitor
 {
 private:
@@ -27,6 +28,9 @@ private:
         Register(RegisterAllocator& alloctor,
                  const char* variable,
                  const yal_u32 scopeLevel);
+
+        Register(const Symbol* sym,
+                 RegisterAllocator& alloctor);
 
         Register(RegisterAllocator& alloctor);
 
@@ -51,7 +55,7 @@ public:
 
     void generateFunction(yal::FunctionDeclNode &node);
 
-    bool generate(AstBaseNode& node);
+    bool generate(StatementNode &node);
 
     const ByteCodeBuffer& buffer() const
     {
@@ -108,6 +112,10 @@ protected:
     bool onScopeBegin(const AstBaseNode& node);
 
     bool onScopeEnd(const AstBaseNode& node);
+
+    bool onStatementScopeBegin(const StatementNode& node);
+
+    bool onStatementScopeEnd(const StatementNode& node);
 
     void loadVariableIntoRegister(const char *varName,
                                   const AstBaseNode &node);
