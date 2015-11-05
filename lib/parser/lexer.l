@@ -78,6 +78,8 @@ float64 {return TK_TYPE_F64;}
 
 bool {return TK_TYPE_BOOL;}
 
+string {return TK_TYPE_STRING;}
+
 print {return TK_PRINT;}
 
 ">>" {return TK_SHIFT_RIGHT;}

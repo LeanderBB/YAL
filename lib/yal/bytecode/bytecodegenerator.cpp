@@ -10,6 +10,7 @@
 #include "yal/symbols/objectscopeaction.h"
 #include "yal/bytecode/bytecode_utils.h"
 #include "yal/bytecode/bytecodegenexception.h"
+#include "yal/symbols/symbol.h"
 
 namespace yal
 {
@@ -27,7 +28,16 @@ ByteCodeGenerator::Register::Register(RegisterAllocator& alloctor,
     _scopeLevel(scopeLevel),
     _isTemporary(false)
 {
+    YAL_ASSERT(isValid());
+}
 
+ByteCodeGenerator::Register::Register(const Symbol *sym,
+                                      RegisterAllocator& alloctor):
+    _registerIdx(alloctor.registerForVariable(sym->symbolName(),
+                                              sym->astNode()->scope()->level())),
+    _isTemporary(false)
+{
+    YAL_ASSERT(isValid());
 }
 
 ByteCodeGenerator::Register::Register(RegisterAllocator& alloctor):
@@ -105,9 +115,11 @@ ByteCodeGenerator::generateFunction(FunctionDeclNode& node)
 }
 
 bool
-ByteCodeGenerator::generate(AstBaseNode &node)
+ByteCodeGenerator::generate(StatementNode &node)
 {
+    onStatementScopeBegin(node);
     node.accept(*this);
+    onStatementScopeEnd(node);
     return true;
 }
 
@@ -330,6 +342,44 @@ ByteCodeGenerator::onScopeEnd(const AstBaseNode& node)
     return result;
 }
 
+bool
+ByteCodeGenerator::onStatementScopeBegin(const StatementNode& node)
+{
+    const StatementNode::SymScope_t& tmp_symbols = node.symbolScope();
+    for(auto& symbol : tmp_symbols)
+    {
+        yal_i32 result = _regAllocator.allocate(symbol->symbolName(),
+                                                symbol->astNode()->scope()->level());
+        if (result == RegisterAllocator::UnusedRegisterValue)
+        {
+            return false;
+        }
+    }
+    return true;
+}
+
+bool
+ByteCodeGenerator::onStatementScopeEnd(const StatementNode& node)
+{
+    const StatementNode::SymScope_t& tmp_symbols = node.symbolScope();
+    for(auto& symbol : tmp_symbols)
+    {
+        if (symbol->astNode()->nodeType()->isObjectType()
+                && !symbol->isReturnValue() && !symbol->isAssigned())
+        {
+            const Register reg(_regAllocator, symbol->symbolName(),
+                               symbol->scope()->level());
+            releaseObject(*symbol, reg);
+        }
+
+        _regAllocator.deallocate(symbol->symbolName(),
+                                 symbol->astNode()->scope()->level());
+
+    }
+    return true;
+
+}
+
 void
 ByteCodeGenerator::loadVariableIntoRegister(const char* varName,
                                             const AstBaseNode& node)
@@ -526,7 +576,9 @@ ByteCodeGenerator::visit(CodeBodyNode& node)
 {
     for(auto& v : node.statements)
     {
+        onStatementScopeBegin(*v);
         v->accept(*this);
+        onStatementScopeEnd(*v);
     }
 }
 
@@ -547,7 +599,7 @@ ByteCodeGenerator::visit(CompareOperatorNode& node)
 
     // create result register
 
-    Register result_register(_regAllocator);
+    Register result_register(node.expressionResult().symbol, _regAllocator);
     pushRegister(result_register);
 
     const Type* exp_type = node.expressionResult().type;
@@ -581,7 +633,7 @@ ByteCodeGenerator::visit(ConstantNode& node)
     yal_u32 inst_value = 0;
     yalvm_bytecode_inst_t instruction = YALVM_BYTECODE_TOTAL;
 
-    Register cur_register = Register(_regAllocator);
+    Register cur_register = Register(node.expressionResult().symbol, _regAllocator);
 
     const Type* exp_type = node.expressionResult().type;
     (void) exp_type;
@@ -804,7 +856,7 @@ ByteCodeGenerator::visit(DualOperatorNode& node)
     Register right_register = popRegister();
     YAL_ASSERT(right_register.isValid());
 
-    Register cur_register = Register(_regAllocator);
+    Register cur_register = Register(node.expressionResult().symbol, _regAllocator);
 
     pushRegister(cur_register);
 
@@ -895,7 +947,7 @@ ByteCodeGenerator::visit(FunctionCallNode& node)
     Register return_register;
     if (func_type->hasReturnValue())
     {
-        return_register = Register(_regAllocator);
+        return_register = Register(node.expressionResult().symbol, _regAllocator);
         pushRegister(return_register);
     }
 
@@ -935,7 +987,9 @@ ByteCodeGenerator::visit(ConditionNode& node)
     size_t jump_to_false_offset = 0;
     if (node.hasConditionComponent())
     {
+        onStatementScopeBegin(*node.condition());
         node.condition()->accept(*this);
+        onStatementScopeEnd(*node.condition());
         tmp_register  = popRegister();
         YAL_ASSERT(tmp_register.isValid());
 
@@ -1058,7 +1112,9 @@ ByteCodeGenerator::visit(WhileLoopNode& node)
     const size_t jump_to_condition = _buffer.size();
     YAL_ASSERT(jump_to_condition <  std::numeric_limits<yal_i32>::max());
 
+    onStatementScopeBegin(*node.condition());
     node.condition()->accept(*this);
+    onStatementScopeEnd(*node.condition());
     tmp_register  = popRegister();
     YAL_ASSERT(tmp_register.isValid());
 
@@ -1124,7 +1180,7 @@ ByteCodeGenerator::visit(StringCreateNode& node)
     yal_u32 constant_idx;
     getConstantIdx(constant_idx, node.constantNode()->constantValue(), node);
 
-    Register reg_string(_regAllocator);
+    Register reg_string(node.expressionResult().symbol, _regAllocator);
     pushRegister(reg_string);
 
     yalvm_bytecode_t code = yalvm_bytecode_pack_dst_value(YALVM_BYTECODE_STRING_ALLOC,
@@ -1147,10 +1203,12 @@ ByteCodeGenerator::ByteCodeGeneratorScopeActionVisitor::visitOnExit(const Object
     const Symbol* sym = action.symbol();
     const Type* sym_type = sym->astNode()->nodeType();
     YAL_ASSERT(sym->isVariable() && sym_type->isObjectType());
-
-    _generator.loadVariableIntoRegister(sym->symbolName(), *sym->astNode());
-    Register var_reg = _generator.popRegister();
-    _generator.releaseObject(*sym, var_reg);
+    if (!sym->isReturnValue())
+    {
+        _generator.loadVariableIntoRegister(sym->symbolName(), *sym->astNode());
+        Register var_reg = _generator.popRegister();
+        _generator.releaseObject(*sym, var_reg);
+    }
 }
 
 void

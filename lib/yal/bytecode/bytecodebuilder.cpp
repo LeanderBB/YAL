@@ -112,7 +112,6 @@ ByteCodeBuilder::writeModuleInfo(ParserState& state)
             ByteCodeGenerator& generator = (ast_typeof<VariableDeclNode>(v))
                     ? static_init_code
                     : global_function;
-
             if (!generator.generate(*v))
             {
                 return false;

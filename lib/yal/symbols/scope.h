@@ -52,6 +52,12 @@ public:
         return _symTable.resolveSymbol(name);
     }
 
+    inline Symbol* declareTemporarySymbol(AstBaseNode* astNode,
+                                          const yal_u32 flags = 0)
+    {
+        return  _symTable.declareTemporarySymbol(astNode, flags);
+    }
+
     yal_u32 level() const
     {
         return _scopeLvl;

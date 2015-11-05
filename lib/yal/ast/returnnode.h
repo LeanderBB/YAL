@@ -22,6 +22,12 @@ public:
         return _pExpression;
     }
 
+    void replaceExpression(ExpressionNode* expression)
+    {
+        _pExpression = expression;
+        _pExpression->setParentNode(this);
+    }
+
 private:
     ExpressionNode* _pExpression;
 };

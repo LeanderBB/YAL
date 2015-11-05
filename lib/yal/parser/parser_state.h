@@ -10,8 +10,9 @@
 namespace yal
 {
 
-struct ParserState
+class ParserState
 {
+public:
     ParserState():
         program(),
         module(),
@@ -19,13 +20,13 @@ struct ParserState
         symbolTree(registry)
     {}
 
-    yal::AstBaseNodeVec_t program;
+    yal::StatementNodeVec_t program;
     yal::Module module;
     yal::TypeRegistry registry;
     yal::SymbolTreeBuilder symbolTree;
 };
 
-typedef struct ParserState ParserState_t;
+typedef class ParserState ParserState_t;
 
 }
 #endif

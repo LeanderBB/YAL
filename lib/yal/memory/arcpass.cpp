@@ -102,7 +102,8 @@ ArcPass::visit(VariableDeclNode& node)
     if (node.expressionResult().type->isObjectType())
     {
         if (exp_node->expressionResult().type->isObjectType()
-                && !ast_typeof<ObjectCreateNode>(exp_node))
+                && !ast_typeof<ObjectCreateNode>(exp_node)
+                && !ast_typeof<FunctionCallNode>(exp_node))
         {
             node.replaceExpression(new ObjectRetainNode(exp_node));
         }

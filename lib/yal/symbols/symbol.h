@@ -3,7 +3,7 @@
 
 #include "yal/yal.h"
 #include "yal/enums.h"
-
+#include <string>
 namespace yal
 {
 
@@ -20,7 +20,11 @@ public:
     {
         kFlagAssignable     = 1 << 0,
         kFlagReadOnly       = 1 << 1,
-        kFlagGlobalSymbol   = 1 << 2
+        kFlagGlobalSymbol   = 1 << 2,
+        kFlagTemporary      = 1 << 3,
+        kFlagNewObject      = 1 << 4,
+        kFlagAssigned       = 1 << 5,
+        kFlagReturnValue    = 1 << 6
     };
 
     Symbol(const char* name,
@@ -32,7 +36,7 @@ public:
 
     const char* symbolName() const
     {
-        return _symName;
+        return _symName.c_str();
     }
 
     const Scope* scope() const
@@ -79,18 +83,24 @@ public:
 
     bool isFunction() const;
 
-    bool isGlobalSymbol() const
-    {
-        return _symbolFlags & kFlagGlobalSymbol;
-    }
+    bool isGlobalSymbol() const;
 
-    bool isGlobalVariable() const
-    {
-        return isVariable() && isGlobalSymbol();
-    }
+    bool isGlobalVariable() const;
+
+    bool isTemporary() const;
+
+    bool isNewObject() const;
+
+    bool isAssigned() const;
+
+    bool isReturnValue() const;
+
+    void markAssigned();
+
+    void markReturnValue();
 
 protected:
-    const char* _symName;
+    const std::string _symName;
     const Scope* _pSymScope;
     AstBaseNode* _astNode;
     yal_u32 _readCount;

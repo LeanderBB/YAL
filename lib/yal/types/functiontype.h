@@ -31,7 +31,7 @@ public:
 
     Type* typeOfObject() const;
 
-    virtual bool isPromotableTo(const Type *t) const;
+    virtual bool isPromotableTo(const Type *t) const override;
 
 private:
     const FunctionDeclNode* _pFunctionDecl;
