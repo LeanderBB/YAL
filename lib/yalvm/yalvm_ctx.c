@@ -4,6 +4,12 @@
 #include "yalvm/yalvm_object.h"
 #include "yalvm/yalvm_string.h"
 
+
+#if defined(__GNUC__)
+#define YAL_C_EXTENSION(x) __extension__(x)
+#else
+#define YAL_C_EXTENSION(x) x
+#endif
 yalvm_u32
 yalvm_ctx_execute(yalvm_ctx_t* ctx);
 
@@ -861,8 +867,8 @@ yalvm_ctx_execute(yalvm_ctx_t* ctx)
             /* update register location */
             yalvm_register_t* registers = yalvm_stack_local_registers(&ctx->stack);
 
-            void (*native_function)(yalvm_register_t*, yalvm_register_t*) =
-                    (void (*)(yalvm_register_t*, yalvm_register_t*)) function_hdr->code;
+            void (*native_function)(yalvm_register_t*, yalvm_register_t*) = NULL;
+            YAL_C_EXTENSION(native_function = (void (*)(yalvm_register_t*, yalvm_register_t*)) function_hdr->code);
 
             native_function(registers, return_register_ptr);
 

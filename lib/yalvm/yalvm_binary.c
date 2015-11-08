@@ -3,6 +3,8 @@
 #include "yalvm/yalvm_bytecode.h"
 #include "yalvm/yalvm_external.h"
 
+
+#define __USE_GNU
 #include <dlfcn.h>
 
 static const yalvm_u32 yalvm_bin_header_magic  = 0x10e5af18;
