@@ -25,6 +25,31 @@ FunctionCallNode::~FunctionCallNode()
 
 }
 
+
+FunctionDeclBaseNode::FunctionDeclBaseNode(const SourceLocationInfo& loc,
+                                           const char* name,
+                                           ArgumentDeclsNode *args,
+                                           Type *returnType):
+    AstBaseNode(loc),
+    _functionName(name),
+    _functionArgs(args),
+    _returnValueType(returnType)
+{
+    args->setParentNode(this);
+}
+
+FunctionDeclBaseNode::~FunctionDeclBaseNode()
+{
+
+}
+
+bool
+FunctionDeclBaseNode::hasReturnValue() const
+{
+    return !_returnValueType->isVoidType();
+}
+
+
 YAL_AST_NODE_ACCEPT_IMP(FunctionDeclNode)
 
 FunctionDeclNode::FunctionDeclNode(const SourceLocationInfo& loc,
@@ -32,13 +57,9 @@ FunctionDeclNode::FunctionDeclNode(const SourceLocationInfo& loc,
                                    ArgumentDeclsNode *args,
                                    Type *returnType,
                                    CodeBodyNode *code):
-    AstBaseNode(loc),
-    _functionName(name),
-    _functionArgs(args),
-    _codeBody(code),
-    _returnValueType(returnType)
+    FunctionDeclBaseNode(loc, name, args, returnType),
+    _codeBody(code)
 {
-    args->setParentNode(this);
     code->setParentNode(this);
 }
 
@@ -47,11 +68,21 @@ FunctionDeclNode::~FunctionDeclNode()
 
 }
 
-bool
-FunctionDeclNode::hasReturnValue() const
+YAL_AST_NODE_ACCEPT_IMP(FunctionDeclNativeNode)
+
+FunctionDeclNativeNode::FunctionDeclNativeNode(const SourceLocationInfo& loc,
+                                               const char* name,
+                                               ArgumentDeclsNode *args,
+                                               Type *returnType):
+    FunctionDeclBaseNode(loc, name, args, returnType)
 {
-    return !_returnValueType->isVoidType();
 }
+
+FunctionDeclNativeNode::~FunctionDeclNativeNode()
+{
+
+}
+
 
 
 }

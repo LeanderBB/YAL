@@ -226,7 +226,7 @@ void
 AstPrinter::visit(FunctionDeclNode& node)
 {
     printNodeTitle(node);
-    _sink << "'" << node.functionName() << "'" << std::endl;
+    _sink << "'" << node.functionName() << "' : '" << node.returnValueType()->typeString() << "'" << std::endl;
 
     if (node.hasFunctionArguments())
     {
@@ -353,6 +353,13 @@ AstPrinter::visit(ObjectReleaseNode& node)
     onDescent(true);
     node.expression()->accept(*this);
     onAscend();
+}
+
+void
+AstPrinter::visit(FunctionDeclNativeNode& node)
+{
+    printNodeTitle(node);
+    _sink << "'" << node.functionName() << "' : '" << node.returnValueType()->typeString() << "'" << std::endl;
 }
 
 }

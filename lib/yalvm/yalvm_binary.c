@@ -3,9 +3,18 @@
 #include "yalvm/yalvm_bytecode.h"
 #include "yalvm/yalvm_external.h"
 
+#include <dlfcn.h>
+
 static const yalvm_u32 yalvm_bin_header_magic  = 0x10e5af18;
 static const yalvm_u32 yalvm_func_header_magic = 0x04974ceb;
 static const yalvm_u32 yalvm_static_hader_magic = 0xe351dac4;
+
+
+static const void*
+yalvm_bin_load_native_function(const char* name)
+{
+    return dlsym(RTLD_DEFAULT, name);
+}
 
 yalvm_bool
 yalvm_bin_header_valid_magic(const yalvm_bin_header_t* header)
@@ -24,7 +33,7 @@ yalvm_bin_header_offset_functions(const yalvm_bin_header_t* header)
 
 yalvm_u32
 yalvm_bin_header_offset_constant32(const yalvm_bin_header_t* header,
-                            const yalvm_u16 index)
+                                   const yalvm_u16 index)
 {
     yalvm_u32 offset = sizeof(yalvm_bin_header_t);
     if (index <= header->n_constants32)
@@ -39,7 +48,7 @@ yalvm_bin_header_offset_constant32(const yalvm_bin_header_t* header,
 
 yalvm_u32
 yalvm_bin_header_offset_constant64(const yalvm_bin_header_t* header,
-                            const yalvm_u16 index)
+                                   const yalvm_u16 index)
 {
     yalvm_u32 offset = yalvm_bin_header_offset_constant32(header, header->n_constants32);
     if (index <= header->n_constants64)
@@ -113,14 +122,14 @@ yalvm_static_code_hdr_valid_magic(const yalvm_static_code_hdr_t* header)
 
 
 void
-yalvm_func_header_init(yalvm_func_header_t* header,
-                       const char* function_name)
+yalvm_func_header_init(yalvm_func_header_t* header)
 {
     header->magic = yalvm_func_header_magic;
-    header->hash = yalvm_one_at_a_time_hash(function_name);
     header->code_size = 0;
     header->n_arguments = 0;
     header->n_registers = 0;
+    header->flags = 0;
+    header->name_len = 0;
 }
 
 yalvm_bool
@@ -143,6 +152,25 @@ yalvm_func_global_hash()
     return hash;
 }
 
+
+const char*
+yalvm_func_header_name(const yalvm_func_header_t* header)
+{
+    return header->name_len ? (const char*) (++header) : NULL;
+}
+
+const void*
+yalvm_func_header_code(const yalvm_func_header_t* header)
+{
+    return YALVM_PTR_ADD(header, sizeof(yalvm_func_header_t) + header->name_len);
+}
+
+yalvm_size
+yalvm_func_header_total_size(const yalvm_func_header_t* header)
+{
+    return sizeof(yalvm_func_header_t)  + header->name_len
+            + (header->code_size *  sizeof(yalvm_bytecode_t));
+}
 
 void
 yalvm_binary_init(yalvm_binary_t* binary)
@@ -186,10 +214,10 @@ yalvm_binary_load(yalvm_binary_t* binary,
     binary->binary_end = input_end;
 
     binary->constants32 = (yalvm_u32*) (input
-                                     + yalvm_bin_header_offset_constant32(bin_header, 0));
+                                        + yalvm_bin_header_offset_constant32(bin_header, 0));
 
     binary->constants64 = (yalvm_u64*) (input
-                                     + yalvm_bin_header_offset_constant64(bin_header, 0));
+                                        + yalvm_bin_header_offset_constant64(bin_header, 0));
 
 
     const void* string_offset = (input + yalvm_bin_header_offset_strings(bin_header));
@@ -231,8 +259,8 @@ yalvm_binary_load(yalvm_binary_t* binary,
     }
 
     /* process functions */
-    binary->functions = (const yalvm_func_header_t**)
-            yalvm_malloc(sizeof(yalvm_func_header_t) * bin_header->n_functions + 1);
+    binary->functions = (yalvm_binary_function_t*)
+            yalvm_malloc(sizeof(yalvm_binary_function_t) * bin_header->n_functions + 1);
 
     input += yalvm_bin_header_offset_functions(bin_header);
 
@@ -246,10 +274,18 @@ yalvm_binary_load(yalvm_binary_t* binary,
             return yalvm_false;
         }
 
-        binary->functions[i] = function_header;
+        binary->functions[i].hdr = function_header;
+        binary->functions[i].code = function_header->flags & YALVM_FUNC_FLAG_NATIVE
+                ? yalvm_bin_load_native_function(yalvm_func_header_name(function_header))
+                : yalvm_func_header_code(function_header);
 
-        input += sizeof(yalvm_func_header_t)
-                + (sizeof(yalvm_bytecode_t) * function_header->code_size);
+        if (binary->functions[i].code == NULL)
+        {
+            yalvm_binary_destroy(binary);
+            return yalvm_false;
+        }
+
+        input += yalvm_func_header_total_size(function_header);
     }
 
     return yalvm_true;

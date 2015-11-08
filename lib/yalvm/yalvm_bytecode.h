@@ -78,6 +78,11 @@ enum yalvm_bytecode_inst
     /* Shift Right */
     YALVM_BYTECODE_SHIFTR_32,
     YALVM_BYTECODE_SHIFTR_64,
+    /* Mod */
+    YALVM_BYTECODE_MOD_I,
+    YALVM_BYTECODE_MOD_IL,
+    YALVM_BYTECODE_MOD_U,
+    YALVM_BYTECODE_MOD_UL,
     /* Logical And */
     YALVM_BYTECODE_AND,
     /* Logical Or */
@@ -137,6 +142,7 @@ enum yalvm_bytecode_inst
     YALVM_BYTECODE_PUSH_ARG,
     /* Call function */
     YALVM_BYTECODE_CALL,
+    YALVM_BYTECODE_CALL_NATIVE,
     /* Return Instruction */
     YALVM_BYTECODE_RETURN,
     /* Copy Register */

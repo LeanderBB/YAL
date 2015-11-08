@@ -106,7 +106,8 @@ ByteCodeBuilder::writeModuleInfo(ParserState& state)
     {
         // if symbol is not a function definition add it to the
         // global function scope
-        if (!ast_typeof<FunctionDeclNode>(v))
+        if (!ast_typeof<FunctionDeclNode>(v)
+                && !ast_typeof<FunctionDeclNativeNode>(v))
         {
 
             ByteCodeGenerator& generator = (ast_typeof<VariableDeclNode>(v))
@@ -229,7 +230,7 @@ ByteCodeBuilder::writeModuleInfo(ParserState& state)
         if (_codeOutput.write(static_init_code.buffer().buffer(), real_size)
                 != real_size)
         {
-           // _errorHandler.onError("Could not write static init code to code output", 0);
+            // _errorHandler.onError("Could not write static init code to code output", 0);
             return false;
         }
     }
@@ -270,15 +271,25 @@ ByteCodeBuilder::writeModuleInfo(ParserState& state)
         ByteCodeGenerator function_code(state.module);
         for (auto& function : function_vec)
         {
-            FunctionDeclNode* decl_node = function->functionNode();
-            const char* function_name = function->functionName();
+            FunctionDeclBaseNode* decl_node = function->functionNode();
+            std::string function_name = function->functionName();
 
             // process bytecode
-            function_code.generateFunction(*decl_node);
-
+            if (ast_typeof<FunctionDeclNode>(decl_node))
+            {
+                function_code.generateFunction(*ast_cast<FunctionDeclNode>(decl_node));
+            }
 
             yalvm_func_header_t function_header;
-            yalvm_func_header_init(&function_header, function_name);
+            yalvm_func_header_init(&function_header);
+
+            bool is_native_func = false;
+            if (ast_typeof<FunctionDeclNativeNode>(decl_node))
+            {
+                function_header.flags |= YALVM_FUNC_FLAG_NATIVE;
+                function_name = "yal_native_" + function_name;
+                is_native_func = true;
+            }
 
             // set function args
             if (decl_node->hasFunctionArguments())
@@ -287,17 +298,26 @@ ByteCodeBuilder::writeModuleInfo(ParserState& state)
             }
 
             // set function register count
-            function_header.n_registers = function_code.maxRegisterCount();
+            function_header.n_registers = !is_native_func
+                    ? function_code.maxRegisterCount()
+                    : decl_node->functionArguments()->argumentCount();
+            function_header.name_len = function_name.length() + 1;
 
             // set function code size;
-            const size_t function_code_size = function_code.buffer().size();
-            if (function_code_size >= YALVM_BIN_MAX_FUNCTION_CODE_SIZE)
+            if (!is_native_func)
             {
-                //_errorHandler.onError("Function code greater than maxium value", 0);
-                return false;
+                const size_t function_code_size = function_code.buffer().size();
+                if (function_code_size >= YALVM_BIN_MAX_FUNCTION_CODE_SIZE)
+                {
+                    //_errorHandler.onError("Function code greater than maxium value", 0);
+                    return false;
+                }
+                function_header.code_size = function_code_size;
             }
-
-            function_header.code_size = function_code_size;
+            else
+            {
+                function_header.code_size = 0;
+            }
 
             if (_codeOutput.write(&function_header, sizeof(function_header))
                     != sizeof(function_header))
@@ -306,7 +326,18 @@ ByteCodeBuilder::writeModuleInfo(ParserState& state)
                 return false;
             }
 
-            const size_t real_size = function_code_size * sizeof(yalvm_bytecode_t);
+            if (_codeOutput.write(function_name.c_str(), function_header.name_len)
+                    != function_header.name_len)
+            {
+                return false;
+            }
+
+            if (is_native_func)
+            {
+                continue;
+            }
+
+            const size_t real_size = function_header.code_size * sizeof(yalvm_bytecode_t);
             if (_codeOutput.write(function_code.buffer().buffer(), real_size)
                     != real_size)
             {
@@ -318,7 +349,11 @@ ByteCodeBuilder::writeModuleInfo(ParserState& state)
     // write global function
 
     yalvm_func_header_t global_header;
-    yalvm_func_header_init(&global_header, yalvm_func_global_name());
+    yalvm_func_header_init(&global_header);
+    const char* global_function_name = yalvm_func_global_name();
+    global_header.name_len = strlen(global_function_name) + 1;
+
+
     if (global_function.buffer().size())
     {
         global_function.addHaltInst();
@@ -326,11 +361,13 @@ ByteCodeBuilder::writeModuleInfo(ParserState& state)
         const size_t function_code_size = global_function.buffer().size();
         if (function_code_size >= YALVM_BIN_MAX_FUNCTION_CODE_SIZE)
         {
-           // _errorHandler.onError("Global  code greater than maxium value", 0);
+            // _errorHandler.onError("Global  code greater than maxium value", 0);
             return false;
         }
         global_header.code_size = function_code_size;
     }
+
+
 
     // write global function header
     if (_codeOutput.write(&global_header, sizeof(global_header))
@@ -339,6 +376,15 @@ ByteCodeBuilder::writeModuleInfo(ParserState& state)
         //_errorHandler.onError("Could not write global header to code output", 0);
         return false;
     }
+
+    // write global function name
+
+    if (_codeOutput.write(global_function_name, global_header.name_len)
+            != global_header.name_len)
+    {
+        return false;
+    }
+
 
     // write global function code
     if (global_header.code_size)

@@ -60,7 +60,14 @@ Symbol::isVariable() const
 bool
 Symbol::isFunction() const
 {
-    return ast_typeof<FunctionDeclNode>(_astNode);
+    return ast_typeof<FunctionDeclNode>(_astNode)
+            || ast_typeof<FunctionDeclNativeNode>(_astNode);
+}
+
+bool
+Symbol::isNativeFunction() const
+{
+    return ast_typeof<FunctionDeclNativeNode>(_astNode);
 }
 
 bool

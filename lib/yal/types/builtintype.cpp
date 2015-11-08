@@ -104,6 +104,7 @@ BuiltinType::GetBuiltinTypeForConstantType(const ConstantType type)
     case kConstantTypeNone:
         return &sTypeVoid;
     case kConstantTypeBool:
+        return &sTypeBool;
     case kConstantTypeUInt32:
         return &sTypeUInt32;
     case kConstantTypeInt32:

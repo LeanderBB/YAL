@@ -174,5 +174,10 @@ Type::acceptsOperator(const OperatorType op) const
     return _operatorFlags & op;
 }
 
+bool
+Type::isNativeImpl() const
+{
+    return _typeFlags & kTypeFlagIsNativeImpl;
+}
 
 }

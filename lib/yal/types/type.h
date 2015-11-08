@@ -28,7 +28,8 @@ enum TypeFlags
     kTypeFlagIsVoidType         = 1 << 16,
     kTypeFlagIsStringConstant   = 1 << 17,
     kTypeFlagIsUndefined        = 1 << 18,
-    kTypeFlagIsImmutable        = 1 << 19
+    kTypeFlagIsImmutable        = 1 << 19,
+    kTypeFlagIsNativeImpl       = 1 << 20
 };
 
 
@@ -125,6 +126,8 @@ public:
     bool isSignedType() const;
 
     bool isUnsignedType() const;
+
+    bool isNativeImpl() const;
 
     bool acceptsOperator(const OperatorType op) const;
 

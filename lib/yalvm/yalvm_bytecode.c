@@ -81,6 +81,11 @@ static const char* yalvm_bytecode_inst_strings [] =
     /* Shift Right */
     "shiftr32",
     "shiftr64",
+    /* Mod */
+    "modi",
+    "modil",
+    "modu",
+    "modul",
      /* Logical And */
     "and",
     /* Logical Or */
@@ -140,6 +145,7 @@ static const char* yalvm_bytecode_inst_strings [] =
     "push arg",
     /* Call function */
     "call",
+    "call native",
     /* Return Instruction */
     "return",
     /* Copy Register */

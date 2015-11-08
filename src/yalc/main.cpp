@@ -129,17 +129,17 @@ int main(const int argc,
     {
         std::cerr << "Parse Error: ";
         printLocatioInfo(parseException.location(), std::cerr);
-        std::cerr << parseException.what();
+        std::cerr << parseException.what() << std::endl;
     }
     catch(const yal::SemanticException& semanticException)
     {
         std::cerr<< "Semantic Error: ";
         printLocatioInfo(semanticException.astNode().locationInfo(), std::cerr);
-        std::cerr << semanticException.what();
+        std::cerr << semanticException.what() << std::endl;
     }
     catch(const yal::ByteCodeGenException& byteCodeGenException)
     {
         std::cerr<< "ByteCodeGen Error: ";
-        std::cerr << byteCodeGenException.what();
+        std::cerr << byteCodeGenException.what() << std::endl;
     }
 }

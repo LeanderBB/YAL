@@ -15,7 +15,7 @@ TypeRegistry::TypeRegistry(Module &module):
 }
 
 FunctionType*
-TypeRegistry::registerFunction(FunctionDeclNode* node)
+TypeRegistry::registerFunction(FunctionDeclBaseNode* node)
 {
     if (!canRegisterNewType(node->functionName()))
     {

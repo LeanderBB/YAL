@@ -52,6 +52,11 @@ public:
         return _symTable.resolveSymbol(name);
     }
 
+    inline void eraseSymbol(const Symbol* sym)
+    {
+        _symTable.eraseSymbol(sym);
+    }
+
     inline Symbol* declareTemporarySymbol(AstBaseNode* astNode,
                                           const yal_u32 flags = 0)
     {

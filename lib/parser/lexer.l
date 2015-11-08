@@ -36,6 +36,10 @@ ID [a-zA-Z][a-zA-Z0-9_]*
 
 ^#.+\n {}
 
+native {return TK_NATIVE;}
+
+@excall {return TK_ATTRIB_EXCALL;}
+
 \n {return TK_NL; }
 
 true {return yal::FlexReadBool(yylval, yytext);}
@@ -81,6 +85,8 @@ bool {return TK_TYPE_BOOL;}
 string {return TK_TYPE_STRING;}
 
 print {return TK_PRINT;}
+
+% {return TK_MOD;}
 
 ">>" {return TK_SHIFT_RIGHT;}
 

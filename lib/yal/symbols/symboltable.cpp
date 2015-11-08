@@ -82,4 +82,9 @@ SymbolTable::resolveSymbol(const char* name) const
     return nullptr;
 }
 
+void
+SymbolTable::eraseSymbol(const Symbol *sym)
+{
+    _symbols.erase(sym->symbolName());
+}
 }

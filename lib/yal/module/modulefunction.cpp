@@ -4,27 +4,27 @@
 
 namespace yal
 {
-ModuleFunction::ModuleFunction(const Symbol *symbol,
-                               FunctionDeclNode* astNode):
+ModuleFunctionBase::ModuleFunctionBase(const Symbol *symbol,
+                                       FunctionDeclBaseNode *astNode):
     _symbol(symbol),
     _astNode(astNode)
 {
 
 }
 
-ModuleFunction::~ModuleFunction()
+ModuleFunctionBase::~ModuleFunctionBase()
 {
 
 }
 
 const char*
-ModuleFunction::functionName() const
+ModuleFunctionBase::functionName() const
 {
     return _symbol->symbolName();
 }
 
 bool
-ModuleFunction::wasUsed() const
+ModuleFunctionBase::wasUsed() const
 {
     //TODO: Provide annotations to override behaviour
     //return _symbol->readCount() > 0 || _symbol->callCount() > 0;
@@ -32,16 +32,38 @@ ModuleFunction::wasUsed() const
 }
 
 Type*
-ModuleFunction::returnType() const
+ModuleFunctionBase::returnType() const
 {
     const FunctionType* fn_type = cast_type<FunctionType>(_symbol->astNode()->nodeType());
     YAL_ASSERT(fn_type);
     return fn_type->typeOfReturnValue();
 }
 
-FunctionDeclNode *ModuleFunction::functionNode() const
+
+ModuleFunction::ModuleFunction(const Symbol *symbol,
+                               FunctionDeclNode* astNode):
+    ModuleFunctionBase(symbol, astNode)
 {
-    return _astNode;
+
+}
+
+FunctionDeclNode *
+ModuleFunction::functionNode() const
+{
+    return ast_cast<FunctionDeclNode>(_astNode);
+}
+
+ModuleFunctionNative::ModuleFunctionNative(const Symbol *symbol,
+                                           FunctionDeclNativeNode* astNode):
+    ModuleFunctionBase(symbol, astNode)
+{
+
+}
+
+FunctionDeclNativeNode
+*ModuleFunctionNative::functionNode() const
+{
+    return ast_cast<FunctionDeclNativeNode>(_astNode);
 }
 
 }
