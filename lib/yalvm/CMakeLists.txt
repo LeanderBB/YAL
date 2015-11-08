@@ -49,7 +49,9 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${YAL_CXX_WERROR}")
 
 add_library(${YALVM_LIB_NAME} STATIC ${YALVM_HDR} ${YALVM_SRC})
 
-target_link_libraries("dl")
+if (UNIX AND NOT APPLE)
+    target_link_libraries(${YALVM_LIB_NAME} "dl")
+endif()
 
 set(YALVM_INCLUDE_DIRS ${YALVM_CONFIG_INCLUDE_DIR})
 set(YALVM_INCLUDE_DIRS ${YALVM_CONFIG_INCLUDE_DIR} PARENT_SCOPE)
