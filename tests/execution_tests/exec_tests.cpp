@@ -9,7 +9,7 @@
 #include <gtest/gtest.h>
 #include <yalvm/yalvm_ctx.h>
 #include <yalvm/yalvm_error.h>
-
+#include <cmath>
 static const std::string s_test_path = YAL_TEST_SOURCES_PATH;
 
 #define EXEC_TEST_MEMCHECK
@@ -18,7 +18,7 @@ static const std::string s_test_path = YAL_TEST_SOURCES_PATH;
     BytesAllocated = 0;
 
 #define EXEC_TEST_MEMCHECK_END } \
-    EXPECT_EQ(BytesAllocated, 0);
+    EXPECT_EQ(BytesAllocated, 0u);
 
 #else
 #define EXEC_TEST_MEMCHECK_BEGIN
@@ -132,6 +132,14 @@ yalvm_memmove(void *dest,
     return memmove(dest, src, n);
 }
 
+void
+yal_native_sqrt(yalvm_register_t* registers,
+                yalvm_register_t* return_register)
+{
+    return_register->reg32.i = sqrt(registers[0].reg32.i);
+}
+
+
 }
 
 
@@ -208,6 +216,26 @@ public:
     yalvm_func_hdl_t* hdl()
     {
         return &_funcHdl;
+    }
+
+    bool runGlobal()
+    {
+        const bool compile_result = compile();
+        if (!compile_result)
+        {
+            return false;
+        }
+
+        bool setup_result = loadFunction(yalvm_func_global_name());
+
+        if (setup_result)
+        {
+            yalvm_func_hdl_t* func_hdl = hdl();
+
+            const yalvm_u32 exec_val = yalvm_func_hdl_execute(func_hdl);
+            return exec_val == YALVM_ERROR_NONE;
+        }
+        return false;
     }
 
 protected:
@@ -734,26 +762,9 @@ TEST(ExecutionTest, HelloWorld)
 {
     EXEC_TEST_MEMCHECK_BEGIN
 
-            TestVM tvm("helloworld.yal");
+    TestVM tvm("helloworld.yal");
 
-    const bool compile_result = tvm.compile();
-
-    EXPECT_EQ(compile_result, true);
-    if (!compile_result)
-    {
-        return;
-    }
-
-    bool setup_result = tvm.loadFunction(yalvm_func_global_name());
-    EXPECT_EQ(setup_result, true);
-
-    if (setup_result)
-    {
-        yalvm_func_hdl_t* func_hdl = tvm.hdl();
-
-        const yalvm_u32 exec_val = yalvm_func_hdl_execute(func_hdl);
-        EXPECT_EQ(exec_val, YALVM_ERROR_NONE);
-    }
+    EXPECT_EQ(tvm.runGlobal(), true);
 
     EXEC_TEST_MEMCHECK_END
 }
@@ -762,7 +773,29 @@ TEST(ExecutionTest, ArcObjectScope1)
 {
     EXEC_TEST_MEMCHECK_BEGIN
 
-            TestVM tvm("arc_object_scope_1.yal");
+    TestVM tvm("arc_object_scope_1.yal");
+
+    EXPECT_EQ(tvm.runGlobal(), true);
+
+    EXEC_TEST_MEMCHECK_END
+}
+
+TEST(ExecutionTest, ArcObjectScope2)
+{
+    EXEC_TEST_MEMCHECK_BEGIN
+
+    TestVM tvm("arc_object_scope_2.yal");
+
+    EXPECT_EQ(tvm.runGlobal(), true);
+
+    EXEC_TEST_MEMCHECK_END
+}
+
+TEST(ExecutionTest, CountPrimes)
+{
+    EXEC_TEST_MEMCHECK_BEGIN
+
+    TestVM tvm("count_primes.yal");
 
     const bool compile_result = tvm.compile();
 
@@ -772,7 +805,7 @@ TEST(ExecutionTest, ArcObjectScope1)
         return;
     }
 
-    bool setup_result = tvm.loadFunction(yalvm_func_global_name());
+    const bool setup_result = tvm.loadFunction("count");
     EXPECT_EQ(setup_result, true);
 
     if (setup_result)
@@ -781,6 +814,8 @@ TEST(ExecutionTest, ArcObjectScope1)
 
         const yalvm_u32 exec_val = yalvm_func_hdl_execute(func_hdl);
         EXPECT_EQ(exec_val, YALVM_ERROR_NONE);
+
+        EXPECT_EQ(func_hdl->return_register.reg32.i, 43390);
     }
 
     EXEC_TEST_MEMCHECK_END

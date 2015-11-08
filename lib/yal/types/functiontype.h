@@ -5,7 +5,7 @@
 
 namespace yal
 {
-class FunctionDeclNode;
+class FunctionDeclBaseNode;
 class FunctionType : public Type
 {
 public:
@@ -13,7 +13,7 @@ public:
     YAL_TYPE_IMPL_HDR(FunctionType)
 
     FunctionType(const TypeId_t id,
-                 const FunctionDeclNode* funcDecl);
+                 const FunctionDeclBaseNode* funcDecl);
 
     virtual ~FunctionType() {}
 
@@ -34,8 +34,9 @@ public:
     virtual bool isPromotableTo(const Type *t) const override;
 
 private:
-    const FunctionDeclNode* _pFunctionDecl;
+    const FunctionDeclBaseNode* _pFunctionDecl;
 };
+
 
 }
 #endif

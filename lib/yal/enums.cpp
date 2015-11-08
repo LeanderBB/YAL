@@ -51,6 +51,8 @@ OperatorTypeToStr(const enum OperatorType val)
         return "!=";
     case kOperatorTypeArray:
         return "[]";
+    case kOperatorTypeMod:
+        return "mod";
     default:
         return "Uknown";
     }
@@ -67,6 +69,7 @@ OperatorRequiresInteger(const enum OperatorType val)
     case kOperatorTypeBitNot:
     case kOperatorTypeBitShiftLeft:
     case kOperatorTypeBitShiftRight:
+    case kOperatorTypeMod:
         return true;
     default:
         return false;

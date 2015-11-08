@@ -31,6 +31,8 @@ public:
 
     Symbol *resolveSymbol(const char* name) const;
 
+    void eraseSymbol(const Symbol* sym);
+
     const Scope* scope() const
     {
         return _scope;

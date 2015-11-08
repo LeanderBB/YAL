@@ -83,6 +83,8 @@ public:
 
     bool isFunction() const;
 
+    bool isNativeFunction() const;
+
     bool isGlobalSymbol() const;
 
     bool isGlobalVariable() const;

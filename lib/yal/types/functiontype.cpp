@@ -8,11 +8,15 @@ namespace yal
 YAL_TYPLE_IMPL_SRC(FunctionType, 0xed3f0f48)
 
 FunctionType::FunctionType(const TypeId_t id,
-                           const FunctionDeclNode* funcDecl):
+                           const FunctionDeclBaseNode *funcDecl):
     Type(id, kVmTypeFunction, FunctionType::ImpId),
     _pFunctionDecl(funcDecl)
 {
     _typeFlags = kTypeFlagIsFunctionType;
+    if (ast_typeof<FunctionDeclNativeNode>(funcDecl))
+    {
+        _typeFlags |= kTypeFlagIsNativeImpl;
+    }
 }
 
 bool

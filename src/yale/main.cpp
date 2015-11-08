@@ -6,11 +6,24 @@
 #include <yalvm/yalvm_ctx.h>
 #include <yalvm/yalvm_error.h>
 #include <stdarg.h>
-
+#include <math.h>
 
 // yalvm external function that need to be implemented
 extern "C"
 {
+
+yalvm_i32
+yal_native_foo_impl(yalvm_i32 i)
+{
+    return sqrt(i);
+}
+
+void
+yal_native_sqrt(yalvm_register_t* registers,
+                yalvm_register_t* return_register)
+{
+    return_register->reg32.i = sqrt(registers[0].reg32.i);
+}
 
 void*
 yalvm_malloc(yalvm_size size)
@@ -92,7 +105,7 @@ static void
 printGlobals(const yalvm_ctx_t*)
 {
 
-     /*yalvm_register_t tmp_reg;
+    /*yalvm_register_t tmp_reg;
 
     const yalvm_u32 n_globlas32 = yalvm_ctx_num_globals32(ctx);
     const yalvm_u32 n_globlas64 = yalvm_ctx_num_globals64(ctx);
@@ -129,7 +142,7 @@ printGlobals(const yalvm_ctx_t*)
 
 static const char* sDescription =
         "yale - Yet Anoter Language Executor (0.2.0, yalvm " YALVM_VERSION_STR")\n"
-        "usage: yale [options] <input file>\n";
+                                                                              "usage: yale [options] <input file>\n";
 
 enum Option
 {

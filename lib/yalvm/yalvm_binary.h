@@ -112,12 +112,17 @@ yalvm_static_code_hdr_init(yalvm_static_code_hdr_t* hdr);
 yalvm_bool
 yalvm_static_code_hdr_valid_magic(const yalvm_static_code_hdr_t* header);
 
+enum yalvm_func_enum
+{
+    YALVM_FUNC_FLAG_NATIVE = 1 << 0,
+};
+
 /* Function header */
 #pragma pack(push, 1)
 typedef struct
 {
     yalvm_u32 magic;          /* magic number check          */
-    yalvm_u32 hash;           /* function id hash            */
+    yalvm_u32 flags;          /* flags                       */
     yalvm_u8  n_arguments;    /* number of arguments         */
     yalvm_u8  n_registers;    /* number or registers         */
     yalvm_u16 code_size;      /* function code size  / 4     */
@@ -127,8 +132,7 @@ typedef struct
 
 
 void
-yalvm_func_header_init(yalvm_func_header_t* header,
-                       const char* function_name);
+yalvm_func_header_init(yalvm_func_header_t* header);
 
 yalvm_bool
 yalvm_func_header_valid_magic(const yalvm_func_header_t* header);
@@ -138,6 +142,15 @@ yalvm_func_global_name();
 
 yalvm_u32
 yalvm_func_global_hash();
+
+const char*
+yalvm_func_header_name(const yalvm_func_header_t* header);
+
+const void*
+yalvm_func_header_code(const yalvm_func_header_t* header);
+
+yalvm_size
+yalvm_func_header_total_size(const yalvm_func_header_t* header);
 
 
 /* Object descriptor */
@@ -151,6 +164,11 @@ typedef struct
 } yalvm_obj_descriptor_t;
 #pragma pack(pop)
 
+typedef struct yalvm_binary_function
+{
+   const yalvm_func_header_t* hdr;
+   const void* code;
+} yalvm_binary_function_t;
 
 typedef struct yalvm_binary
 {
@@ -160,7 +178,7 @@ typedef struct yalvm_binary
     const yalvm_u32*                constants32;
     const yalvm_u64*                constants64;
     const char**                    strings;
-    const yalvm_func_header_t**     functions;
+    yalvm_binary_function_t*        functions;
     const yalvm_static_code_hdr_t*  global_init_code;
     const yalvm_static_code_hdr_t*  global_dtor_code;
 } yalvm_binary_t;

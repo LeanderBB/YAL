@@ -469,6 +469,31 @@ yalvm_ctx_execute(yalvm_ctx_t* ctx)
             *reg_dst = (*reg_src1) >> (*reg_src2);
             break;
         }
+            /* Mod */
+        case YALVM_BYTECODE_MOD_I:
+        {
+            YALVM_UNPACK_REGISTERS(i32);
+            *reg_dst = (*reg_src1) % (*reg_src2);
+            break;
+        }
+        case YALVM_BYTECODE_MOD_IL:
+        {
+            YALVM_UNPACK_REGISTERS(i64);
+            *reg_dst = (*reg_src1) % (*reg_src2);
+            break;
+        }
+        case YALVM_BYTECODE_MOD_U:
+        {
+            YALVM_UNPACK_REGISTERS(u32);
+            *reg_dst = (*reg_src1) % (*reg_src2);
+            break;
+        }
+        case YALVM_BYTECODE_MOD_UL:
+        {
+            YALVM_UNPACK_REGISTERS(u64);
+            *reg_dst = (*reg_src1) % (*reg_src2);
+            break;
+        }
             /* Logical And */
         case  YALVM_BYTECODE_AND:
         {
@@ -728,7 +753,7 @@ yalvm_ctx_execute(yalvm_ctx_t* ctx)
             yalvm_u8 dst;
             yalvm_i16 value;
             yalvm_bytecode_unpack_dst_value_signed(code, &dst, &value);
-            if (ctx->registers[dst].reg64.value)
+            if (ctx->registers[dst].reg32.value)
             {
                 ctx->pc += value;
             }
@@ -740,7 +765,8 @@ yalvm_ctx_execute(yalvm_ctx_t* ctx)
             yalvm_u8 dst;
             yalvm_u16 value;
             yalvm_bytecode_unpack_dst_value(code, &dst, &value);
-            if (!ctx->registers[dst].reg64.value)
+            const yalvm_register_t* reg = ctx->registers+ dst;
+            if (!reg->reg32.value)
             {
                 ctx->pc += value;
             }
@@ -752,10 +778,10 @@ yalvm_ctx_execute(yalvm_ctx_t* ctx)
             yalvm_u8 dst;
             yalvm_u16 value;
             yalvm_bytecode_unpack_dst_value(code, &dst, &value);
-            const yalvm_func_header_t* function = ctx->binary->functions[value];
+            const yalvm_binary_function_t* function = &ctx->binary->functions[value];
 
             /* create new stack frame */
-            if (!yalvm_stack_frame_begin(&ctx->stack, function->n_registers))
+            if (!yalvm_stack_frame_begin(&ctx->stack, function->hdr->n_registers))
             {
                 return YALVM_ERROR_STACK_OVERFLOW;
             }
@@ -781,8 +807,8 @@ yalvm_ctx_execute(yalvm_ctx_t* ctx)
             yalvm_u8 dst, return_register, unused;
             yalvm_bytecode_unpack_registers(code, &dst, &return_register, &unused);
 
-            yalvm_func_header_t* function_hdr =
-                    (yalvm_func_header_t*) ctx->registers[dst].ptr.value;
+            const yalvm_binary_function_t * function_hdr =
+                    (const yalvm_binary_function_t*) ctx->registers[dst].ptr.value;
 
             /* prepare stack */
             void* return_register_ptr = NULL;
@@ -794,17 +820,58 @@ yalvm_ctx_execute(yalvm_ctx_t* ctx)
             if (!yalvm_stack_function_begin(&ctx->stack,
                                             ctx->pc,
                                             return_register_ptr,
-                                            function_hdr->n_registers))
+                                            function_hdr->hdr->n_registers))
             {
                 return YALVM_ERROR_STACK_OVERFLOW;
             }
 
             /* update counter */
-            ctx->pc = (yalvm_bytecode_t*) (function_hdr + 1);
+            ctx->pc = (const yalvm_bytecode_t*) function_hdr->code;
 
             /* update register location */
             ctx->registers = yalvm_stack_local_registers(&ctx->stack);
             YALVM_ASSERT(ctx->registers);
+
+            break;
+        }
+        case YALVM_BYTECODE_CALL_NATIVE:
+        {
+            yalvm_u8 dst, return_register, unused;
+            yalvm_bytecode_unpack_registers(code, &dst, &return_register, &unused);
+
+            const yalvm_binary_function_t * function_hdr =
+                    (const yalvm_binary_function_t*) ctx->registers[dst].ptr.value;
+
+            /* prepare stack */
+            yalvm_register_t* return_register_ptr = NULL;
+            if (return_register != 0xFF)
+            {
+                return_register_ptr = &ctx->registers[return_register];
+            }
+
+            if (!yalvm_stack_function_begin(&ctx->stack,
+                                            ctx->pc,
+                                            return_register_ptr,
+                                            function_hdr->hdr->n_registers))
+            {
+                return YALVM_ERROR_STACK_OVERFLOW;
+            }
+
+
+            /* update register location */
+            yalvm_register_t* registers = yalvm_stack_local_registers(&ctx->stack);
+
+            void (*native_function)(yalvm_register_t*, yalvm_register_t*) =
+                    (void (*)(yalvm_register_t*, yalvm_register_t*)) function_hdr->code;
+
+            native_function(registers, return_register_ptr);
+
+            /* pop frame */
+            if (!yalvm_stack_frame_end(&ctx->stack, (const void **)&ctx->pc))
+            {
+                return YALVM_ERROR_STACK_UNDERFLOW;
+            }
+
 
             break;
         }
@@ -1057,16 +1124,14 @@ yalvm_ctx_acquire_function(yalvm_ctx_t* ctx,
         return yalvm_false;
     }
 
-    const yalvm_u32 func_hash = yalvm_one_at_a_time_hash(function_name);
-
-
     const yalvm_func_header_t* function_header = NULL;
     for(yalvm_i32 i = (yalvm_i32)ctx->binary->header->n_functions - 1;
         i >= 0 && !function_header; --i)
     {
-        if (ctx->binary->functions[i]->hash == func_hash)
+        const char* func_name = yalvm_func_header_name(ctx->binary->functions[i].hdr);
+        if (func_name && strcmp(func_name, function_name) == 0)
         {
-            function_header = ctx->binary->functions[i];
+            function_header = ctx->binary->functions[i].hdr;
         }
     }
 
@@ -1118,7 +1183,7 @@ yalvm_func_hdl_execute(yalvm_func_hdl_t* func_hdl)
         return YALVM_ERROR_INVALID_CTX;
     }
 
-    func_hdl->ctx->pc = (yalvm_bytecode_t*) (func_hdl->func_header + 1);
+    func_hdl->ctx->pc = (const yalvm_bytecode_t*) yalvm_func_header_code(func_hdl->func_header);
 
     return yalvm_ctx_execute(func_hdl->ctx);
 }

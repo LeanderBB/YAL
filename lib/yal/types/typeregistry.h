@@ -9,13 +9,14 @@
 namespace yal
 {
 
+class FunctionDeclBaseNode;
 class Module;
 class TypeRegistry
 {
 public:
     TypeRegistry(Module& module);
 
-    FunctionType* registerFunction(FunctionDeclNode* node);
+    FunctionType* registerFunction(FunctionDeclBaseNode* node);
 
     Type* registerUndefined(const char* typeString);
 

@@ -95,6 +95,14 @@ SymbolTreeBuilder::visit(AssignOperatorNode& node)
 
     _expResult.symbol->markAssigned();
 
+    if (node.assignOperatorType() == kOperatorTypeCopy
+            && !left_exp_result.type->isObjectType()
+            && left_exp_result.symbol->isTemporary())
+    {
+        _curStatment->removeSymbolFromScope(_expResult.symbol);
+        _curScope->eraseSymbol(_expResult.symbol);
+        node.expressionRight()->setExpressionResult(ExpressionResult(_expResult.type, left_exp_result.symbol));
+    }
     node.setNodeType(left_exp_result.type);
     node.setExpressionResult(left_exp_result);
 
@@ -322,6 +330,15 @@ SymbolTreeBuilder::visit(VariableDeclNode& node)
     node.setNodeType(_expResult.type);
     _expResult.symbol->markAssigned();
     node.setExpressionResult(ExpressionResult(_expResult.type, sym_var));
+
+    const ExpressionResult& exp_result = node.expression()->expressionResult();
+    if (!exp_result.type->isObjectType() && exp_result.symbol->isTemporary())
+    {
+
+        _curStatment->removeSymbolFromScope(exp_result.symbol);
+        _curScope->eraseSymbol(exp_result.symbol);
+        node.expression()->setExpressionResult(ExpressionResult(_expResult.type, sym_var));
+    }
 
     // register with module global
     if (is_global_var)
@@ -700,10 +717,10 @@ SymbolTreeBuilder::visit(StringCreateNode& node)
 void
 SymbolTreeBuilder::visit(ObjectCreateNode& node)
 {
-     node.setScope(currentScope());
-     node.expression()->accept(*this);
-     node.setNodeType(_expResult.type);
-     node.setExpressionResult(_expResult);
+    node.setScope(currentScope());
+    node.expression()->accept(*this);
+    node.setNodeType(_expResult.type);
+    node.setExpressionResult(_expResult);
 }
 
 void
@@ -716,6 +733,53 @@ void
 SymbolTreeBuilder::visit(ObjectReleaseNode&)
 {
     YAL_ASSERT(false && "Should not be reached");
+}
+
+void
+SymbolTreeBuilder::visit(FunctionDeclNativeNode& node)
+{
+    node.setScope(currentScope());
+
+    const char* func_name = node.functionName();
+    auto sym = _curScope->resolveSymbol(func_name);
+    if (sym)
+    {
+        std::stringstream stream;
+        stream << "Symbol name '" << func_name
+               << "' already delcared"
+               << std::endl;
+        throw SemanticException(stream.str(), node);
+    }
+
+    // declare func
+    FunctionType* type = _typeRegistry.registerFunction(&node);
+    if (!type)
+    {
+        std::stringstream stream;
+        stream << "Failed to register '" << func_name
+               << "'"
+               << std::endl;
+        throw SemanticException(stream.str(), node);
+    }
+
+    _curFunctionDecl = _curScope->declareSymbol(func_name, &node, 0);
+    YAL_ASSERT(_curFunctionDecl);
+
+    beginScope();
+
+    if (node.hasFunctionArguments())
+    {
+        node.functionArguments()->accept(*this);
+    }
+
+    // register function in module
+    YAL_ASSERT(_parserState->module.function(func_name) == nullptr);
+    _parserState->module.addFunction(new ModuleFunctionNative(_curFunctionDecl,
+                                                                    &node));
+
+    // end scope
+    endScope();
+    _curFunctionDecl = nullptr;
 }
 
 }

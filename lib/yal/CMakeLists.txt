@@ -8,8 +8,6 @@ set(YAL_HDR
     parser/parser_state.h
     parser/parseexception.h
     memory/memory_utils.h
-    memory/arcpass.h
-    memory/arcflags.h
     util/str_utils.h
     util/stl_utils.h
     util/outputsink.h
@@ -80,7 +78,6 @@ set(YAL_SRC
     parser/bison_utils.cpp
     parser/flex_utils.cpp
     memory/memory_utils.cpp
-    memory/arcpass.cpp
     util/str_utils.cpp
     util/filesink.cpp
     util/stringinputsink.cpp

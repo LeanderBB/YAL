@@ -60,18 +60,16 @@ private:
 };
 
 
-class FunctionDeclNode : public AstBaseNode
+class FunctionDeclBaseNode : public AstBaseNode
 {
 public:
-    YAL_AST_NODE_ACCEPT_HDR(FunctionDeclNode)
 
-    FunctionDeclNode(const SourceLocationInfo& loc,
-                     const char* name,
-                     ArgumentDeclsNode* args,
-                     Type *returnType,
-                     CodeBodyNode* code);
+    FunctionDeclBaseNode(const SourceLocationInfo& loc,
+                         const char* name,
+                         ArgumentDeclsNode* args,
+                         Type *returnType);
 
-    virtual ~FunctionDeclNode();
+    virtual ~FunctionDeclBaseNode();
 
     const char* functionName() const
     {
@@ -81,11 +79,6 @@ public:
     ArgumentDeclsNode* functionArguments() const
     {
         return _functionArgs;
-    }
-
-    CodeBodyNode* functionCode() const
-    {
-        return _codeBody;
     }
 
     bool hasFunctionArguments() const
@@ -100,11 +93,46 @@ public:
         return _returnValueType;
     }
 
-private:
+protected:
     const char* _functionName;
     ArgumentDeclsNode* _functionArgs;
-    CodeBodyNode* _codeBody;
     Type* _returnValueType;
+};
+
+
+class FunctionDeclNode : public FunctionDeclBaseNode
+{
+public:
+    YAL_AST_NODE_ACCEPT_HDR(FunctionDeclNode)
+
+    FunctionDeclNode(const SourceLocationInfo& loc,
+                     const char* name,
+                     ArgumentDeclsNode* args,
+                     Type *returnType,
+                     CodeBodyNode* code);
+
+    virtual ~FunctionDeclNode();
+
+    CodeBodyNode* functionCode() const
+    {
+        return _codeBody;
+    }
+
+private:
+    CodeBodyNode* _codeBody;
+};
+
+class FunctionDeclNativeNode : public FunctionDeclBaseNode
+{
+public:
+    YAL_AST_NODE_ACCEPT_HDR(FunctionDeclNativeNode)
+
+    FunctionDeclNativeNode(const SourceLocationInfo& loc,
+                     const char* name,
+                     ArgumentDeclsNode* args,
+                     Type *returnType);
+
+    virtual ~FunctionDeclNativeNode();
 };
 
 }

@@ -1,0 +1,35 @@
+
+native func sqrt(int32 i) : int32
+
+func is_prime(int32 n) : bool
+  if (n < 2)
+    return false
+  elif (n == 2)
+    return true
+  elif (n % 2 == 0)
+    return false
+  end
+
+  var upper_limit = sqrt(n)
+  var i = 3
+  while ( i <= upper_limit)
+    if (n % i == 0)
+      return false
+    end
+    i += 2
+  end
+  return true
+end
+
+func count() : int32
+    var n_primes = 0
+    var limit = 524288
+    var n = 0
+    while (n <= limit)
+      if (is_prime(n))
+        n_primes += 1
+      end
+      n += 1
+    end
+    return n_primes
+end

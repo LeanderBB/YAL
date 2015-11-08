@@ -146,11 +146,31 @@ ByteCodePrinter::process()
             stream << "Input data is not a valid function header (" << i << ")";
             throw std::runtime_error(stream.str());
         }
+
+        _sink << std::endl <<  "> Function " << i << ": ";
+        if (function_header.name_len)
+        {
+            char function_name[function_header.name_len];
+
+            if (_input.read(function_name, function_header.name_len)
+                    != function_header.name_len)
+            {
+                return false;
+            }
+            _sink << function_name << std::endl;
+        }
+        else
+        {
+            _sink << "No name" << std::endl;
+        }
         // log info
-        _sink << std::endl <<  "> Function " << i << ": " << std::setbase(16)
-              << function_header.hash << std::endl;
+
+
         _sink << ">   Arguments: " << (yal_u32) function_header.n_arguments << std::endl;
         _sink << ">   Registers: " << (yal_u32) function_header.n_registers << std::endl;
+        _sink << ">   Native   : " << (function_header.flags & YALVM_FUNC_FLAG_NATIVE ? "Yes" : "No") << std::endl;
+
+
         if (!print(function_header))
         {
             return false;
@@ -162,6 +182,10 @@ ByteCodePrinter::process()
 bool
 ByteCodePrinter::print(const yalvm_func_header_t &function_header)
 {
+    if (function_header.flags & YALVM_FUNC_FLAG_NATIVE)
+    {
+        return true;
+    }
     return print(function_header.code_size);
 }
 
@@ -189,8 +213,8 @@ ByteCodePrinter::print(const size_t max)
         const char* code_str = yalvm_bytecode_inst_to_str(inst);
         _sink << std::setfill('0');
         _sink  << "[" << std::setw(4) << i << "] "
-              << std::setw(8) << std::setbase(16) << code << " "
-              << std::setfill(' ') <<std::setbase(10) << std::setw(15) << code_str << ": ";
+               << std::setw(8) << std::setbase(16) << code << " "
+               << std::setfill(' ') <<std::setbase(10) << std::setw(15) << code_str << ": ";
         //i, code, code_str);
 
 
@@ -288,6 +312,11 @@ ByteCodePrinter::print(const size_t max)
             /* Shift Right */
         case YALVM_BYTECODE_SHIFTR_32:
         case  YALVM_BYTECODE_SHIFTR_64:
+            /* Mod */
+        case YALVM_BYTECODE_MOD_I:
+        case YALVM_BYTECODE_MOD_IL:
+        case YALVM_BYTECODE_MOD_U:
+        case YALVM_BYTECODE_MOD_UL:
             /* Logical And */
         case  YALVM_BYTECODE_AND:
             /* Logical Or */
@@ -361,6 +390,7 @@ ByteCodePrinter::print(const size_t max)
             break;
             /* Call function */
         case YALVM_BYTECODE_CALL:
+        case YALVM_BYTECODE_CALL_NATIVE:
             print2Regs(code);
             break;
             /* Return Instruction */

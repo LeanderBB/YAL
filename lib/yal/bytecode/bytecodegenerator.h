@@ -53,7 +53,7 @@ public:
 
     virtual ~ByteCodeGenerator();
 
-    void generateFunction(yal::FunctionDeclNode &node);
+    void generateFunction(FunctionDeclNode &node);
 
     bool generate(StatementNode &node);
 
@@ -79,7 +79,7 @@ protected:
 #undef YAL_NODE_LIST_FUNC
 
     /// Return true if function has a return type;
-    bool setupFunction(const yal::FunctionDeclNode &node);
+    bool setupFunction(const FunctionDeclBaseNode &node);
 
     bool registerScope(const Scope *scope);
 
@@ -123,6 +123,8 @@ protected:
     void releaseObject(const Symbol& sym,
                        const Register& reg);
 
+    Register registerForSymbol(const Symbol* sym);
+
 protected:
 
 
@@ -152,6 +154,7 @@ protected:
     ByteCodeBuffer _buffer;
     RegisterAllocator _regAllocator;
     ByteCodeGeneratorScopeActionVisitor _scopeVisitor;
+    StrHashMap<Register> _globalMap;
 };
 }
 #endif

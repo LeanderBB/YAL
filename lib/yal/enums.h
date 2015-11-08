@@ -3,19 +3,6 @@
 
 namespace yal
 {
-enum AssignOperatorType
-{
-    kAssignOperatorTypeSet,
-    kAssignOperatorTypePlus,
-    kAssignOperatorTypeMinus,
-    kAssignOperatorTypeMult,
-    kAssignOperatorTypeDiv,
-    kAssignOperatorTypeAnd,
-    kAssignOperatorTypeOr,
-    kAssignOperatorTypeXor,
-    kAssignOperatorTypeShiftLeft,
-    kAssignOperatorTypeShiftRight
-};
 
 enum ConstantType
 {
@@ -29,45 +16,6 @@ enum ConstantType
     kConstantTypeFloat32,
     kConstantTypeFloat64,
     kConstantTypeMax
-};
-
-enum DualOperatorType
-{
-    kDualOperatorTypeAdd,
-    kDualOperatorTypeSub,
-    kDualOperatorTypeMult,
-    kDualOperatorTypeDiv,
-    kDualOperatorTypeAnd,
-    kDualOperatorTypeOr,
-    kDualOperatorTypeBitAnd,
-    kDualOperatorTypeBitOr,
-    kDualOperatorTypeBitXor,
-    kDualOperatorTypeShiftLeft,
-    kDualOperatorTypeShiftRight
-};
-
-enum CompareOperatorType
-{
-    kCompareOperatorTypeGT,
-    kCompareOperatorTypeGE,
-    kCompareOperatorTypeLE,
-    kCompareOperatorTypeLT,
-    kCompareOperatorTypeEQ,
-    kCompareOperatorTypeNE,
-};
-
-enum SingleOperatorType
-{
-    kSingleOperatorTypeBlock,
-    kSingleOperatorTypeNeg,
-    kSingleOperatorTypeNot,
-    kSingleOperatorTypeTil
-};
-
-enum SymbolDataOrigin
-{
-    kSymbolDataOriginBuiltin,
-    kSymbolDataOriginCustom
 };
 
 enum OperatorType
@@ -92,7 +40,8 @@ enum OperatorType
     kOperatorTypeLt             = 1 << 17,
     kOperatorTypeEq             = 1 << 18,
     kOperatorTypeNe             = 1 << 19,
-    kOperatorTypeArray          = 1 << 20
+    kOperatorTypeArray          = 1 << 20,
+    kOperatorTypeMod            = 1 << 21
 };
 
 enum OperatorMask
@@ -100,7 +49,7 @@ enum OperatorMask
     kOperatorMaskArithemetic = (kOperatorTypePlus | kOperatorTypeMinus
         | kOperatorTypeMult | kOperatorTypeDiv),
     kOperatorMaskBit = (kOperatorTypeBitAnd | kOperatorTypeBitOr | kOperatorTypeBitXor
-        | kOperatorTypeBitNot | kOperatorTypeBitShiftLeft | kOperatorTypeBitShiftRight),
+        | kOperatorTypeBitNot | kOperatorTypeBitShiftLeft | kOperatorTypeBitShiftRight | kOperatorTypeMod),
     kOperatorMaskLogic = (kOperatorTypeAnd | kOperatorTypeOr | kOperatorTypeNot),
     kOperatorMaskComparators = (kOperatorTypeGt | kOperatorTypeGe | kOperatorTypeLt
         | kOperatorTypeLe | kOperatorTypeEq | kOperatorTypeNe),
@@ -127,6 +76,11 @@ enum VmType
     kVmTypeTotal
 };
 
+enum Attribute
+{
+    kAttributeNativeImpl = 1 << 0,
+    kAttributeExternCallable = 1 << 1
+};
 
 const char*
 OperatorTypeToStr(const enum OperatorType val);
