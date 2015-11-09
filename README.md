@@ -216,7 +216,7 @@ Future versions of the project aim to support the following:
 * [ ] Custom data types
 * [ ] Interfaces
   * Inspired by Google GO
-* [ X] Native Code Interface
+* [X] Native Code Interface
   * [ ] Compiler support to generate all the boilerplate code or utility functions
 * [X] ~~VM Function Handler~~
 * [ ] Builtin objects
