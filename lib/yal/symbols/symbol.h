@@ -101,6 +101,8 @@ public:
 
     void markReturnValue();
 
+    void addFlags(const yal_u32 flags);
+
 protected:
     const std::string _symName;
     const Scope* _pSymScope;

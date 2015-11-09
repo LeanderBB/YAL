@@ -1,4 +1,5 @@
 #include <iostream>
+#include <limits>
 #include <yal/yal.h>
 #include <yal/compiler/compiler.h>
 #include <yal/util/filesink.h>
@@ -6,6 +7,7 @@
 #include <yal/parser/parseexception.h>
 #include <yal/symbols/semanticexception.h>
 #include <yal/bytecode/bytecodegenexception.h>
+
 
 static const char* sDescription =
         "yalc - Yet Anoter Language Compiler (" YAL_VERSION_STR ")\n"
@@ -41,7 +43,43 @@ static void
 printLocatioInfo(const yal::SourceLocationInfo& info,
                  std::ostream& stream)
 {
-    stream << "[" << info.firstLine << ":" << info.firstColumn << "] ";
+    stream <<":" << info.firstLine << ":" << info.firstColumn << ": ";
+}
+
+static void
+printLines(const yal::Compiler& compiler,
+           const yal::SourceLocationInfo& sourceLoc,
+           yal::InputSink& input,
+           std::ostream& output)
+{
+    auto& line_offsets = compiler.lineOffsets();
+    const size_t first_line = static_cast<size_t>(sourceLoc.firstLine) -1 ;
+    if (first_line > line_offsets.size())
+    {
+        return;
+    }
+    const auto& start_offset = line_offsets[first_line];
+    if (!input.seekSet(start_offset))
+    {
+        return;
+    }
+
+    size_t last_line = static_cast<size_t>(sourceLoc.lastLine == sourceLoc.firstLine ? sourceLoc.lastLine : sourceLoc.lastLine - 1);
+    const size_t end_offset = last_line> line_offsets.size()
+            ? std::numeric_limits<size_t>::max()
+            : line_offsets[last_line];
+
+    const size_t diff = (end_offset - 2) - start_offset;
+    char buffer[diff];
+    size_t bytes_read = input.read(buffer, diff);
+    if (!bytes_read)
+    {
+        return;
+    }
+
+    output <<" `-> ";
+    output.write(buffer, bytes_read);
+    output << std::endl;
 }
 
 int main(const int argc,
@@ -92,7 +130,7 @@ int main(const int argc,
     }
 
 
-    FILE* input = stdin;
+    FILE* input = nullptr;
     const int args_left = argc - parse_result;
     if (args_left > 0)
     {
@@ -102,6 +140,11 @@ int main(const int argc,
             fprintf(stderr, "Could not open '%s'\n", argv[parse_result]);
             return EXIT_FAILURE;
         }
+    }
+    else
+    {
+        arg_parser.printHelp(std::cerr, sDescription);
+        return EXIT_FAILURE;
     }
 
     // input sink
@@ -120,26 +163,28 @@ int main(const int argc,
     yal::FileOutputSink code_output(output);
     // error sink
 
+    yal::Compiler cl(io_input, code_output);
     try
     {
-        yal::Compiler cl(io_input, code_output);
         return cl.compile(compiler_flags) ? EXIT_SUCCESS : EXIT_FAILURE;
     }
     catch(const yal::ParseException& parseException)
     {
-        std::cerr << "Parse Error: ";
+        std::cerr << argv[parse_result];
         printLocatioInfo(parseException.location(), std::cerr);
         std::cerr << parseException.what() << std::endl;
+        printLines(cl, parseException.location(), io_input, std::cerr);
     }
     catch(const yal::SemanticException& semanticException)
     {
-        std::cerr<< "Semantic Error: ";
+        std::cerr << argv[parse_result];
         printLocatioInfo(semanticException.astNode().locationInfo(), std::cerr);
-        std::cerr << semanticException.what() << std::endl;
+        std::cerr << semanticException.what();
+        printLines(cl, semanticException.astNode().locationInfo(), io_input, std::cerr);
     }
     catch(const yal::ByteCodeGenException& byteCodeGenException)
     {
-        std::cerr<< "ByteCodeGen Error: ";
+        std::cerr << argv[parse_result] <<": ";
         std::cerr << byteCodeGenException.what() << std::endl;
     }
 }
