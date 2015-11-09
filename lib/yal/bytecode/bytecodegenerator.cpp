@@ -512,6 +512,16 @@ ByteCodeGenerator::registerForSymbol(const Symbol* sym)
 }
 
 void
+ByteCodeGenerator::clearGlobalMap()
+{
+    for (auto& v : _globalMap)
+    {
+        v.second.release(_regAllocator);
+    }
+    _globalMap.clear();
+}
+
+void
 ByteCodeGenerator::visit(AssignOperatorNode& node)
 {
     // process left part
@@ -1002,6 +1012,7 @@ ByteCodeGenerator::visit(FunctionCallNode& node)
     _buffer.append(code_call);
 
     function_call_reg.release(_regAllocator);
+    clearGlobalMap();
     return;
 }
 

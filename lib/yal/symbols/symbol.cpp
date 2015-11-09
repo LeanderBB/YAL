@@ -118,4 +118,10 @@ Symbol::markReturnValue()
     _symbolFlags |= kFlagReturnValue;
 }
 
+void
+Symbol::addFlags(const yal_u32 flag)
+{
+    _symbolFlags |= flag;
+}
+
 }

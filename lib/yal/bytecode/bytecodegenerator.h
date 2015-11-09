@@ -125,6 +125,8 @@ protected:
 
     Register registerForSymbol(const Symbol* sym);
 
+    void clearGlobalMap();
+
 protected:
 
 

@@ -3,11 +3,13 @@
 
 #include "yal/yal.h"
 #include "yal/util/inputsink.h"
-
+#include <vector>
 union YYSTYPE;
 struct FlexState
 {
     yal::InputSink* sink;
+    std::vector<size_t> lineOffsets;
+    size_t curOffset = 0;
 };
 
 namespace yal

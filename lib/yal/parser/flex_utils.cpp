@@ -16,6 +16,20 @@ yy_input_proc(char* buf, int size, yyscan_t yyscanner)
     return rd;
 }
 
+void
+UpdateLineCounter(yyscan_t yyscanner)
+{
+    FlexState* flx_state = yyget_extra(yyscanner);
+    flx_state->curOffset++;
+    flx_state->lineOffsets.push_back(flx_state->curOffset);
+}
+
+void
+UpdateOffset(yyscan_t yyscanner)
+{
+    FlexState* flx_state = yyget_extra(yyscanner);
+    flx_state->curOffset++;
+}
 
 namespace yal
 {

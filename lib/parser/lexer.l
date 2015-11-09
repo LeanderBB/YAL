@@ -13,10 +13,12 @@
     yylloc->first_column = yylloc->last_column; \
     for(int i = 0; yytext[i] != '\0'; i++) { \
         if(yytext[i] == '\n') { \
+            UpdateLineCounter(yyscanner); \
             yylloc->last_line++; \
             yylloc->last_column = 0; \
         } \
         else { \
+            UpdateOffset(yyscanner); \
             yylloc->last_column++; \
         } \
     }
@@ -24,8 +26,10 @@
 // Override input
 #define YY_INPUT(buf, result, max_size) \
             result = yy_input_proc(buf, max_size, yyscanner);
-
 extern int yy_input_proc(char* buf, int size, yyscan_t yyscanner);
+extern void UpdateLineCounter(yyscan_t yyscanner);
+extern void UpdateOffset(yyscan_t yyscanner);
+
 %}
 
 INTEGER [0-9]+

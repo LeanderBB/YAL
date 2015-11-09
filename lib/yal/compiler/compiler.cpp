@@ -31,6 +31,7 @@ Compiler::compile(const uint32_t flags)
     // init flex
     yyscan_t scanner;
     struct FlexState flex_state;
+    flex_state.lineOffsets.push_back(0);
     flex_state.sink = &_input;
     yylex_init_extra(&flex_state, &scanner);
 
@@ -39,6 +40,7 @@ Compiler::compile(const uint32_t flags)
 
     // destroy flex state
     yylex_destroy(scanner);
+    _lineOffsets = std::move(flex_state.lineOffsets);
 
     if (parse_result == 0)
     {
