@@ -156,6 +156,7 @@ extern void yyerror(YYLTYPE* location,
 %left TK_OP_PLUS TK_OP_MINUS
 %left TK_OP_MULT TK_OP_DIV TK_MOD
 %precedence TK_PREC_NEG
+%precedence TK_PREC_NOT
 
 
 %start program
@@ -229,9 +230,9 @@ if_statement_next: TK_ELIF '(' expression ')' TK_NL code_body if_statement_next 
 while_statement: TK_WHILE '(' expression ')' TK_NL code_body TK_END { $$ = new yal::WhileLoopNode(yal::BisonYyltypeToLocation(yylloc), $3, $6);}
 ;
 
-expression: '(' expression ')' {$$ = $2 ;}
+expression: '(' expression ')' {$$ =  new yal::ParentExpNode(yal::BisonYyltypeToLocation(yylloc), $2);}
     | TK_OP_MINUS expression %prec TK_PREC_NEG {$$ = new yal::SingleOperatorNode(yal::BisonYyltypeToLocation(yylloc), kOperatorTypeMinus, $2);}
-    | TK_NOT expression  %prec TK_PREC_NEG {$$ = new yal::SingleOperatorNode(yal::BisonYyltypeToLocation(yylloc), kOperatorTypeNot, $2);}
+    | TK_NOT expression  %prec TK_PREC_NOT {$$ = new yal::SingleOperatorNode(yal::BisonYyltypeToLocation(yylloc), kOperatorTypeNot, $2);}
     | TK_BIT_TIL expression %prec TK_PREC_NEG {$$ = new yal::SingleOperatorNode(yal::BisonYyltypeToLocation(yylloc), kOperatorTypeBitNot, $2);}
     | expression TK_AND expression {$$ = new yal::DualOperatorNode(yal::BisonYyltypeToLocation(yylloc), kOperatorTypeAnd, $1, $3);}
     | expression TK_OR expression {$$ = new yal::DualOperatorNode(yal::BisonYyltypeToLocation(yylloc), kOperatorTypeOr, $1, $3);}
