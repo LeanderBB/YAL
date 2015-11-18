@@ -782,4 +782,11 @@ SymbolTreeBuilder::visit(FunctionDeclNativeNode& node)
     _curFunctionDecl = nullptr;
 }
 
+void
+SymbolTreeBuilder::visit(ParentExpNode& node)
+{
+    node.setScope(currentScope());
+    node.expression()->accept(*this);
+}
+
 }

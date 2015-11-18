@@ -39,6 +39,7 @@ set(YAL_HDR
     ast/stringcreatenode.h
     ast/asthdrs.h
     ast/objectnodes.h
+    ast/parentexpnode.h
     symbols/semanticexception.h
     symbols/symboltable.h
     symbols/scope.h
@@ -103,6 +104,7 @@ set(YAL_SRC
     ast/variableaccessnode.cpp
     ast/stringcreatenode.cpp
     ast/objectnodes.cpp
+    ast/parentexpnode.cpp
     symbols/symbol.cpp
     symbols/symboltable.cpp
     symbols/symboltreebuilder.cpp

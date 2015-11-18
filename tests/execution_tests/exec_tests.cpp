@@ -821,6 +821,51 @@ TEST(ExecutionTest, CountPrimes)
     EXEC_TEST_MEMCHECK_END
 }
 
+TEST(ExecutionTest, ConditionalExecution)
+{
+    EXEC_TEST_MEMCHECK_BEGIN
+
+    TestVM tvm("conditional_execution.yal");
+
+    const bool compile_result = tvm.compile();
+
+    EXPECT_EQ(compile_result, true);
+    if (!compile_result)
+    {
+        return;
+    }
+
+    bool setup_result = tvm.loadFunction("test_conditional");
+    EXPECT_EQ(setup_result, true);
+    if (setup_result)
+    {
+        yalvm_func_hdl_t* func_hdl = tvm.hdl();
+        yalvm_register_t input;
+        input.reg32.i = 1;
+        yalvm_func_hdl_push_arg(func_hdl, &input);
+        const yalvm_u32 exec_val = yalvm_func_hdl_execute(func_hdl);
+        EXPECT_EQ(exec_val, YALVM_ERROR_NONE);
+        EXPECT_EQ(func_hdl->return_register.reg32.i, 6);
+    }
+
+    setup_result = tvm.loadFunction("test_conditional");
+    EXPECT_EQ(setup_result, true);
+    if (setup_result)
+    {
+        yalvm_func_hdl_t* func_hdl = tvm.hdl();
+        yalvm_register_t input;
+        input.reg32.i = -1;
+        yalvm_func_hdl_push_arg(func_hdl, &input);
+        const yalvm_u32 exec_val = yalvm_func_hdl_execute(func_hdl);
+        EXPECT_EQ(exec_val, YALVM_ERROR_NONE);
+        EXPECT_EQ(func_hdl->return_register.reg32.i, 0);
+    }
+
+    EXEC_TEST_MEMCHECK_END
+}
+
+
+
 
 int
 main(int argc,

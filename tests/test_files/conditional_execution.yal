@@ -1,0 +1,12 @@
+func test_conditional(int32 b) : int32
+if ((b+=1) and ((b-=2) or (b+=1)))
+  b+=5
+end
+return b
+end
+
+
+print(test_conditional(1))
+print(test_conditional(-1))
+
+

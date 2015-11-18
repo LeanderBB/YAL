@@ -68,7 +68,12 @@ ByteCodeGenerator::ByteCodeGenerator(Module &moduleInfo):
     _moduleInfo(moduleInfo),
     _buffer(),
     _regAllocator(),
-    _scopeVisitor(*this)
+    _scopeVisitor(*this),
+    _globalMap(),
+    _conditionOffsets(),
+    _trackConditionOffsets(false),
+    _parenthesisOffsetStack(),
+    _curParenthesisOffsets(nullptr)
 {
 
 }
@@ -325,6 +330,7 @@ bool
 ByteCodeGenerator::onScopeBegin(const AstBaseNode& node)
 {
     const Scope* scope = node.scope();
+    clearGlobalMap();
     if (registerScope(scope))
     {
         scope->onScopeEnter(_scopeVisitor);
@@ -522,6 +528,81 @@ ByteCodeGenerator::clearGlobalMap()
 }
 
 void
+ByteCodeGenerator::handleConditionalOffset(const AstBaseNode& node,
+                                           const size_t onTrueOffset,
+                                           const size_t onFalseOffset)
+{
+    for(auto& offset: _conditionOffsets)
+    {
+
+        yal_u8 dst_reg;
+        yal_i16 value;
+        yalvm_bytecode_t code = _buffer.buffer()[offset];
+        const yalvm_bytecode_inst_t inst = yalvm_bytecode_unpack_instruction(code);
+        yalvm_bytecode_unpack_dst_value_signed(code, &dst_reg, &value);
+
+        const size_t end_offset = (inst == YALVM_BYTECODE_JUMP_FALSE)
+                ? onFalseOffset : onTrueOffset;
+
+        const size_t diff = end_offset - offset - 1;
+
+        if (diff >= std::numeric_limits<yal_i16>::max())
+        {
+            std::stringstream stream;
+            stream << "Mid-Condition jump instruction exceeds maximum jump offset." << std::endl;
+            throw ByteCodeGenException(stream.str(), node);
+        }
+
+        code = yalvm_bytecode_pack_dst_value_signed(inst, dst_reg,
+                                                    static_cast<yal_i16>(diff));
+        _buffer.replace(offset, code);
+    }
+    _conditionOffsets.clear();
+}
+
+
+void
+ByteCodeGenerator::onParentesesEnter(ParentExpNode&)
+{
+    _parenthesisOffsetStack.push(ParenthesisOffsetVec_t());
+    _curParenthesisOffsets = &_parenthesisOffsetStack.top();
+}
+
+void
+ByteCodeGenerator::onParentesesExit(ParentExpNode& node)
+{
+    // perform cleanup
+
+    for (auto& offset : *_curParenthesisOffsets)
+    {
+
+        yal_u8 dst_reg;
+        yal_i16 value;
+        yalvm_bytecode_t code = _buffer.buffer()[offset];
+        const yalvm_bytecode_inst_t inst = yalvm_bytecode_unpack_instruction(code);
+        yalvm_bytecode_unpack_dst_value_signed(code, &dst_reg, &value);
+
+        const size_t diff = _buffer.size() - offset - 1;
+        if (diff >= std::numeric_limits<yal_i16>::max())
+        {
+            std::stringstream stream;
+            stream << "Parentheses jump instruction exceeds maximum jump offset." << std::endl;
+            throw ByteCodeGenException(stream.str(), node);
+        }
+
+        code = yalvm_bytecode_pack_dst_value_signed(inst, dst_reg,
+                                                    static_cast<yal_i16>(diff));
+        _buffer.replace(offset, code);
+    }
+
+    // correct stack
+    _parenthesisOffsetStack.pop();
+    _curParenthesisOffsets = _parenthesisOffsetStack.empty()
+            ? nullptr
+            : &_parenthesisOffsetStack.top();
+}
+
+void
 ByteCodeGenerator::visit(AssignOperatorNode& node)
 {
     // process left part
@@ -599,7 +680,8 @@ ByteCodeGenerator::visit(AssignOperatorNode& node)
     }
 
 
-    if (node.parentNode() && node.parentNode()->isExpressionNode())
+    const AstBaseNode* parent_node = node.parentNode();
+    if (parent_node && (parent_node->isExpressionNode() || ast_typeof<ConditionNode>(parent_node)))
     {
         pushRegister(left_register);
     }
@@ -887,18 +969,50 @@ ByteCodeGenerator::visit(DualOperatorNode& node)
 {
     (void) node;
 
+    Register cur_register = registerForSymbol(node.expressionResult().symbol);
 
     // process left part
     node.expressionLeft()->accept(*this);
     Register left_register = popRegister();
     YAL_ASSERT(left_register.isValid());
 
+    if (node.dualOperatorType() & (kOperatorTypeAnd | kOperatorTypeOr))
+    {
+
+        const yalvm_bytecode_inst_t inst = (node.dualOperatorType() == kOperatorTypeAnd)
+                ? YALVM_BYTECODE_JUMP_FALSE
+                : YALVM_BYTECODE_JUMP_TRUE;
+        const yalvm_bytecode_t code =
+                yalvm_bytecode_pack_dst_value_signed(inst, left_register.registerIdx(), 0);
+
+        if(_curParenthesisOffsets)
+        {
+            // store result value in the register, currently needed for correct
+            // conditional resultion.
+            // TODO: Find a less hacky way to get this to work
+            const yalvm_bytecode_t load_val =
+                    yalvm_bytecode_pack_dst_value(YALVM_BYTECODE_LOAD_VALUE,
+                                                  cur_register.registerIdx(),
+                                                  (node.dualOperatorType() == kOperatorTypeAnd)
+                                                  ? 0
+                                                  : 1);
+            _buffer.append(load_val);
+
+            const size_t offset = _buffer.append(code);
+            _curParenthesisOffsets->push_back(offset);
+        }
+        else if (_trackConditionOffsets)
+        {
+            // insert empty code to be replace later on
+            const size_t offset = _buffer.append(code);
+            _conditionOffsets.push_back(offset);
+        }
+    }
+
     // process right part
     node.expressionRight()->accept(*this);
     Register right_register = popRegister();
     YAL_ASSERT(right_register.isValid());
-
-    Register cur_register = registerForSymbol(node.expressionResult().symbol);
 
     pushRegister(cur_register);
 
@@ -1026,14 +1140,17 @@ ByteCodeGenerator::visit(FunctionDeclNode& node)
 void
 ByteCodeGenerator::visit(ConditionNode& node)
 {
-
     Register tmp_register;
     size_t jump_to_false_offset = 0;
+    size_t abs_on_true_offset = 0;
+    size_t abs_on_false_offset = 0;
     if (node.hasConditionComponent())
     {
+        _trackConditionOffsets = true;
         onStatementScopeBegin(*node.condition());
         node.condition()->accept(*this);
         onStatementScopeEnd(*node.condition());
+        _trackConditionOffsets = false;
         tmp_register  = popRegister();
         YAL_ASSERT(tmp_register.isValid());
 
@@ -1046,6 +1163,7 @@ ByteCodeGenerator::visit(ConditionNode& node)
         tmp_register.release(_regAllocator);
     }
 
+    abs_on_true_offset = _buffer.size();
     onScopeBegin(*node.onTrue());
     node.onTrue()->accept(*this);
     onScopeEnd(*node.onTrue());
@@ -1066,6 +1184,7 @@ ByteCodeGenerator::visit(ConditionNode& node)
         _buffer.replace(jump_to_false_offset, yalvm_bytecode_pack_dst_value_signed(YALVM_BYTECODE_JUMP_FALSE,
                                                                                    tmp_register.registerIdx(),
                                                                                    diff));
+        abs_on_false_offset = _buffer.size();
     }
 
     if (node.hasOnFalseComponent())
@@ -1073,6 +1192,7 @@ ByteCodeGenerator::visit(ConditionNode& node)
         // mark jump instruction
         const size_t jump_to_end_offset = _buffer.append(yalvm_bytecode_pack_value(YALVM_BYTECODE_JUMP, 0));
         YAL_ASSERT(jump_to_end_offset <  std::numeric_limits<yal_i32>::max());
+        abs_on_false_offset = _buffer.size();
         onScopeBegin(*node.onFalse());
         node.onFalse()->accept(*this);
         onScopeEnd(*node.onFalse());
@@ -1094,6 +1214,13 @@ ByteCodeGenerator::visit(ConditionNode& node)
                                                                              diff));
     }
 
+    // update any conditional jumps
+    if (node.hasConditionComponent())
+    {
+        handleConditionalOffset(node,abs_on_true_offset, abs_on_false_offset);
+    }
+
+    clearGlobalMap();
     return;
 }
 
@@ -1280,5 +1407,11 @@ ByteCodeGenerator::visit(FunctionDeclNativeNode&)
     YAL_ASSERT(false && "Should not be reached");
 }
 
+void ByteCodeGenerator::visit(ParentExpNode& node)
+{
+    onParentesesEnter(node);
+    node.expression()->accept(*this);
+    onParentesesExit(node);
+}
 
 }

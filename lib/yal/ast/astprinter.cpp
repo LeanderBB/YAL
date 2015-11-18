@@ -295,6 +295,7 @@ AstPrinter::visit(PrintArgsNode& node)
         onDescent(idx == node.expressions.size());
         v->accept(*this);
         onAscend();
+        ++idx;
     }
 }
 
@@ -362,4 +363,13 @@ AstPrinter::visit(FunctionDeclNativeNode& node)
     _sink << "'" << node.functionName() << "' : '" << node.returnValueType()->typeString() << "'" << std::endl;
 }
 
+
+void
+AstPrinter::visit(ParentExpNode& node)
+{
+    printNodeTitle(node, true);
+    onDescent(true);
+    node.expression()->accept(*this);
+    onAscend();
+}
 }

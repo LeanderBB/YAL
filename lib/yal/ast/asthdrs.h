@@ -19,5 +19,6 @@
 #include "yal/ast/whileloopnode.h"
 #include "yal/ast/stringcreatenode.h"
 #include "yal/ast/objectnodes.h"
+#include "yal/ast/parentexpnode.h"
 #endif // ASTHDRS
 

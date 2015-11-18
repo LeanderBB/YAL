@@ -127,8 +127,19 @@ protected:
 
     void clearGlobalMap();
 
-protected:
+    void handleConditionalOffset(const AstBaseNode &node,
+                                 const size_t onTrueOffset,
+                                 const size_t onFalseOffset);
 
+    void onParentesesEnter(yal::ParentExpNode &node);
+
+    void onParentesesExit(yal::ParentExpNode &node);
+
+protected:
+    typedef std::vector<size_t> OffsetVector_t;
+    typedef size_t ConditionOffset_t;
+    typedef OffsetVector_t ConitionOffsetVec_t;
+    typedef OffsetVector_t ParenthesisOffsetVec_t;
 
     class ByteCodeGeneratorScopeActionVisitor : public ScopeActionVisitor
     {
@@ -157,6 +168,10 @@ protected:
     RegisterAllocator _regAllocator;
     ByteCodeGeneratorScopeActionVisitor _scopeVisitor;
     StrHashMap<Register> _globalMap;
+    ConitionOffsetVec_t _conditionOffsets;
+    bool _trackConditionOffsets;
+    std::stack<ParenthesisOffsetVec_t> _parenthesisOffsetStack;
+    ParenthesisOffsetVec_t* _curParenthesisOffsets;
 };
 }
 #endif
