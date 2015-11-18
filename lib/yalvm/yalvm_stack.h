@@ -35,6 +35,11 @@ yalvm_stack_push(yalvm_stack_t* stack,
                  const yalvm_register_t* reg);
 
 yalvm_bool
+yalvm_stack_push_ref(yalvm_stack_t* stack,
+                     yalvm_register_t* reg);
+
+
+yalvm_bool
 yalvm_stack_function_begin(yalvm_stack_t* stack,
                            const void *pc,
                            void *return_register,

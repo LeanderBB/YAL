@@ -6,20 +6,7 @@
 #include <yal/parser/parser_state.h>
 #include <yal/memory/memory_utils.h>
 #include <yal/parser/bison_utils.h>
-#include <yal/ast/astnodetypes.h>
-#include <yal/ast/astbasenode.h>
-#include <yal/ast/assignoperatornode.h>
-#include <yal/ast/codebodynode.h>
-#include <yal/ast/compareoperatornode.h>
-#include <yal/ast/constantnode.h>
-#include <yal/util/constantvalue.h>
-#include <yal/ast/argumentdeclnode.h>
-#include <yal/ast/variabledeclnode.h>
-#include <yal/ast/dualoperatornode.h>
-#include <yal/ast/singleoperatornode.h>
-#include <yal/ast/functionnode.h>
-#include <yal/ast/conditionnode.h>
-#include <yal/ast/returnnode.h>
+#include <yal/ast/asthdrs.h>
 #include <yal/types/builtintype.h>
 #include <yal/types/undefined.h>
 #include <yal/types/type.h>
@@ -109,6 +96,7 @@ extern void yyerror(YYLTYPE* location,
 %token TK_WHILE "while"
 %token TK_NATIVE "native"
 %token TK_ATTRIB_EXCALL "attribute excall"
+%token TK_SELF "self"
 
 // operatores
 %token TK_OP_ASSIGN "="
@@ -141,8 +129,10 @@ extern void yyerror(YYLTYPE* location,
 %token TK_OP_DIV "/"
 %token TK_OP_MULT "*"
 %token TK_MOD "mod"
+%token TK_DOT "."
 
 
+//%precedence TK_PREC_CALL
 %left TK_OP_ASSIGN TK_OP_ASSIGN_PLUS TK_OP_ASSIGN_MINUS TK_OP_ASSIGN_MULT TK_OP_ASSIGN_DIV TK_OP_ASSIGN_AND TK_OP_ASSIGN_OR TK_OP_ASSIGN_XOR TK_OP_ASSIGN_SHIFT_LEFT TK_OP_ASSIGN_SHIFT_RIGHT
 //%precedence TK_PREC_ASSIGN
 %left TK_OR
@@ -188,9 +178,14 @@ attributes: attribute TK_NL
   | %empty
   ;
 
-func_decl: TK_NATIVE TK_FUNC_BEGIN TK_ID '(' decl_args ')' func_return { $$ = new yal::FunctionDeclNativeNode(yal::BisonYyltypeToLocation(yylloc), $3, $5, $7); }
-   |  attributes TK_FUNC_BEGIN TK_ID '(' decl_args ')' func_return TK_NL code_body TK_END { $$ = new yal::FunctionDeclNode(yal::BisonYyltypeToLocation(yylloc), $3, $5, $7, $9); }
+func_decl: TK_NATIVE TK_FUNC_BEGIN TK_ID '(' decl_args ')' func_return
+{ $$ = new yal::FunctionDeclNativeNode(yal::BisonYyltypeToLocation(yylloc), $3, $5, $7); }
+   |  attributes TK_FUNC_BEGIN TK_ID '(' decl_args ')' func_return TK_NL code_body TK_END
+{ $$ = new yal::FunctionDeclNode(yal::BisonYyltypeToLocation(yylloc), $3, nullptr, $5, $7, $9); }
+   |  attributes TK_FUNC_BEGIN type ':'':' TK_ID '(' decl_args ')' func_return TK_NL code_body TK_END
+{ $$ = new yal::FunctionDeclNode(yal::BisonYyltypeToLocation(yylloc), $6, $3, $8, $10, $12); }
 ;
+
 
 func_return: %empty { $$ = yal::BuiltinType::GetBuiltinType(yal::BuiltinType::kVoid); }
 | ':' type { $$ = $2; }
@@ -265,8 +260,11 @@ expression: '(' expression ')' {$$ =  new yal::ParentExpNode(yal::BisonYyltypeTo
     | constant
     | func_call
     ;
-func_call: TK_ID '(' call_args ')' {$$ = new yal::FunctionCallNode(yal::BisonYyltypeToLocation(yylloc), $1, $3);}
+
+func_call: constant TK_DOT TK_ID '(' call_args ')'{$$ = new yal::FunctionCallNode(yal::BisonYyltypeToLocation(yylloc), $1, $3, $5);}
+    | TK_ID '(' call_args ')'{$$ = new yal::FunctionCallNode(yal::BisonYyltypeToLocation(yylloc), nullptr, $1, $3);}
     ;
+
 
 call_args: call_args ',' expression {$$->expressions.push_back($3);}
     | expression { $$ = new yal::FunctionCallArgsNode(yal::BisonYyltypeToLocation(yylloc)); $$->expressions.push_back($1);}
@@ -305,6 +303,7 @@ constant: TK_BOOL { $$ = new yal::ConstantNode(yal::BisonYyltypeToLocation(yyllo
 | TK_FLT64 { $$ = new yal::ConstantNode(yal::BisonYyltypeToLocation(yylloc), yal::ConstantValue($1));}
 | TK_TEXT { $$ =  new yal::ObjectCreateNode(new yal::StringCreateNode (new yal::ConstantNode(yal::BisonYyltypeToLocation(yylloc), yal::ConstantValue($1))));}
 | TK_ID { $$ = new yal::VariableAccessNode(yal::BisonYyltypeToLocation(yylloc), $1); }
+| TK_SELF { $$ = new yal::VariableAccessNode(yal::BisonYyltypeToLocation(yylloc), "self");}
 ;
 
 

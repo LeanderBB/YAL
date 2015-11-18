@@ -864,6 +864,52 @@ TEST(ExecutionTest, ConditionalExecution)
     EXEC_TEST_MEMCHECK_END
 }
 
+TEST(ExecutionTest, TypeCall)
+{
+    EXEC_TEST_MEMCHECK_BEGIN
+
+    TestVM tvm("typecall.yal");
+
+    const bool compile_result = tvm.compile();
+
+    EXPECT_EQ(compile_result, true);
+    if (!compile_result)
+    {
+        return;
+    }
+
+    bool setup_result = tvm.loadFunction("test_type_call");
+    EXPECT_EQ(setup_result, true);
+    if (setup_result)
+    {
+        yalvm_func_hdl_t* func_hdl = tvm.hdl();
+        yalvm_register_t input;
+        input.reg32.i = 10;
+        yalvm_func_hdl_push_arg(func_hdl, &input);
+        input.reg32.i= -4;
+        yalvm_func_hdl_push_arg(func_hdl, &input);
+        const yalvm_u32 exec_val = yalvm_func_hdl_execute(func_hdl);
+        EXPECT_EQ(exec_val, YALVM_ERROR_NONE);
+        EXPECT_EQ(func_hdl->return_register.reg32.i, 40);
+    }
+
+    setup_result = tvm.loadFunction("test_type_call");
+    EXPECT_EQ(setup_result, true);
+    if (setup_result)
+    {
+        yalvm_func_hdl_t* func_hdl = tvm.hdl();
+        yalvm_register_t input;
+        input.reg32.i = -4;
+        yalvm_func_hdl_push_arg(func_hdl, &input);
+        input.reg32.i = 20;
+        yalvm_func_hdl_push_arg(func_hdl, &input);
+        const yalvm_u32 exec_val = yalvm_func_hdl_execute(func_hdl);
+        EXPECT_EQ(exec_val, YALVM_ERROR_NONE);
+        EXPECT_EQ(func_hdl->return_register.reg32.i, 80);
+    }
+
+    EXEC_TEST_MEMCHECK_END
+}
 
 
 

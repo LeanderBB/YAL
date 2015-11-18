@@ -29,6 +29,7 @@ public:
     YAL_AST_NODE_ACCEPT_HDR(FunctionCallNode)
 
     FunctionCallNode(const SourceLocationInfo& loc,
+                     ExpressionNode* objectExpression,
                      const char* name,
                      FunctionCallArgsNode *args);
 
@@ -54,9 +55,20 @@ public:
         return _functionArgs;
     }
 
+    bool isObjectCall() const
+    {
+        return _objectExpression != nullptr;
+    }
+
+    ExpressionNode* objectExpression() const
+    {
+        return _objectExpression;
+    }
+
 private:
     const char* _functionName;
     FunctionCallArgsNode* _functionArgs;
+    ExpressionNode* _objectExpression;
 };
 
 
@@ -66,6 +78,7 @@ public:
 
     FunctionDeclBaseNode(const SourceLocationInfo& loc,
                          const char* name,
+                         Type* objectType,
                          ArgumentDeclsNode* args,
                          Type *returnType);
 
@@ -93,10 +106,20 @@ public:
         return _returnValueType;
     }
 
+    bool isObjectFunction() const
+    {
+        return _objectType != nullptr;
+    }
+
+    Type* objectType() const
+    {
+        return _objectType;
+    }
 protected:
     const char* _functionName;
     ArgumentDeclsNode* _functionArgs;
     Type* _returnValueType;
+    Type* _objectType;
 };
 
 
@@ -107,6 +130,7 @@ public:
 
     FunctionDeclNode(const SourceLocationInfo& loc,
                      const char* name,
+                     Type* objectType,
                      ArgumentDeclsNode* args,
                      Type *returnType,
                      CodeBodyNode* code);

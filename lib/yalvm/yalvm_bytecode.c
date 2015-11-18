@@ -143,6 +143,7 @@ static const char* yalvm_bytecode_inst_strings [] =
     "laod func",
     /* Push Function Argument */
     "push arg",
+    "push ref",
     /* Call function */
     "call",
     "call native",
@@ -169,8 +170,12 @@ static const char* yalvm_bytecode_inst_strings [] =
     "obj dealloc",
     /* Strings Objects */
     "str alloc",
-    "str dealloc"
+    "str dealloc",
     /* end of strings */
+    /* Load Reference */
+    "load ref",
+    /* Store Reference */
+    "store ref",
 };
 
 const char*

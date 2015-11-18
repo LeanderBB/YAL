@@ -256,7 +256,7 @@ SymbolTreeBuilder::visit(FunctionCallArgsNode& node)
     YAL_ASSERT(_curFunctionCall);
     node.setScope(currentScope());
 
-    FunctionType* func_type = cast_type<FunctionType>(_curFunctionCall->astNode()->nodeType());
+    FunctionType* func_type = cast_type<FunctionType>(_curFunctionCall->symbolType());
     YAL_ASSERT(func_type);
     const yal_u32 nargs = func_type->argumentCount();
     if (nargs != node.expressions.size())
@@ -468,6 +468,35 @@ SymbolTreeBuilder::visit(FunctionCallNode& node)
         throw SemanticException(stream.str(), node);
     }
 
+    const FunctionType* func_type = cast_type<FunctionType>(sym->symbolType());
+
+    if (node.isObjectCall())
+    {
+
+        if (!func_type->isObjectFunction())
+        {
+            std::stringstream stream;
+            stream << "Can not call function '" << func_name
+                   << "' as an object function type"
+                   << std::endl;
+            throw SemanticException(stream.str(), node);
+        }
+
+        node.objectExpression()->accept(*this);
+
+        const Type* object_type = func_type->typeOfObject();
+        const Type* exp_type = node.objectExpression()->expressionResult().type;
+        if (!exp_type->isPromotableTo(object_type))
+        {
+            std::stringstream stream;
+            stream << "Can not call function '" << func_name
+                   << "', can not promote type '" << exp_type->typeString()
+                   << "' to type '" << object_type->typeString() << "'"
+                   << std::endl;
+            throw SemanticException(stream.str(), node);
+        }
+    }
+
     _curFunctionCall = sym;
 
     if (node.hasFunctionArguments())
@@ -477,7 +506,7 @@ SymbolTreeBuilder::visit(FunctionCallNode& node)
 
     sym->touchCall();
 
-    const FunctionType* func_type = cast_type<FunctionType>(sym->astNode()->nodeType());
+
     YAL_ASSERT(func_type);
     Type* return_type = func_type->typeOfReturnValue();
 
@@ -522,6 +551,29 @@ SymbolTreeBuilder::visit(FunctionDeclNode& node)
 
     // begin new scope
     beginScope();
+
+
+    // check for object type
+    if (node.isObjectFunction())
+    {
+        Type* object_type = node.objectType();
+        if (object_type->isUndefined())
+        {
+            std::stringstream stream;
+            stream << "Function's object type '"
+                   << object_type->typeString() << "'"
+                   << "for function '" <<func_name
+                   << "' is undefined."
+                   << std::endl;
+            throw SemanticException(stream.str(), node);
+        }
+
+        Symbol* self_sym = _curScope->declareSymbol("self", &node,
+                                                    Symbol::kFlagReference | Symbol::kFlagAssignable);
+        (void) self_sym;
+        YAL_ASSERT(self_sym);
+    }
+
 
     node.functionArguments()->accept(*this);
 
@@ -582,7 +634,7 @@ SymbolTreeBuilder::visit(ReturnNode& node)
     }
 
     const char* function_name = _curFunctionDecl->symbolName();
-    const FunctionType* func_type = cast_type<FunctionType>(_curFunctionDecl->astNode()->nodeType());
+    const FunctionType* func_type = cast_type<FunctionType>(_curFunctionDecl->symbolType());
     const Type* func_return = func_type->typeOfReturnValue();
     // current return type
 
@@ -696,7 +748,7 @@ SymbolTreeBuilder::visit(VariableAccessNode& node)
         throw SemanticException(stream.str(), node);
     }
 
-    _expResult = ExpressionResult(sym->astNode()->nodeType(), sym);
+    _expResult = ExpressionResult(sym->symbolType(), sym);
     node.setNodeType(_expResult.type);
     node.setExpressionResult(_expResult);
     sym->touchRead();
@@ -775,7 +827,7 @@ SymbolTreeBuilder::visit(FunctionDeclNativeNode& node)
     // register function in module
     YAL_ASSERT(_parserState->module.function(func_name) == nullptr);
     _parserState->module.addFunction(new ModuleFunctionNative(_curFunctionDecl,
-                                                                    &node));
+                                                              &node));
 
     // end scope
     endScope();

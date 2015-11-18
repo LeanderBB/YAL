@@ -1,0 +1,17 @@
+func int32::abs() : int32
+    if (self < 0)
+       return -self
+    else
+       return self
+    end
+end
+
+func int32::mult_abs(int32 other)
+    self *= other
+    self = self.abs()
+end
+
+func test_type_call(int32 a, int32 b) : int32
+    a.mult_abs(b)
+    return a
+end
