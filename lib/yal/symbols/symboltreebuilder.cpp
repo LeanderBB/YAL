@@ -569,7 +569,7 @@ SymbolTreeBuilder::visit(FunctionDeclNode& node)
         }
 
         Symbol* self_sym = _curScope->declareSymbol("self", &node,
-                                                    Symbol::kFlagReference | Symbol::kFlagAssignable);
+                                                    (!object_type->isObjectType() ? Symbol::kFlagReference  : 0)| Symbol::kFlagAssignable);
         (void) self_sym;
         YAL_ASSERT(self_sym);
     }
