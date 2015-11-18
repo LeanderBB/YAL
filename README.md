@@ -103,8 +103,8 @@ Module
 |-FunctionCallNode<ln 18:18  cl 5:6> 'test'
 | `-FunctionCallArgsNode<ln 18:18  cl 5:6> 
 `-PrintNode<ln 19:19  cl 13:14> 
-`-PrintArgsNode<ln 19:19  cl 13:14> 
-`-VariableAccessNode<ln 19:19  cl 13:14> 'global'
+  `-PrintArgsNode<ln 19:19  cl 13:14> 
+   `-VariableAccessNode<ln 19:19  cl 13:14> 'global'
 ```
 
 ## Dissasembler Call
@@ -202,25 +202,25 @@ Future versions of the project aim to support the following:
 * [ ] Compiler Optimisations
   * [X] ~~Global Variables~~
   * [ ] Dead Code removal
-  * [X] Register copy reduction
+  * [X] Register copy reduction (WIP)
 * [ ] Language Documentation
 * [ ] Remove dependency on Flex/Bison
-* [X] Better error messages in the compiler
+* [X] ~~Better error messages in the compiler~~
 * [ ] Loops
   * [X] ~~While loops~~
   * [ ] For loops
 * [X] ~~Printing support~~
 * [X] Memory management
-  * [X] Automatic Reference Counting (ARC) a la Objective-C
-  * [ ] Handle cyclic references using week attribute
+  * [X] ~~Automatic Reference Counting (ARC) a la Objective-C~~
+  * [ ] Handle cyclic references using weak attribute
 * [ ] Custom data types
 * [ ] Interfaces
   * Inspired by Google GO
-* [X] Native Code Interface
+* [X] Native Code Interface 
   * [ ] Compiler support to generate all the boilerplate code or utility functions
 * [X] ~~VM Function Handler~~
 * [ ] Builtin objects
-  * [X] Strings
+  * [X] ~~Strings~~
   * [ ] Arrays 
   * [ ] HashMaps
 * [ ] Module linking
