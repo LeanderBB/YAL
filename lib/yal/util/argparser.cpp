@@ -266,7 +266,7 @@ ArgParser::printHelp(std::ostream &output,
         }
         else
         {
-            output << "        --%s" << it->longopt;
+            output << "        --" << it->longopt;
         }
 
         while(len < _maxOptionsLen)
