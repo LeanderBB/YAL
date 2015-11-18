@@ -140,6 +140,7 @@ enum yalvm_bytecode_inst
     YALVM_BYTECODE_LOAD_FUNCTION,
     /* Push Function Argument */
     YALVM_BYTECODE_PUSH_ARG,
+    YALVM_BYTECODE_PUSH_REF,
     /* Call function */
     YALVM_BYTECODE_CALL,
     YALVM_BYTECODE_CALL_NATIVE,
@@ -167,6 +168,10 @@ enum yalvm_bytecode_inst
     /* Strings Objects */
     YALVM_BYTECODE_STRING_ALLOC,
     YALVM_BYTECODE_STRING_DEALLOC,
+    /* Load Reference */
+    YALVM_BYTECODE_LOAD_REF,
+    /* Store Reference */
+    YALVM_BYTECODE_STORE_REF,
     /* Total instruction count */
     YALVM_BYTECODE_TOTAL
 };
@@ -323,6 +328,16 @@ yalvm_bytecode_unpack_register(const yalvm_bytecode_t code,
     *dst_reg =  YALVM_BYTECODE_READ_RDST(code);
 }
 
+
+YALVM_INLINE
+void
+yalvm_bytecode_unpack_two_registers(const yalvm_bytecode_t code,
+                                yalvm_u8* dst_reg,
+                                yalvm_u8* src_reg1)
+{
+    *dst_reg =  YALVM_BYTECODE_READ_RDST(code);
+    *src_reg1 = YALVM_BYTECODE_READ_RSRC1(code);
+}
 
 YALVM_INLINE
 void

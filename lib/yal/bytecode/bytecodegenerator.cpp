@@ -169,6 +169,15 @@ ByteCodeGenerator::onScopeEndGlobal(const Scope &scope)
 bool
 ByteCodeGenerator::setupFunction(const yal::FunctionDeclBaseNode &node)
 {
+    if (node.isObjectFunction())
+    {
+        // declare self variable register
+        bool result = _regAllocator.allocate("self",
+                                             node.functionArguments()->scope()->level());
+        (void) result;
+        YAL_ASSERT(result != RegisterAllocator::UnusedRegisterValue);
+    }
+
     if (node.hasFunctionArguments())
     {
         // register function arguments to the first registers in
@@ -420,6 +429,20 @@ ByteCodeGenerator::loadVariableIntoRegister(const char* varName,
             reg = cur_register;
         }
     }
+    else if(var_symbol->isReference())
+    {
+        Register ref_register = Register(_regAllocator, varName,
+                                         var_symbol->scope()->level());
+        cur_register = Register(_regAllocator);
+        instruction = YALVM_BYTECODE_LOAD_REF;
+        pushRegister(cur_register);
+
+        yalvm_bytecode_t code = yalvm_bytecode_pack_two_registers(instruction,
+                                                                  cur_register.registerIdx(),
+                                                                  ref_register.registerIdx());
+        _buffer.append(code);
+        return;
+    }
     else
     {
         cur_register = Register(_regAllocator, varName,
@@ -637,31 +660,38 @@ ByteCodeGenerator::visit(AssignOperatorNode& node)
     const ExpressionResult& exp_type = node.expressionResult();
     if (exp_type.type->isBuiltinType())
     {
-        yalvm_bytecode_inst_t inst =  AssignOperatorByteCodeInst(node.assignOperatorType(), exp_type.type);
+        yalvm_bytecode_inst_t assign_inst =
+                AssignOperatorByteCodeInst(node.assignOperatorType(), exp_type.type);
         yalvm_bytecode_t code;
 
+        const Symbol* assign_sym = left_exp_result.symbol;
+        Register ref_register;
 
-        if (inst != YALVM_BYTECODE_COPY_REGISTER)
+        if (assign_sym->isReference())
         {
-            code = yalvm_bytecode_pack_three_registers(inst, left_register.registerIdx(),
+            ref_register = Register(_regAllocator, assign_sym->symbolName(),
+                                    assign_sym->scope()->level());
+        }
+
+        if (assign_inst != YALVM_BYTECODE_COPY_REGISTER)
+        {
+            code = yalvm_bytecode_pack_three_registers(assign_inst, left_register.registerIdx(),
                                                        left_register.registerIdx(),
                                                        right_register.registerIdx());
             _buffer.append(code);
+
         }
         else if (left_exp_result.symbol != right_exp_result.symbol)
         {
-            code = yalvm_bytecode_pack_two_registers(inst, left_register.registerIdx(),
+            code = yalvm_bytecode_pack_two_registers(assign_inst, left_register.registerIdx(),
                                                      right_register.registerIdx());
             _buffer.append(code);
         }
-
-
-
         // store global result
-        const Symbol* assign_sym = left_exp_result.symbol;
+
         if (assign_sym->isGlobalVariable())
         {
-            inst = StoreGlobalByteCodeInst(exp_type.type);
+            const yalvm_bytecode_inst_t inst = StoreGlobalByteCodeInst(exp_type.type);
 
             yal_u32 global_idx = ModuleIndexable::IndexUnused;
             getGlobalVarIdx(global_idx, assign_sym->symbolName(), node);
@@ -670,7 +700,13 @@ ByteCodeGenerator::visit(AssignOperatorNode& node)
 
             _buffer.append(code);
         }
-
+        else  if(assign_sym->isReference())
+        {
+            code = yalvm_bytecode_pack_two_registers(YALVM_BYTECODE_STORE_REF,
+                                                     ref_register.registerIdx(),
+                                                     left_register.registerIdx());
+            _buffer.append(code);
+        }
     }
     else
     {
@@ -1050,7 +1086,11 @@ ByteCodeGenerator::visit(SingleOperatorNode& node)
 
     // nothing to do for block operator
 
-    const Register& top = topRegister();
+    const Register exp_result = popRegister();
+
+    Register tmp_register = registerForSymbol(node.expressionResult().symbol);
+    YAL_ASSERT(tmp_register.isValid());
+    pushRegister(tmp_register);
 
     const Type* exp_type = node.expressionResult().type;
 
@@ -1061,8 +1101,9 @@ ByteCodeGenerator::visit(SingleOperatorNode& node)
 
         YAL_ASSERT(inst != YALVM_BYTECODE_TOTAL);
 
-        yalvm_bytecode_t code = yalvm_bytecode_pack_one_register(inst,
-                                                                 top.registerIdx());
+        yalvm_bytecode_t code = yalvm_bytecode_pack_two_registers(inst,
+                                                                  tmp_register.registerIdx(),
+                                                                  exp_result.registerIdx());
 
         _buffer.append(code);
     }
@@ -1100,22 +1141,40 @@ ByteCodeGenerator::visit(FunctionCallNode& node)
     YAL_ASSERT(function_call_reg.isValid());
 
     const FunctionType* func_type = cast_type<FunctionType>(function_sym->astNode()->nodeType());
-    Register return_register;
-    if (func_type->hasReturnValue())
-    {
-        return_register = registerForSymbol(node.expressionResult().symbol);
-        pushRegister(return_register);
-    }
 
     yalvm_bytecode_t code_load = yalvm_bytecode_pack_dst_value(YALVM_BYTECODE_LOAD_FUNCTION,
                                                                function_call_reg.registerIdx(),
                                                                function_idx);
     _buffer.append(code_load);
 
+
+    // process call expression
+    Register object_expression_reg;
+    if (node.isObjectCall())
+    {
+        node.objectExpression()->accept(*this);
+        object_expression_reg = popRegister();
+
+        const yalvm_bytecode_inst_t inst = node.objectExpression()->expressionResult().type->isObjectType()
+                ? YALVM_BYTECODE_PUSH_ARG
+                : YALVM_BYTECODE_PUSH_REF;
+
+        const yalvm_bytecode_t code = yalvm_bytecode_pack_one_register(inst,
+                                                                       object_expression_reg.registerIdx());
+        _buffer.append(code);
+    }
+
     // process arguments
     if (node.hasFunctionArguments())
     {
         node.functionArguments()->accept(*this);
+    }
+
+    Register return_register;
+    if (func_type->hasReturnValue())
+    {
+        return_register = registerForSymbol(node.expressionResult().symbol);
+        pushRegister(return_register);
     }
 
     yalvm_bytecode_t code_call = yalvm_bytecode_pack_three_registers(
@@ -1126,6 +1185,19 @@ ByteCodeGenerator::visit(FunctionCallNode& node)
     _buffer.append(code_call);
 
     function_call_reg.release(_regAllocator);
+
+    if (node.isObjectCall() && node.objectExpression()->expressionResult().symbol->isGlobalVariable())
+    {
+        const Symbol* global_sym = node.objectExpression()->expressionResult().symbol;
+        const yalvm_bytecode_inst_t inst = StoreGlobalByteCodeInst(global_sym->symbolType());
+        yal_u32 global_idx = ModuleIndexable::IndexUnused;
+        getGlobalVarIdx(global_idx, global_sym->symbolName(), node);
+
+        const yalvm_bytecode_t code = yalvm_bytecode_pack_dst_value(inst,
+                                                                    object_expression_reg.registerIdx(),
+                                                                    global_idx);
+        _buffer.append(code);
+    }
     clearGlobalMap();
     return;
 }

@@ -1,5 +1,25 @@
-yyyy/mm/dd - 0.4.0
+2015/11/18 - 0.4.0
 ------------------
+
+Del: Remove yalhash, no longer relevant.
+
+Fix: Removed print globals option from yale.
+
+New: Execution tests now check for unreleased memory.
+
+New: Compiler propagates errors using execptions and yalc now prints the line(s) where the
+error is detected (when possible).
+
+New: Type specific functions. E.g: func int32::abs() : int32 ... can now be used to execute
+functions on variable using the '.' operator (e.g: i.abs()). 
+
+New: Automatic Reference Counting for Objects.
+
+New: String object support.
+
+Fix: Conditional execution errors.
+
+New: Native function calls.
 
 Fix: Register allocation bugs.
 

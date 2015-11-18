@@ -90,7 +90,11 @@ string {return TK_TYPE_STRING;}
 
 print {return TK_PRINT;}
 
+self {return TK_SELF;}
+
 % {return TK_MOD;}
+
+"." {return TK_DOT;}
 
 ">>" {return TK_SHIFT_RIGHT;}
 

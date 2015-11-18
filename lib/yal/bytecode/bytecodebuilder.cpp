@@ -291,10 +291,17 @@ ByteCodeBuilder::writeModuleInfo(ParserState& state)
                 is_native_func = true;
             }
 
+            function_header.n_arguments = 0;
+            // check if is an object call function
+            if (decl_node->isObjectFunction())
+            {
+                function_header.n_arguments = 1;
+            }
+
             // set function args
             if (decl_node->hasFunctionArguments())
             {
-                function_header.n_arguments = decl_node->functionArguments()->arguments().size();
+                function_header.n_arguments += decl_node->functionArguments()->arguments().size();
             }
 
             // set function register count

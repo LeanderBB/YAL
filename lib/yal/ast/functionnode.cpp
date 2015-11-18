@@ -11,13 +11,19 @@ YAL_AST_NODE_ACCEPT_IMP(FunctionCallArgsNode)
 YAL_AST_NODE_ACCEPT_IMP(FunctionCallNode)
 
 FunctionCallNode::FunctionCallNode(const SourceLocationInfo &loc,
+                                   ExpressionNode* objectExpression,
                                    const char* name,
                                    FunctionCallArgsNode* args):
     ExpressionNode(loc),
     _functionName(name),
-    _functionArgs(args)
+    _functionArgs(args),
+    _objectExpression(objectExpression)
 {
     args->setParentNode(this);
+    if (objectExpression)
+    {
+        objectExpression->setParentNode(this);
+    }
 }
 
 FunctionCallNode::~FunctionCallNode()
@@ -28,12 +34,14 @@ FunctionCallNode::~FunctionCallNode()
 
 FunctionDeclBaseNode::FunctionDeclBaseNode(const SourceLocationInfo& loc,
                                            const char* name,
+                                           Type *objectType,
                                            ArgumentDeclsNode *args,
                                            Type *returnType):
     AstBaseNode(loc),
     _functionName(name),
     _functionArgs(args),
-    _returnValueType(returnType)
+    _returnValueType(returnType),
+    _objectType(objectType)
 {
     args->setParentNode(this);
 }
@@ -54,10 +62,11 @@ YAL_AST_NODE_ACCEPT_IMP(FunctionDeclNode)
 
 FunctionDeclNode::FunctionDeclNode(const SourceLocationInfo& loc,
                                    const char* name,
+                                   Type* objectType,
                                    ArgumentDeclsNode *args,
                                    Type *returnType,
                                    CodeBodyNode *code):
-    FunctionDeclBaseNode(loc, name, args, returnType),
+    FunctionDeclBaseNode(loc, name, objectType, args, returnType),
     _codeBody(code)
 {
     code->setParentNode(this);
@@ -74,7 +83,7 @@ FunctionDeclNativeNode::FunctionDeclNativeNode(const SourceLocationInfo& loc,
                                                const char* name,
                                                ArgumentDeclsNode *args,
                                                Type *returnType):
-    FunctionDeclBaseNode(loc, name, args, returnType)
+    FunctionDeclBaseNode(loc, name, nullptr, args, returnType)
 {
 }
 

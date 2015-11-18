@@ -12,19 +12,6 @@
 extern "C"
 {
 
-yalvm_i32
-yal_native_foo_impl(yalvm_i32 i)
-{
-    return sqrt(i);
-}
-
-void
-yal_native_sqrt(yalvm_register_t* registers,
-                yalvm_register_t* return_register)
-{
-    return_register->reg32.i = sqrt(registers[0].reg32.i);
-}
-
 void*
 yalvm_malloc(yalvm_size size)
 {
@@ -100,53 +87,12 @@ printRegister(yalvm_register_t* reg)
     printf("  f64  : %lf\n", *yalvm_register_to_f64(reg));
 }
 
-
-static void
-printGlobals(const yalvm_ctx_t*)
-{
-
-    /*yalvm_register_t tmp_reg;
-
-    const yalvm_u32 n_globlas32 = yalvm_ctx_num_globals32(ctx);
-    const yalvm_u32 n_globlas64 = yalvm_ctx_num_globals64(ctx);
-
-
-    const yalvm_bin_global32_t* globals_32 = yalvm_ctx_globals32(ctx);
-    const yalvm_bin_global64_t* globals_64 = yalvm_ctx_globals64(ctx);
-
-    if (n_globlas32)
-    {
-        printf("Globals 32\n");
-
-        for (yalvm_u32 i = 0; i < n_globlas32; ++i)
-        {
-            const yalvm_bin_global32_t* cur_global = globals_32 + i;
-            printf("> %08x\n", cur_global->hash);
-            tmp_reg.reg32.value = cur_global->val;
-            printRegister(&tmp_reg);
-        }
-    }
-
-    if (n_globlas64)
-    {
-        printf("Globals 64\n");
-        for (yalvm_u32 i = 0; i < n_globlas64; ++i)
-        {
-            const yalvm_bin_global64_t* cur_global = globals_64 + i;
-            printf("> %08x\n", cur_global->hash);
-            tmp_reg.reg64.value = cur_global->val;
-            printRegister(&tmp_reg);
-        }
-    } */
-}
-
 static const char* sDescription =
-        "yale - Yet Anoter Language Executor (0.2.0, yalvm " YALVM_VERSION_STR")\n"
-                                                                              "usage: yale [options] <input file>\n";
+        "yale - Yet Anoter Language Executor (0.3.0, yalvm " YALVM_VERSION_STR")\n"
+        "usage: yale [options] <input file>\n";
 
 enum Option
 {
-    kOptionPrintGlobals = yal::KArgsOptionHelp + 1
 };
 
 
@@ -162,8 +108,6 @@ int main(const int argc,
 
     // setup arg parser
     yal::ArgParser arg_parser;
-    arg_parser.add(kOptionPrintGlobals, 'g', "print-globals",
-                   "Print global variables after execution", 0);
 
     int parse_result = -1;
     try
@@ -257,10 +201,7 @@ int main(const int argc,
 
     if (exec_val == YALVM_ERROR_NONE)
     {
-        if (arg_parser.isSet(kOptionPrintGlobals))
-        {
-            printGlobals(&vm);
-        }
+        // do something on success
     }
     else
     {

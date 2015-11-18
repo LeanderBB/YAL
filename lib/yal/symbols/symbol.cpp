@@ -50,10 +50,29 @@ Symbol::isReadOnly() const
     return _symbolFlags & kFlagReadOnly;
 }
 
+Type*
+Symbol::symbolType() const
+{
+    VariableDeclNode* decl_node = ast_cast<VariableDeclNode>(_astNode);
+    if (decl_node)
+    {
+        return decl_node->nodeType();
+    }
+
+    FunctionDeclNode* fn_decl_node = ast_cast<FunctionDeclNode>(_astNode);
+    if (fn_decl_node && _symName == "self")
+    {
+        return fn_decl_node->objectType();
+    }
+
+    return _astNode->nodeType();
+}
+
 bool
 Symbol::isVariable() const
 {
-    return ast_typeof<VariableDeclNode>(_astNode)
+    return _symName == "self"
+            || ast_typeof<VariableDeclNode>(_astNode)
             || ast_typeof<ArgumentDeclNode>(_astNode);
 }
 
@@ -104,6 +123,12 @@ bool
 Symbol::isReturnValue() const
 {
     return _symbolFlags & kFlagReturnValue;
+}
+
+bool
+Symbol::isReference() const
+{
+    return _symbolFlags & kFlagReference;
 }
 
 void

@@ -288,7 +288,7 @@ ByteCodePrinter::print(const size_t max)
         case YALVM_BYTECODE_NEG_IL:
         case YALVM_BYTECODE_NEG_F:
         case YALVM_BYTECODE_NEG_FL:
-            print1Reg(code);
+            print2Regs(code);
             break;
             /* Bit and */
         case YALVM_BYTECODE_BIT_AND_32:
@@ -304,7 +304,7 @@ ByteCodePrinter::print(const size_t max)
             /* Bit not */
         case YALVM_BYTECODE_BIT_NOT_32:
         case YALVM_BYTECODE_BIT_NOT_64:
-            print1Reg(code);
+            print2Regs(code);
             break;
             /* Shift Left */
         case YALVM_BYTECODE_SHIFTL_32:
@@ -386,6 +386,7 @@ ByteCodePrinter::print(const size_t max)
             break;
             /* Push Function Argument */
         case YALVM_BYTECODE_PUSH_ARG:
+        case YALVM_BYTECODE_PUSH_REF:
             print1Reg(code);
             break;
             /* Call function */
@@ -436,6 +437,14 @@ ByteCodePrinter::print(const size_t max)
             print1Reg(code);
             break;
         case YALVM_BYTECODE_PRINT_NL:
+            break;
+            /* Load Reference */
+        case YALVM_BYTECODE_LOAD_REF:
+            print2Regs(code);
+            break;
+            /* Store Reference */
+        case YALVM_BYTECODE_STORE_REF:
+            print2Regs(code);
             break;
         default:
             _sink << "Unknown byte code ";

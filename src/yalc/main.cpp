@@ -69,7 +69,7 @@ printLines(const yal::Compiler& compiler,
             ? std::numeric_limits<size_t>::max()
             : line_offsets[last_line];
 
-    const size_t diff = (end_offset - 2) - start_offset;
+    const size_t diff = (end_offset - 1) - start_offset;
     char buffer[diff];
     size_t bytes_read = input.read(buffer, diff);
     if (!bytes_read)

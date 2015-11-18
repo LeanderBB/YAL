@@ -29,7 +29,7 @@ yalvm_stack_frame_begin(yalvm_stack_t* stack,
     /* no stack frame has been allocated yet */
     if (!stack->stack_frame_base)
     {
-       next_frame = YALVM_PTR_ADD(stack->stack_start, offset);
+        next_frame = YALVM_PTR_ADD(stack->stack_start, offset);
     }
     /* previous frame exists */
     else
@@ -124,6 +124,22 @@ yalvm_stack_push(yalvm_stack_t* stack,
     }
     return yalvm_false;
 }
+
+yalvm_bool
+yalvm_stack_push_ref(yalvm_stack_t* stack,
+                     yalvm_register_t* reg)
+{
+    yalvm_register_t* stack_top_ptr = (yalvm_register_t*) stack->stack_frame_top;
+    if (stack_top_ptr)
+    {
+        stack_top_ptr->ptr.value = reg;
+        stack->stack_frame_top = YALVM_PTR_ADD(stack->stack_frame_top,
+                                               sizeof(yalvm_register_t));
+        return yalvm_true;
+    }
+    return yalvm_false;
+}
+
 
 yalvm_bool
 yalvm_stack_function_begin(yalvm_stack_t* stack,

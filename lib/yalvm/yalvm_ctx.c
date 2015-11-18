@@ -116,6 +116,11 @@ yalvm_ctx_destroy(yalvm_ctx_t *ctx)
     yalvm_ ## type  * reg_src1 = yalvm_register_to_ ## type (&ctx->registers[src1]); \
     yalvm_ ## type  * reg_src2 = yalvm_register_to_ ## type (&ctx->registers[src2])
 
+#define YALVM_UNPACK_2_REGISTERS(type) \
+    yalvm_u8 dst, src1; \
+    yalvm_bytecode_unpack_two_registers(code, &dst, &src1); \
+    yalvm_ ## type  * reg_dst = yalvm_register_to_ ## type (&ctx->registers[dst]); \
+    yalvm_ ## type  * reg_src1 = yalvm_register_to_ ## type (&ctx->registers[src1]);
 
 #define YALVM_UNPACK_REGISTER(type) \
     yalvm_u8 dst; \
@@ -376,26 +381,26 @@ yalvm_ctx_execute(yalvm_ctx_t* ctx)
             /* Negative (-var) */
         case YALVM_BYTECODE_NEG_I:
         {
-            YALVM_UNPACK_REGISTER(i32);
-            *reg_dst = -(*reg_dst);
+            YALVM_UNPACK_2_REGISTERS(i32);
+            *reg_dst = -(*reg_src1);
             break;
         }
         case YALVM_BYTECODE_NEG_IL:
         {
-            YALVM_UNPACK_REGISTER(i64);
-            *reg_dst = -(*reg_dst);
+            YALVM_UNPACK_2_REGISTERS(i64);
+            *reg_dst = -(*reg_src1);
             break;
         }
         case YALVM_BYTECODE_NEG_F:
         {
-            YALVM_UNPACK_REGISTER(f32);
-            *reg_dst = -(*reg_dst);
+            YALVM_UNPACK_2_REGISTERS(f32);
+            *reg_dst = -(*reg_src1);
             break;
         }
         case YALVM_BYTECODE_NEG_FL:
         {
-            YALVM_UNPACK_REGISTER(f64);
-            *reg_dst = -(*reg_dst);
+            YALVM_UNPACK_2_REGISTERS(f64);
+            *reg_dst = -(*reg_src1);
             break;
         }
             /* Bit and */
@@ -439,14 +444,14 @@ yalvm_ctx_execute(yalvm_ctx_t* ctx)
         }
         case YALVM_BYTECODE_BIT_NOT_32:
         {
-            YALVM_UNPACK_REGISTER(u32);
-            *reg_dst = ~(*reg_dst);
+            YALVM_UNPACK_2_REGISTERS(u32);
+            *reg_dst = ~(*reg_src1);
             break;
         }
         case YALVM_BYTECODE_BIT_NOT_64:
         {
-            YALVM_UNPACK_REGISTER(u64);
-            *reg_dst = ~(*reg_dst);
+            YALVM_UNPACK_2_REGISTERS(u64);
+            *reg_dst = ~(*reg_src1);
             break;
         }
             /* Shift Left */
@@ -807,6 +812,17 @@ yalvm_ctx_execute(yalvm_ctx_t* ctx)
             }
             break;
         }
+        case YALVM_BYTECODE_PUSH_REF:
+        {
+            yalvm_u8 dst;
+            yalvm_bytecode_unpack_register(code, &dst);
+
+            if(!yalvm_stack_push_ref(&ctx->stack, &ctx->registers[dst]))
+            {
+                return YALVM_ERROR_STACK_OVERFLOW;
+            }
+            break;
+        }
             /* Call function */
         case YALVM_BYTECODE_CALL:
         {
@@ -1049,7 +1065,7 @@ yalvm_ctx_execute(yalvm_ctx_t* ctx)
             break;
         }
 
-         /* Strings Objects */
+            /* Strings Objects */
         case YALVM_BYTECODE_STRING_ALLOC:
         {
             yalvm_u8 dst;
@@ -1071,6 +1087,25 @@ yalvm_ctx_execute(yalvm_ctx_t* ctx)
             yalvm_bytecode_unpack_register(code, &dst_reg);
             yalvm_object_t* obj = (yalvm_object_t*)ctx->registers[dst_reg].ptr.value;
             yalvm_string_destroy(obj);
+            break;
+        }
+
+            /* Load Reference */
+        case YALVM_BYTECODE_LOAD_REF:
+        {
+            yalvm_u8 dst_reg, src_reg;
+            yalvm_bytecode_unpack_two_registers(code, &dst_reg, &src_reg);
+            yalvm_register_copy(&ctx->registers[dst_reg],
+                                (yalvm_register_t*)ctx->registers[src_reg].ptr.value);
+            break;
+        }
+            /* Store Reference */
+        case YALVM_BYTECODE_STORE_REF:
+        {
+            yalvm_u8 dst_reg, src_reg;
+            yalvm_bytecode_unpack_two_registers(code, &dst_reg, &src_reg);
+            yalvm_register_copy((yalvm_register_t*)ctx->registers[dst_reg].ptr.value,
+                                &ctx->registers[src_reg]);
             break;
         }
 

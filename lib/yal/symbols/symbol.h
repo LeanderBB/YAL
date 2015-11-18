@@ -24,7 +24,8 @@ public:
         kFlagTemporary      = 1 << 3,
         kFlagNewObject      = 1 << 4,
         kFlagAssigned       = 1 << 5,
-        kFlagReturnValue    = 1 << 6
+        kFlagReturnValue    = 1 << 6,
+        kFlagReference      = 1 << 7
     };
 
     Symbol(const char* name,
@@ -79,6 +80,8 @@ public:
         return _astNode;
     }
 
+    Type* symbolType() const;
+
     bool isVariable() const;
 
     bool isFunction() const;
@@ -96,6 +99,8 @@ public:
     bool isAssigned() const;
 
     bool isReturnValue() const;
+
+    bool isReference() const;
 
     void markAssigned();
 

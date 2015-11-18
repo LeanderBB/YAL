@@ -34,8 +34,7 @@ FunctionType::hasArguments() const
 bool
 FunctionType::isObjectFunction() const
 {
-    //TODO: Implement when needed
-    return false;
+    return _pFunctionDecl->isObjectFunction();
 }
 
 yal_u32
@@ -60,8 +59,7 @@ FunctionType::typeOfReturnValue() const
 Type*
 FunctionType::typeOfObject() const
 {
-    //TODO: implement when needed
-    return nullptr;
+    return _pFunctionDecl->objectType();
 }
 
 bool
