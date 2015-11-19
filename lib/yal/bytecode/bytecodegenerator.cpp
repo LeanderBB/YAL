@@ -1308,6 +1308,16 @@ ByteCodeGenerator::visit(ReturnNode& node)
 
         register_idx = tmp_register.registerIdx();
         tmp_register.release(_regAllocator);
+
+        const ExpressionResult& exp_result = node.expression()->expressionResult();
+        if (exp_result.type->isObjectType()
+                && !exp_result.symbol->isNewObject())
+        {
+            const yalvm_bytecode_t code = yalvm_bytecode_pack_one_register(YALVM_BYTECODE_OBJECT_ACQUIRE,
+                                                                           register_idx);
+            _buffer.append(code);
+        }
+
     }
 
     // run scope end actions
@@ -1447,12 +1457,9 @@ ByteCodeGenerator::ByteCodeGeneratorScopeActionVisitor::visitOnExit(const Object
     const Type* sym_type = sym->astNode()->nodeType();
     (void) sym_type;
     YAL_ASSERT(sym->isVariable() && sym_type->isObjectType());
-    if (!sym->isReturnValue())
-    {
         _generator.loadVariableIntoRegister(sym->symbolName(), *sym->astNode());
         Register var_reg = _generator.popRegister();
         _generator.releaseObject(*sym, var_reg);
-    }
 }
 
 void

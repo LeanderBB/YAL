@@ -911,6 +911,17 @@ TEST(ExecutionTest, TypeCall)
     EXEC_TEST_MEMCHECK_END
 }
 
+TEST(ExecutionTest, ArcScopeTypeFunctions)
+{
+    EXEC_TEST_MEMCHECK_BEGIN
+
+    TestVM tvm("arc_object_scope_type_functions.yal");
+
+    EXPECT_EQ(tvm.runGlobal(), true);
+
+    EXEC_TEST_MEMCHECK_END
+}
+
 
 
 int
