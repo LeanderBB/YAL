@@ -96,6 +96,10 @@ self {return TK_SELF;}
 
 "." {return TK_DOT;}
 
+"[" {return TK_ARRAY_BGN;}
+
+"]" {return TK_ARRAY_END;}
+
 ">>" {return TK_SHIFT_RIGHT;}
 
 "<<" {return TK_SHIFT_LEFT;}

@@ -16,6 +16,8 @@ class TypeRegistry
 public:
     TypeRegistry(Module& module);
 
+    ArrayType* registerArray(const Type* valueType);
+
     FunctionType* registerFunction(FunctionDeclBaseNode* node);
 
     Type* registerUndefined(const char* typeString);

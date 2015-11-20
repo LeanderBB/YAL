@@ -64,7 +64,8 @@ ByteCodeGenerator::Register::release(RegisterAllocator& alloctor)
 }
 
 
-ByteCodeGenerator::ByteCodeGenerator(Module &moduleInfo):
+ByteCodeGenerator::ByteCodeGenerator(Module &moduleInfo,
+                                     TypeRegistry &typeRegistry):
     _moduleInfo(moduleInfo),
     _buffer(),
     _regAllocator(),
@@ -73,7 +74,8 @@ ByteCodeGenerator::ByteCodeGenerator(Module &moduleInfo):
     _conditionOffsets(),
     _trackConditionOffsets(false),
     _parenthesisOffsetStack(),
-    _curParenthesisOffsets(nullptr)
+    _curParenthesisOffsets(nullptr),
+    _typeRegistry(typeRegistry)
 {
 
 }
@@ -503,6 +505,18 @@ ByteCodeGenerator::releaseObject(const Symbol &sym,
         void visit(const UndefinedType&) override
         {
             YAL_ASSERT(false && "Should not be reached");
+        }
+
+        void visit(const ArrayType&) override
+        {
+            const yalvm_bytecode_t code = yalvm_bytecode_pack_one_register(YALVM_BYTECODE_ARRAY_DEALLOC,
+                                                                           _register.registerIdx());
+            _generator._buffer.append(code);
+        }
+
+        void visit(const AnyType&) override
+        {
+             YAL_ASSERT(false && "Should not be reached");
         }
 
     private:
@@ -1118,11 +1132,38 @@ ByteCodeGenerator::visit(SingleOperatorNode& node)
 void
 ByteCodeGenerator::visit(FunctionCallNode& node)
 {
+    std::string function_name = node.functionName();
+    const Symbol* function_sym = nullptr;
+    const Type* exp_type = nullptr;
+    if (node.isObjectCall())
+    {
+        exp_type = node.objectExpression()->expressionResult().type;
+        function_name = FunctionDeclBaseNode::GenFunctionName(exp_type, function_name.c_str());
+        function_sym = node.scope()->resolveSymbol(function_name.c_str());
 
-    const char* function_name = node.functionName();
+        //TODO: Improve the any matching process
+        if (!function_sym )
+        {
+            const ArrayType* array_type = cast_type<const ArrayType>(exp_type);
+            if (array_type)
+            {
+                std::string tmp_func = FunctionDeclBaseNode::GenFunctionName(_typeRegistry.registerArray(AnyType::GetType()), node.functionName());
+                function_sym = node.scope()->resolveSymbol(tmp_func.c_str());
+                if (function_sym)
+                {
+                    function_name = tmp_func;
+                }
+            }
+        }
+    }
+    else
+    {
+        function_sym = node.scope()->resolveSymbol(function_name.c_str());
+    }
+
+
 
     // load function symbol
-    const Symbol* function_sym = node.scope()->resolveSymbol(function_name);
     if (!function_sym)
     {
         std::stringstream stream;
@@ -1135,7 +1176,7 @@ ByteCodeGenerator::visit(FunctionCallNode& node)
 
 
     yal_u32 function_idx = 0;
-    getFunctionIdx(function_idx, function_name, node);
+    getFunctionIdx(function_idx, function_name.c_str(), node);
 
     Register function_call_reg = Register(_regAllocator);
     YAL_ASSERT(function_call_reg.isValid());
@@ -1457,15 +1498,15 @@ ByteCodeGenerator::ByteCodeGeneratorScopeActionVisitor::visitOnExit(const Object
     const Type* sym_type = sym->astNode()->nodeType();
     (void) sym_type;
     YAL_ASSERT(sym->isVariable() && sym_type->isObjectType());
-        _generator.loadVariableIntoRegister(sym->symbolName(), *sym->astNode());
-        Register var_reg = _generator.popRegister();
-        _generator.releaseObject(*sym, var_reg);
+    _generator.loadVariableIntoRegister(sym->symbolName(), *sym->astNode());
+    Register var_reg = _generator.popRegister();
+    _generator.releaseObject(*sym, var_reg);
 }
 
 void
-ByteCodeGenerator::visit(ObjectCreateNode& node)
+ByteCodeGenerator::visit(ObjectCreateNode&)
 {
-    node.expression()->accept(*this);
+    YAL_ASSERT(false && "Should not be reached");
 }
 
 void
@@ -1491,6 +1532,89 @@ void ByteCodeGenerator::visit(ParentExpNode& node)
     onParentesesEnter(node);
     node.expression()->accept(*this);
     onParentesesExit(node);
+}
+
+void
+ByteCodeGenerator::visit(ArrayCtrNode& node)
+{
+    const ArrayType* type = cast_type<const ArrayType>(node.nodeType());
+    YAL_ASSERT(type && "ArracyCtrNode must have array type");
+    const Type* value_type = type->valueType();
+
+    Register cur_register = registerForSymbol(node.expressionResult().symbol);
+    YAL_ASSERT(cur_register.isValid());
+
+
+    yalvm_bytecode_inst_t alloc_inst = YALVM_BYTECODE_TOTAL, insert_inst = YALVM_BYTECODE_TOTAL;
+    if (value_type->is32BitSized())
+    {
+        alloc_inst = YALVM_BYTECODE_ARRAY_ALLOC_32;
+        insert_inst = YALVM_BYTECODE_ARRAY_PUT_32;
+    }
+    else if (value_type->is64BitSized())
+    {
+        alloc_inst = YALVM_BYTECODE_ARRAY_ALLOC_64;
+        insert_inst = YALVM_BYTECODE_ARRAY_PUT_64;
+    }
+    else
+    {
+        YAL_ASSERT(value_type->isObjectType());
+        insert_inst = YALVM_BYTECODE_ARRAY_PUT_OBJ;
+        alloc_inst = YALVM_BYTECODE_ARRAY_ALLOC_OBJ;
+    }
+
+
+
+    const ExpressionNodeVec_t& expressions = node.expressions();
+    if (node.expressions().empty())
+    {
+        // alloc empty array
+        yalvm_bytecode_t code = yalvm_bytecode_pack_two_registers(alloc_inst,
+                                                                  cur_register.registerIdx(),
+                                                                  0xFF);
+        _buffer.append(code);
+    }
+    else
+    {
+        // alloc size array
+        if (expressions.size() >= std::numeric_limits<yal_u16>::max())
+        {
+            std::stringstream stream;
+            stream << "Maxium allowed expressions for in place array construction exceeds the limit: "
+                   << "current=" << expressions.size() << " max="
+                   << std::numeric_limits<yal_u16>::max() << std::endl;
+            throw ByteCodeGenException(stream.str(), node);
+        }
+
+        Register tmp_reg(_regAllocator);
+        YAL_ASSERT(tmp_reg.isValid());
+        yalvm_bytecode_t code = yalvm_bytecode_pack_dst_value(YALVM_BYTECODE_LOAD_VALUE,
+                                                              tmp_reg.registerIdx(),
+                                                              expressions.size());
+        tmp_reg.release(_regAllocator);
+        _buffer.append(code);
+
+        code = yalvm_bytecode_pack_two_registers(alloc_inst,
+                                                 cur_register.registerIdx(),
+                                                 tmp_reg.registerIdx());
+        _buffer.append(code);
+
+        // generate expressions
+        for (auto& exp : expressions)
+        {
+            exp->accept(*this);
+            Register exp_reg = popRegister();
+            YAL_ASSERT(exp_reg.isValid());
+
+            code = yalvm_bytecode_pack_three_registers(insert_inst,
+                                                       cur_register.registerIdx(),
+                                                       0xFF,
+                                                       exp_reg.registerIdx());
+            _buffer.append(code);
+        }
+    }
+
+    pushRegister(cur_register);
 }
 
 }

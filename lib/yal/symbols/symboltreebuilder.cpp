@@ -29,6 +29,9 @@ void
 SymbolTreeBuilder::process(ParserState& state)
 {
     _parserState = &state;
+
+    addYalVmFunctions();
+
     for (auto& v : state.program)
     {
         _curStatment = v;
@@ -62,6 +65,21 @@ bool
 SymbolTreeBuilder::currentScopeIsGlobalScope() const
 {
     return _curScope == &_globalScope;
+}
+
+void
+SymbolTreeBuilder::addYalVmFunctions()
+{
+    // array length
+    FunctionDeclNativeNode* array_len =
+            new FunctionDeclNativeNode(SourceLocationInfo(),
+                                       "length",
+                                       _typeRegistry.registerArray(AnyType::GetType()),
+                                       new ArgumentDeclsNode(SourceLocationInfo()),
+                                       BuiltinType::GetBuiltinType(BuiltinType::kUInt32));
+
+    _parserState->program.insert(_parserState->program.begin(), array_len);
+
 }
 
 void
@@ -223,7 +241,7 @@ SymbolTreeBuilder::visit(ArgumentDeclNode& node)
 
     const Symbol* result = _curScope->declareSymbol(node.argumentName(),
                                                     &node,
-                                                    Symbol::kFlagAssignable);
+                                                    Symbol::kFlagAssignable | Symbol::kFlagFunctionParam);
     (void) result;
     YAL_ASSERT(result);
     node.setNodeType(arg_data_type);
@@ -311,6 +329,22 @@ SymbolTreeBuilder::visit(VariableDeclNode& node)
     }
 
     node.expression()->accept(*this);
+    const ExpressionResult& exp_result = node.expression()->expressionResult();
+
+    if (node.hasExplicitType())
+    {
+        const Type* explicit_type = node.explicitType();
+        if (!_expResult.type->isPromotableTo(explicit_type))
+        {
+            std::stringstream stream;
+            stream <<"Cannot convert expression type to the variable's explicit type: "
+                  << _expResult.type->typeString()
+                  <<" can not be cast to "
+                 << explicit_type->typeString()
+                 << std::endl;
+            throw SemanticException(stream.str(), node);
+        }
+    }
 
     // check if there is a return type
     if (_expResult.type->isVoidType())
@@ -331,7 +365,7 @@ SymbolTreeBuilder::visit(VariableDeclNode& node)
     _expResult.symbol->markAssigned();
     node.setExpressionResult(ExpressionResult(_expResult.type, sym_var));
 
-    const ExpressionResult& exp_result = node.expression()->expressionResult();
+
     if (!exp_result.type->isObjectType() && exp_result.symbol->isTemporary())
     {
 
@@ -386,24 +420,41 @@ SymbolTreeBuilder::visit(DualOperatorNode& node)
         throw SemanticException(stream.str(), node);
     }
 
-    if (!_expResult.type->isPromotableTo(cur_result.type))
+
+    const Type* exp_type = cur_result.type;
+    if (op_type == kOperatorTypeArray)
     {
-        std::stringstream stream;
-        stream <<"Cannot convert right expression to left, expression type "
-              << _expResult.type->typeString()
-              <<" cannot be cast to "
-             << cur_result.type->typeString()
-             << std::endl;
-        throw SemanticException(stream.str(), node);
+        ArrayType* array_type = cast_type<ArrayType>(cur_result.type);
+        if (!array_type)
+        {
+            std::stringstream stream;
+            stream <<"Invalid use of array operator on type '"
+                  << cur_result.type->typeString() << "'" << std::endl;
+            throw SemanticException(stream.str(), node);
+        }
+
+        exp_type = array_type->valueType();
+    }
+    else
+    {
+        if (!_expResult.type->isPromotableTo(cur_result.type))
+        {
+            std::stringstream stream;
+            stream <<"Cannot convert right expression to left, expression type "
+                  << _expResult.type->typeString()
+                  <<" cannot be cast to "
+                 << cur_result.type->typeString()
+                 << std::endl;
+            throw SemanticException(stream.str(), node);
+        }
     }
 
-    Symbol* tmp_sym = _curScope->declareTemporarySymbol(&node, cur_result.type->isObjectType() ? Symbol::kFlagNewObject : 0);
+    Symbol* tmp_sym = _curScope->declareTemporarySymbol(&node, exp_type->isObjectType() ? Symbol::kFlagNewObject : 0);
     _curStatment->addSymbolToScope(tmp_sym);
 
-    _expResult = ExpressionResult(cur_result.type, tmp_sym);
+    _expResult = ExpressionResult(const_cast<Type*>(exp_type), tmp_sym);
     node.setNodeType(_expResult.type);
     node.setExpressionResult(_expResult);
-
 }
 
 void
@@ -448,8 +499,35 @@ void
 SymbolTreeBuilder::visit(FunctionCallNode& node)
 {
     node.setScope(currentScope());
-    const char* func_name = node.functionName();
-    auto sym = _curScope->resolveSymbol(func_name);
+    std::string func_name = FunctionDeclBaseNode::GenFunctionName(nullptr, node.functionName());
+    Symbol* sym = nullptr;
+    if (node.isObjectCall())
+    {
+        node.objectExpression()->accept(*this);
+        const Type* exp_type = node.objectExpression()->expressionResult().type;
+        func_name = FunctionDeclBaseNode::GenFunctionName(exp_type, func_name.c_str());
+        sym = _curScope->resolveSymbol(func_name.c_str());
+
+        //TODO: Improve the any matching process
+        if (!sym)
+        {
+            const ArrayType* array_type = cast_type<const ArrayType>(exp_type);
+            if (array_type)
+            {
+                std::string tmp_func = FunctionDeclBaseNode::GenFunctionName(_typeRegistry.registerArray(AnyType::GetType()), node.functionName());
+                sym = _curScope->resolveSymbol(tmp_func.c_str());
+                if (sym)
+                {
+                    func_name = tmp_func;
+                }
+            }
+        }
+    }
+    else
+    {
+        sym = _curScope->resolveSymbol(func_name.c_str());
+    }
+
     if (!sym)
     {
         std::stringstream stream;
@@ -472,7 +550,6 @@ SymbolTreeBuilder::visit(FunctionCallNode& node)
 
     if (node.isObjectCall())
     {
-
         if (!func_type->isObjectFunction())
         {
             std::stringstream stream;
@@ -481,8 +558,6 @@ SymbolTreeBuilder::visit(FunctionCallNode& node)
                    << std::endl;
             throw SemanticException(stream.str(), node);
         }
-
-        node.objectExpression()->accept(*this);
 
         const Type* object_type = func_type->typeOfObject();
         const Type* exp_type = node.objectExpression()->expressionResult().type;
@@ -720,6 +795,14 @@ SymbolTreeBuilder::visit(PrintArgsNode& node)
 
     for(auto& v : node.expressions)
     {
+        // optimize for strings
+        StringCreateNode* str_node = ast_cast<StringCreateNode>(v);
+        if (str_node)
+        {
+            v = str_node->constantNode();
+            v->setParentNode(&node);
+            delete str_node;
+        }
         v->accept(*this);
     }
 }
@@ -767,12 +850,9 @@ SymbolTreeBuilder::visit(StringCreateNode& node)
 }
 
 void
-SymbolTreeBuilder::visit(ObjectCreateNode& node)
+SymbolTreeBuilder::visit(ObjectCreateNode&)
 {
-    node.setScope(currentScope());
-    node.expression()->accept(*this);
-    node.setNodeType(_expResult.type);
-    node.setExpressionResult(_expResult);
+    YAL_ASSERT(false && "Should not be reached");
 }
 
 void
@@ -839,6 +919,74 @@ SymbolTreeBuilder::visit(ParentExpNode& node)
 {
     node.setScope(currentScope());
     node.expression()->accept(*this);
+}
+
+void
+SymbolTreeBuilder::visit(ArrayCtrNode& node)
+{
+    node.setScope(currentScope());
+    ExpressionNodeVec_t& expressions = node.expressions();
+
+    // check if we have explicit type
+    if (expressions.empty() && !node.hasExplicitType())
+    {
+        VariableDeclNode* parent_node = ast_cast<VariableDeclNode>(node.parentNode());
+
+        if (!parent_node || (parent_node && !parent_node->explicitType()->isArrayType()))
+        {
+            throw SemanticException("Can not construct empty array without explicity specifying the array's value type\n", node);
+        }
+        else
+        {
+            ArrayType* array_type = cast_type<ArrayType>(parent_node->explicitType());
+            YAL_ASSERT(array_type);
+            node.setExplicitType(array_type);
+        }
+    }
+
+    const ArrayType* array_type = node.explicitType();
+    const Type* value_type = array_type ? array_type->valueType() : nullptr;
+    // handle array expressions if any
+    if (!expressions.empty())
+    {
+        size_t idx = 0;
+        for(auto& exp : expressions)
+        {
+            ++idx;
+            exp->accept(*this);
+            const ExpressionResult& result = exp->expressionResult();
+            // if array type is not set, use the first element of the array to
+            // determine the type
+            if (!array_type)
+            {
+                array_type = _parserState->registry.registerArray(result.type);
+                value_type = array_type->valueType();
+                continue;
+            }
+
+            if (!result.type->isPromotableTo(value_type))
+            {
+                std::stringstream stream;
+
+                stream << "Expression's (" << idx << ") type can not be promoted to array type: ";
+                stream << "can not convert '"<< result.type->typeString() << "' to '"
+                       << value_type->typeString() << "'" << std::endl;
+                throw SemanticException(stream.str(), *exp);
+            }
+
+        }
+    }
+
+    // array type should be set by now
+    YAL_ASSERT(array_type);
+
+    Symbol* tmp_sym = _curScope->declareTemporarySymbol(&node, Symbol::kFlagNewObject);
+    YAL_ASSERT(tmp_sym);
+    _curStatment->addSymbolToScope(tmp_sym);
+
+    _expResult = ExpressionResult(const_cast<ArrayType*>(array_type), tmp_sym);
+    node.setNodeType(const_cast<ArrayType*>(array_type));
+    node.setExpressionResult(_expResult);
 }
 
 }

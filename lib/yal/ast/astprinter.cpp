@@ -1,7 +1,8 @@
 #include "yal/ast/astprinter.h"
 #include "yal/ast/asthdrs.h"
+#include "yal/types/typehdrs.h"
 #include <cstdlib>
-
+#include <iomanip>
 namespace yal
 {
 
@@ -50,11 +51,11 @@ AstPrinter::printNodeTitle(const AstBaseNode& node,
 
     if (node.isSourceAstNode())
     {
-        _sink <<"-" <<  node.astTypeStr()
-            <<"<ln " << src_info.firstLine
-            << ":" << src_info.lastLine
-            << "  cl " << src_info.firstColumn
-            << ":" << src_info.lastColumn << "> ";
+        _sink <<"-" << node.astTypeStr()
+             <<"<ln " << std::setw(4) << std::setfill('0') << src_info.firstLine
+            << ":" << std::setw(4) << std::setfill('0') << src_info.lastLine
+            << "  cl " << std::setw(4) << std::setfill('0') << src_info.firstColumn
+            << ":" << std::setw(4) << std::setfill('0') << src_info.lastColumn << "> ";
     }
     else
     {
@@ -137,7 +138,38 @@ void
 AstPrinter::visit(ConstantNode& node)
 {
     printNodeTitle(node);
-    _sink << "type:" << ConstantTypeToStr(node.constantValue().type()) << std::endl;
+    _sink << "type:" << node.constantType()->typeString() << "=";
+    const ConstantValue& value = node.constantValue();
+    switch(value.type())
+    {
+    case kConstantTypeBool:
+        _sink << value.valueAsBoolean();
+        break;
+    case kConstantTypeFloat32:
+        _sink << value.valueAsFloat32();
+        break;
+    case kConstantTypeFloat64:
+        _sink << value.valueAsFloat64();
+        break;
+    case kConstantTypeInt32:
+        _sink << value.valueAsInt32();
+        break;
+    case kConstantTypeInt64:
+        _sink << value.valueAsInt64();
+        break;
+    case kConstantTypeUInt32:
+        _sink << value.valueAsUInt32();
+        break;
+    case kConstantTypeUInt64:
+        _sink << value.valueAsUInt64();
+        break;
+    case kConstantTypeText:
+        _sink << "\"" << value.valueAsText() << "\"";
+        break;
+    default:
+        _sink <<"(print not yet implemented)";
+    }
+    _sink << std::endl;
 }
 
 void
@@ -180,7 +212,12 @@ void
 AstPrinter::visit(VariableDeclNode& node)
 {
     printNodeTitle(node);
-    _sink << "'" << node.variableName() << "'" << std::endl;
+    _sink << "'" << node.variableName() << "'";
+    if (node.hasExplicitType())
+    {
+        _sink << " explicitType='" << node.explicitType()->typeString() << "'";
+    }
+    _sink << std::endl;
     onDescent(true);
     node.expression()->accept(*this);
     onAscend();
@@ -226,7 +263,7 @@ void
 AstPrinter::visit(FunctionDeclNode& node)
 {
     printNodeTitle(node);
-    _sink << "'" << node.functionName() << "' : '" << node.returnValueType()->typeString() << "'" << std::endl;
+    _sink << "'" << node.nativeFunctionName() << "' : '" << node.returnValueType()->typeString() << "'" << std::endl;
 
     if (node.hasFunctionArguments())
     {
@@ -360,9 +397,8 @@ void
 AstPrinter::visit(FunctionDeclNativeNode& node)
 {
     printNodeTitle(node);
-    _sink << "'" << node.functionName() << "' : '" << node.returnValueType()->typeString() << "'" << std::endl;
+    _sink << "'" << node.nativeFunctionName() << "' : '" << node.returnValueType()->typeString() << "'" << std::endl;
 }
-
 
 void
 AstPrinter::visit(ParentExpNode& node)
@@ -371,5 +407,27 @@ AstPrinter::visit(ParentExpNode& node)
     onDescent(true);
     node.expression()->accept(*this);
     onAscend();
+}
+
+void
+AstPrinter::visit(ArrayCtrNode& node)
+{
+    printNodeTitle(node, node.expressionCount() != 0);
+    const size_t count = node.expressionCount();
+    if (count)
+    {
+        size_t idx = 1;
+        for(auto& v : node.expressions())
+        {
+            onDescent(idx == count);
+            v->accept(*this);
+            onAscend();
+            ++idx;
+        }
+    }
+    else
+    {
+        _sink << " "<< node.explicitType()->typeString() << std::endl;
+    }
 }
 }

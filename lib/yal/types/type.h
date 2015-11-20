@@ -153,6 +153,11 @@ public:
         return typeStringImp();
     }
 
+    virtual const char* nativeTypeString() const
+    {
+        return typeString();
+    }
+
     virtual bool isPromotableTo(const Type* t) const = 0;
 
 protected:

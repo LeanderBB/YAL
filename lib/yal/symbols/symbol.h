@@ -25,7 +25,8 @@ public:
         kFlagNewObject      = 1 << 4,
         kFlagAssigned       = 1 << 5,
         kFlagReturnValue    = 1 << 6,
-        kFlagReference      = 1 << 7
+        kFlagReference      = 1 << 7,
+        kFlagFunctionParam    = 1 << 8,
     };
 
     Symbol(const char* name,
@@ -101,6 +102,8 @@ public:
     bool isReturnValue() const;
 
     bool isReference() const;
+
+    bool isFunctionParam() const;
 
     void markAssigned();
 

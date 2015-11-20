@@ -1,5 +1,5 @@
 #include "yal/types/stringtype.h"
-
+#include "yal/types/typehdrs.h"
 namespace  yal
 {
 
@@ -29,6 +29,7 @@ StringType::StringType():
 bool
 StringType::isPromotableTo(const Type *t) const
 {
+    if (cast_type<const AnyType>(t)) return true;
     const StringType* other = cast_type<const StringType>(t);
     return other != nullptr;
 }

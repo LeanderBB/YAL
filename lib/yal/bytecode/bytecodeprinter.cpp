@@ -446,6 +446,31 @@ ByteCodePrinter::print(const size_t max)
         case YALVM_BYTECODE_STORE_REF:
             print2Regs(code);
             break;
+            /* arrary manip */
+        case YALVM_BYTECODE_ARRAY_ALLOC_32:
+        case YALVM_BYTECODE_ARRAY_ALLOC_64:
+        case YALVM_BYTECODE_ARRAY_ALLOC_OBJ:
+            print2Regs(code);
+            break;
+        case YALVM_BYTECODE_ARRAY_PUT_32:
+        case YALVM_BYTECODE_ARRAY_PUT_64:
+        case YALVM_BYTECODE_ARRAY_PUT_OBJ:
+        case YALVM_BYTECODE_ARRAY_GET_32:
+        case YALVM_BYTECODE_ARRAY_GET_64:
+        case YALVM_BYTECODE_ARRAY_GET_OBJ:
+            print3Args(code);
+            break;
+        case YALVM_BYTECODE_ARRAY_DEL_32:
+        case YALVM_BYTECODE_ARRAY_DEL_64:
+        case YALVM_BYTECODE_ARRAY_DEL_OBJ:
+            print3Args(code);
+            break;
+        case YALVM_BYTECODE_ARRAY_LEN:
+            print2Regs(code);
+            break;
+        case YALVM_BYTECODE_ARRAY_DEALLOC:
+            print1Reg(code);
+            break;
         default:
             _sink << "Unknown byte code ";
             return false;

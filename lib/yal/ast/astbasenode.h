@@ -13,6 +13,7 @@ namespace yal
 class Scope;
 
 class Type;
+class ArrayType;
 class AstBaseNode
 {
 public:
@@ -228,8 +229,8 @@ class BinaryExpressionNode : public ExpressionNode
 {
 public:
     BinaryExpressionNode(const SourceLocationInfo& loc,
-                     ExpressionNode* left,
-                     ExpressionNode* right):
+                         ExpressionNode* left,
+                         ExpressionNode* right):
         ExpressionNode(loc),
         _expressionLeft(left),
         _expressionRight(right)
@@ -269,6 +270,40 @@ protected:
 };
 
 typedef YALVector<yal::ExpressionNode*> ExpressionNodeVec_t;
+
+
+class MultiExpressionNode : public ExpressionNode
+{
+public:
+    MultiExpressionNode(const SourceLocationInfo& loc):
+        ExpressionNode(loc)
+    {
+
+    }
+
+    virtual ~MultiExpressionNode() {}
+
+    void addExpression(ExpressionNode* node)
+    {
+        node->setParentNode(this);
+        _expressions.push_back(node);
+    }
+
+    size_t expressionCount() const
+    {
+        return _expressions.size();
+    }
+
+    bool replaceExpression(const ExpressionNode* old,
+                           ExpressionNode* newExp);
+
+    ExpressionNodeVec_t& expressions() {return _expressions;}
+
+protected:
+    ExpressionNodeVec_t _expressions;
+};
+
+
 
 
 class ExpressionList: public AstBaseNode

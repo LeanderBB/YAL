@@ -1,0 +1,20 @@
+func mkarray() : uint32[]
+    var array = [4u, 5u, 6u]
+    return array
+end
+
+native func mkarray_native(): uint32[]
+
+func test()
+    var:int32[] a = []
+    var y = [40.0]
+    var z = [0, 1, 2]
+    print(z[0], " ", z[1], " ", z[2])
+    print("->", mkarray()[1])
+    print("len:", z.length())
+end
+
+
+
+
+test()

@@ -5,7 +5,8 @@
 
 YALVM_MODULE_BGN
 
-typedef union
+struct yalvm_object;
+typedef union yalvm_register
 {
     union
     {
@@ -25,6 +26,8 @@ typedef union
     union
     {
         void* value;
+        union yalvm_register* reg;
+        struct yalvm_object* obj;
     } ptr;
 } yalvm_register_t;
 

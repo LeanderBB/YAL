@@ -23,6 +23,8 @@ set(GTEST_LIBRARIES  libgtest.a libgtest_main.a)
 
 add_definitions("-DYAL_TEST_SOURCES_PATH=\"${CMAKE_CURRENT_SOURCE_DIR}/test_files\"")
 
+set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${YALVM_LINKER_FLAGS}")
+
 # test macro_util
 macro(YAL_TEST_DEP TARGET)
 include_directories(${YAL_INCLUDE_DIRS})

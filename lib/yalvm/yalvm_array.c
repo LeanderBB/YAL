@@ -159,3 +159,47 @@ yalvm_array_base_clone(yalvm_array_base_t* dst,
     yalvm_memcpy(dst->data, src->data, elem_size * src->size);
     return yalvm_true;
 }
+
+yalvm_object_t*
+yalvm_array_create32(const yalvm_u32 intial_capacity)
+{
+    yalvm_object_t* object = yalvm_object_alloc(sizeof(yalvm_array_t));
+    if (object)
+    {
+        yalvm_array_t* array = (yalvm_array_t*) object->ptr;
+        yalvm_array_init(array, sizeof(yalvm_u32), intial_capacity);
+    }
+    return object;
+}
+
+yalvm_object_t*
+yalvm_array_create64(const yalvm_u32 intial_capacity)
+{
+    yalvm_object_t* object = yalvm_object_alloc(sizeof(yalvm_array_t));
+    if (object)
+    {
+        yalvm_array_t* array = (yalvm_array_t*) object->ptr;
+        yalvm_array_init(array, sizeof(yalvm_u64), intial_capacity);
+    }
+    return object;
+}
+
+yalvm_object_t*
+yalvm_array_createObj(const yalvm_u32 intial_capacity)
+{
+    yalvm_object_t* object = yalvm_object_alloc(sizeof(yalvm_array_t));
+    if (object)
+    {
+        yalvm_array_t* array = (yalvm_array_t*) object->ptr;
+        yalvm_array_init(array, sizeof(void*), intial_capacity);
+    }
+    return object;
+}
+
+void
+yalvm_array_destroy(yalvm_object_t* object)
+{
+    yalvm_array_t* array = (yalvm_array_t*) object->ptr;
+    yalvm_array_destroy_imp(array);
+    yalvm_object_dealloc(object);
+}

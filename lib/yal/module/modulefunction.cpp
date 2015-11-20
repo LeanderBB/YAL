@@ -27,8 +27,8 @@ bool
 ModuleFunctionBase::wasUsed() const
 {
     //TODO: Provide annotations to override behaviour
-    //return _symbol->readCount() > 0 || _symbol->callCount() > 0;
-    return true;
+    const bool was_used = _symbol->readCount() > 0 || _symbol->callCount() > 0;
+    return _symbol->isNativeFunction() ? was_used : true;
 }
 
 Type*

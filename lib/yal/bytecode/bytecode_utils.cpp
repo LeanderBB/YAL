@@ -250,7 +250,25 @@ DualOperatorByteCodeInst(const OperatorType operatorType,
             return YALVM_BYTECODE_TOTAL;
         }
     }
-
+    case kOperatorTypeArray:
+    {
+        if (type->is32BitSized())
+        {
+            return YALVM_BYTECODE_ARRAY_GET_32;
+        }
+        else if(type->is64BitSized())
+        {
+            return YALVM_BYTECODE_ARRAY_GET_64;
+        }
+        else if(type->isObjectType())
+        {
+            return YALVM_BYTECODE_ARRAY_GET_OBJ;
+        }
+        else
+        {
+            return YALVM_BYTECODE_TOTAL;
+        }
+    }
     default:
         YAL_ASSERT(false && "Should not be reached");
         return YALVM_BYTECODE_TOTAL;

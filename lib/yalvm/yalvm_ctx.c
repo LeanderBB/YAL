@@ -3,6 +3,7 @@
 #include "yalvm/yalvm_hashing.h"
 #include "yalvm/yalvm_object.h"
 #include "yalvm/yalvm_string.h"
+#include "yalvm/yalvm_array.h"
 
 
 #if defined(__GNUC__)
@@ -751,7 +752,6 @@ yalvm_ctx_execute(yalvm_ctx_t* ctx)
             /* Uncoditional Jmp */
         case YALVM_BYTECODE_JUMP:
         {
-            /*TODO: destination check */
             yalvm_i32 value;
             yalvm_bytecode_unpack_value_signed(code, &value);
             ctx->pc += value;
@@ -760,7 +760,6 @@ yalvm_ctx_execute(yalvm_ctx_t* ctx)
             /* Conditional Jmp */
         case YALVM_BYTECODE_JUMP_TRUE:
         {
-            /*TODO: destination check */
             yalvm_u8 dst;
             yalvm_i16 value;
             yalvm_bytecode_unpack_dst_value_signed(code, &dst, &value);
@@ -772,7 +771,6 @@ yalvm_ctx_execute(yalvm_ctx_t* ctx)
         }
         case YALVM_BYTECODE_JUMP_FALSE:
         {
-            /*TODO: destination check */
             yalvm_u8 dst;
             yalvm_u16 value;
             yalvm_bytecode_unpack_dst_value(code, &dst, &value);
@@ -785,10 +783,15 @@ yalvm_ctx_execute(yalvm_ctx_t* ctx)
         }
         case YALVM_BYTECODE_LOAD_FUNCTION:
         {
-            /* TODO: Function check */
             yalvm_u8 dst;
             yalvm_u16 value;
             yalvm_bytecode_unpack_dst_value(code, &dst, &value);
+
+            if (value > ctx->binary->header->n_functions)
+            {
+                return YALVM_ERROR_INVALID_FUNCTION_CALL;
+            }
+
             const yalvm_binary_function_t* function = &ctx->binary->functions[value];
 
             /* create new stack frame */
@@ -883,10 +886,10 @@ yalvm_ctx_execute(yalvm_ctx_t* ctx)
             /* update register location */
             yalvm_register_t* registers = yalvm_stack_local_registers(&ctx->stack);
 
-            void (*native_function)(yalvm_register_t*, yalvm_register_t*) = NULL;
-            YAL_C_EXTENSION(native_function = (void (*)(yalvm_register_t*, yalvm_register_t*)) function_hdr->code);
+            void (*native_function)(const yalvm_u32, yalvm_register_t*, yalvm_register_t*) = NULL;
+            YAL_C_EXTENSION(native_function = (void (*)(const yalvm_u32, yalvm_register_t*, yalvm_register_t*)) function_hdr->code);
 
-            native_function(registers, return_register_ptr);
+            native_function(function_hdr->hdr->n_arguments, registers, return_register_ptr);
 
             /* pop frame */
             if (!yalvm_stack_frame_end(&ctx->stack, (const void **)&ctx->pc))
@@ -1085,7 +1088,7 @@ yalvm_ctx_execute(yalvm_ctx_t* ctx)
         {
             yalvm_u8 dst_reg;
             yalvm_bytecode_unpack_register(code, &dst_reg);
-            yalvm_object_t* obj = (yalvm_object_t*)ctx->registers[dst_reg].ptr.value;
+            yalvm_object_t* obj = ctx->registers[dst_reg].ptr.obj;
             yalvm_string_destroy(obj);
             break;
         }
@@ -1096,7 +1099,7 @@ yalvm_ctx_execute(yalvm_ctx_t* ctx)
             yalvm_u8 dst_reg, src_reg;
             yalvm_bytecode_unpack_two_registers(code, &dst_reg, &src_reg);
             yalvm_register_copy(&ctx->registers[dst_reg],
-                                (yalvm_register_t*)ctx->registers[src_reg].ptr.value);
+                                ctx->registers[src_reg].ptr.reg);
             break;
         }
             /* Store Reference */
@@ -1104,8 +1107,164 @@ yalvm_ctx_execute(yalvm_ctx_t* ctx)
         {
             yalvm_u8 dst_reg, src_reg;
             yalvm_bytecode_unpack_two_registers(code, &dst_reg, &src_reg);
-            yalvm_register_copy((yalvm_register_t*)ctx->registers[dst_reg].ptr.value,
+            yalvm_register_copy(ctx->registers[dst_reg].ptr.reg,
                                 &ctx->registers[src_reg]);
+            break;
+        }
+        case YALVM_BYTECODE_ARRAY_ALLOC_32:
+        {
+            yalvm_u8 dst_reg, qty_reg;
+            yalvm_bytecode_unpack_two_registers(code, &dst_reg, &qty_reg);
+            const yalvm_u32 array_qty = qty_reg != 0xFF
+                    ? ctx->registers[qty_reg].reg32.u : 0;
+
+            yalvm_object_t* obj = yalvm_array_create32(array_qty);
+            if (!obj)
+            {
+                return YALVM_ERROR_MEM_ALLOC;
+            }
+            ctx->registers[dst_reg].ptr.obj = obj;
+            break;
+        }
+        case YALVM_BYTECODE_ARRAY_ALLOC_64:
+        {
+            yalvm_u8 dst_reg, qty_reg;
+            yalvm_bytecode_unpack_two_registers(code, &dst_reg, &qty_reg);
+            const yalvm_u32 array_qty = qty_reg != 0xFF
+                    ? ctx->registers[qty_reg].reg32.u : 0;
+
+            yalvm_object_t* obj = yalvm_array_create64(array_qty);
+            if (!obj)
+            {
+                return YALVM_ERROR_MEM_ALLOC;
+            }
+            ctx->registers[dst_reg].ptr.obj = obj;
+            break;
+        }
+        case YALVM_BYTECODE_ARRAY_ALLOC_OBJ:
+        {
+            return YALVM_ERROR_INSTRUCTION_NOT_IMPLEMENTED;
+            break;
+        }
+        case YALVM_BYTECODE_ARRAY_PUT_32:
+        {
+            yalvm_u8 array_reg, loc_reg, val_reg;
+            yalvm_bytecode_unpack_registers(code, &array_reg, &loc_reg, &val_reg);
+            yalvm_array_t* array =
+                    (yalvm_array_t*)ctx->registers[array_reg].ptr.obj->ptr;
+            yalvm_bool result = yalvm_false;
+            if (loc_reg == 0xFF)
+            {
+                result = yalvm_array_append(array, &ctx->registers[val_reg].reg32.value);
+            }
+            else
+            {
+                result = yalvm_array_insert(array,
+                                            ctx->registers[loc_reg].reg32.u,
+                                            &ctx->registers[val_reg].reg32.value);
+            }
+
+            if (result == yalvm_false)
+            {
+                return YALVM_ERROR_MEM_ALLOC;
+            }
+
+            break;
+        }
+        case YALVM_BYTECODE_ARRAY_PUT_64:
+        {
+            yalvm_u8 array_reg, loc_reg, val_reg;
+            yalvm_bytecode_unpack_registers(code, &array_reg, &loc_reg, &val_reg);
+            yalvm_array_t* array =
+                    (yalvm_array_t*)ctx->registers[array_reg].ptr.obj->ptr;
+            yalvm_bool result = yalvm_false;
+            if (loc_reg == 0xFF)
+            {
+                result = yalvm_array_append(array, &ctx->registers[val_reg].reg64.value);
+            }
+            else
+            {
+                result = yalvm_array_insert(array,
+                                            ctx->registers[loc_reg].reg32.u,
+                                            &ctx->registers[val_reg].reg64.value);
+            }
+
+            if (result == yalvm_false)
+            {
+                return YALVM_ERROR_MEM_ALLOC;
+            }
+        }
+        case YALVM_BYTECODE_ARRAY_PUT_OBJ:
+        {
+            return YALVM_ERROR_INSTRUCTION_NOT_IMPLEMENTED;
+            break;
+        }
+        case YALVM_BYTECODE_ARRAY_GET_32:
+        {
+            yalvm_u8 array_reg, loc_reg, dst_reg;
+            yalvm_bytecode_unpack_registers(code, &dst_reg, &array_reg, &loc_reg);
+            yalvm_array_t* array =
+                    (yalvm_array_t*)ctx->registers[array_reg].ptr.obj->ptr;
+            void* result = yalvm_array_get(array, ctx->registers[loc_reg].reg32.u);
+
+            if (!result)
+            {
+                return YALVM_ERROR_OUT_OF_BOUNDS_ACCESS;
+            }
+
+            ctx->registers[dst_reg].reg32.value =  *((yalvm_u32*) result);
+            break;
+        }
+        case YALVM_BYTECODE_ARRAY_GET_64:
+        {
+            yalvm_u8 array_reg, loc_reg, dst_reg;
+            yalvm_bytecode_unpack_registers(code, &dst_reg, &array_reg, &loc_reg);
+            yalvm_array_t* array =
+                    (yalvm_array_t*)ctx->registers[array_reg].ptr.obj->ptr;
+            void* result = yalvm_array_get(array, ctx->registers[loc_reg].reg32.u);
+
+            if (!result)
+            {
+                return YALVM_ERROR_OUT_OF_BOUNDS_ACCESS;
+            }
+
+            ctx->registers[dst_reg].reg64.value =  *((yalvm_u64*) result);
+            break;
+        }
+        case YALVM_BYTECODE_ARRAY_GET_OBJ:
+        {
+            return YALVM_ERROR_INSTRUCTION_NOT_IMPLEMENTED;
+            break;
+        }
+        case YALVM_BYTECODE_ARRAY_DEL_32:
+        {
+            break;
+        }
+        case YALVM_BYTECODE_ARRAY_DEL_64:
+        {
+            break;
+        }
+        case YALVM_BYTECODE_ARRAY_DEL_OBJ:
+        {
+            return YALVM_ERROR_INSTRUCTION_NOT_IMPLEMENTED;
+            break;
+        }
+        case YALVM_BYTECODE_ARRAY_LEN:
+        {
+            yalvm_u8 array_reg, dst_reg;
+            yalvm_bytecode_unpack_two_registers(code, &array_reg, &dst_reg);
+
+            const yalvm_array_t* array =
+                    (yalvm_array_t*)ctx->registers[array_reg].ptr.obj->ptr;
+
+            ctx->registers[dst_reg].reg32.u = yalvm_array_len(array);
+            break;
+        }
+        case YALVM_BYTECODE_ARRAY_DEALLOC:
+        {
+            yalvm_u8 dst_reg;
+            yalvm_bytecode_unpack_register(code, &dst_reg);
+            yalvm_array_destroy(ctx->registers[dst_reg].ptr.obj);
             break;
         }
 

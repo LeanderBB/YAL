@@ -1,6 +1,7 @@
 #include "yal/util/argparser.h"
 #include <cstring>
 #include <sstream>
+#include <iomanip>
 namespace yal
 {
 
@@ -269,12 +270,8 @@ ArgParser::printHelp(std::ostream &output,
             output << "        --" << it->longopt;
         }
 
-        while(len < _maxOptionsLen)
-        {
-            //TODO: Improve?
-            output << " ";
-            ++len;
-        }
+        output << std::setw(_maxOptionsLen - len +1 ) <<std::setfill(' ') << " ";
+
         if (it->flags & kArgFlagRequired)
         {
             output << " : [REQUIRED] ";

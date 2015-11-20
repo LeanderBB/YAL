@@ -28,10 +28,14 @@ Compiler::Compiler(InputSink& input,
 bool
 Compiler::compile(const uint32_t flags)
 {
+
+    // clear line offsets
+    _lineOffsets.clear();
+    _lineOffsets.push_back(0);
+
     // init flex
     yyscan_t scanner;
-    struct FlexState flex_state;
-    flex_state.lineOffsets.push_back(0);
+    FlexState flex_state(_lineOffsets);
     flex_state.sink = &_input;
     yylex_init_extra(&flex_state, &scanner);
 
@@ -40,7 +44,6 @@ Compiler::compile(const uint32_t flags)
 
     // destroy flex state
     yylex_destroy(scanner);
-    _lineOffsets = std::move(flex_state.lineOffsets);
 
     if (parse_result == 0)
     {
@@ -54,7 +57,7 @@ Compiler::compile(const uint32_t flags)
 
         // remove unused globals and functions
         _state.module.removeUnusedAndAssignIndices();
-       // _state.module.logInfo(_output);
+        // _state.module.logInfo(_output);
 
         yal::ByteCodeBuilder bt_builder(_codeOutput);
         if (!bt_builder.process(_state)) {return false; }

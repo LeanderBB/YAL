@@ -131,6 +131,12 @@ Symbol::isReference() const
     return _symbolFlags & kFlagReference;
 }
 
+bool
+Symbol::isFunctionParam() const
+{
+    return _symbolFlags & kFlagFunctionParam;
+}
+
 void
 Symbol::markAssigned()
 {

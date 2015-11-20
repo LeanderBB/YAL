@@ -12,7 +12,7 @@ DualOperatorNode::DualOperatorNode(const SourceLocationInfo& loc,
     BinaryExpressionNode(loc, expLeft, expRight),
     _dualOperatorType(optype)
 {
-    YAL_ASSERT(_dualOperatorType & (kOperatorMaskArithemetic | kOperatorMaskBit | kOperatorMaskLogic));
+    YAL_ASSERT(_dualOperatorType & (kOperatorMaskArithemetic | kOperatorMaskBit | kOperatorMaskLogic | kOperatorTypeArray));
 }
 
 DualOperatorNode::~DualOperatorNode()

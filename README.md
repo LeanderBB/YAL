@@ -64,7 +64,7 @@ print (global)
 ```
 
 ## Compiler Call
-This will generate an output file called a.out.yalb, which an be changed with the -o
+This will generate an output file called yalc.out, which an be changed with the -o
 option.
 ```
 $ yalc --dump-ast test.yal
@@ -109,6 +109,7 @@ Module
 
 ## Dissasembler Call
 ```
+$ yaldissas yalc.out
 # Constants 32: 0
 # Constants 64: 0
 # Globals   32: 0
@@ -186,7 +187,7 @@ Module
 ## Execution call
 
 ```
-$ yale a.out.yalb
+$ yale yalc.out
 hello
 YYY
 
