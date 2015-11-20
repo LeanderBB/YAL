@@ -72,9 +72,16 @@ private:
 };
 
 
-class FunctionDeclBaseNode : public AstBaseNode
+class FunctionDeclBaseNode : public StatementNode
 {
 public:
+
+    static std::string GenFunctionName(const Type* objectType,
+                                       const char* name);
+
+    static std::string GenFunctionNameNative(const Type* objectType,
+                                             const char* name,
+                                             const Type* returnType);
 
     FunctionDeclBaseNode(const SourceLocationInfo& loc,
                          const char* name,
@@ -86,7 +93,12 @@ public:
 
     const char* functionName() const
     {
-        return _functionName;
+        return _functionName.c_str();
+    }
+
+    const char* nativeFunctionName() const
+    {
+        return _nativeFunctionName.c_str();
     }
 
     ArgumentDeclsNode* functionArguments() const
@@ -116,7 +128,8 @@ public:
         return _objectType;
     }
 protected:
-    const char* _functionName;
+    const std::string _functionName;
+    const std::string _nativeFunctionName;
     ArgumentDeclsNode* _functionArgs;
     Type* _returnValueType;
     Type* _objectType;
@@ -152,9 +165,10 @@ public:
     YAL_AST_NODE_ACCEPT_HDR(FunctionDeclNativeNode)
 
     FunctionDeclNativeNode(const SourceLocationInfo& loc,
-                     const char* name,
-                     ArgumentDeclsNode* args,
-                     Type *returnType);
+                           const char* name,
+                           Type* objectType,
+                           ArgumentDeclsNode* args,
+                           Type *returnType);
 
     virtual ~FunctionDeclNativeNode();
 };

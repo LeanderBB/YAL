@@ -70,6 +70,7 @@ OperatorRequiresInteger(const enum OperatorType val)
     case kOperatorTypeBitShiftLeft:
     case kOperatorTypeBitShiftRight:
     case kOperatorTypeMod:
+    case kOperatorTypeArray:
         return true;
     default:
         return false;

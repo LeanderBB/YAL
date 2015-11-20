@@ -40,6 +40,7 @@ set(YAL_HDR
     ast/asthdrs.h
     ast/objectnodes.h
     ast/parentexpnode.h
+    ast/arrayctrnode.h
     symbols/semanticexception.h
     symbols/symboltable.h
     symbols/scope.h
@@ -50,6 +51,7 @@ set(YAL_HDR
     symbols/symboltable.h
     symbols/symboltreebuilder.h
     types/type.h
+    types/arraytype.h
     types/typelist.h
     types/builtintype.h
     types/functiontype.h
@@ -57,6 +59,7 @@ set(YAL_HDR
     types/undefined.h
     types/stringtype.h
     types/typehdrs.h
+    types/anytype.h
     bytecode/bytecodegenexception.h
     bytecode/bytecodebuffer.h
     bytecode/registerallocator.h
@@ -105,6 +108,7 @@ set(YAL_SRC
     ast/stringcreatenode.cpp
     ast/objectnodes.cpp
     ast/parentexpnode.cpp
+    ast/arrayctrnode.cpp
     symbols/symbol.cpp
     symbols/symboltable.cpp
     symbols/symboltreebuilder.cpp
@@ -115,7 +119,9 @@ set(YAL_SRC
     types/functiontype.cpp
     types/typeregistry.cpp
     types/undefined.cpp
+    types/arraytype.cpp
     types/stringtype.cpp
+    types/anytype.cpp
     bytecode/bytecodebuffer.cpp
     bytecode/registerallocator.cpp
     bytecode/bytecodebuilder.cpp

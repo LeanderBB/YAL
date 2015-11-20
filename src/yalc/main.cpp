@@ -65,8 +65,8 @@ printLines(const yal::Compiler& compiler,
     }
 
     size_t last_line = static_cast<size_t>(sourceLoc.lastLine == sourceLoc.firstLine ? sourceLoc.lastLine : sourceLoc.lastLine - 1);
-    const size_t end_offset = last_line> line_offsets.size()
-            ? std::numeric_limits<size_t>::max()
+    const size_t end_offset = last_line >= line_offsets.size()
+            ? 256
             : line_offsets[last_line];
 
     const size_t diff = (end_offset - 1) - start_offset;
@@ -116,7 +116,7 @@ int main(const int argc,
         return EXIT_SUCCESS;
     }
 
-    const char* output_name = "a.out.yalb";
+    const char* output_name = "yalc.out";
 
     if (arg_parser.isSet(kOptionOutputFile))
     {

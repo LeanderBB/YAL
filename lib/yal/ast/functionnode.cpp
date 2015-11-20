@@ -32,13 +32,50 @@ FunctionCallNode::~FunctionCallNode()
 }
 
 
+std::string
+FunctionDeclBaseNode::GenFunctionName(const Type* objectType,
+                                      const char* name)
+{
+    std::string fn_name;
+    if (objectType)
+    {
+        fn_name = objectType->nativeTypeString();
+        fn_name += "_";
+    }
+    fn_name += name;
+    return fn_name;
+}
+
+std::string
+FunctionDeclBaseNode::GenFunctionNameNative(const Type* objectType,
+                                            const char* name,
+                                            const Type* returnType)
+{
+    std::string fn_name;
+    if (objectType)
+    {
+        fn_name = objectType->nativeTypeString();
+        fn_name += "_";
+    }
+    fn_name += name;
+
+    if (!returnType->isVoidType())
+    {
+        fn_name += "_";
+        fn_name += returnType->nativeTypeString();
+    }
+
+    return fn_name;
+}
+
 FunctionDeclBaseNode::FunctionDeclBaseNode(const SourceLocationInfo& loc,
                                            const char* name,
                                            Type *objectType,
                                            ArgumentDeclsNode *args,
                                            Type *returnType):
-    AstBaseNode(loc),
-    _functionName(name),
+    StatementNode(loc),
+    _functionName(GenFunctionName(objectType, name)),
+    _nativeFunctionName(GenFunctionNameNative(objectType, name, returnType)),
     _functionArgs(args),
     _returnValueType(returnType),
     _objectType(objectType)
@@ -81,9 +118,10 @@ YAL_AST_NODE_ACCEPT_IMP(FunctionDeclNativeNode)
 
 FunctionDeclNativeNode::FunctionDeclNativeNode(const SourceLocationInfo& loc,
                                                const char* name,
+                                               Type* objectType,
                                                ArgumentDeclsNode *args,
                                                Type *returnType):
-    FunctionDeclBaseNode(loc, name, nullptr, args, returnType)
+    FunctionDeclBaseNode(loc, name, objectType, args, returnType)
 {
 }
 

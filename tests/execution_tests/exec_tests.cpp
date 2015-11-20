@@ -133,8 +133,9 @@ yalvm_memmove(void *dest,
 }
 
 void
-yal_native_sqrt(yalvm_register_t* registers,
-                yalvm_register_t* return_register)
+yal_native_sqrt_int32(const yal_u32,
+                      yalvm_register_t* registers,
+                      yalvm_register_t* return_register)
 {
     return_register->reg32.i = sqrt(registers[0].reg32.i);
 }
@@ -263,7 +264,7 @@ TEST(ExecutionTest, WhileLoop)
         return;
     }
 
-    const bool setup_result = tvm.loadFunction("loop");
+    const bool setup_result = tvm.loadFunction("loop_int32");
     EXPECT_EQ(setup_result, true);
 
     if (setup_result)
@@ -293,7 +294,7 @@ TEST(ExecutionTest, CompareOperators)
         return;
     }
 
-    bool setup_result = tvm.loadFunction("cmp_eq");
+    bool setup_result = tvm.loadFunction("cmp_eq_bool");
     EXPECT_EQ(setup_result, true);
 
     if (setup_result)
@@ -316,7 +317,7 @@ TEST(ExecutionTest, CompareOperators)
 
     }
 
-    setup_result = tvm.loadFunction("cmp_eq");
+    setup_result = tvm.loadFunction("cmp_eq_bool");
     EXPECT_EQ(setup_result, true);
 
     if (setup_result)
@@ -340,7 +341,7 @@ TEST(ExecutionTest, CompareOperators)
     }
 
 
-    setup_result = tvm.loadFunction("cmp_ne");
+    setup_result = tvm.loadFunction("cmp_ne_bool");
     EXPECT_EQ(setup_result, true);
 
     if (setup_result)
@@ -363,7 +364,7 @@ TEST(ExecutionTest, CompareOperators)
 
     }
 
-    setup_result = tvm.loadFunction("cmp_ne");
+    setup_result = tvm.loadFunction("cmp_ne_bool");
     EXPECT_EQ(setup_result, true);
 
     if (setup_result)
@@ -386,7 +387,7 @@ TEST(ExecutionTest, CompareOperators)
 
     }
 
-    setup_result = tvm.loadFunction("cmp_le");
+    setup_result = tvm.loadFunction("cmp_le_bool");
     EXPECT_EQ(setup_result, true);
 
     if (setup_result)
@@ -409,7 +410,7 @@ TEST(ExecutionTest, CompareOperators)
 
     }
 
-    setup_result = tvm.loadFunction("cmp_le");
+    setup_result = tvm.loadFunction("cmp_le_bool");
     EXPECT_EQ(setup_result, true);
 
     if (setup_result)
@@ -432,7 +433,7 @@ TEST(ExecutionTest, CompareOperators)
 
     }
 
-    setup_result = tvm.loadFunction("cmp_lt");
+    setup_result = tvm.loadFunction("cmp_lt_bool");
     EXPECT_EQ(setup_result, true);
 
     if (setup_result)
@@ -455,7 +456,7 @@ TEST(ExecutionTest, CompareOperators)
 
     }
 
-    setup_result = tvm.loadFunction("cmp_lt");
+    setup_result = tvm.loadFunction("cmp_lt_bool");
     EXPECT_EQ(setup_result, true);
 
     if (setup_result)
@@ -478,7 +479,7 @@ TEST(ExecutionTest, CompareOperators)
 
     }
 
-    setup_result = tvm.loadFunction("cmp_lt");
+    setup_result = tvm.loadFunction("cmp_lt_bool");
     EXPECT_EQ(setup_result, true);
 
     if (setup_result)
@@ -501,7 +502,7 @@ TEST(ExecutionTest, CompareOperators)
 
     }
 
-    setup_result = tvm.loadFunction("cmp_ge");
+    setup_result = tvm.loadFunction("cmp_ge_bool");
     EXPECT_EQ(setup_result, true);
 
     if (setup_result)
@@ -524,7 +525,7 @@ TEST(ExecutionTest, CompareOperators)
 
     }
 
-    setup_result = tvm.loadFunction("cmp_ge");
+    setup_result = tvm.loadFunction("cmp_ge_bool");
     EXPECT_EQ(setup_result, true);
 
     if (setup_result)
@@ -547,7 +548,7 @@ TEST(ExecutionTest, CompareOperators)
 
     }
 
-    setup_result = tvm.loadFunction("cmp_gt");
+    setup_result = tvm.loadFunction("cmp_gt_bool");
     EXPECT_EQ(setup_result, true);
 
     if (setup_result)
@@ -570,7 +571,7 @@ TEST(ExecutionTest, CompareOperators)
 
     }
 
-    setup_result = tvm.loadFunction("cmp_gt");
+    setup_result = tvm.loadFunction("cmp_gt_bool");
     EXPECT_EQ(setup_result, true);
 
     if (setup_result)
@@ -593,7 +594,7 @@ TEST(ExecutionTest, CompareOperators)
 
     }
 
-    setup_result = tvm.loadFunction("cmp_gt");
+    setup_result = tvm.loadFunction("cmp_gt_bool");
     EXPECT_EQ(setup_result, true);
 
     if (setup_result)
@@ -631,7 +632,7 @@ TEST(ExecutionTest, GlobalAccessOptimization1)
         return;
     }
 
-    const bool setup_result = tvm.loadFunction("access");
+    const bool setup_result = tvm.loadFunction("access_int32");
     EXPECT_EQ(setup_result, true);
 
     if (setup_result)
@@ -659,7 +660,7 @@ TEST(ExecutionTest, ArithemticTest1)
         return;
     }
 
-    bool setup_result = tvm.loadFunction("test");
+    bool setup_result = tvm.loadFunction("test_uint32");
     EXPECT_EQ(setup_result, true);
 
     if (setup_result)
@@ -678,7 +679,7 @@ TEST(ExecutionTest, ArithemticTest1)
 
     }
 
-    setup_result = tvm.loadFunction("test");
+    setup_result = tvm.loadFunction("test_uint32");
     EXPECT_EQ(setup_result, true);
 
     if (setup_result)
@@ -713,7 +714,7 @@ TEST(ExecutionTest, ArithemticTest2)
         return;
     }
 
-    bool setup_result = tvm.loadFunction("test");
+    bool setup_result = tvm.loadFunction("test_int32");
     EXPECT_EQ(setup_result, true);
 
     if (setup_result)
@@ -727,7 +728,7 @@ TEST(ExecutionTest, ArithemticTest2)
 
     }
 
-    setup_result = tvm.loadFunction("test_self");
+    setup_result = tvm.loadFunction("test_self_int32");
     EXPECT_EQ(setup_result, true);
 
     if (setup_result)
@@ -741,7 +742,7 @@ TEST(ExecutionTest, ArithemticTest2)
 
     }
 
-    setup_result = tvm.loadFunction("global_test");
+    setup_result = tvm.loadFunction("global_test_int32");
     EXPECT_EQ(setup_result, true);
 
     if (setup_result)
@@ -762,7 +763,7 @@ TEST(ExecutionTest, HelloWorld)
 {
     EXEC_TEST_MEMCHECK_BEGIN
 
-    TestVM tvm("helloworld.yal");
+            TestVM tvm("helloworld.yal");
 
     EXPECT_EQ(tvm.runGlobal(), true);
 
@@ -773,7 +774,7 @@ TEST(ExecutionTest, ArcObjectScope1)
 {
     EXEC_TEST_MEMCHECK_BEGIN
 
-    TestVM tvm("arc_object_scope_1.yal");
+            TestVM tvm("arc_object_scope_1.yal");
 
     EXPECT_EQ(tvm.runGlobal(), true);
 
@@ -784,7 +785,7 @@ TEST(ExecutionTest, ArcObjectScope2)
 {
     EXEC_TEST_MEMCHECK_BEGIN
 
-    TestVM tvm("arc_object_scope_2.yal");
+            TestVM tvm("arc_object_scope_2.yal");
 
     EXPECT_EQ(tvm.runGlobal(), true);
 
@@ -795,7 +796,7 @@ TEST(ExecutionTest, CountPrimes)
 {
     EXEC_TEST_MEMCHECK_BEGIN
 
-    TestVM tvm("count_primes.yal");
+            TestVM tvm("count_primes.yal");
 
     const bool compile_result = tvm.compile();
 
@@ -805,7 +806,7 @@ TEST(ExecutionTest, CountPrimes)
         return;
     }
 
-    const bool setup_result = tvm.loadFunction("count");
+    const bool setup_result = tvm.loadFunction("count_int32");
     EXPECT_EQ(setup_result, true);
 
     if (setup_result)
@@ -825,7 +826,7 @@ TEST(ExecutionTest, ConditionalExecution)
 {
     EXEC_TEST_MEMCHECK_BEGIN
 
-    TestVM tvm("conditional_execution.yal");
+            TestVM tvm("conditional_execution.yal");
 
     const bool compile_result = tvm.compile();
 
@@ -835,7 +836,7 @@ TEST(ExecutionTest, ConditionalExecution)
         return;
     }
 
-    bool setup_result = tvm.loadFunction("test_conditional");
+    bool setup_result = tvm.loadFunction("test_conditional_int32");
     EXPECT_EQ(setup_result, true);
     if (setup_result)
     {
@@ -848,7 +849,7 @@ TEST(ExecutionTest, ConditionalExecution)
         EXPECT_EQ(func_hdl->return_register.reg32.i, 6);
     }
 
-    setup_result = tvm.loadFunction("test_conditional");
+    setup_result = tvm.loadFunction("test_conditional_int32");
     EXPECT_EQ(setup_result, true);
     if (setup_result)
     {
@@ -868,7 +869,7 @@ TEST(ExecutionTest, TypeCall)
 {
     EXEC_TEST_MEMCHECK_BEGIN
 
-    TestVM tvm("typecall.yal");
+            TestVM tvm("typecall.yal");
 
     const bool compile_result = tvm.compile();
 
@@ -878,7 +879,7 @@ TEST(ExecutionTest, TypeCall)
         return;
     }
 
-    bool setup_result = tvm.loadFunction("test_type_call");
+    bool setup_result = tvm.loadFunction("test_type_call_int32");
     EXPECT_EQ(setup_result, true);
     if (setup_result)
     {
@@ -893,7 +894,7 @@ TEST(ExecutionTest, TypeCall)
         EXPECT_EQ(func_hdl->return_register.reg32.i, 40);
     }
 
-    setup_result = tvm.loadFunction("test_type_call");
+    setup_result = tvm.loadFunction("test_type_call_int32");
     EXPECT_EQ(setup_result, true);
     if (setup_result)
     {
@@ -915,7 +916,18 @@ TEST(ExecutionTest, ArcScopeTypeFunctions)
 {
     EXEC_TEST_MEMCHECK_BEGIN
 
-    TestVM tvm("arc_object_scope_type_functions.yal");
+            TestVM tvm("arc_object_scope_type_functions.yal");
+
+    EXPECT_EQ(tvm.runGlobal(), true);
+
+    EXEC_TEST_MEMCHECK_END
+}
+
+TEST(ExecutionTest, Arrays)
+{
+    EXEC_TEST_MEMCHECK_BEGIN
+
+            TestVM tvm("arrays.yal");
 
     EXPECT_EQ(tvm.runGlobal(), true);
 

@@ -176,6 +176,21 @@ static const char* yalvm_bytecode_inst_strings [] =
     "load ref",
     /* Store Reference */
     "store ref",
+    /* Arrray Manip */
+    "array alloc 32",
+    "array alloc 64",
+    "array alloc obj",
+    "array put 32",
+    "array put 64",
+    "array put obj",
+    "array get 32",
+    "array get 64",
+    "array get obj",
+    "array del 32",
+    "array del 64",
+    "array del obj",
+    "array len",
+    "array dealloc",
 };
 
 const char*

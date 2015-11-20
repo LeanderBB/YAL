@@ -23,7 +23,7 @@ AstBaseNode::locationInfo() const
 bool
 AstBaseNode::isSourceAstNode() const
 {
- return _loc.valid();
+    return _loc.valid();
 }
 
 bool
@@ -34,6 +34,20 @@ StatementNode::removeSymbolFromScope(Symbol *sym)
     if (it != _stSymbolScope.end())
     {
         _stSymbolScope.erase(it);
+        return true;
+    }
+    return false;
+}
+
+
+bool
+MultiExpressionNode::replaceExpression(const ExpressionNode* old,
+                                       ExpressionNode* newExp)
+{
+    auto it = std::find(_expressions.begin(), _expressions.end(), old);
+    if (it != _expressions.end())
+    {
+        *it = newExp;
         return true;
     }
     return false;

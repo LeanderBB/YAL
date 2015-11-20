@@ -29,6 +29,7 @@ set(YALVM_HDR
     yalvm_object.h
     yalvm_array.h
     yalvm_string.h
+    yalvm_builtin.h
     ${YALVM_CONFIG_FILE}
 )
 
@@ -42,6 +43,7 @@ set(YALVM_SRC
     yalvm_object.c
     yalvm_array.c
     yalvm_string.c
+    yalvm_builtin.c
 )
 
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${YAL_C_FLAGS} ${YAL_C_WERROR}")
@@ -55,3 +57,6 @@ endif()
 
 set(YALVM_INCLUDE_DIRS ${YALVM_CONFIG_INCLUDE_DIR})
 set(YALVM_INCLUDE_DIRS ${YALVM_CONFIG_INCLUDE_DIR} PARENT_SCOPE)
+
+set(YALVM_LINKER_FLAGS "-u yal_native_array_any_length_uint32")
+set(YALVM_LINKER_FLAGS ${YALVM_LINKER_FLAGS} PARENT_SCOPE)

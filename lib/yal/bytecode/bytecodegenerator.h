@@ -9,6 +9,7 @@
 #include "yal/module/module.h"
 #include "yal/util/str_utils.h"
 #include "yal/symbols/scopeaction.h"
+#include "yal/types/typeregistry.h"
 #include <stack>
 
 namespace yal
@@ -49,7 +50,8 @@ private:
     };
 
 public:
-    ByteCodeGenerator(Module& moduleInfo);
+    ByteCodeGenerator(Module& moduleInfo,
+                      TypeRegistry&  typeRegistry);
 
     virtual ~ByteCodeGenerator();
 
@@ -172,6 +174,7 @@ protected:
     bool _trackConditionOffsets;
     std::stack<ParenthesisOffsetVec_t> _parenthesisOffsetStack;
     ParenthesisOffsetVec_t* _curParenthesisOffsets;
+    TypeRegistry&  _typeRegistry;
 };
 }
 #endif

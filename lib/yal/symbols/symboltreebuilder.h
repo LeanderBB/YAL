@@ -45,6 +45,8 @@ protected:
 
     bool currentScopeIsGlobalScope() const;
 
+    void addYalVmFunctions();
+
 private:
     typedef std::stack<Scope*> SymbolTableStack_t;
     typedef std::stack<Symbol*> SymbolStack_t;

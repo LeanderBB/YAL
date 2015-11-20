@@ -1,8 +1,7 @@
 #include "yal/types/typeregistry.h"
 #include "yal/module/module.h"
 #include "yal/ast/functionnode.h"
-#include "yal/types/functiontype.h"
-#include "yal/types/undefined.h"
+#include "yal/types/typehdrs.h"
 namespace yal
 {
 
@@ -14,10 +13,32 @@ TypeRegistry::TypeRegistry(Module &module):
 
 }
 
+ArrayType*
+TypeRegistry::registerArray(const Type* valueType)
+{
+    const std::string type_string = ArrayType::GenTypeString(valueType);
+
+    ArrayType* result = nullptr;
+    if (!canRegisterNewType(type_string.c_str()))
+    {
+        Type* type = typeForName(type_string.c_str());
+        result = cast_type<ArrayType>(type);
+        YAL_ASSERT(type);
+    }
+    else
+    {
+        Type::TypeId_t id;
+        generateTypeId(id);
+        result = new ArrayType(id, valueType);
+        registerType(result->typeString(), result);
+    }
+    return result;
+}
+
 FunctionType*
 TypeRegistry::registerFunction(FunctionDeclBaseNode* node)
 {
-    if (!canRegisterNewType(node->functionName()))
+    if (!canRegisterNewType(node->nativeFunctionName()))
     {
         return nullptr;
     }
@@ -26,7 +47,7 @@ TypeRegistry::registerFunction(FunctionDeclBaseNode* node)
     FunctionType* result = nullptr;
     generateTypeId(id);
     result= new FunctionType(id, node);
-    registerType(node->functionName(), result);
+    registerType(node->nativeFunctionName(), result);
     node->setNodeType(result);
     return result;
 }

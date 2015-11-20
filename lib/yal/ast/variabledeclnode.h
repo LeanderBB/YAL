@@ -13,7 +13,8 @@ public:
 
     VariableDeclNode(const SourceLocationInfo& loc,
                const char* varName,
-               ExpressionNode* pExp);
+               ExpressionNode* pExp,
+               Type* explicitType);
 
     virtual ~VariableDeclNode();
 
@@ -22,8 +23,18 @@ public:
         return _varName;
     }
 
+    bool hasExplicitType() const
+    {
+        return _explicitType != nullptr;
+    }
+
+    Type* explicitType() const
+    {
+        return _explicitType;
+    }
 protected:
     const char* _varName;
+    Type* _explicitType;
 };
 
 }

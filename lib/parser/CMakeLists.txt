@@ -3,7 +3,7 @@
 #
 
 BISON_TARGET(yalParser parser.y ${CMAKE_CURRENT_BINARY_DIR}/yal_bison_parser.cpp
-COMPILE_FLAGS "--warnings=all -Werror --feature=diagnostics-show-caret --debug --verbose")
+COMPILE_FLAGS "--warnings=all -Werror --feature=diagnostics-show-caret --debug --verbose --report=state")
 FLEX_TARGET(yalLexer lexer.l  ${CMAKE_CURRENT_BINARY_DIR}/yal_flex_lexer.cpp
 COMPILE_FLAGS "--header-file=${CMAKE_CURRENT_BINARY_DIR}/yal_flex_lexer.h")
 

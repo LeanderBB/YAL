@@ -96,10 +96,10 @@ ByteCodeBuilder::writeModuleInfo(ParserState& state)
     // generate global and init code
 
 
-    ByteCodeGenerator static_init_code(state.module);
-    ByteCodeGenerator static_destroy_code(state.module);
+    ByteCodeGenerator static_init_code(state.module, state.registry);
+    ByteCodeGenerator static_destroy_code(state.module, state.registry);
 
-    ByteCodeGenerator global_function(state.module);
+    ByteCodeGenerator global_function(state.module, state.registry);
     static_init_code.onScopeBeginGlobal(state.symbolTree.globalScope());
     static_destroy_code.onScopeEndGlobal(state.symbolTree.globalScope());
     for (auto& v : state.program)
@@ -268,11 +268,11 @@ ByteCodeBuilder::writeModuleInfo(ParserState& state)
 
     // write functions
     {
-        ByteCodeGenerator function_code(state.module);
+        ByteCodeGenerator function_code(state.module, state.registry);
         for (auto& function : function_vec)
         {
             FunctionDeclBaseNode* decl_node = function->functionNode();
-            std::string function_name = function->functionName();
+            std::string function_name = decl_node->nativeFunctionName();
 
             // process bytecode
             if (ast_typeof<FunctionDeclNode>(decl_node))

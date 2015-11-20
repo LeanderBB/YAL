@@ -7,8 +7,15 @@
 union YYSTYPE;
 struct FlexState
 {
+    FlexState(std::vector<size_t>& lnOfffsets):
+        sink(nullptr),
+        lineOffsets(lnOfffsets),
+        curOffset(0)
+    {
+    }
+
     yal::InputSink* sink;
-    std::vector<size_t> lineOffsets;
+    std::vector<size_t>& lineOffsets;
     size_t curOffset = 0;
 };
 

@@ -1,5 +1,5 @@
 #include "yal/types/builtintype.h"
-
+#include "yal/types/typehdrs.h"
 namespace yal
 {
 
@@ -155,6 +155,7 @@ sTypePromotionTable [BuiltinType::kTotal][BuiltinType::kTotal] =
 bool
 BuiltinType::isPromotableTo(const Type* t) const
 {
+    if (cast_type<const AnyType>(t)) return true;
     const BuiltinType* other = cast_type<const BuiltinType>(t);
     return (other) ? sTypePromotionTable[_builtinType][other->_builtinType] : false;
 }

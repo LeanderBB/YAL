@@ -6,6 +6,8 @@
 #include "yal/types/functiontype.h"
 #include "yal/types/undefined.h"
 #include "yal/types/stringtype.h"
+#include "yal/types/arraytype.h"
+#include "yal/types/anytype.h"
 
 #endif
 
