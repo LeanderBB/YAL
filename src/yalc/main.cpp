@@ -7,7 +7,7 @@
 #include <yal/parser/parseexception.h>
 #include <yal/symbols/semanticexception.h>
 #include <yal/bytecode/bytecodegenexception.h>
-
+#include <yalvm/yalvm.h>
 
 static const char* sDescription =
         "yalc - Yet Anoter Language Compiler (" YAL_VERSION_STR ")\n"
@@ -32,6 +32,48 @@ yalvm_malloc(size_t)
 
 void
 yalvm_free(void*)
+{
+    YAL_ASSERT(false && "Should not be called, resolves linker dependency");
+}
+
+void
+yalvm_memset(void*, int, yalvm_size)
+{
+    YAL_ASSERT(false && "Should not be called, resolves linker dependency");
+}
+
+void
+yalvm_memcpy(void*, const void*, yalvm_size)
+{
+    YAL_ASSERT(false && "Should not be called, resolves linker dependency");
+}
+
+void
+yalvm_print(yalvm_ctx *,
+            const char *)
+{
+    YAL_ASSERT(false && "Should not be called, resolves linker dependency");
+}
+
+int
+yalvm_snprintf(char *,
+               yalvm_size,
+               const char *
+               ...)
+{
+    YAL_ASSERT(false && "Should not be called, resolves linker dependency");
+}
+
+void*
+yalvm_realloc(void*, yalvm_size)
+{
+    YAL_ASSERT(false && "Should not be called, resolves linker dependency");
+}
+
+void*
+yalvm_memmove(void *,
+              const void *,
+              yalvm_size)
 {
     YAL_ASSERT(false && "Should not be called, resolves linker dependency");
 }

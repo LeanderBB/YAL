@@ -33,7 +33,7 @@ public:
         return _valueType;
     }
 
-    virtual const char* nativeTypeString() const
+    virtual const char* nativeTypeString() const override
     {
         return  _nativeArrayTypeString.c_str();
     }

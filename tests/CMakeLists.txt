@@ -19,7 +19,8 @@ include_directories(${source_dir}/include)
 link_directories(${binary_dir})
 #include_directories(/usr/local/include)
 #link_directories(/usr/local/lib/${binary_dir})
-set(GTEST_LIBRARIES  libgtest.a libgtest_main.a)
+#set(GTEST_LIBRARIES  libgtest.a libgtest_main.a)
+set(GTEST_LIBRARIES  libgtest.a)
 
 add_definitions("-DYAL_TEST_SOURCES_PATH=\"${CMAKE_CURRENT_SOURCE_DIR}/test_files\"")
 
