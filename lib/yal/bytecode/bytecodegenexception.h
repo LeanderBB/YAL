@@ -14,14 +14,20 @@ public:
     ByteCodeGenException(const char* text,
                          const AstBaseNode& node):
         _message(text),
-        _node(node)
+        _node(&node)
     {
     }
 
     ByteCodeGenException(const std::string& str,
                          const AstBaseNode& node):
         _message(str),
-        _node(node)
+        _node(&node)
+    {
+    }
+
+    ByteCodeGenException(const std::string& str):
+        _message(str),
+        _node(nullptr)
     {
     }
 
@@ -31,14 +37,14 @@ public:
         return _message.c_str();
     }
 
-    const AstBaseNode& astNode() const
+    const AstBaseNode* astNode() const
     {
         return _node;
     }
 
 private:
     const std::string _message;
-    const AstBaseNode& _node;
+    const AstBaseNode* _node;
 };
 
 

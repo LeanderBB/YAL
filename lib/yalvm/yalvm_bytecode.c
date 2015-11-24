@@ -191,6 +191,7 @@ static const char* yalvm_bytecode_inst_strings [] =
     "array del obj",
     "array len",
     "array dealloc",
+    "array dealloc obj"
 };
 
 const char*

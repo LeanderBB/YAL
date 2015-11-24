@@ -469,6 +469,7 @@ ByteCodePrinter::print(const size_t max)
             print2Regs(code);
             break;
         case YALVM_BYTECODE_ARRAY_DEALLOC:
+        case YALVM_BYTECODE_ARRAY_DEALLOC_OBJ:
             print1Reg(code);
             break;
         default:

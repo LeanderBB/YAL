@@ -191,6 +191,9 @@ public:
         return true;
     }
 
+    virtual bool replaceExpression(const ExpressionNode*,
+                                   ExpressionNode*) { return false;}
+
     virtual ~ExpressionNode() {}
 
 private:
@@ -215,10 +218,16 @@ public:
         return _expression;
     }
 
-    void replaceExpression(ExpressionNode* node)
+    virtual bool replaceExpression(const ExpressionNode* oldExp,
+                                   ExpressionNode* newExp) override
     {
-        node->setParentNode(this);
-        _expression = node;
+        if (_expression == oldExp)
+        {
+            newExp->setParentNode(this);
+            _expression = newExp;
+            return true;
+        }
+        return false;
     }
 
 protected:
@@ -263,6 +272,25 @@ public:
         _expressionLeft = node;
     }
 
+    virtual bool replaceExpression(const ExpressionNode* oldExp,
+                                   ExpressionNode* newExp) override
+    {
+        if (_expressionLeft == oldExp)
+        {
+            newExp->setParentNode(this);
+            _expressionLeft = newExp;
+            return true;
+        }
+
+        if (_expressionRight == oldExp)
+        {
+            newExp->setParentNode(this);
+            _expressionRight = newExp;
+            return true;
+        }
+        return false;
+    }
+
 protected:
     ExpressionNode* _expressionLeft;
     ExpressionNode* _expressionRight;
@@ -294,8 +322,8 @@ public:
         return _expressions.size();
     }
 
-    bool replaceExpression(const ExpressionNode* old,
-                           ExpressionNode* newExp);
+    virtual bool replaceExpression(const ExpressionNode* old,
+                                   ExpressionNode* newExp) override;
 
     ExpressionNodeVec_t& expressions() {return _expressions;}
 

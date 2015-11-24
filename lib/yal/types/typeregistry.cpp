@@ -46,7 +46,7 @@ TypeRegistry::registerFunction(FunctionDeclBaseNode* node)
     Type::TypeId_t id;
     FunctionType* result = nullptr;
     generateTypeId(id);
-    result= new FunctionType(id, node);
+    result= new AstFunctionType(id, node);
     registerType(node->nativeFunctionName(), result);
     node->setNodeType(result);
     return result;

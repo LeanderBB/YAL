@@ -1196,7 +1196,29 @@ yalvm_ctx_execute(yalvm_ctx_t* ctx)
         }
         case YALVM_BYTECODE_ARRAY_PUT_OBJ:
         {
-            return YALVM_ERROR_INSTRUCTION_NOT_IMPLEMENTED;
+            yalvm_u8 array_reg, loc_reg, val_reg;
+            yalvm_bytecode_unpack_registers(code, &array_reg, &loc_reg, &val_reg);
+            yalvm_array_t* array =
+            (yalvm_array_t*)ctx->registers[array_reg].ptr.obj->ptr;
+            yalvm_bool result = yalvm_false;
+            if (loc_reg == 0xFF)
+            {
+                result = yalvm_array_append(array, &ctx->registers[val_reg].ptr.value);
+            }
+            else
+            {
+                result = yalvm_array_insert(array,
+                                            ctx->registers[loc_reg].reg32.u,
+                                            &ctx->registers[val_reg].reg64.value);
+            }
+
+            if (result == yalvm_false)
+            {
+                return YALVM_ERROR_MEM_ALLOC;
+            }
+
+            yalvm_object_acquire(ctx->registers[val_reg].ptr.obj);
+
             break;
         }
         case YALVM_BYTECODE_ARRAY_GET_32:
@@ -1233,15 +1255,28 @@ yalvm_ctx_execute(yalvm_ctx_t* ctx)
         }
         case YALVM_BYTECODE_ARRAY_GET_OBJ:
         {
-            return YALVM_ERROR_INSTRUCTION_NOT_IMPLEMENTED;
+            yalvm_u8 array_reg, loc_reg, dst_reg;
+            yalvm_bytecode_unpack_registers(code, &dst_reg, &array_reg, &loc_reg);
+            yalvm_array_t* array =
+            (yalvm_array_t*)ctx->registers[array_reg].ptr.obj->ptr;
+            void* result = yalvm_array_get(array, ctx->registers[loc_reg].reg32.u);
+
+            if (!result)
+            {
+                return YALVM_ERROR_OUT_OF_BOUNDS_ACCESS;
+            }
+
+            ctx->registers[dst_reg].ptr.value= result;
             break;
         }
         case YALVM_BYTECODE_ARRAY_DEL_32:
         {
+            return YALVM_ERROR_INSTRUCTION_NOT_IMPLEMENTED;
             break;
         }
         case YALVM_BYTECODE_ARRAY_DEL_64:
         {
+            return YALVM_ERROR_INSTRUCTION_NOT_IMPLEMENTED;
             break;
         }
         case YALVM_BYTECODE_ARRAY_DEL_OBJ:
@@ -1258,6 +1293,11 @@ yalvm_ctx_execute(yalvm_ctx_t* ctx)
                     (yalvm_array_t*)ctx->registers[array_reg].ptr.obj->ptr;
 
             ctx->registers[dst_reg].reg32.u = yalvm_array_len(array);
+            break;
+        }
+        case YALVM_BYTECODE_ARRAY_DEALLOC_OBJ:
+        {
+            return YALVM_ERROR_INSTRUCTION_NOT_IMPLEMENTED;
             break;
         }
         case YALVM_BYTECODE_ARRAY_DEALLOC:

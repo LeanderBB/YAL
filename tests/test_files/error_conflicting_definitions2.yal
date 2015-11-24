@@ -1,0 +1,1 @@
+native func int32[]::length() : uint32

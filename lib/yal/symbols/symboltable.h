@@ -23,10 +23,10 @@ public:
     ~SymbolTable();
 
     Symbol* declareSymbol(const char* name,
-                       AstBaseNode* astNode,
-                       const yal_u32 flags);
+                          Type* type,
+                          const yal_u32 flags);
 
-    Symbol* declareTemporarySymbol(AstBaseNode* astNode,
+    Symbol* declareTemporarySymbol(Type* type,
                                    const yal_u32 symFlags = 0);
 
     Symbol *resolveSymbol(const char* name) const;

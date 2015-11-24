@@ -6,11 +6,19 @@
 namespace yal
 {
 
+class Module;
+class TypeRegistry;
+class Scope;
+
 class ArrayType : public Type
 {
 public:
 
     YAL_TYPE_IMPL_HDR(ArrayType)
+
+    static void RegisterBuiltinFunctions(Module& module,
+                                         TypeRegistry& typeReg,
+                                         Scope& globalScope);
 
     static std::string GenTypeString(const Type* valueType);
 
@@ -38,6 +46,7 @@ public:
         return  _nativeArrayTypeString.c_str();
     }
 
+    virtual const char* builtinFunctionSymName(const char* name) const override;
 
 private:
     const std::string _arrayTypeString;

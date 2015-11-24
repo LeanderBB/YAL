@@ -93,7 +93,12 @@ public:
 
     const char* functionName() const
     {
-        return _functionName.c_str();
+        return _functionName;
+    }
+
+    const char* functionNameWithType() const
+    {
+        return _functionNameWithType.c_str();
     }
 
     const char* nativeFunctionName() const
@@ -128,7 +133,8 @@ public:
         return _objectType;
     }
 protected:
-    const std::string _functionName;
+    const char*  _functionName;
+    const std::string _functionNameWithType;
     const std::string _nativeFunctionName;
     ArgumentDeclsNode* _functionArgs;
     Type* _returnValueType;

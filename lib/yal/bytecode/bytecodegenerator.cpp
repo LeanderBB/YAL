@@ -34,7 +34,7 @@ ByteCodeGenerator::Register::Register(RegisterAllocator& alloctor,
 ByteCodeGenerator::Register::Register(const Symbol *sym,
                                       RegisterAllocator& alloctor):
     _registerIdx(alloctor.registerForVariable(sym->symbolName(),
-                                              sym->astNode()->scope()->level())),
+                                              sym->scope()->level())),
     _isTemporary(false)
 {
     YAL_ASSERT(isValid());
@@ -193,10 +193,10 @@ ByteCodeGenerator::setupFunction(const yal::FunctionDeclBaseNode &node)
         }
     }
 
-    Symbol* func_sym = node.scope()->resolveSymbol(node.functionName());
+    Symbol* func_sym = node.scope()->resolveSymbol(node.functionNameWithType());
     YAL_ASSERT(func_sym && func_sym->isFunction());
 
-    FunctionType* fn_type = cast_type<FunctionType>(func_sym->astNode()->nodeType());
+    FunctionType* fn_type = cast_type<FunctionType>(func_sym->symbolType());
     YAL_ASSERT(fn_type);
     return fn_type->hasReturnValue();
 }
@@ -273,8 +273,7 @@ ByteCodeGenerator::topRegister() const
 
 void
 ByteCodeGenerator::getGlobalVarIdx(yal_u32& idx,
-                                   const char* varName,
-                                   const AstBaseNode &node)
+                                   const char* varName)
 {
     const ModuleGlobal* global_var = _moduleInfo.global(varName);
     if (!global_var)
@@ -282,7 +281,7 @@ ByteCodeGenerator::getGlobalVarIdx(yal_u32& idx,
         std::stringstream stream;
         stream << "Global Index: could not find variable '"
                << varName<< "'" << std::endl;
-        throw ByteCodeGenException(stream.str(), node);
+        throw ByteCodeGenException(stream.str());
     }
     idx = global_var->moduleIndex();
     if (idx == ModuleIndexable::IndexUnused)
@@ -290,22 +289,21 @@ ByteCodeGenerator::getGlobalVarIdx(yal_u32& idx,
         std::stringstream stream;
         stream << "Global Index: variable '"
                << varName<< "' has not been registered" << std::endl;
-        throw ByteCodeGenException(stream.str(), node);
+        throw ByteCodeGenException(stream.str());
     }
 }
 
 void
 ByteCodeGenerator::getFunctionIdx(yal_u32& idx,
-                                  const char* functionName,
-                                  const AstBaseNode& node)
+                                  const char* functionName)
 {
-    const ModuleFunctionBase* function = _moduleInfo.function(functionName);
+    const ModuleFunction* function = _moduleInfo.function(functionName);
     if (!function)
     {
         std::stringstream stream;
         stream << "Global Index: could not find function '"
                << functionName<< "'" << std::endl;
-        throw ByteCodeGenException(stream.str(), node);
+        throw ByteCodeGenException(stream.str());
     }
     idx = function->moduleIndex();
     if (idx == ModuleIndexable::IndexUnused)
@@ -313,27 +311,26 @@ ByteCodeGenerator::getFunctionIdx(yal_u32& idx,
         std::stringstream stream;
         stream << "Global Index: function '"
                << functionName<< "' has not been registered." << std::endl;
-        throw ByteCodeGenException(stream.str(), node);
+        throw ByteCodeGenException(stream.str());
     }
 }
 
 void ByteCodeGenerator::getConstantIdx(yal_u32& idx,
-                                       const ConstantValue& val,
-                                       const AstBaseNode& node)
+                                       const ConstantValue& val)
 {
     const ModuleConstant* constant = _moduleInfo.constant(val);
     if (!constant)
     {
         std::stringstream stream;
         stream << "Global Index: Could not find a matching constant." << std::endl;
-        throw ByteCodeGenException(stream.str(), node);
+        throw ByteCodeGenException(stream.str());
     }
     idx = constant->moduleIndex();
     if (idx == ModuleIndexable::IndexUnused)
     {
         std::stringstream stream;
         stream << "Global Index: Constant has not been registered." << std::endl;
-        throw ByteCodeGenException(stream.str(), node);
+        throw ByteCodeGenException(stream.str());
     }
 }
 
@@ -367,7 +364,7 @@ ByteCodeGenerator::onStatementScopeBegin(const StatementNode& node)
     for(auto& symbol : tmp_symbols)
     {
         yal_i32 result = _regAllocator.allocate(symbol->symbolName(),
-                                                symbol->astNode()->scope()->level());
+                                                symbol->scope()->level());
         if (result == RegisterAllocator::UnusedRegisterValue)
         {
             return false;
@@ -382,7 +379,7 @@ ByteCodeGenerator::onStatementScopeEnd(const StatementNode& node)
     const StatementNode::SymScope_t& tmp_symbols = node.symbolScope();
     for(auto& symbol : tmp_symbols)
     {
-        if (symbol->astNode()->nodeType()->isObjectType()
+        if (symbol->symbolType()->isObjectType()
                 && !symbol->isReturnValue() && !symbol->isAssigned())
         {
             const Register reg(_regAllocator, symbol->symbolName(),
@@ -391,7 +388,7 @@ ByteCodeGenerator::onStatementScopeEnd(const StatementNode& node)
         }
 
         _regAllocator.deallocate(symbol->symbolName(),
-                                 symbol->astNode()->scope()->level());
+                                 symbol->scope()->level());
 
     }
     return true;
@@ -402,15 +399,24 @@ void
 ByteCodeGenerator::loadVariableIntoRegister(const char* varName,
                                             const AstBaseNode& node)
 {
+    const Scope* scope = node.scope();
+    const SymbolTable& sym_table = scope->symbolTable();
+    const Symbol* var_symbol = sym_table.resolveSymbol(varName);
+
+    loadVariableIntoRegister(var_symbol, var_symbol->scope());
+}
+
+
+void
+ByteCodeGenerator::loadVariableIntoRegister(const yal::Symbol *var_symbol,
+                                            const Scope* scope)
+{
     yal_u32 inst_value = 0;
     yalvm_bytecode_inst_t instruction = YALVM_BYTECODE_TOTAL;
 
     Register cur_register;
 
-    const Scope* scope = node.scope();
-    const SymbolTable& sym_table = scope->symbolTable();
-    const Symbol* var_symbol = sym_table.resolveSymbol(varName);
-
+    const char* varName = var_symbol->symbolName();
     const bool var_is_global = var_symbol->isGlobalSymbol();
     if (var_is_global)
     {
@@ -422,19 +428,19 @@ ByteCodeGenerator::loadVariableIntoRegister(const char* varName,
         }
         else
         {
-            instruction = LoadGlobalByteCodeInst(var_symbol->astNode()->nodeType());
-            yal_i32 result = _regAllocator.allocate(varName, var_symbol->scope()->level());
+            instruction = LoadGlobalByteCodeInst(var_symbol->symbolType());
+            yal_i32 result = _regAllocator.allocate(varName, scope->level());
             (void) result;
             YAL_ASSERT(result != RegisterAllocator::UnusedRegisterValue);
-            cur_register = Register(_regAllocator, varName, var_symbol->scope()->level());
-            getGlobalVarIdx(inst_value, varName, node);
+            cur_register = Register(_regAllocator, varName, scope->level());
+            getGlobalVarIdx(inst_value, varName);
             reg = cur_register;
         }
     }
     else if(var_symbol->isReference())
     {
         Register ref_register = Register(_regAllocator, varName,
-                                         var_symbol->scope()->level());
+                                         scope->level());
         cur_register = Register(_regAllocator);
         instruction = YALVM_BYTECODE_LOAD_REF;
         pushRegister(cur_register);
@@ -448,13 +454,13 @@ ByteCodeGenerator::loadVariableIntoRegister(const char* varName,
     else
     {
         cur_register = Register(_regAllocator, varName,
-                                var_symbol->scope()->level());
+                                scope->level());
         if (!cur_register.isValid())
         {
             std::stringstream stream;
             stream << "Variable '"
-                   << varName<< "' has not been mapped to a register." << std::endl;
-            throw ByteCodeGenException(stream.str(), node);
+            << varName<< "' has not been mapped to a register." << std::endl;
+            throw ByteCodeGenException(stream.str());
         }
         pushRegister(cur_register);
         return;
@@ -466,13 +472,15 @@ ByteCodeGenerator::loadVariableIntoRegister(const char* varName,
                                                           cur_register.registerIdx(),
                                                           inst_value);
     _buffer.append(code);
+
 }
+
 
 void
 ByteCodeGenerator::releaseObject(const Symbol &sym,
                                  const Register& reg)
 {
-    Type* node_type = sym.astNode()->nodeType();
+    Type* node_type = sym.symbolType();
 
     class ObjectTypeVisitor : public TypeVisitor
     {
@@ -507,10 +515,14 @@ ByteCodeGenerator::releaseObject(const Symbol &sym,
             YAL_ASSERT(false && "Should not be reached");
         }
 
-        void visit(const ArrayType&) override
+        void visit(const ArrayType& t) override
         {
-            const yalvm_bytecode_t code = yalvm_bytecode_pack_one_register(YALVM_BYTECODE_ARRAY_DEALLOC,
-                                                                           _register.registerIdx());
+            const yalvm_bytecode_inst_t inst = t.valueType()->isObjectType()
+                ? YALVM_BYTECODE_ARRAY_DEALLOC_OBJ
+                : YALVM_BYTECODE_ARRAY_DEALLOC;
+            const yalvm_bytecode_t code =
+                yalvm_bytecode_pack_one_register(inst,
+                                                 _register.registerIdx());
             _generator._buffer.append(code);
         }
 
@@ -536,8 +548,7 @@ ByteCodeGenerator::releaseObject(const Symbol &sym,
 
     if (diff > std::numeric_limits<yal_u16>::max())
     {
-        throw ByteCodeGenException("Object release code exceeds maximum jump call",
-                                   *sym.astNode());
+        throw ByteCodeGenException("Object release code exceeds maximum jump call");
     }
 
     // replace instruction
@@ -550,7 +561,7 @@ ByteCodeGenerator::releaseObject(const Symbol &sym,
 ByteCodeGenerator::Register
 ByteCodeGenerator::registerForSymbol(const Symbol* sym)
 {
-    loadVariableIntoRegister(sym->symbolName(), *sym->astNode());
+    loadVariableIntoRegister(sym, sym->scope());
     return popRegister();
 }
 
@@ -708,7 +719,7 @@ ByteCodeGenerator::visit(AssignOperatorNode& node)
             const yalvm_bytecode_inst_t inst = StoreGlobalByteCodeInst(exp_type.type);
 
             yal_u32 global_idx = ModuleIndexable::IndexUnused;
-            getGlobalVarIdx(global_idx, assign_sym->symbolName(), node);
+            getGlobalVarIdx(global_idx, assign_sym->symbolName());
 
             code = yalvm_bytecode_pack_dst_value(inst, left_register.registerIdx(), global_idx);
 
@@ -815,7 +826,7 @@ ByteCodeGenerator::visit(ConstantNode& node)
     {
     case kConstantTypeText:
     {
-        getConstantIdx(inst_value, node.constantValue(), node);
+        getConstantIdx(inst_value, node.constantValue());
         instruction = YALVM_BYTECODE_LOAD_STRING;
         break;
     }
@@ -834,7 +845,7 @@ ByteCodeGenerator::visit(ConstantNode& node)
         }
         else
         {
-            getConstantIdx(inst_value, node.constantValue(), node);
+            getConstantIdx(inst_value, node.constantValue());
             instruction = YALVM_BYTECODE_LOAD_CONST_32;
         }
         break;
@@ -849,7 +860,7 @@ ByteCodeGenerator::visit(ConstantNode& node)
         }
         else
         {
-            getConstantIdx(inst_value, node.constantValue(), node);
+            getConstantIdx(inst_value, node.constantValue());
             instruction = YALVM_BYTECODE_LOAD_CONST_32;
         }
         break;
@@ -869,7 +880,7 @@ ByteCodeGenerator::visit(ConstantNode& node)
         }
         else
         {
-            getConstantIdx(inst_value, node.constantValue(), node);
+            getConstantIdx(inst_value, node.constantValue());
             instruction = YALVM_BYTECODE_LOAD_CONST_64;
         }
         break;
@@ -884,7 +895,7 @@ ByteCodeGenerator::visit(ConstantNode& node)
         }
         else
         {
-            getConstantIdx(inst_value, node.constantValue(), node);
+            getConstantIdx(inst_value, node.constantValue());
             instruction = YALVM_BYTECODE_LOAD_CONST_64;
         }
         break;
@@ -898,13 +909,13 @@ ByteCodeGenerator::visit(ConstantNode& node)
     }
     case kConstantTypeFloat32:
     {
-        getConstantIdx(inst_value, node.constantValue(), node);
+        getConstantIdx(inst_value, node.constantValue());
         instruction = YALVM_BYTECODE_LOAD_CONST_32;
         break;
     }
     case kConstantTypeFloat64:
     {
-        getConstantIdx(inst_value, node.constantValue(), node);
+        getConstantIdx(inst_value, node.constantValue());
         instruction = YALVM_BYTECODE_LOAD_CONST_64;
         break;
     }
@@ -1000,10 +1011,10 @@ ByteCodeGenerator::visit(VariableDeclNode& node)
 
     if (var_symbol->isGlobalVariable())
     {
-        const yalvm_bytecode_inst_t inst = StoreGlobalByteCodeInst(var_symbol->astNode()->nodeType());
+        const yalvm_bytecode_inst_t inst = StoreGlobalByteCodeInst(var_symbol->symbolType());
 
         yal_u32 global_idx = ModuleIndexable::IndexUnused;
-        getGlobalVarIdx(global_idx, variable_name, node);
+        getGlobalVarIdx(global_idx, variable_name);
 
         code = yalvm_bytecode_pack_dst_value(inst, var_register.registerIdx(), global_idx);
 
@@ -1141,18 +1152,14 @@ ByteCodeGenerator::visit(FunctionCallNode& node)
         function_name = FunctionDeclBaseNode::GenFunctionName(exp_type, function_name.c_str());
         function_sym = node.scope()->resolveSymbol(function_name.c_str());
 
-        //TODO: Improve the any matching process
+        // no matching function found, check builtin function
         if (!function_sym )
         {
-            const ArrayType* array_type = cast_type<const ArrayType>(exp_type);
-            if (array_type)
+            const char* builtin_function = exp_type->builtinFunctionSymName(node.functionName());
+            if (builtin_function)
             {
-                std::string tmp_func = FunctionDeclBaseNode::GenFunctionName(_typeRegistry.registerArray(AnyType::GetType()), node.functionName());
-                function_sym = node.scope()->resolveSymbol(tmp_func.c_str());
-                if (function_sym)
-                {
-                    function_name = tmp_func;
-                }
+                function_name = builtin_function;
+                function_sym = node.scope()->resolveSymbol(builtin_function);
             }
         }
     }
@@ -1176,12 +1183,12 @@ ByteCodeGenerator::visit(FunctionCallNode& node)
 
 
     yal_u32 function_idx = 0;
-    getFunctionIdx(function_idx, function_name.c_str(), node);
+    getFunctionIdx(function_idx, function_name.c_str());
 
     Register function_call_reg = Register(_regAllocator);
     YAL_ASSERT(function_call_reg.isValid());
 
-    const FunctionType* func_type = cast_type<FunctionType>(function_sym->astNode()->nodeType());
+    const FunctionType* func_type = cast_type<FunctionType>(function_sym->symbolType());
 
     yalvm_bytecode_t code_load = yalvm_bytecode_pack_dst_value(YALVM_BYTECODE_LOAD_FUNCTION,
                                                                function_call_reg.registerIdx(),
@@ -1232,7 +1239,7 @@ ByteCodeGenerator::visit(FunctionCallNode& node)
         const Symbol* global_sym = node.objectExpression()->expressionResult().symbol;
         const yalvm_bytecode_inst_t inst = StoreGlobalByteCodeInst(global_sym->symbolType());
         yal_u32 global_idx = ModuleIndexable::IndexUnused;
-        getGlobalVarIdx(global_idx, global_sym->symbolName(), node);
+        getGlobalVarIdx(global_idx, global_sym->symbolName());
 
         const yalvm_bytecode_t code = yalvm_bytecode_pack_dst_value(inst,
                                                                     object_expression_reg.registerIdx(),
@@ -1472,7 +1479,7 @@ ByteCodeGenerator::visit(StringCreateNode& node)
 {
     // skip parsing constant node, load constant direcly in vm
     yal_u32 constant_idx;
-    getConstantIdx(constant_idx, node.constantNode()->constantValue(), node);
+    getConstantIdx(constant_idx, node.constantNode()->constantValue());
 
     Register reg_string = registerForSymbol(node.expressionResult().symbol);
     pushRegister(reg_string);
@@ -1495,10 +1502,8 @@ void
 ByteCodeGenerator::ByteCodeGeneratorScopeActionVisitor::visitOnExit(const ObjectScopeAction& action)
 {
     const Symbol* sym = action.symbol();
-    const Type* sym_type = sym->astNode()->nodeType();
-    (void) sym_type;
-    YAL_ASSERT(sym->isVariable() && sym_type->isObjectType());
-    _generator.loadVariableIntoRegister(sym->symbolName(), *sym->astNode());
+    YAL_ASSERT(sym->isVariable() && sym->symbolType()->isObjectType());
+    _generator.loadVariableIntoRegister(sym, sym->scope());
     Register var_reg = _generator.popRegister();
     _generator.releaseObject(*sym, var_reg);
 }

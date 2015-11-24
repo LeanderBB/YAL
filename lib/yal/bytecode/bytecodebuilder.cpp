@@ -8,9 +8,8 @@
 #include "yal/bytecode/bytecodegenerator.h"
 #include <yalvm/yalvm_binary.h>
 #include <yalvm/yalvm_hashing.h>
-#include "yal/ast/functionnode.h"
-#include "yal/ast/argumentdeclnode.h"
-#include "yal/ast/variabledeclnode.h"
+#include "yal/ast/asthdrs.h"
+#include "yal/types/typehdrs.h"
 namespace yal
 {
 
@@ -272,10 +271,11 @@ ByteCodeBuilder::writeModuleInfo(ParserState& state)
         for (auto& function : function_vec)
         {
             FunctionDeclBaseNode* decl_node = function->functionNode();
-            std::string function_name = decl_node->nativeFunctionName();
+            const FunctionType* fn_type = cast_type<const FunctionType>(function->symbol()->symbolType());
+            std::string function_name = function->nativeFunctionName();
 
             // process bytecode
-            if (ast_typeof<FunctionDeclNode>(decl_node))
+            if (decl_node && ast_typeof<FunctionDeclNode>(decl_node))
             {
                 function_code.generateFunction(*ast_cast<FunctionDeclNode>(decl_node));
             }
@@ -284,7 +284,7 @@ ByteCodeBuilder::writeModuleInfo(ParserState& state)
             yalvm_func_header_init(&function_header);
 
             bool is_native_func = false;
-            if (ast_typeof<FunctionDeclNativeNode>(decl_node))
+            if (fn_type->isNativeImpl())
             {
                 function_header.flags |= YALVM_FUNC_FLAG_NATIVE;
                 function_name = "yal_native_" + function_name;
@@ -293,21 +293,21 @@ ByteCodeBuilder::writeModuleInfo(ParserState& state)
 
             function_header.n_arguments = 0;
             // check if is an object call function
-            if (decl_node->isObjectFunction())
+            if (fn_type->isObjectFunction())
             {
                 function_header.n_arguments = 1;
             }
 
             // set function args
-            if (decl_node->hasFunctionArguments())
+            if (fn_type->hasArguments())
             {
-                function_header.n_arguments += decl_node->functionArguments()->arguments().size();
+                function_header.n_arguments += fn_type->argumentCount();
             }
 
             // set function register count
             function_header.n_registers = !is_native_func
                     ? function_code.maxRegisterCount()
-                    : decl_node->functionArguments()->argumentCount();
+                    : fn_type->argumentCount();
             function_header.name_len = function_name.length() + 1;
 
             // set function code size;

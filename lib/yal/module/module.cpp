@@ -18,7 +18,7 @@ Module::~Module()
 
 }
 
-const ModuleFunctionBase*
+const ModuleFunction*
 Module::function(const char *name) const
 {
     auto it = _functionMap.find(name);
@@ -26,7 +26,7 @@ Module::function(const char *name) const
 }
 
 bool
-Module::addFunction(const ModuleFunctionBase* function)
+Module::addFunction(const ModuleFunction* function)
 {
     FunctionPtr_t& ptr = _functionMap[function->functionName()];
     if (!ptr)

@@ -28,7 +28,7 @@ ModuleGlobal::wasUsed() const
 
 Type *ModuleGlobal::variableType() const
 {
-    return _symbol->astNode()->nodeType();
+    return _symbol->symbolType();
 }
 
 }

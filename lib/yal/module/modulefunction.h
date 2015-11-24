@@ -12,55 +12,36 @@ class FunctionSym;
 class FunctionDeclBaseNode;
 class FunctionDeclNode;
 class FunctionDeclNativeNode;
-class ModuleFunctionBase : public ModuleIndexable
-{
-public:
-    ModuleFunctionBase(const Symbol* symbol,
-                       FunctionDeclBaseNode* astNode);
-
-    virtual ~ModuleFunctionBase();
-
-    const char* functionName() const;
-
-    bool wasUsed() const;
-
-    Type* returnType() const;
-
-    FunctionDeclBaseNode* functionNode() const {return _astNode;}
-
-protected:
-    const Symbol* _symbol;
-    FunctionDeclBaseNode* _astNode;
-
-};
-
-/// Represents a function in a module
-class ModuleFunction : public ModuleFunctionBase
+class ModuleFunction : public ModuleIndexable
 {
 public:
     ModuleFunction(const Symbol* symbol,
-                   FunctionDeclNode* astNode);
+                   FunctionDeclBaseNode* node);
 
-    virtual ~ModuleFunction() {}
+    virtual ~ModuleFunction();
 
-    FunctionDeclNode* functionNode() const;
+    const char* functionName() const;
+
+    const char* nativeFunctionName() const;
+
+    bool wasUsed() const;
+
+    const Symbol* symbol() const
+    {
+        return _symbol;
+    }
+    
+    FunctionDeclBaseNode* functionNode() const
+    {
+        return _node;
+    }
 
 protected:
-    FunctionDeclNode* _astNode;
+    const Symbol* _symbol;
+    FunctionDeclBaseNode* _node;
+    std::string _nativeFunctionName;
 };
 
-/// Represents a native function in a module
-class ModuleFunctionNative : public ModuleFunctionBase
-{
-public:
-    ModuleFunctionNative(const Symbol* symbol,
-                         FunctionDeclNativeNode* astNode);
-
-    virtual ~ModuleFunctionNative() {}
-
-    FunctionDeclNativeNode* functionNode() const;
-
-};
 
 
 }

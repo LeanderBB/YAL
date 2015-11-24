@@ -13,20 +13,20 @@ namespace yal
 class Module
 {
 public:
-    typedef std::unique_ptr<const ModuleFunctionBase> FunctionPtr_t;
+    typedef std::unique_ptr<const ModuleFunction> FunctionPtr_t;
     typedef StrHashMap<FunctionPtr_t> FunctionMap_t;
     typedef std::vector<const ModuleConstant*> OrderedConstantVec_t;
     typedef std::vector<const ModuleGlobal*> OrderedGlobalVec_t;
-    typedef std::vector<const ModuleFunctionBase*> OrderedFunctionVec_t;
+    typedef std::vector<const ModuleFunction*> OrderedFunctionVec_t;
     typedef std::vector<const ModuleConstant*> OrderedStringsVec_t;
 
     Module();
 
     ~Module();
 
-    const ModuleFunctionBase *function(const char *name) const;
+    const ModuleFunction *function(const char *name) const;
 
-    bool addFunction(const ModuleFunctionBase* function);
+    bool addFunction(const ModuleFunction* function);
 
     const ModuleGlobal* global(const char* name) const;
 
