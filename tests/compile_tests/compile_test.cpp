@@ -189,6 +189,20 @@ TEST(CompileCode, ArithemticTest2)
     EXPECT_EQ(compile_result, true);
 }
 
+TEST(CompileCode, ConflictingDefinitionsArray)
+{
+    yal::MemoryOutputSink mem_sink(1024*1024*10);
+    const std::string path(s_test_path + "/error_conflicting_definitions1.yal");
+    EXPECT_THROW(CompileCode(path.c_str(), mem_sink), yal::SemanticException);
+}
+
+TEST(CompileCode, ConflictingDefinitionsArrayNative)
+{
+    yal::MemoryOutputSink mem_sink(1024*1024*10);
+    const std::string path(s_test_path + "/error_conflicting_definitions2.yal");
+    EXPECT_THROW(CompileCode(path.c_str(), mem_sink), yal::SemanticException);
+}
+
 int
 main(int argc,
      char **argv)

@@ -1,5 +1,6 @@
 #include "yal/symbols/symboltable.h"
 #include "yal/symbols/scope.h"
+#include "yal/ast/astbasenode.h"
 #include <sstream>
 namespace yal
 {
@@ -28,25 +29,25 @@ SymbolTable::~SymbolTable()
 
 Symbol*
 SymbolTable::declareSymbol(const char* name,
-                           AstBaseNode* astNode,
+                           Type* type,
                            const yal_u32 flags)
 {
     SymbolPtr_t& symbol = _symbols[name];
     if (!symbol)
     {
-        symbol = SymbolPtr_t(new Symbol(name, _scope, astNode, flags));
+        symbol = SymbolPtr_t(new Symbol(name, _scope, type, flags));
         return symbol.get();
     }
     return nullptr;
 }
 
 Symbol*
-SymbolTable::declareTemporarySymbol(AstBaseNode* astNode,
+SymbolTable::declareTemporarySymbol(Type* type,
                                     const yal_u32 symFlags)
 {
     const yal_u32 flags = symFlags | Symbol::kFlagTemporary | Symbol::kFlagAssignable;
     const std::string tmp_name (make_tmp_name(_scope, _tmpCounter++));
-    SymbolPtr_t sym (new Symbol(tmp_name.c_str(), _scope, astNode, flags));
+    SymbolPtr_t sym (new Symbol(tmp_name.c_str(), _scope, type, flags));
     SymbolPtr_t& symbol = _symbols[sym->symbolName()];
     if (!symbol)
     {

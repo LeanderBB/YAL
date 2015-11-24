@@ -70,16 +70,7 @@ SymbolTreeBuilder::currentScopeIsGlobalScope() const
 void
 SymbolTreeBuilder::addYalVmFunctions()
 {
-    // array length
-    FunctionDeclNativeNode* array_len =
-            new FunctionDeclNativeNode(SourceLocationInfo(),
-                                       "length",
-                                       _typeRegistry.registerArray(AnyType::GetType()),
-                                       new ArgumentDeclsNode(SourceLocationInfo()),
-                                       BuiltinType::GetBuiltinType(BuiltinType::kUInt32));
-
-    _parserState->program.insert(_parserState->program.begin(), array_len);
-
+    ArrayType::RegisterBuiltinFunctions(_parserState->module, _typeRegistry, _globalScope);
 }
 
 void
@@ -163,7 +154,7 @@ SymbolTreeBuilder::visit(CompareOperatorNode& node)
 
     _expResult = left_type;
 
-    Symbol* tmp_sym = _curScope->declareTemporarySymbol(&node);
+    Symbol* tmp_sym = _curScope->declareTemporarySymbol(_expResult.type);
     YAL_ASSERT(tmp_sym);
     _curStatment->addSymbolToScope(tmp_sym);
 
@@ -186,7 +177,7 @@ SymbolTreeBuilder::visit(ConstantNode& node)
         }
     }
 
-    Symbol* tmp_sym = _curScope->declareTemporarySymbol(&node);
+    Symbol* tmp_sym = _curScope->declareTemporarySymbol(node.constantType());
     YAL_ASSERT(tmp_sym);
     _curStatment->addSymbolToScope(tmp_sym);
     _expResult = ExpressionResult(node.constantType(), tmp_sym);
@@ -240,8 +231,8 @@ SymbolTreeBuilder::visit(ArgumentDeclNode& node)
     }
 
     const Symbol* result = _curScope->declareSymbol(node.argumentName(),
-                                                    &node,
-                                                    Symbol::kFlagAssignable | Symbol::kFlagFunctionParam);
+                                                    arg_data_type,
+                                                    Symbol::kFlagAssignable | Symbol::kFlagFunctionParam | Symbol::kFlagVariable);
     (void) result;
     YAL_ASSERT(result);
     node.setNodeType(arg_data_type);
@@ -358,8 +349,8 @@ SymbolTreeBuilder::visit(VariableDeclNode& node)
 
     const bool is_global_var = currentScopeIsGlobalScope();
     auto sym_var = _curScope->declareSymbol(var_name,
-                                            &node,
-                                            ((is_global_var) ? Symbol::kFlagGlobalSymbol : 0) | Symbol::kFlagAssignable);
+                                            _expResult.type,
+                                            ((is_global_var) ? Symbol::kFlagGlobalSymbol : 0) | Symbol::kFlagAssignable | Symbol::kFlagVariable);
     YAL_ASSERT(sym_var);
     node.setNodeType(_expResult.type);
     _expResult.symbol->markAssigned();
@@ -449,7 +440,8 @@ SymbolTreeBuilder::visit(DualOperatorNode& node)
         }
     }
 
-    Symbol* tmp_sym = _curScope->declareTemporarySymbol(&node, exp_type->isObjectType() ? Symbol::kFlagNewObject : 0);
+    Symbol* tmp_sym = _curScope->declareTemporarySymbol(const_cast<Type*>(exp_type),
+                                                        exp_type->isObjectType() ? Symbol::kFlagNewObject : 0);
     _curStatment->addSymbolToScope(tmp_sym);
 
     _expResult = ExpressionResult(const_cast<Type*>(exp_type), tmp_sym);
@@ -486,7 +478,8 @@ SymbolTreeBuilder::visit(SingleOperatorNode& node)
         throw SemanticException(stream.str(), node);
     }
 
-    Symbol* tmp_sym = _curScope->declareTemporarySymbol(&node, _expResult.type->isObjectType() ? Symbol::kFlagNewObject : 0);
+    Symbol* tmp_sym = _curScope->declareTemporarySymbol(_expResult.type,
+                                                        _expResult.type->isObjectType() ? Symbol::kFlagNewObject : 0);
     _curStatment->addSymbolToScope(tmp_sym);
 
     _expResult = ExpressionResult(_expResult.type, tmp_sym);
@@ -508,18 +501,14 @@ SymbolTreeBuilder::visit(FunctionCallNode& node)
         func_name = FunctionDeclBaseNode::GenFunctionName(exp_type, func_name.c_str());
         sym = _curScope->resolveSymbol(func_name.c_str());
 
-        //TODO: Improve the any matching process
+        // no matching function found, check builtin function
         if (!sym)
         {
-            const ArrayType* array_type = cast_type<const ArrayType>(exp_type);
-            if (array_type)
+            const char* builtin_function = exp_type->builtinFunctionSymName(node.functionName());
+            if (builtin_function)
             {
-                std::string tmp_func = FunctionDeclBaseNode::GenFunctionName(_typeRegistry.registerArray(AnyType::GetType()), node.functionName());
-                sym = _curScope->resolveSymbol(tmp_func.c_str());
-                if (sym)
-                {
-                    func_name = tmp_func;
-                }
+                func_name = builtin_function;
+                sym = _curScope->resolveSymbol(builtin_function);
             }
         }
     }
@@ -585,7 +574,7 @@ SymbolTreeBuilder::visit(FunctionCallNode& node)
     YAL_ASSERT(func_type);
     Type* return_type = func_type->typeOfReturnValue();
 
-    Symbol* tmp_sym = _curScope->declareTemporarySymbol(&node, return_type->isObjectType() ? Symbol::kFlagNewObject : 0);
+    Symbol* tmp_sym = _curScope->declareTemporarySymbol(return_type, return_type->isObjectType() ? Symbol::kFlagNewObject : 0);
     _curStatment->addSymbolToScope(tmp_sym);
 
     _expResult = ExpressionResult(return_type, tmp_sym);
@@ -595,20 +584,59 @@ SymbolTreeBuilder::visit(FunctionCallNode& node)
 }
 
 void
-SymbolTreeBuilder::visit(FunctionDeclNode& node)
+SymbolTreeBuilder::visit(FunctionDeclBaseNode& node)
 {
     node.setScope(currentScope());
 
-    const char* func_name = node.functionName();
+    const char* func_name = node.functionNameWithType();
     auto sym = _curScope->resolveSymbol(func_name);
     if (sym)
     {
         std::stringstream stream;
         stream << "Symbol name '" << func_name
-               << "' already delcared"
-               << std::endl;
+        << "' already delcared"
+        << std::endl;
         throw SemanticException(stream.str(), node);
     }
+
+    // check for object type
+    if (node.isObjectFunction())
+    {
+        Type* object_type = node.objectType();
+        if (object_type->isUndefined())
+        {
+            std::stringstream stream;
+            stream << "Function's object type '"
+            << object_type->typeString() << "'"
+            << "for function '" <<func_name
+            << "' is undefined."
+            << std::endl;
+            throw SemanticException(stream.str(), node);
+        }
+
+        const char* builtin_function = object_type->builtinFunctionSymName(node.functionName());
+        if (builtin_function)
+        {
+            std::stringstream stream;
+            stream << "Can not declare function '"
+            << func_name << "'"
+            << " for type '" <<object_type->typeString()
+            << "' since it conflicts with a builtin function."
+            << std::endl;
+            throw SemanticException(stream.str(), node);
+        }
+    }
+
+
+
+}
+
+void
+SymbolTreeBuilder::visit(FunctionDeclNode& node)
+{
+    visit(static_cast<FunctionDeclBaseNode&>(node));
+
+    const char* func_name = node.functionNameWithType();
 
     // declare func
     FunctionType* type = _typeRegistry.registerFunction(&node);
@@ -616,12 +644,12 @@ SymbolTreeBuilder::visit(FunctionDeclNode& node)
     {
         std::stringstream stream;
         stream << "Failed to register '" << func_name
-               << "'"
-               << std::endl;
+        << "'"
+        << std::endl;
         throw SemanticException(stream.str(), node);
     }
 
-    _curFunctionDecl = _curScope->declareSymbol(func_name, &node, 0);
+    _curFunctionDecl = _curScope->declareSymbol(func_name, type, 0);
     YAL_ASSERT(_curFunctionDecl);
 
     // begin new scope
@@ -632,19 +660,8 @@ SymbolTreeBuilder::visit(FunctionDeclNode& node)
     if (node.isObjectFunction())
     {
         Type* object_type = node.objectType();
-        if (object_type->isUndefined())
-        {
-            std::stringstream stream;
-            stream << "Function's object type '"
-                   << object_type->typeString() << "'"
-                   << "for function '" <<func_name
-                   << "' is undefined."
-                   << std::endl;
-            throw SemanticException(stream.str(), node);
-        }
-
-        Symbol* self_sym = _curScope->declareSymbol("self", &node,
-                                                    (!object_type->isObjectType() ? Symbol::kFlagReference  : 0)| Symbol::kFlagAssignable);
+        Symbol* self_sym = _curScope->declareSymbol("self", object_type,
+                                                    (!object_type->isObjectType() ? Symbol::kFlagReference  : 0)| Symbol::kFlagAssignable | Symbol::kFlagVariable);
         (void) self_sym;
         YAL_ASSERT(self_sym);
     }
@@ -842,7 +859,7 @@ SymbolTreeBuilder::visit(StringCreateNode& node)
 {
     node.setScope(currentScope());
     node.constantNode()->accept(*this);
-    Symbol* tmp_sym = _curScope->declareTemporarySymbol(&node, Symbol::kFlagNewObject);
+    Symbol* tmp_sym = _curScope->declareTemporarySymbol(StringType::GetType(), Symbol::kFlagNewObject);
     _curStatment->addSymbolToScope(tmp_sym);
     _expResult = ExpressionResult(StringType::GetType(), tmp_sym);
     node.setNodeType(_expResult.type);
@@ -870,18 +887,9 @@ SymbolTreeBuilder::visit(ObjectReleaseNode&)
 void
 SymbolTreeBuilder::visit(FunctionDeclNativeNode& node)
 {
-    node.setScope(currentScope());
+    visit(static_cast<FunctionDeclBaseNode&>(node));
 
-    const char* func_name = node.functionName();
-    auto sym = _curScope->resolveSymbol(func_name);
-    if (sym)
-    {
-        std::stringstream stream;
-        stream << "Symbol name '" << func_name
-               << "' already delcared"
-               << std::endl;
-        throw SemanticException(stream.str(), node);
-    }
+    const char* func_name = node.functionNameWithType();
 
     // declare func
     FunctionType* type = _typeRegistry.registerFunction(&node);
@@ -894,7 +902,7 @@ SymbolTreeBuilder::visit(FunctionDeclNativeNode& node)
         throw SemanticException(stream.str(), node);
     }
 
-    _curFunctionDecl = _curScope->declareSymbol(func_name, &node, 0);
+    _curFunctionDecl = _curScope->declareSymbol(func_name, type, 0);
     YAL_ASSERT(_curFunctionDecl);
 
     beginScope();
@@ -906,7 +914,7 @@ SymbolTreeBuilder::visit(FunctionDeclNativeNode& node)
 
     // register function in module
     YAL_ASSERT(_parserState->module.function(func_name) == nullptr);
-    _parserState->module.addFunction(new ModuleFunctionNative(_curFunctionDecl,
+    _parserState->module.addFunction(new ModuleFunction(_curFunctionDecl,
                                                               &node));
 
     // end scope
@@ -980,7 +988,7 @@ SymbolTreeBuilder::visit(ArrayCtrNode& node)
     // array type should be set by now
     YAL_ASSERT(array_type);
 
-    Symbol* tmp_sym = _curScope->declareTemporarySymbol(&node, Symbol::kFlagNewObject);
+    Symbol* tmp_sym = _curScope->declareTemporarySymbol(const_cast<ArrayType*>(array_type), Symbol::kFlagNewObject);
     YAL_ASSERT(tmp_sym);
     _curStatment->addSymbolToScope(tmp_sym);
 

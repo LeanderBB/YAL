@@ -187,6 +187,7 @@ enum yalvm_bytecode_inst
     YALVM_BYTECODE_ARRAY_DEL_OBJ,
     YALVM_BYTECODE_ARRAY_LEN,
     YALVM_BYTECODE_ARRAY_DEALLOC,
+    YALVM_BYTECODE_ARRAY_DEALLOC_OBJ,
     /* Total instruction count */
     YALVM_BYTECODE_TOTAL
 };

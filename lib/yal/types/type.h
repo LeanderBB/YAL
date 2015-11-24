@@ -73,6 +73,7 @@ yal_u32 LanguageDataTypeId();
 
 TypeId LanguageTypeId();
 
+class Symbol;
 class Type
 {
 public:
@@ -159,6 +160,8 @@ public:
     }
 
     virtual bool isPromotableTo(const Type* t) const = 0;
+
+    virtual const char* builtinFunctionSymName(const char*) const {return nullptr;}
 
 protected:
 

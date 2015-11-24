@@ -41,10 +41,10 @@ public:
     }
 
     inline Symbol* declareSymbol(const char* name,
-                                 AstBaseNode* astNode,
+                                 Type* type,
                                  const yal_u32 flags)
     {
-        return _symTable.declareSymbol(name, astNode, flags);
+        return _symTable.declareSymbol(name, type, flags);
     }
 
     inline Symbol *resolveSymbol(const char* name) const
@@ -57,10 +57,10 @@ public:
         _symTable.eraseSymbol(sym);
     }
 
-    inline Symbol* declareTemporarySymbol(AstBaseNode* astNode,
+    inline Symbol* declareTemporarySymbol(Type* type,
                                           const yal_u32 flags = 0)
     {
-        return  _symTable.declareTemporarySymbol(astNode, flags);
+        return  _symTable.declareTemporarySymbol(type, flags);
     }
 
     yal_u32 level() const

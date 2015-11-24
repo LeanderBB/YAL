@@ -26,12 +26,13 @@ public:
         kFlagAssigned       = 1 << 5,
         kFlagReturnValue    = 1 << 6,
         kFlagReference      = 1 << 7,
-        kFlagFunctionParam    = 1 << 8,
+        kFlagFunctionParam  = 1 << 8,
+        kFlagVariable       = 1 << 9
     };
 
     Symbol(const char* name,
            const Scope* scope,
-           AstBaseNode* astNode,
+           Type* Type,
            const yal_u32 flags = 0);
 
     virtual ~Symbol() {}
@@ -76,11 +77,6 @@ public:
 
     bool isReadOnly() const;
 
-    AstBaseNode* astNode() const
-    {
-        return _astNode;
-    }
-
     Type* symbolType() const;
 
     bool isVariable() const;
@@ -114,7 +110,7 @@ public:
 protected:
     const std::string _symName;
     const Scope* _pSymScope;
-    AstBaseNode* _astNode;
+    Type* _type;
     yal_u32 _readCount;
     yal_u32 _writeCount;
     yal_u32 _callCount;

@@ -8,12 +8,12 @@
 #include <stack>
 #include <sstream>
 
-
 namespace yal
 {
 class TypeRegistry;
 class Type;
 class ParserState;
+class FunctionDeclBaseNode;
 class SymbolTreeBuilder : public AstNodeVisitor
 {
 public:
@@ -46,6 +46,8 @@ protected:
     bool currentScopeIsGlobalScope() const;
 
     void addYalVmFunctions();
+
+    void visit(FunctionDeclBaseNode& node);
 
 private:
     typedef std::stack<Scope*> SymbolTableStack_t;

@@ -100,16 +100,13 @@ protected:
     void releaseRegister();
 
     void getGlobalVarIdx(yal_u32& idx,
-                         const char* varName,
-                         const AstBaseNode& node);
+                         const char* varName);
 
     void getFunctionIdx(yal_u32& idx,
-                        const char* functionName,
-                        const AstBaseNode& node);
+                        const char* functionName);
 
     void getConstantIdx(yal_u32& idx,
-                        const ConstantValue& val,
-                        const AstBaseNode& node);
+                        const ConstantValue& val);
 
     bool onScopeBegin(const AstBaseNode& node);
 
@@ -119,8 +116,12 @@ protected:
 
     bool onStatementScopeEnd(const StatementNode& node);
 
+
     void loadVariableIntoRegister(const char *varName,
                                   const AstBaseNode &node);
+
+    void loadVariableIntoRegister(const Symbol* sym,
+                                  const Scope* scope);
 
     void releaseObject(const Symbol& sym,
                        const Register& reg);

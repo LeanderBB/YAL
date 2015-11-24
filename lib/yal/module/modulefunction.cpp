@@ -4,66 +4,44 @@
 
 namespace yal
 {
-ModuleFunctionBase::ModuleFunctionBase(const Symbol *symbol,
-                                       FunctionDeclBaseNode *astNode):
+ModuleFunction::ModuleFunction(const Symbol *symbol,
+                               FunctionDeclBaseNode* node):
     _symbol(symbol),
-    _astNode(astNode)
+    _node(node)
 {
-
+    FunctionType* fn_type = cast_type<FunctionType>(symbol->symbolType());
+    if (!node)
+    {
+    _nativeFunctionName = FunctionDeclBaseNode::GenFunctionNameNative(nullptr,
+                                                                      symbol->symbolName(),
+                                                                      fn_type->typeOfReturnValue());
+    }
 }
 
-ModuleFunctionBase::~ModuleFunctionBase()
+ModuleFunction::~ModuleFunction()
 {
 
 }
 
 const char*
-ModuleFunctionBase::functionName() const
+ModuleFunction::functionName() const
 {
     return _symbol->symbolName();
 }
 
 bool
-ModuleFunctionBase::wasUsed() const
+ModuleFunction::wasUsed() const
 {
     //TODO: Provide annotations to override behaviour
     const bool was_used = _symbol->readCount() > 0 || _symbol->callCount() > 0;
     return _symbol->isNativeFunction() ? was_used : true;
 }
 
-Type*
-ModuleFunctionBase::returnType() const
+
+const char*
+ModuleFunction::nativeFunctionName() const
 {
-    const FunctionType* fn_type = cast_type<FunctionType>(_symbol->astNode()->nodeType());
-    YAL_ASSERT(fn_type);
-    return fn_type->typeOfReturnValue();
-}
-
-
-ModuleFunction::ModuleFunction(const Symbol *symbol,
-                               FunctionDeclNode* astNode):
-    ModuleFunctionBase(symbol, astNode)
-{
-
-}
-
-FunctionDeclNode *
-ModuleFunction::functionNode() const
-{
-    return ast_cast<FunctionDeclNode>(_astNode);
-}
-
-ModuleFunctionNative::ModuleFunctionNative(const Symbol *symbol,
-                                           FunctionDeclNativeNode* astNode):
-    ModuleFunctionBase(symbol, astNode)
-{
-
-}
-
-FunctionDeclNativeNode
-*ModuleFunctionNative::functionNode() const
-{
-    return ast_cast<FunctionDeclNativeNode>(_astNode);
+    return (_node) ? _node->nativeFunctionName() : _nativeFunctionName.c_str();
 }
 
 }

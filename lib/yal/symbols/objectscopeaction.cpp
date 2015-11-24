@@ -8,7 +8,7 @@ ObjectScopeAction::ObjectScopeAction(const Symbol* symbol):
     ScopeAction(),
     _symbol(symbol)
 {
-    YAL_ASSERT(symbol->astNode()->nodeType()->isObjectType());
+    YAL_ASSERT(symbol->symbolType()->isObjectType());
 }
 
 }

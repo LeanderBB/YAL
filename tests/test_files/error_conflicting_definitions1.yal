@@ -1,0 +1,3 @@
+func int32[]::length() : uint32
+   return 0u
+end

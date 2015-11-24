@@ -44,6 +44,7 @@ set(YAL_HDR
     symbols/semanticexception.h
     symbols/symboltable.h
     symbols/scope.h
+    symbols/symbol.h
     symbols/scopeaction.h
     symbols/scopeactionlist.h
     symbols/objectscopeaction.h

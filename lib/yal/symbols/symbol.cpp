@@ -2,16 +2,18 @@
 #include "yal/ast/functionnode.h"
 #include "yal/ast/variabledeclnode.h"
 #include "yal/ast/argumentdeclnode.h"
+#include "yal/types/typehdrs.h"
+
 namespace yal
 {
 
 Symbol::Symbol(const char* name,
                const Scope* scope,
-               AstBaseNode *astNode,
+               Type *type,
                const yal_u32 flags):
     _symName(name),
     _pSymScope(scope),
-    _astNode(astNode),
+    _type(type),
     _readCount(0),
     _writeCount(0),
     _callCount(0),
@@ -53,40 +55,25 @@ Symbol::isReadOnly() const
 Type*
 Symbol::symbolType() const
 {
-    VariableDeclNode* decl_node = ast_cast<VariableDeclNode>(_astNode);
-    if (decl_node)
-    {
-        return decl_node->nodeType();
-    }
-
-    FunctionDeclNode* fn_decl_node = ast_cast<FunctionDeclNode>(_astNode);
-    if (fn_decl_node && _symName == "self")
-    {
-        return fn_decl_node->objectType();
-    }
-
-    return _astNode->nodeType();
+    return _type;
 }
 
 bool
 Symbol::isVariable() const
 {
-    return _symName == "self"
-            || ast_typeof<VariableDeclNode>(_astNode)
-            || ast_typeof<ArgumentDeclNode>(_astNode);
+    return _symbolFlags & kFlagVariable;
 }
 
 bool
 Symbol::isFunction() const
 {
-    return ast_typeof<FunctionDeclNode>(_astNode)
-            || ast_typeof<FunctionDeclNativeNode>(_astNode);
+    return _type->isFunctionType();
 }
 
 bool
 Symbol::isNativeFunction() const
 {
-    return ast_typeof<FunctionDeclNativeNode>(_astNode);
+    return _type->isNativeImpl() && _type->isFunctionType();
 }
 
 bool
