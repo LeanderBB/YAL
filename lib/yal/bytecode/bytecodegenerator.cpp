@@ -174,7 +174,7 @@ ByteCodeGenerator::setupFunction(const yal::FunctionDeclBaseNode &node)
     if (node.isObjectFunction())
     {
         // declare self variable register
-        bool result = _regAllocator.allocate("self",
+        yal_i32 result = _regAllocator.allocate("self",
                                              node.functionArguments()->scope()->level());
         (void) result;
         YAL_ASSERT(result != RegisterAllocator::UnusedRegisterValue);
@@ -187,7 +187,7 @@ ByteCodeGenerator::setupFunction(const yal::FunctionDeclBaseNode &node)
         const ArgumentDeclsNode* func_args = node.functionArguments();
         for (auto& arg : func_args->arguments())
         {
-            bool result = _regAllocator.allocate(arg->argumentName(), arg->scope()->level());
+            yal_i32 result = _regAllocator.allocate(arg->argumentName(), arg->scope()->level());
             (void) result;
             YAL_ASSERT(result != RegisterAllocator::UnusedRegisterValue);
         }
@@ -1595,7 +1595,7 @@ ByteCodeGenerator::visit(ArrayCtrNode& node)
         YAL_ASSERT(tmp_reg.isValid());
         yalvm_bytecode_t code = yalvm_bytecode_pack_dst_value(YALVM_BYTECODE_LOAD_VALUE,
                                                               tmp_reg.registerIdx(),
-                                                              expressions.size());
+                                                              static_cast<yalvm_u16>(expressions.size()));
         tmp_reg.release(_regAllocator);
         _buffer.append(code);
 

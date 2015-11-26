@@ -5,6 +5,11 @@
 
 /* NOTE: Do not include this file manually, always include yalvm.h instead */
 
+#if defined(_MSC_VER )
+// disable useless warnings in MSVC
+#pragma warning(disable: 4514 4711 4055 4244 4800 4820)
+#endif
+
 #cmakedefine YALVM_VERSION_MAJOR @YALVM_VERSION_MAJOR@
 
 #if !defined(YALVM_VERSION_MAJOR)

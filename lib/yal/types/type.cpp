@@ -39,7 +39,7 @@ Type::Type(const TypeId_t& id,
 bool
 Type::isVoidType() const
 {
-    return _typeFlags & kTypeFlagIsVoidType;
+    return (_typeFlags & kTypeFlagIsVoidType);
 }
 
 bool

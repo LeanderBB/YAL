@@ -35,17 +35,17 @@ public:
 
     bool hasConditionComponent() const
     {
-        return _pCondition;
+        return _pCondition != nullptr;
     }
 
     bool hasOnTrueComponent() const
     {
-        return _pOnTrue;
+        return _pOnTrue != nullptr;
     }
 
     bool hasOnFalseComponent() const
     {
-        return _pOnFalse;
+        return _pOnFalse != nullptr;
     }
 
 private:

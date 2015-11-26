@@ -47,12 +47,14 @@ yalvm_snprintf(char *,
                ...)
 {
     YAL_ASSERT(false && "Should not be called, resolves linker dependency");
+    return -1;
 }
 
 void*
 yalvm_realloc(void*, yalvm_size)
 {
     YAL_ASSERT(false && "Should not be called, resolves linker dependency");
+    return NULL;
 }
 
 void*
@@ -61,6 +63,7 @@ yalvm_memmove(void *,
               yalvm_size)
 {
     YAL_ASSERT(false && "Should not be called, resolves linker dependency");
+    return NULL;
 }
 
 

@@ -12,7 +12,7 @@ typedef struct yalvm_string
 
 
 yalvm_object_t*
-yalvm_string_create_empty();
+yalvm_string_create_empty(void);
 
 yalvm_object_t*
 yalvm_string_create_with_constant(const char* text);

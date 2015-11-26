@@ -3,9 +3,14 @@
 #include "yalvm/yalvm_bytecode.h"
 #include "yalvm/yalvm_external.h"
 
-
+#if !defined(WIN32)
 #define __USE_GNU
 #include <dlfcn.h>
+#else
+#pragma warning(push, 0) 
+#include <Windows.h>
+#pragma warning(pop)
+#endif
 
 static const yalvm_u32 yalvm_bin_header_magic  = 0x10e5af18;
 static const yalvm_u32 yalvm_func_header_magic = 0x04974ceb;
@@ -15,7 +20,12 @@ static const yalvm_u32 yalvm_static_hader_magic = 0xe351dac4;
 static const void*
 yalvm_bin_load_native_function(const char* name)
 {
+#if defined(WIN32)
+    HMODULE module = GetModuleHandle(NULL);
+    return GetProcAddress(module, name);
+#else
     return dlsym(RTLD_DEFAULT, name);
+#endif
 }
 
 yalvm_bool
@@ -141,14 +151,14 @@ yalvm_func_header_valid_magic(const yalvm_func_header_t* header)
 }
 
 const char*
-yalvm_func_global_name()
+yalvm_func_global_name(void)
 {
     static const char* name = "globalfunction";
     return name;
 }
 
 yalvm_u32
-yalvm_func_global_hash()
+yalvm_func_global_hash(void)
 {
     const yalvm_u32 hash = yalvm_one_at_a_time_hash(yalvm_func_global_name());
     return hash;

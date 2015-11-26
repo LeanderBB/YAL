@@ -81,7 +81,7 @@ FileInputSink::tell() const
 bool
 FileInputSink::seekSet(const size_t offset)
 {
-    return fseek(_pFile, offset, SEEK_SET) == 0;
+    return fseek(_pFile, static_cast<long>(offset), SEEK_SET) == 0;
 }
 
 }

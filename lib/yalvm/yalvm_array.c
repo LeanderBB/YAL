@@ -15,7 +15,7 @@ yalvm_array_base_grow(yalvm_array_base_t* array,
     if (new_size >= array->capacity)
     {
         const yalvm_u32 new_capacity = (array->capacity)
-                ? array->capacity * 1.25
+                ? array->capacity << 1
                 : 8;
         if (new_capacity < array->capacity)
         {
