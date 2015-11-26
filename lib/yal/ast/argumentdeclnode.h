@@ -65,7 +65,7 @@ public:
 
     yal_u32 argumentCount() const
     {
-        return _arguments.size();
+        return static_cast<yal_u32>(_arguments.size());
     }
 
 private:

@@ -37,7 +37,7 @@ public:
 
     yal_u32 argumentCount() const
     {
-        return _arguments->expressions.size();
+        return static_cast<yal_u32>(_arguments->expressions.size());
     }
 
     PrintArgsNode* arguments() const

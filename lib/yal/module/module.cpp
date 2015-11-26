@@ -125,7 +125,7 @@ Module::removeUnusedAndAssignIndices()
         const FunctionPtr_t& function = func_it->second;
         if (function->wasUsed())
         {
-            function->setModuleIndex(_functions.size());
+            function->setModuleIndex(static_cast<yal_u32>(_functions.size()));
             _functions.push_back(function.get());
             ++func_it;
         }
@@ -144,18 +144,18 @@ Module::removeUnusedAndAssignIndices()
         {
             if (global->variableType()->is32BitSized())
             {
-                global->setModuleIndex(_globals32.size());
+                global->setModuleIndex(static_cast<yal_u32>(_globals32.size()));
                 _globals32.push_back(global.get());
             }
             else if (global->variableType()->is64BitSized())
             {
-                global->setModuleIndex(_globals64.size());
+                global->setModuleIndex(static_cast<yal_u32>(_globals64.size()));
                 _globals64.push_back(global.get());
             }
             else
             {
                 YAL_ASSERT(global->variableType()->isPointerSized());
-                global->setModuleIndex(_globalsPtr.size());
+                global->setModuleIndex(static_cast<yal_u32>(_globalsPtr.size()));
                 _globalsPtr.push_back(global.get());
             }
             ++globals_it;
@@ -176,12 +176,12 @@ Module::removeUnusedAndAssignIndices()
 
         if (constant->value().valueIs32Bits())
         {
-            constant->setModuleIndex(_constants32.size());
+            constant->setModuleIndex(static_cast<yal_u32>(_constants32.size()));
             _constants32.push_back(constant.get());
         }
         else
         {
-            constant->setModuleIndex(_constants64.size());
+            constant->setModuleIndex(static_cast<yal_u32>(_constants64.size()));
             _constants64.push_back(constant.get());
         }
         ++constant_it;
@@ -193,7 +193,7 @@ Module::removeUnusedAndAssignIndices()
     _stringsVec.reserve(_strings.size());
     for(auto strings_it = _strings.begin(); strings_it != strings_end; ++strings_it)
     {
-        strings_it->second->setModuleIndex(_stringsVec.size());
+        strings_it->second->setModuleIndex(static_cast<yal_u32>(_stringsVec.size()));
         _stringsVec.push_back(strings_it->second.get());
         _totalStringSizeBytes += strlen(strings_it->second->value().valueAsText()) + 1 + sizeof(yal_u32);
     }

@@ -2,6 +2,7 @@
 #include <cstring>
 #include <sstream>
 #include <iomanip>
+#include <algorithm>
 namespace yal
 {
 
@@ -259,7 +260,7 @@ ArgParser::printHelp(std::ostream &output,
     output << "Options: " << std::endl;
     for(auto it = _options.begin(); it != _options.end(); ++it)
     {
-        yal_u32 len = strlen(it->longopt);
+        size_t len = strlen(it->longopt);
 
         if (it->shortopt != NoSingleCharOption)
         {

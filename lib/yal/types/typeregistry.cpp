@@ -97,7 +97,7 @@ void
 TypeRegistry::generateTypeId(Type::TypeId_t& id) const
 {
     id.split.moduleId = _module.moduleId();
-    id.split.dataTypeId = _types.size();
+    id.split.dataTypeId = static_cast<yal_u32>(_types.size());
 }
 
 void

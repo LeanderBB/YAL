@@ -47,12 +47,12 @@ public:
 
     yal_u32 functionArgumentsCount() const
     {
-        return _functionArgs ? _functionArgs->expressions.size() : 0;
+        return _functionArgs ? static_cast<yal_u32>(_functionArgs->expressions.size()) : 0;
     }
 
     bool hasFunctionArguments() const
     {
-        return _functionArgs;
+        return _functionArgs != nullptr;
     }
 
     bool isObjectCall() const
@@ -113,7 +113,7 @@ public:
 
     bool hasFunctionArguments() const
     {
-        return _functionArgs;
+        return _functionArgs != nullptr;
     }
 
     bool hasReturnValue() const;

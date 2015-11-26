@@ -128,7 +128,7 @@ GeneratedFunctionType::isObjectFunction() const
 yal_u32
 GeneratedFunctionType::argumentCount() const
 {
-    return _argTypes.size();
+    return static_cast<yal_u32>(_argTypes.size());
 }
 
 Type*

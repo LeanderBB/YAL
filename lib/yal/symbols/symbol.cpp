@@ -43,13 +43,13 @@ Symbol::touchCall()
 bool
 Symbol::isAssignable() const
 {
-    return _symbolFlags & kFlagAssignable;
+    return (_symbolFlags & kFlagAssignable);
 }
 
 bool
 Symbol::isReadOnly() const
 {
-    return _symbolFlags & kFlagReadOnly;
+    return (_symbolFlags & kFlagReadOnly);
 }
 
 Type*
@@ -61,67 +61,67 @@ Symbol::symbolType() const
 bool
 Symbol::isVariable() const
 {
-    return _symbolFlags & kFlagVariable;
+    return (_symbolFlags & kFlagVariable);
 }
 
 bool
 Symbol::isFunction() const
 {
-    return _type->isFunctionType();
+    return (_type->isFunctionType());
 }
 
 bool
 Symbol::isNativeFunction() const
 {
-    return _type->isNativeImpl() && _type->isFunctionType();
+    return (_type->isNativeImpl() && _type->isFunctionType());
 }
 
 bool
 Symbol::isGlobalSymbol() const
 {
-    return _symbolFlags & kFlagGlobalSymbol;
+    return (_symbolFlags & kFlagGlobalSymbol);
 }
 
 bool
 Symbol::isGlobalVariable() const
 {
-    return isVariable() && isGlobalSymbol();
+    return (isVariable() && isGlobalSymbol());
 }
 
 bool
 Symbol::isTemporary() const
 {
-    return _symbolFlags & kFlagTemporary;
+    return (_symbolFlags & kFlagTemporary);
 }
 
 bool
 Symbol::isNewObject() const
 {
-    return _symbolFlags & kFlagNewObject;
+    return (_symbolFlags & kFlagNewObject);
 }
 
 bool
 Symbol::isAssigned() const
 {
-    return _symbolFlags & kFlagAssigned;
+    return (_symbolFlags & kFlagAssigned);
 }
 
 bool
 Symbol::isReturnValue() const
 {
-    return _symbolFlags & kFlagReturnValue;
+    return (_symbolFlags & kFlagReturnValue);
 }
 
 bool
 Symbol::isReference() const
 {
-    return _symbolFlags & kFlagReference;
+    return (_symbolFlags & kFlagReference);
 }
 
 bool
 Symbol::isFunctionParam() const
 {
-    return _symbolFlags & kFlagFunctionParam;
+    return (_symbolFlags & kFlagFunctionParam);
 }
 
 void

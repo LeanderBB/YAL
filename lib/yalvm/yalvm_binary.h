@@ -138,10 +138,10 @@ yalvm_bool
 yalvm_func_header_valid_magic(const yalvm_func_header_t* header);
 
 const char*
-yalvm_func_global_name();
+yalvm_func_global_name(void);
 
 yalvm_u32
-yalvm_func_global_hash();
+yalvm_func_global_hash(void);
 
 const char*
 yalvm_func_header_name(const yalvm_func_header_t* header);

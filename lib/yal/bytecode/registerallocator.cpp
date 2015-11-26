@@ -1,5 +1,6 @@
 #include "yal/bytecode/registerallocator.h"
 #include <string.h>
+#include <algorithm>
 namespace yal
 {
 

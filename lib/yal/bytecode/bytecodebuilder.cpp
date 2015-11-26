@@ -127,11 +127,11 @@ ByteCodeBuilder::writeModuleInfo(ParserState& state)
     yalvm_static_code_hdr_init(&static_dtr_hdr);
 
     static_init_hdr.code_size = (static_init_code.buffer().size()
-                                 ? static_init_code.buffer().size() + 1
+                                 ? static_cast<yalvm_u16>(static_init_code.buffer().size() + 1)
                                  : 0);
     static_init_hdr.n_registers = static_init_code.maxRegisterCount();
     static_dtr_hdr.code_size = (static_destroy_code.buffer().size()
-                                ? static_destroy_code.buffer().size() + 1
+                                ? static_cast<yalvm_u16>(static_destroy_code.buffer().size() + 1)
                                 : 0);
     static_dtr_hdr.n_registers = static_destroy_code.maxRegisterCount();
 
@@ -139,17 +139,17 @@ ByteCodeBuilder::writeModuleInfo(ParserState& state)
     // setup header
     yalvm_bin_header_t header;
     yalvm_bin_header_init(&header);
-    header.n_constants32 = constants32_vec.size();
-    header.n_constants64 = constants64_vec.size();
-    header.n_globals32 = globals32_vec.size();
-    header.n_globals64 = globals64_vec.size();
-    header.n_globalsPtr = globalsPtr_vec.size();
-    header.n_functions = function_vec.size() + 1; // +1 for global code
-    header.n_strings = strings_vec.size();
-    header.strings_size = module.totalStringSizeBytes();
-    header.static_size = (sizeof(static_init_hdr) * 2 / sizeof(yalvm_bytecode_t))
-            + static_init_hdr.code_size
-            + static_dtr_hdr.code_size;
+    header.n_constants32 = static_cast<yalvm_u16>(constants32_vec.size());
+    header.n_constants64 = static_cast<yalvm_u16>(constants64_vec.size());
+    header.n_globals32 = static_cast<yalvm_u16>(globals32_vec.size());
+    header.n_globals64 = static_cast<yalvm_u16>(globals64_vec.size());
+    header.n_globalsPtr = static_cast<yalvm_u16>(globalsPtr_vec.size());
+    header.n_functions = static_cast<yalvm_u16>(function_vec.size() + 1); // +1 for global code
+    header.n_strings = static_cast<yalvm_u16>(strings_vec.size());
+    header.strings_size = static_cast<yalvm_u16>(module.totalStringSizeBytes());
+    header.static_size = static_cast<yalvm_u32>((sizeof(static_init_hdr) * 2 / sizeof(yalvm_bytecode_t))
+        + static_init_hdr.code_size
+        + static_dtr_hdr.code_size);
 
 
     // write header
@@ -187,7 +187,7 @@ ByteCodeBuilder::writeModuleInfo(ParserState& state)
     for (auto& string: strings_vec)
     {
         const char* text = string->value().valueAsText();
-        yalvm_u32 string_len = strlen(text);
+        yalvm_u32 string_len = static_cast<yalvm_u32>(strlen(text));
 
         if (_codeOutput.write(&string_len, sizeof(string_len)) != sizeof(string_len))
         {
@@ -308,7 +308,7 @@ ByteCodeBuilder::writeModuleInfo(ParserState& state)
             function_header.n_registers = !is_native_func
                     ? function_code.maxRegisterCount()
                     : fn_type->argumentCount();
-            function_header.name_len = function_name.length() + 1;
+            function_header.name_len = static_cast<yalvm_u16>(function_name.length() + 1);
 
             // set function code size;
             if (!is_native_func)
@@ -319,7 +319,7 @@ ByteCodeBuilder::writeModuleInfo(ParserState& state)
                     //_errorHandler.onError("Function code greater than maxium value", 0);
                     return false;
                 }
-                function_header.code_size = function_code_size;
+                function_header.code_size = static_cast<yalvm_u16>(function_code_size);
             }
             else
             {
@@ -358,7 +358,7 @@ ByteCodeBuilder::writeModuleInfo(ParserState& state)
     yalvm_func_header_t global_header;
     yalvm_func_header_init(&global_header);
     const char* global_function_name = yalvm_func_global_name();
-    global_header.name_len = strlen(global_function_name) + 1;
+    global_header.name_len = static_cast<yalvm_u16>(strlen(global_function_name) + 1);
 
 
     if (global_function.buffer().size())
@@ -371,7 +371,7 @@ ByteCodeBuilder::writeModuleInfo(ParserState& state)
             // _errorHandler.onError("Global  code greater than maxium value", 0);
             return false;
         }
-        global_header.code_size = function_code_size;
+        global_header.code_size = static_cast<yal_u16>(function_code_size);
     }
 
 
