@@ -25,8 +25,6 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${YAL_CXX_FLAGS}")
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} ${YAL_CXX_FLAGS_DEBUG}")
 
 
-find_package(BISON 3 REQUIRED)
-find_package(FLEX REQUIRED)
 find_package(Threads REQUIRED)
 
 include_directories(include)
