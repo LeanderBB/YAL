@@ -1,7 +1,7 @@
-var x = 1
-func access(): int32
-  x += x + 1
-  return x
-end
+var x = 1;
+fn access(): int32 {
+  x += x + 1;
+  return x;
+}
 
-access()
+access();

@@ -1,5 +1,5 @@
-func test() : uint32
-  return
-end
+fn test() : uint32 {
+  return;
+}
 
-test()
+test();

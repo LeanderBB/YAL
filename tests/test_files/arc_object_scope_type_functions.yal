@@ -1,13 +1,13 @@
-func string::test() : string
-  return self
-end
+fn string::test() : string {
+  return self;
+}
 
-func test_2(string a) : string
-    return a
-end 
+fn test_2(string a) : string {
+    return a;
+}
 
-var x = "Hello"
-var y = x.test()
-var z = test_2(x)
+var x = "Hello";
+var y = x.test();
+var z = test_2(x);
 
-print (x," ", y)
+print (x," ", y);

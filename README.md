@@ -45,22 +45,22 @@ YAL comes with three componentes:
 ##Input file
 ```
 $cat test.yal
-var global= "hello"
+var global= "hello";
 
-func test()
-var str1 = " ZZZZ "
+fn test() {
+    var str1 = " ZZZZ ";
 
-if ( true )
-str1 = "XXX"
-var str2 = "YYY"
-var str3 = str2
-global = str2
-end
-end
+    if ( true ) {
+        str1 = "XXX";
+        var str2 = "YYY";
+        var str3 = str2;
+        global = str2;
+    }
+}
 
-print (global)
-test()
-print (global)
+print (global);
+test();
+print (global);
 ```
 
 ## Compiler Call

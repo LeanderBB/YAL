@@ -1,5 +1,5 @@
-func abc() : int32
-    return 2 + abc()
-end
+fn abc():int32 {
+    return 2 + abc();
+}
 
-abc()
+abc();

@@ -1,13 +1,13 @@
-func foo(int32 a, int32 b) : int32
-    var x = 0
-    if (a > b)
-        x = a + 2
-    elif (a < b)
-        x = a * b | 1 << a
-    else
-        x = b >> 2 + 1
-    end
-    return x
-end
+fn foo(int32 a, int32 b) : int32 {
+    var x = 0;
+    if (a > b){
+        x = a + 2;
+    } elif (a < b) {
+        x = a * b | 1 << a;
+    } else {
+        x = b >> 2 + 1;
+    }
+    return x;
+}
 
-foo(10, 20)
+foo(10, 20);
