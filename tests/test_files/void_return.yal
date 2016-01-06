@@ -1,10 +1,10 @@
-var x = 20
+var x = 20;
 
-func test(int32 a)
-  if (a > 10)
-     return
-  end
-  x = x + 1
-end
+fn test(int32 a) {
+  if (a > 10) {
+     return;
+  }
+  x = x + 1;
+}
 
-test(20)
+test(20);

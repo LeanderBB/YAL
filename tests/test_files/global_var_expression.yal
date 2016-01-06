@@ -1,5 +1,5 @@
-var a = 10
-var b = 16
-var x = a and b
+var a = 10;
+var b = 16;
+var x = a and b;
 
 

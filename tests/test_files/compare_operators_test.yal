@@ -1,24 +1,26 @@
-func cmp_eq(int32 a, int32 b) : bool
-    return a == b
-end
+fn cmp_eq(int32 a, int32 b) : bool {
+    return a == b;
+}
 
 
-func cmp_ne(int32 a, int32 b) : bool
-    return a != b
-end
+fn cmp_ne(int32 a, int32 b) : bool
+{
+    return a != b;
+}
 
-func cmp_lt(int32 a, int32 b) : bool
-    return a < b
-end
+fn cmp_lt(int32 a, int32 b) : bool {
+    return a < b;
+}
 
-func cmp_le(int32 a, int32 b) : bool
-    return a <= b
-end
+fn cmp_le(int32 a, int32 b) : bool
+{
+    return a <= b;
+}
 
-func cmp_gt(int32 a, int32 b) : bool
-    return a > b
-end
+fn cmp_gt(int32 a, int32 b) : bool {
+    return a > b;
+}
 
-func cmp_ge(int32 a, int32 b) : bool
-    return a >= b
-end
+fn cmp_ge(int32 a, int32 b) : bool{
+    return a >= b;
+}

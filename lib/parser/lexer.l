@@ -38,19 +38,17 @@ ID [a-zA-Z][a-zA-Z0-9_]*
 
 %%
 
-^#.+\n {}
+#.+\n {}
 
 native {return TK_NATIVE;}
 
 @excall {return TK_ATTRIB_EXCALL;}
 
-\n {return TK_NL; }
-
 true {return yal::FlexReadBool(yylval, yytext);}
 
 false {return yal::FlexReadBool(yylval, yytext);}
 
-func {return TK_FUNC_BEGIN;}
+fn {return TK_FUNC_BEGIN;}
 
 var {return TK_VAR_DECL;}
 
@@ -99,6 +97,10 @@ self {return TK_SELF;}
 "[" {return TK_ARRAY_BGN;}
 
 "]" {return TK_ARRAY_END;}
+
+"{" {return TK_SCOPE_BGN;}
+
+"}" {return TK_SCOPE_END;}
 
 ">>" {return TK_SHIFT_RIGHT;}
 
@@ -152,6 +154,7 @@ self {return TK_SELF;}
 
 ">" {return TK_CMP_GT;}
 
+";" {return TK_SEMI_COLON;}
 
 {DECIMAL} { return yal::FlexReadFloat32(yylval, yytext);}
 
@@ -169,7 +172,9 @@ self {return TK_SELF;}
 
 \"[^\"]+\" { return yal::FlexReadText(yylval, yytext);}
 
-[\t ]+ ;
+[\t\n ]+ ;
 
 . {return yytext[0];}
+
+<<EOF>> { return 0; }
 %%

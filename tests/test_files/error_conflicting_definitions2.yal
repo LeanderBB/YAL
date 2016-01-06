@@ -1,1 +1,1 @@
-native func int32[]::length() : uint32
+native fn int32[]::length() : uint32;

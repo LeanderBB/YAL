@@ -1,9 +1,9 @@
-func test(uint32 x) : uint32
-    var z = x
-    z += 1u
-    if (z == 1u)
-        return z
-    end
-    z += z
-    return z
-end
+fn test(uint32 x) : uint32 {
+    var z = x;
+    z += 1u;
+    if (z == 1u) {
+        return z;
+    }
+    z += z;
+    return z;
+}
