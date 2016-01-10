@@ -19,17 +19,17 @@ public:
 
     ExpressionNode* expression() const
     {
-        return _pExpression;
+        return _pExpression.get();
     }
 
     void replaceExpression(ExpressionNode* expression)
     {
-        _pExpression = expression;
+        _pExpression.reset(expression);
         _pExpression->setParentNode(this);
     }
 
 private:
-    ExpressionNode* _pExpression;
+    std::unique_ptr<ExpressionNode> _pExpression;
 };
 
 }

@@ -15,6 +15,8 @@ public:
     VariableAccessNode(const SourceLocationInfo& loc,
                        const char* variableName);
 
+    virtual ~VariableAccessNode();
+
     const char* variableName() const
     {
         return _variableName;

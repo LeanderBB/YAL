@@ -18,7 +18,7 @@ VariableDeclNode::VariableDeclNode(const SourceLocationInfo& loc,
 
 VariableDeclNode::~VariableDeclNode()
 {
-
+   yal_free(const_cast<char*>(_varName));
 }
 
 }

@@ -15,11 +15,11 @@ public:
 
     ExpressionNode* expression() const
     {
-        return _expression;
+        return _expression.get();
     }
 
 protected:
-    ExpressionNode* _expression;
+    std::unique_ptr<ExpressionNode> _expression;
 };
 
 class ObjectCreateNode : public ObjectNode

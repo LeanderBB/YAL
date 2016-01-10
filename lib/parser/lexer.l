@@ -50,6 +50,8 @@ false {return yal::FlexReadBool(yylval, yytext);}
 
 fn {return TK_FUNC_BEGIN;}
 
+type {return TK_USER_TYPE;}
+
 var {return TK_VAR_DECL;}
 
 if {return TK_IF;}

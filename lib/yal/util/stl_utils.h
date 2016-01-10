@@ -7,10 +7,11 @@
 
 #define YALVector std::vector
 
+
+
 namespace yal
 {
-   typedef std::string YALString;
-
+typedef std::string YALString;
 }
 
 #endif

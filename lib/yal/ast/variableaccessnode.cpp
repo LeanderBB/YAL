@@ -13,4 +13,10 @@ VariableAccessNode::VariableAccessNode(const SourceLocationInfo& loc,
 
 }
 
+VariableAccessNode::~VariableAccessNode()
+{
+    yal_free(const_cast<char*>(_variableName));
+    _variableName = nullptr;
+}
+
 }

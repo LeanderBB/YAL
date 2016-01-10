@@ -1622,4 +1622,23 @@ ByteCodeGenerator::visit(ArrayCtrNode& node)
     pushRegister(cur_register);
 }
 
+void
+ByteCodeGenerator::visit(UserTypeMemberNode& node)
+{
+    (void) node;
+}
+
+void
+ByteCodeGenerator::visit(UserTypeMembersNode& node)
+{
+    (void) node;
+}
+
+
+void
+ByteCodeGenerator::visit(UserTypeDeclNode& node)
+{
+    (void) node;
+}
+
 }

@@ -30,6 +30,7 @@ ArrayType::RegisterBuiltinFunctions(Module& module,
                                                                           true);
     Symbol* array_len_sym = globalScope.declareSymbol("array_any_length", array_len_function, 0);
     YAL_ASSERT(array_len_sym);
+    typeReg.manageBuiltinType(array_len_function);
 
     module.addFunction(new ModuleFunction(array_len_sym, nullptr));
 }

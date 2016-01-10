@@ -21,5 +21,6 @@
 #include "yal/ast/objectnodes.h"
 #include "yal/ast/parentexpnode.h"
 #include "yal/ast/arrayctrnode.h"
+#include "yal/ast/usertypenode.h"
 #endif // ASTHDRS
 

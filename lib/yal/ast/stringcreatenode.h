@@ -18,11 +18,16 @@ public:
 
     ConstantNode* constantNode() const
     {
+        return _constNode.get();
+    }
+
+    std::unique_ptr<ConstantNode>& constantNodePtr()
+    {
         return _constNode;
     }
 
 private:
-    ConstantNode* _constNode;
+    std::unique_ptr<ConstantNode> _constNode;
 };
 
 }

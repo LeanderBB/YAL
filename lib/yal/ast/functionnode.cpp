@@ -28,7 +28,7 @@ FunctionCallNode::FunctionCallNode(const SourceLocationInfo &loc,
 
 FunctionCallNode::~FunctionCallNode()
 {
-
+    yal_free(const_cast<char*>(_functionName));
 }
 
 
@@ -86,7 +86,7 @@ FunctionDeclBaseNode::FunctionDeclBaseNode(const SourceLocationInfo& loc,
 
 FunctionDeclBaseNode::~FunctionDeclBaseNode()
 {
-
+    yal_free(const_cast<char*>(_functionName));
 }
 
 bool

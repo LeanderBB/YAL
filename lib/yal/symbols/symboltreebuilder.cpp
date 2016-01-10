@@ -34,7 +34,7 @@ SymbolTreeBuilder::process(ParserState& state)
 
     for (auto& v : state.program)
     {
-        _curStatment = v;
+        _curStatment = v.get();
         v->accept(*this);
     }
 }
@@ -124,7 +124,7 @@ SymbolTreeBuilder::visit(CodeBodyNode& node)
     node.setScope(currentScope());
     for(auto& v : node.statements)
     {
-        _curStatment = v;
+        _curStatment = v.get();
         v->accept(*this);
     }
 }
@@ -813,12 +813,11 @@ SymbolTreeBuilder::visit(PrintArgsNode& node)
     for(auto& v : node.expressions)
     {
         // optimize for strings
-        StringCreateNode* str_node = ast_cast<StringCreateNode>(v);
+        StringCreateNode* str_node = ast_cast<StringCreateNode>(v.get());
         if (str_node)
         {
-            v = str_node->constantNode();
+            v = (std::move(str_node->constantNodePtr()));
             v->setParentNode(&node);
-            delete str_node;
         }
         v->accept(*this);
     }
@@ -995,6 +994,24 @@ SymbolTreeBuilder::visit(ArrayCtrNode& node)
     _expResult = ExpressionResult(const_cast<ArrayType*>(array_type), tmp_sym);
     node.setNodeType(const_cast<ArrayType*>(array_type));
     node.setExpressionResult(_expResult);
+}
+
+void
+SymbolTreeBuilder::visit(UserTypeMemberNode& node)
+{
+    (void) node;
+}
+
+void
+SymbolTreeBuilder::visit(UserTypeMembersNode& node)
+{
+    (void) node;
+}
+
+void
+SymbolTreeBuilder::visit(UserTypeDeclNode& node)
+{
+    (void) node;
 }
 
 }
