@@ -35,7 +35,7 @@ private:
     Type* _argType;
 };
 
-typedef YALVector<ArgumentDeclNode*> ASTDeclArgVec_t;
+typedef YALVector<std::unique_ptr<ArgumentDeclNode>> ASTDeclArgVec_t;
 
 
 class ArgumentDeclsNode : public AstBaseNode

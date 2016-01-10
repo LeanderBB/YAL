@@ -20,17 +20,17 @@ public:
 
     ExpressionNode* condition() const
     {
-        return _pCondition;
+        return _pCondition.get();
     }
 
     CodeBodyNode* onTrue() const
     {
-        return _pOnTrue;
+        return _pOnTrue.get();
     }
 
     ConditionNode* onFalse() const
     {
-        return _pOnFalse;
+        return _pOnFalse.get();
     }
 
     bool hasConditionComponent() const
@@ -49,9 +49,9 @@ public:
     }
 
 private:
-    ExpressionNode* _pCondition;
-    CodeBodyNode* _pOnTrue;
-    ConditionNode* _pOnFalse;
+    std::unique_ptr<ExpressionNode> _pCondition;
+    std::unique_ptr<CodeBodyNode> _pOnTrue;
+    std::unique_ptr<ConditionNode> _pOnFalse;
 };
 
 }

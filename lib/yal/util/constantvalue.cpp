@@ -1,6 +1,7 @@
 #include "yal/util/constantvalue.h"
 #include <limits>
 #include <cstring>
+#include "yal/memory/memory_utils.h"
 
 namespace yal
 {
@@ -49,12 +50,12 @@ ConstantValue::ConstantValue(const yal_f64 float64):
 ConstantValue::ConstantValue(const char* text):
     _type(kConstantTypeText)
 {
-    _value.id = text;
+    _text = text;
+    yal_free(const_cast<char*> (text));
 }
 
 ConstantValue::~ConstantValue()
 {
-
 }
 
 yal_bool
@@ -123,7 +124,7 @@ const char*
 ConstantValue::valueAsText() const
 {
     YAL_ASSERT(_type == kConstantTypeText);
-    return _value.id;
+    return _text.c_str();
 }
 
 bool

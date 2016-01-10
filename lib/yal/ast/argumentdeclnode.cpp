@@ -17,7 +17,7 @@ ArgumentDeclNode::ArgumentDeclNode(const SourceLocationInfo& loc,
 
 ArgumentDeclNode::~ArgumentDeclNode()
 {
-
+      yal_free(const_cast<char*>(_argName));
 }
 
 bool
@@ -54,7 +54,7 @@ void
 ArgumentDeclsNode::addArgument(ArgumentDeclNode* node)
 {
     node->setParentNode(this);
-    _arguments.push_back(node);
+    _arguments.emplace_back(node);
 }
 
 }

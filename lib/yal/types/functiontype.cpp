@@ -59,7 +59,7 @@ AstFunctionType::argumentCount() const
 Type*
 AstFunctionType::typeOfArgument(const yal_u32 argIdx) const
 {
-    const ArgumentDeclNode* decl_node = _pFunctionDecl->functionArguments()->arguments()[argIdx];
+    const auto& decl_node = _pFunctionDecl->functionArguments()->arguments()[argIdx];
     return decl_node->nodeType();
 }
 

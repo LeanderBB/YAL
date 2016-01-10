@@ -76,8 +76,8 @@ private:
         yal_u64 uinteger64;
         yal_f32 float32;
         yal_f64 float64;
-        const char* id;
     } _value;
+    std::string _text;
 };
 
 }

@@ -44,10 +44,11 @@ bool
 MultiExpressionNode::replaceExpression(const ExpressionNode* old,
                                        ExpressionNode* newExp)
 {
-    auto it = std::find(_expressions.begin(), _expressions.end(), old);
+    auto it = std::find_if(_expressions.begin(), _expressions.end(),
+                        [old](const std::unique_ptr<ExpressionNode>& n) { return n.get() == old;});
     if (it != _expressions.end())
     {
-        *it = newExp;
+        it->reset(newExp);
         return true;
     }
     return false;

@@ -42,7 +42,7 @@ public:
 
     FunctionCallArgsNode* functionArguments() const
     {
-        return _functionArgs;
+        return _functionArgs.get();
     }
 
     yal_u32 functionArgumentsCount() const
@@ -62,13 +62,13 @@ public:
 
     ExpressionNode* objectExpression() const
     {
-        return _objectExpression;
+        return _objectExpression.get();
     }
 
 private:
     const char* _functionName;
-    FunctionCallArgsNode* _functionArgs;
-    ExpressionNode* _objectExpression;
+    std::unique_ptr<FunctionCallArgsNode> _functionArgs;
+    std::unique_ptr<ExpressionNode> _objectExpression;
 };
 
 
@@ -108,7 +108,7 @@ public:
 
     ArgumentDeclsNode* functionArguments() const
     {
-        return _functionArgs;
+        return _functionArgs.get();
     }
 
     bool hasFunctionArguments() const
@@ -136,7 +136,7 @@ protected:
     const char*  _functionName;
     const std::string _functionNameWithType;
     const std::string _nativeFunctionName;
-    ArgumentDeclsNode* _functionArgs;
+    std::unique_ptr<ArgumentDeclsNode> _functionArgs;
     Type* _returnValueType;
     Type* _objectType;
 };
@@ -158,11 +158,11 @@ public:
 
     CodeBodyNode* functionCode() const
     {
-        return _codeBody;
+        return _codeBody.get();
     }
 
 private:
-    CodeBodyNode* _codeBody;
+    std::unique_ptr<CodeBodyNode> _codeBody;
 };
 
 class FunctionDeclNativeNode : public FunctionDeclBaseNode

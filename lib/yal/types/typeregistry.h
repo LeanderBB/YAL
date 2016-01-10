@@ -26,6 +26,8 @@ public:
 
     Type* typeForName(const char* name) const;
 
+    void manageBuiltinType(Type* t);
+
 private:
 
     bool canRegisterNewType(const char* name) const;
@@ -42,6 +44,7 @@ private:
     Module& _module;
     TypeVec_t _types;
     TypeMap_t _typesByName;
+    TypeVec_t _managedBuiltinTypes;
 };
 
 }

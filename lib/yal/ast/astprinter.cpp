@@ -430,4 +430,40 @@ AstPrinter::visit(ArrayCtrNode& node)
         _sink << " "<< node.explicitType()->typeString() << std::endl;
     }
 }
+
+void
+AstPrinter::visit(UserTypeMemberNode& node)
+{
+    printNodeTitle(node);
+    _sink << "name: '" << node.memberName()
+          << "' type:'" <<  node.memberType()->typeString() << "'" << std::endl;
+}
+
+void
+AstPrinter::visit(UserTypeMembersNode& node)
+{
+    printNodeTitle(node, true);
+
+    size_t idx = 1;
+    const size_t count = node.memberCount();
+    for(auto& member : node.members())
+    {
+        onDescent(idx == count);
+        member->accept(*this);
+        onAscend();
+        ++idx;
+    }
+}
+
+void
+AstPrinter::visit(UserTypeDeclNode& node)
+{
+    printNodeTitle(node);
+    _sink << "'" << node.userTypeName() << "'" << std::endl;
+    onDescent(true);
+    node.members()->accept(*this);
+    onAscend();
+}
+
+
 }

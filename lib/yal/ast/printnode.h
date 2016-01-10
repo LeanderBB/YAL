@@ -42,11 +42,11 @@ public:
 
     PrintArgsNode* arguments() const
     {
-        return _arguments;
+        return _arguments.get();
     }
 
 private:
-    PrintArgsNode* _arguments;
+    std::unique_ptr<PrintArgsNode> _arguments;
 };
 
 }

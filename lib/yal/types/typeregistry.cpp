@@ -87,6 +87,12 @@ TypeRegistry::typeForName(const char* name) const
     return (it != _typesByName.end()) ? it->second : nullptr;
 }
 
+void
+TypeRegistry::manageBuiltinType(Type* t)
+{
+    _managedBuiltinTypes.emplace_back(t);
+}
+
 bool
 TypeRegistry::canRegisterNewType(const char* name) const
 {

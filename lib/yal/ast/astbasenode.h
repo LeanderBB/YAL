@@ -7,6 +7,7 @@
 #include "yal/ast/astnodevisitor.h"
 #include "yal/util/errorhandler.h"
 #include "yal/symbols/symbol.h"
+#include "yal/memory/memory_utils.h"
 
 namespace yal
 {
@@ -113,11 +114,18 @@ inline bool ast_typeof(const AstBaseNode* pNode)
     return pNode->astType() == Sym::NodeType;
 }
 
+template<class SymOut, class SymIn>
+inline bool ast_typeof(const std::unique_ptr<SymIn>& pNode)
+{
+    return pNode->astType() == SymOut::NodeType;
+}
+
 template<class Sym>
 inline Sym* ast_cast(AstBaseNode* pNode)
 {
     return (ast_typeof<Sym>(pNode)) ? static_cast<Sym*>(pNode) : nullptr;
 }
+
 
 
 
@@ -150,7 +158,7 @@ protected:
     SymScope_t _stSymbolScope;
 };
 
-typedef YALVector<yal::StatementNode*> StatementNodeVec_t;
+typedef YALVector<std::unique_ptr<yal::StatementNode>> StatementNodeVec_t;
 
 
 class ExpressionResult
@@ -215,23 +223,23 @@ public:
 
     ExpressionNode* expression() const
     {
-        return _expression;
+        return _expression.get();
     }
 
     virtual bool replaceExpression(const ExpressionNode* oldExp,
                                    ExpressionNode* newExp) override
     {
-        if (_expression == oldExp)
+        if (_expression.get() == oldExp)
         {
             newExp->setParentNode(this);
-            _expression = newExp;
+            _expression.reset(newExp);
             return true;
         }
         return false;
     }
 
 protected:
-    ExpressionNode* _expression;
+   std::unique_ptr<ExpressionNode> _expression;
 };
 
 class BinaryExpressionNode : public ExpressionNode
@@ -252,52 +260,52 @@ public:
 
     ExpressionNode* expressionRight() const
     {
-        return _expressionRight;
+        return _expressionRight.get();
     }
 
     ExpressionNode* expressionLeft() const
     {
-        return _expressionLeft;
+        return _expressionLeft.get();
     }
 
     void replaceExpressionRight(ExpressionNode* node)
     {
         node->setParentNode(this);
-        _expressionRight = node;
+        _expressionRight.reset(node);
     }
 
     void replaceExpressionLeft(ExpressionNode* node)
     {
         node->setParentNode(this);
-        _expressionLeft = node;
+        _expressionLeft.reset(node);
     }
 
     virtual bool replaceExpression(const ExpressionNode* oldExp,
                                    ExpressionNode* newExp) override
     {
-        if (_expressionLeft == oldExp)
+        if (_expressionLeft.get() == oldExp)
         {
             newExp->setParentNode(this);
-            _expressionLeft = newExp;
+            _expressionLeft.reset(newExp);
             return true;
         }
 
-        if (_expressionRight == oldExp)
+        if (_expressionRight .get() == oldExp)
         {
             newExp->setParentNode(this);
-            _expressionRight = newExp;
+            _expressionRight.reset(newExp);
             return true;
         }
         return false;
     }
 
 protected:
-    ExpressionNode* _expressionLeft;
-    ExpressionNode* _expressionRight;
+    std::unique_ptr<ExpressionNode> _expressionLeft;
+    std::unique_ptr<ExpressionNode> _expressionRight;
 
 };
 
-typedef YALVector<yal::ExpressionNode*> ExpressionNodeVec_t;
+typedef YALVector<std::unique_ptr<yal::ExpressionNode>> ExpressionNodeVec_t;
 
 
 class MultiExpressionNode : public ExpressionNode
@@ -314,7 +322,7 @@ public:
     void addExpression(ExpressionNode* node)
     {
         node->setParentNode(this);
-        _expressions.push_back(node);
+        _expressions.emplace_back(node);
     }
 
     size_t expressionCount() const

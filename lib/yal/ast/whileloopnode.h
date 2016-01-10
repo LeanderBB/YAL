@@ -20,17 +20,17 @@ public:
 
     ExpressionNode* condition() const
     {
-        return _condition;
+        return _condition.get();
     }
 
     CodeBodyNode* code() const
     {
-        return _codeBody;
+        return _codeBody.get();
     }
 
 private:
-    ExpressionNode* _condition;
-    CodeBodyNode* _codeBody;
+    std::unique_ptr<ExpressionNode> _condition;
+    std::unique_ptr<CodeBodyNode> _codeBody;
 };
 
 }

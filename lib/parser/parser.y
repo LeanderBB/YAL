@@ -59,6 +59,8 @@ extern void yyerror(YYLTYPE* location,
     class yal::FunctionCallArgsNode* nodeFunCallArgs;
     class yal::WhileLoopNode* nodeWhileLoop;
     class yal::ArrayCtrNode* nodeArrayCtr;
+    class yal::UserTypeMembersNode* memberVec;
+    class yal::UserTypeMemberNode* userTypeMember;
 }
 
 // define the token association with the union member
@@ -100,6 +102,7 @@ extern void yyerror(YYLTYPE* location,
 %token TK_NATIVE "native"
 %token TK_ATTRIB_EXCALL "attribute excall"
 %token TK_SELF "self"
+%token TK_USER_TYPE "type"
 
 // operatores
 %token TK_OP_ASSIGN "="
@@ -156,8 +159,8 @@ extern void yyerror(YYLTYPE* location,
 
 
 %start program
-%type <node> func_decl 
-%type <nodeSt> statement var_decl st_upper print_statement
+%type <node> func_decl
+%type <nodeSt> statement var_decl st_upper print_statement user_type_decl
 %type <nodeExp> expression constant array_ctr var_decl_exp var_access
 %type <nodeIf> if_statement if_statement_next
 %type <nodePrintArgs> print_args
@@ -168,13 +171,27 @@ extern void yyerror(YYLTYPE* location,
 %type <nodeDeclArgs> decl_args
 %type <nodeWhileLoop> while_statement
 %type <nodeArrayCtr> array_ctr_exp
+%type <memberVec> user_type_members
+%type <userTypeMember> user_type_member
 %%
 
-program: program func_decl {state->program.push_back(static_cast<yal::StatementNode*>(yal::BisonYyltypeToLocation(yylloc),$2));}
-| program statement {state->program.push_back($2);}
+program: program func_decl {state->program.emplace_back(static_cast<yal::StatementNode*>(yal::BisonYyltypeToLocation(yylloc),$2));}
+| program statement {state->program.emplace_back($2);}
+| program user_type_decl {state->program.emplace_back($2);}
 | %empty
 ;
 
+
+user_type_decl: TK_USER_TYPE TK_ID TK_SCOPE_BGN user_type_members TK_SCOPE_END TK_SEMI_COLON
+ { $$ = new yal::UserTypeDeclNode(yal::BisonYyltypeToLocation(yylloc), $2, $4);}
+
+
+user_type_members: user_type_member  {$$ = new yal::UserTypeMembersNode(yal::BisonYyltypeToLocation(yylloc)); $$->addUserTypeMember($1);}
+    | user_type_members user_type_member  { $$->addUserTypeMember($2);}
+    ;
+
+user_type_member: type TK_ID TK_SEMI_COLON {$$ = new yal::UserTypeMemberNode(yal::BisonYyltypeToLocation(yylloc), $1, $2);}
+    ;
 
 attribute: TK_ATTRIB_EXCALL
     ;
@@ -217,8 +234,8 @@ statement: var_decl TK_SEMI_COLON{ $$ = $1;}
 print_statement: TK_PRINT '(' print_args ')' TK_SEMI_COLON {$$ = new yal::PrintNode(yal::BisonYyltypeToLocation(yylloc), $3);}
 ;
 
-print_args : print_args ',' expression {$$->expressions.push_back($3);}
-| expression { $$ = new yal::PrintArgsNode(yal::BisonYyltypeToLocation(yylloc)); $$->expressions.push_back($1);}
+print_args : print_args ',' expression {$$->expressions.emplace_back($3);}
+| expression { $$ = new yal::PrintArgsNode(yal::BisonYyltypeToLocation(yylloc)); $$->expressions.emplace_back($1);}
 ;
 
 if_statement: TK_IF '(' expression ')' TK_SCOPE_BGN code_body TK_SCOPE_END if_statement_next {$$ = new yal::ConditionNode(yal::BisonYyltypeToLocation(yylloc), $3, $6, $8);}
@@ -272,12 +289,12 @@ expression: expression TK_ARRAY_BGN expression TK_ARRAY_END {$$ = new yal::DualO
     ;
 
 var_access : TK_ID { $$ = new yal::VariableAccessNode(yal::BisonYyltypeToLocation(yylloc), $1); }
-| TK_SELF { $$ = new yal::VariableAccessNode(yal::BisonYyltypeToLocation(yylloc), "self");}
+| TK_SELF { $$ = new yal::VariableAccessNode(yal::BisonYyltypeToLocation(yylloc), strdup("self"));}
 ;
 
 
-call_args: call_args ',' expression {$$->expressions.push_back($3);}
-    | expression { $$ = new yal::FunctionCallArgsNode(yal::BisonYyltypeToLocation(yylloc)); $$->expressions.push_back($1);}
+call_args: call_args ',' expression {$$->expressions.emplace_back($3);}
+    | expression { $$ = new yal::FunctionCallArgsNode(yal::BisonYyltypeToLocation(yylloc)); $$->expressions.emplace_back($1);}
     | %empty { $$ = new yal::FunctionCallArgsNode(yal::BisonYyltypeToLocation(yylloc)); }
     ;
 

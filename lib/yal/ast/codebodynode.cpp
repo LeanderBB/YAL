@@ -31,7 +31,7 @@ void
 CodeBodyNode::addStatement(StatementNode *statement)
 {
     statement->setParentNode(this);
-    statements.push_back(statement);
+    statements.emplace_back(statement);
 }
 
 }
