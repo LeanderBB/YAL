@@ -1,1 +1,0 @@
-native fn int32[]::length() : uint32;

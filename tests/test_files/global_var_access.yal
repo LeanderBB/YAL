@@ -1,7 +1,0 @@
-var a = 20;
-
-fn test() {
-   a = a + 1;
-}
-
-test();

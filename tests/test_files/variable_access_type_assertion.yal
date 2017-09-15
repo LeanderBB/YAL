@@ -1,9 +1,0 @@
-fn abc(int32 x, int32 y) : int32 {
-    return x + y;
-}
-
-fn z(uint32 y) : uint32 {
-    var a = y * 2u;
-}
-
-var a = abc(20, 30);

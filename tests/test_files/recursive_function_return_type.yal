@@ -1,5 +1,0 @@
-fn abc():int32 {
-    return 2 + abc();
-}
-
-abc();

@@ -1,5 +1,0 @@
-fn test() : uint32 {
-  return;
-}
-
-test();
