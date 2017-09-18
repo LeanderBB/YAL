@@ -1,2 +1,3 @@
-tests/gtest
-
+.DS_Store
+CMakeLists.txt.user
+external/gtest

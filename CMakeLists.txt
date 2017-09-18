@@ -1,12 +1,13 @@
 #
 # YAL - Yet Another Language
 #
-project(yal)
+project(yal LANGUAGES CXX C)
 cmake_minimum_required(VERSION 3.9)
 enable_testing()
 
-if (NOT CMAKE_BUILD_TYPE)
-    set(CMAKE_BUILD_TYPE "Release")
-endif()
+set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 
-include_directories(include)
+include (buildconfig)
+
+
+add_subdirectory(tests)
