@@ -1,0 +1,176 @@
+#include "yal/yal.h"
+#include "yal/io/bytestream.h"
+#include "yal/lexer/tokens.h"
+#include "yal/lexer/lexer.h"
+#include <iostream>
+/*!max:re2c*/
+
+namespace yal {
+
+    enum {
+        kMaxBufferSize = 4096
+    };
+
+    struct Lexer::LexerState {
+        uint8_t buffer[kMaxBufferSize + YYMAXFILL];
+        uint8_t* limit = nullptr;
+        uint8_t* current = nullptr;
+        uint8_t* marker = nullptr;
+        uint8_t* token = nullptr;
+        bool eof = false;
+        size_t lineNum = 1;
+        size_t streamReadOffset = std::numeric_limits<size_t>::max();
+        size_t lineStartOffset = 0;
+        size_t tokenLineStart =0;
+        size_t tokenColumnStart = 0;
+
+
+        bool fill(const size_t size,
+                  ByteStream& stream) {
+
+            if (eof) {
+                return false;
+            }
+            const size_t free = token - buffer;
+            if (free < size) {
+                return false;
+            }
+            streamReadOffset = static_cast<uintptr_t>(limit - token) + stream.getPosition();
+            ::memmove(buffer, token, limit - token);
+            limit -= free;
+            current -= free;
+            marker -= free;
+            token -= free;
+            limit += stream.read(limit, free);
+            if (limit < buffer + kMaxBufferSize) {
+                eof = true;
+                memset(limit, 0, YYMAXFILL);
+                limit += YYMAXFILL;
+            }
+            return true;
+        }
+
+
+        size_t getColumnOffsetStart() const {
+
+            if ( streamReadOffset== std::numeric_limits<size_t>::max()) {
+                return 0;
+            }
+
+           return streamReadOffset +
+                static_cast<size_t>(reinterpret_cast<uintptr_t>(token)
+                                    - reinterpret_cast<uintptr_t>(buffer))
+                            - lineStartOffset;
+        }
+
+        size_t getColumnOffsetEnd() const {
+           return streamReadOffset +
+                static_cast<size_t>(reinterpret_cast<uintptr_t>(current)
+                                    - reinterpret_cast<uintptr_t>(buffer))
+                            - lineStartOffset;
+        }
+
+        size_t getStreamOffset() const {
+            return streamReadOffset +
+                 static_cast<size_t>(reinterpret_cast<uintptr_t>(token)
+                                     - reinterpret_cast<uintptr_t>(buffer));
+        }
+
+        void updateLineStartOffset() {
+            lineNum++;
+            lineStartOffset = streamReadOffset +
+                    static_cast<size_t>(reinterpret_cast<uintptr_t>(current)
+                                        - reinterpret_cast<uintptr_t>(buffer));
+        }
+
+    };
+
+    Lexer::Lexer(ByteStream &stream):
+        m_stream(stream),
+        m_lexerState(createLexerState()),
+        m_curToken()
+    {
+        m_lexerState->limit = m_lexerState->buffer + kMaxBufferSize;
+        m_lexerState->current = m_lexerState->limit;
+        m_lexerState->token =m_lexerState->limit;
+        m_lexerState->marker = m_lexerState->limit;
+        m_curToken.token = Token::TokenCount;
+    }
+
+    Lexer::~Lexer(){
+
+    }
+
+    void
+    Lexer::setToken(const Token token,
+                    const LexerState& state) {
+        m_curToken.token = token;
+        m_curToken.tokLen =
+                static_cast<size_t>(reinterpret_cast<uintptr_t>(state.current)
+                                    - reinterpret_cast<uintptr_t>(state.token));
+        m_curToken.lineStart = state.tokenLineStart;
+        m_curToken.lineEnd = state.lineNum;
+        m_curToken.columnStart = state.tokenColumnStart;
+        m_curToken.columnEnd =state.getColumnOffsetEnd();
+        m_curToken.tokenOffsetInStream = state.getStreamOffset();
+    }
+
+    std::unique_ptr<Lexer::LexerState>
+    Lexer::createLexerState(){
+        return std::make_unique<Lexer::LexerState>();
+    }
+
+    Lexer::LexerStatus
+    Lexer::re2cExecute() {
+        for (;;) {
+            m_lexerState->token = m_lexerState->current;
+            m_lexerState->tokenLineStart = m_lexerState->lineNum;
+            m_lexerState->tokenColumnStart = m_lexerState->getColumnOffsetStart();
+            /*!re2c
+        re2c:define:YYCTYPE = "unsigned char";
+        re2c:define:YYCURSOR = m_lexerState->current;
+        re2c:define:YYMARKER = m_lexerState->marker;
+        re2c:define:YYLIMIT = m_lexerState->limit;
+        re2c:yyfill:enable = 1;
+        re2c:define:YYFILL = "if (!m_lexerState->fill(@@, m_stream)) return LexerStatus::EOS;";
+        re2c:define:YYFILL:naked = 1;
+
+        end = "\x00";
+        end { if (m_lexerState->limit - m_lexerState->token == YYMAXFILL) {return LexerStatus::EOS;} }
+        /* common character classes */
+            BLANK = [ \t];
+            DIGIT = [0-9];
+            ALPHA = [a-zA-Z];
+            ALNUM = [a-zA-Z0-9];
+            PRINT = [\040-\176];
+            GRAPH = PRINT\BLANK;
+            PUNCT = [!?.,;"'(){}<>\[\]`];
+            /* basic tokens */
+            VAR = "var";
+            LET = "let";
+            TRUE = "true";
+            FALSE= "false";
+            AND = "and";
+            OR = "or";
+            NOT = "not";
+            THIS = "this";
+            NEWLINE="\n";
+
+
+            /* final rules */
+            VAR  { setToken(Token::Var, *m_lexerState); return LexerStatus::Ok; }
+            LET  { setToken(Token::Let, *m_lexerState);return LexerStatus::Ok; }
+            TRUE  { setToken(Token::True, *m_lexerState); return LexerStatus::Ok; }
+            FALSE  { setToken(Token::False, *m_lexerState); return LexerStatus::Ok; }
+            AND  { setToken(Token::And, *m_lexerState); return LexerStatus::Ok; }
+            OR  { setToken(Token::Or, *m_lexerState); return LexerStatus::Ok; }
+            NOT  { setToken(Token::Not, *m_lexerState); return LexerStatus::Ok; }
+            THIS  { setToken(Token::This, *m_lexerState);return LexerStatus::Ok; }
+            NEWLINE {m_lexerState->updateLineStartOffset(); continue;}
+            [ \t] {continue;}
+            * { setToken(Token::TokenCount, *m_lexerState); return LexerStatus::Error;}
+            */
+        }
+
+    }
+}

@@ -9,14 +9,14 @@ endif()
 if (NOT MSVC) # Clang and GCC
     # Common flags
     set(YAL_C_FLAGS -std=c99 -Wall -Wextra -Werror -pedantic)
-    set(YAL_CXX_FLAGS -Wall -Wextra -std=c++14 -fexceptions -fno-rtti)
+    set(YAL_CXX_FLAGS -Wall -Wextra -std=c++14 -fexceptions -fno-rtti -Werror )
 
     set(YAL_DEFINITIONS)
     # Release flags
      set(YAL_DEFINITIONS_RELEASE "YAL_RELEASE")
     # Debug flags
-    set(YAL_CXX_FLAGS_DEBUG -fno-inline)
-    set(YAL_C_FLAGS_DEBUG "")
+    set(YAL_CXX_FLAGS_DEBUG -fno-inline -g -O0)
+    set(YAL_C_FLAGS_DEBUG -g -O0)
     set(YAL_DEFINITIONS_DEBUG "YAL_DEBUG")
 
 else() # MSVC
@@ -43,9 +43,9 @@ endif()
 macro(YAL_APPLY_COMPILER_FLAGS TARGET)
 
     target_compile_definitions( ${TARGET}
-        PRIVATE ${YAL_DEFINITIONS}
-        PRIVATE $<$<CONFIG:DEBUG>:${YAL_DEFINITIONS_DEBUG}>
-        PRIVATE $<$<CONFIG:RELEASE>:${YAL_DEFINITIONS_RELEASE}>
+        PUBLIC ${YAL_DEFINITIONS}
+        PUBLIC $<$<CONFIG:DEBUG>:${YAL_DEFINITIONS_DEBUG}>
+        PUBLIC $<$<CONFIG:RELEASE>:${YAL_DEFINITIONS_RELEASE}>
         )
 
     target_compile_options(${TARGET}
