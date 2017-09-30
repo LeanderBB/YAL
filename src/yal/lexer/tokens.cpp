@@ -1,3 +1,4 @@
+
 #include "yal/lexer/tokens.h"
 #include "yal/yal.h"
 namespace yal
@@ -34,7 +35,7 @@ namespace yal
             "EndScope",
             "ShiftRight",
             "ShiftLeft",
-            "BitXor,"
+            "BitXor",
             "BitTil",
             "BitOr",
             "CompareGe",
@@ -56,7 +57,11 @@ namespace yal
             "Plus",
             "Minus",
             "Mult",
-            "Div"
+            "Div",
+            "Name",
+            "Colon",
+            "SemiColon",
+            "Type"
         };
 
         static_assert(sizeof(sLookupTable)/sizeof(sLookupTable[0]) ==

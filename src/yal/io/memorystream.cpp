@@ -11,56 +11,59 @@ namespace yal {
     static inline void ptrDtorVoid(void*) {
     }
 
-    std::unique_ptr<MemoryStream>
-    MemoryStream::Open(const size_t initialSizeBytes,
+    bool
+    MemoryStream::open(const size_t initialSizeBytes,
                        const uint32_t mode) {
         void* ptr = malloc(initialSizeBytes);
         if (ptr != nullptr) {
-            auto result = std::make_unique<MemoryStream>();
-            result->m_mode = mode;
-            result->m_offset = 0;
-            result-> m_sizeBytes = initialSizeBytes;
-            result->m_ptr.reset(ptr);
-            return result;
+            m_ptr.reset(ptr);
+            m_mode = mode;
+            m_offset = 0;
+            m_sizeBytes = initialSizeBytes;
+            m_ptr.reset(ptr);
+            return true;
         }
-        return nullptr;
+        return false;
     }
 
-    std::unique_ptr<MemoryStream>
-    MemoryStream::Attach(void* ptr,
+    bool
+    MemoryStream::attach(void* ptr,
                          const size_t sizeBytes,
                          const uint32_t mode,
                          const bool takeOwnerShip) {
         if (ptr != nullptr && sizeBytes != 0) {
-            auto result = std::make_unique<MemoryStream>();
-            result->m_mode = mode;
-            result->m_offset = 0;
-            result-> m_sizeBytes = sizeBytes;
             if (takeOwnerShip) {
-                result->m_ptr.reset(ptr);
+                m_ptr.reset(ptr);
             } else {
-                result->m_ptr = std::unique_ptr<void, void(*)(void*)>(ptr, ptrDtorVoid);
+                m_ptr = std::unique_ptr<void, void(*)(void*)>(ptr, ptrDtorVoid);
             }
-            return result;
+            m_mode = mode;
+            m_offset = 0;
+            m_sizeBytes = sizeBytes;
+            return true;
         }
-        return nullptr;
+        return false;
     }
 
-    std::unique_ptr<MemoryStream>
-    MemoryStream::Attach(const void* ptr,
-                         const size_t sizeBytes)
+    bool
+    MemoryStream::attach(const void* ptr,
+                         const size_t sizeBytes,
+                         const bool takeOwnerShip)
     {
         if (ptr != nullptr && sizeBytes != 0) {
-            auto result = std::make_unique<MemoryStream>();
-            result->m_mode = kModeRead;
-            result->m_offset = 0;
-            result-> m_sizeBytes = sizeBytes;
-            result->m_ptr = std::unique_ptr<void, void(*)(void*)>(
-                        const_cast<void*>(ptr),
-                        ptrDtorVoid);
-            return result;
+            if (takeOwnerShip) {
+                m_ptr.reset(const_cast<void*>(ptr));
+            } else {
+                m_ptr = std::unique_ptr<void, void(*)(void*)>(
+                            const_cast<void*>(ptr),
+                            ptrDtorVoid);
+            }
+            m_mode = kModeRead;
+            m_offset = 0;
+            m_sizeBytes = sizeBytes;
+            return true;
         }
-        return nullptr;
+        return false;
     }
 
 

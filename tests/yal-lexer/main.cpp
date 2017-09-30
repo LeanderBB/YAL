@@ -8,16 +8,17 @@
 
 
 TEST(Lexer, BasicTokenError) {
-    const std::string input ="let var \n class false \nthis and";
-    auto stream = yal::MemoryStream::Attach(input.c_str(),
-                                            input.size());
-    yal::Lexer lexer(*stream);
-    yal::Lexer::LexerStatus status = lexer.scan();
-    EXPECT_EQ(status, yal::Lexer::LexerStatus::Ok);
+    const std::string input ="let var \n + false \nthis and";
+    yal::MemoryStream stream;
+    stream.attach(input.c_str(),input.size(), false);
+
+    yal::Lexer lexer(stream);
+    yal::Lexer::Status status = lexer.scan();
+    EXPECT_EQ(status, yal::Lexer::Status::Ok);
     status = lexer.scan();
-    EXPECT_EQ(status, yal::Lexer::LexerStatus::Ok);
+    EXPECT_EQ(status, yal::Lexer::Status::Ok);
     status = lexer.scan();
-    EXPECT_EQ(status, yal::Lexer::LexerStatus::Error);
+    EXPECT_EQ(status, yal::Lexer::Status::Error);
     {
         const yal::Lexer::TokenInfo& tk = lexer.getLastToken();
         EXPECT_EQ(tk.lineStart, 2u);
@@ -26,16 +27,18 @@ TEST(Lexer, BasicTokenError) {
 }
 
 TEST(Lexer, BasicTokenRead) {
-    const std::string input ="let var \n true false \nthis and";
+    const std::string input ="let var \n true false \nthis and varName91";
 
-    auto stream = yal::MemoryStream::Attach(input.c_str(),
-                                            input.size());
-    yal::Lexer lexer(*stream);
+    yal::MemoryStream stream;
 
-    yal::Lexer::LexerStatus status = lexer.scan();
+    stream.attach(input.c_str(),input.size(), false);
+
+    yal::Lexer lexer(stream);
+
+    yal::Lexer::Status status = lexer.scan();
 
     {
-        EXPECT_EQ(status, yal::Lexer::LexerStatus::Ok);
+        EXPECT_EQ(status, yal::Lexer::Status::Ok);
         const yal::Lexer::TokenInfo& tk = lexer.getLastToken();
         EXPECT_EQ(tk.token, yal::Token::Let);
         EXPECT_EQ(tk.lineStart, 1u);
@@ -48,7 +51,7 @@ TEST(Lexer, BasicTokenRead) {
 
     status = lexer.scan();
     {
-        EXPECT_EQ(status, yal::Lexer::LexerStatus::Ok);
+        EXPECT_EQ(status, yal::Lexer::Status::Ok);
         const yal::Lexer::TokenInfo& tk = lexer.getLastToken();
         EXPECT_EQ(tk.token, yal::Token::Var);
         EXPECT_EQ(tk.lineStart, 1u);
@@ -61,7 +64,7 @@ TEST(Lexer, BasicTokenRead) {
 
     status = lexer.scan();
     {
-        EXPECT_EQ(status, yal::Lexer::LexerStatus::Ok);
+        EXPECT_EQ(status, yal::Lexer::Status::Ok);
         const yal::Lexer::TokenInfo& tk = lexer.getLastToken();
         EXPECT_EQ(tk.token, yal::Token::True);
         EXPECT_EQ(tk.lineStart, 2u);
@@ -74,7 +77,7 @@ TEST(Lexer, BasicTokenRead) {
 
     status = lexer.scan();
     {
-        EXPECT_EQ(status, yal::Lexer::LexerStatus::Ok);
+        EXPECT_EQ(status, yal::Lexer::Status::Ok);
         const yal::Lexer::TokenInfo& tk = lexer.getLastToken();
         EXPECT_EQ(tk.token, yal::Token::False);
         EXPECT_EQ(tk.lineStart, 2u);
@@ -87,7 +90,7 @@ TEST(Lexer, BasicTokenRead) {
 
     status = lexer.scan();
     {
-        EXPECT_EQ(status, yal::Lexer::LexerStatus::Ok);
+        EXPECT_EQ(status, yal::Lexer::Status::Ok);
         const yal::Lexer::TokenInfo& tk = lexer.getLastToken();
         EXPECT_EQ(tk.token, yal::Token::This);
         EXPECT_EQ(tk.lineStart, 3u);
@@ -100,7 +103,7 @@ TEST(Lexer, BasicTokenRead) {
 
     status = lexer.scan();
     {
-        EXPECT_EQ(status, yal::Lexer::LexerStatus::Ok);
+        EXPECT_EQ(status, yal::Lexer::Status::Ok);
         const yal::Lexer::TokenInfo& tk = lexer.getLastToken();
         EXPECT_EQ(tk.token, yal::Token::And);
         EXPECT_EQ(tk.lineStart, 3u);
@@ -112,7 +115,84 @@ TEST(Lexer, BasicTokenRead) {
     }
 
     status = lexer.scan();
-    EXPECT_EQ(status, yal::Lexer::LexerStatus::EOS);
+    {
+        EXPECT_EQ(status, yal::Lexer::Status::Ok);
+        const yal::Lexer::TokenInfo& tk = lexer.getLastToken();
+        EXPECT_EQ(tk.token, yal::Token::Name);
+    }
+
+    status = lexer.scan();
+    EXPECT_EQ(status, yal::Lexer::Status::EOS);
+}
+
+TEST(Lexer, TypeDeclTokens) {
+    const std::string input ="MyType : type {\n foo : type; \n}\n";
+    yal::MemoryStream stream;
+    stream.attach(input.c_str(),input.size(), false);
+
+    yal::Lexer lexer(stream);
+    yal::Lexer::Status status = lexer.scan();
+    {
+        EXPECT_EQ(status, yal::Lexer::Status::Ok);
+        const yal::Lexer::TokenInfo& tk = lexer.getLastToken();
+        EXPECT_EQ(tk.token, yal::Token::Name);
+    }
+
+    status = lexer.scan();
+    {
+        EXPECT_EQ(status, yal::Lexer::Status::Ok);
+        const yal::Lexer::TokenInfo& tk = lexer.getLastToken();
+        EXPECT_EQ(tk.token, yal::Token::Colon);
+    }
+
+    status = lexer.scan();
+    {
+        EXPECT_EQ(status, yal::Lexer::Status::Ok);
+        const yal::Lexer::TokenInfo& tk = lexer.getLastToken();
+        EXPECT_EQ(tk.token, yal::Token::Type);
+    }
+
+    status = lexer.scan();
+    {
+        EXPECT_EQ(status, yal::Lexer::Status::Ok);
+        const yal::Lexer::TokenInfo& tk = lexer.getLastToken();
+        EXPECT_EQ(tk.token, yal::Token::BeginScope);
+    }
+
+    status = lexer.scan();
+    {
+        EXPECT_EQ(status, yal::Lexer::Status::Ok);
+        const yal::Lexer::TokenInfo& tk = lexer.getLastToken();
+        EXPECT_EQ(tk.token, yal::Token::Name);
+    }
+
+    status = lexer.scan();
+    {
+        EXPECT_EQ(status, yal::Lexer::Status::Ok);
+        const yal::Lexer::TokenInfo& tk = lexer.getLastToken();
+        EXPECT_EQ(tk.token, yal::Token::Colon);
+    }
+
+    status = lexer.scan();
+    {
+        EXPECT_EQ(status, yal::Lexer::Status::Ok);
+        const yal::Lexer::TokenInfo& tk = lexer.getLastToken();
+        EXPECT_EQ(tk.token, yal::Token::Type);
+    }
+
+    status = lexer.scan();
+    {
+        EXPECT_EQ(status, yal::Lexer::Status::Ok);
+        const yal::Lexer::TokenInfo& tk = lexer.getLastToken();
+        EXPECT_EQ(tk.token, yal::Token::SemiColon);
+    }
+
+    status = lexer.scan();
+    {
+        EXPECT_EQ(status, yal::Lexer::Status::Ok);
+        const yal::Lexer::TokenInfo& tk = lexer.getLastToken();
+        EXPECT_EQ(tk.token, yal::Token::EndScope);
+    }
 }
 
 int main(int argc, char** argv) {

@@ -4,11 +4,20 @@ namespace yal {
     class FileStream : public ByteStream {
     public:
 
-        static std::unique_ptr<FileStream> Open(
-                const char* path,
-                const uint32_t mode);
+        enum class StdStream
+        {
+            In,
+            Out,
+            Error
+        };
 
         FileStream();
+
+        bool open(const StdStream stream);
+
+        bool open(const char* path,
+                  const uint32_t mode);
+
 
         YAL_NO_COPY_CLASS(FileStream);
 

@@ -17,13 +17,12 @@ namespace yal {
         uint8_t* current = nullptr;
         uint8_t* marker = nullptr;
         uint8_t* token = nullptr;
-        bool eof = false;
         size_t lineNum = 1;
         size_t streamReadOffset = std::numeric_limits<size_t>::max();
         size_t lineStartOffset = 0;
         size_t tokenLineStart =0;
         size_t tokenColumnStart = 0;
-
+        bool eof = false;
 
         bool fill(const size_t size,
                   ByteStream& stream) {
@@ -83,6 +82,17 @@ namespace yal {
                                         - reinterpret_cast<uintptr_t>(buffer));
         }
 
+        void markScanBegin() {
+            token = current;
+            tokenLineStart = lineNum;
+            tokenColumnStart = getColumnOffsetStart();
+        }
+
+        size_t getTokenLength() const {
+            return  static_cast<size_t>(reinterpret_cast<uintptr_t>(current)
+                                        - reinterpret_cast<uintptr_t>(token));
+        }
+
     };
 
     Lexer::Lexer(ByteStream &stream):
@@ -105,9 +115,7 @@ namespace yal {
     Lexer::setToken(const Token token,
                     const LexerState& state) {
         m_curToken.token = token;
-        m_curToken.tokLen =
-                static_cast<size_t>(reinterpret_cast<uintptr_t>(state.current)
-                                    - reinterpret_cast<uintptr_t>(state.token));
+        m_curToken.tokLen = state.getTokenLength();
         m_curToken.lineStart = state.tokenLineStart;
         m_curToken.lineEnd = state.lineNum;
         m_curToken.columnStart = state.tokenColumnStart;
@@ -120,31 +128,23 @@ namespace yal {
         return std::make_unique<Lexer::LexerState>();
     }
 
-    Lexer::LexerStatus
+    Lexer::Status
     Lexer::re2cExecute() {
         for (;;) {
-            m_lexerState->token = m_lexerState->current;
-            m_lexerState->tokenLineStart = m_lexerState->lineNum;
-            m_lexerState->tokenColumnStart = m_lexerState->getColumnOffsetStart();
+            m_lexerState->markScanBegin();
             /*!re2c
         re2c:define:YYCTYPE = "unsigned char";
         re2c:define:YYCURSOR = m_lexerState->current;
         re2c:define:YYMARKER = m_lexerState->marker;
         re2c:define:YYLIMIT = m_lexerState->limit;
         re2c:yyfill:enable = 1;
-        re2c:define:YYFILL = "if (!m_lexerState->fill(@@, m_stream)) return LexerStatus::EOS;";
+        re2c:define:YYFILL = "if (!m_lexerState->fill(@@, m_stream)) return Status::EOS;";
         re2c:define:YYFILL:naked = 1;
 
         end = "\x00";
-        end { if (m_lexerState->limit - m_lexerState->token == YYMAXFILL) {return LexerStatus::EOS;} }
+        end { if (m_lexerState->limit - m_lexerState->token == YYMAXFILL) {return Status::EOS;} }
         /* common character classes */
-            BLANK = [ \t];
-            DIGIT = [0-9];
-            ALPHA = [a-zA-Z];
-            ALNUM = [a-zA-Z0-9];
-            PRINT = [\040-\176];
-            GRAPH = PRINT\BLANK;
-            PUNCT = [!?.,;"'(){}<>\[\]`];
+
             /* basic tokens */
             VAR = "var";
             LET = "let";
@@ -154,21 +154,36 @@ namespace yal {
             OR = "or";
             NOT = "not";
             THIS = "this";
+            FN = "fn";
             NEWLINE="\n";
+            COLON = ":";
+            SEMICOLON = ";";
+            TYPE = "type";
+            BEGIN_SCOPE = "{";
+            END_SCOPE = "}";
+            NAME = [a-zA-Z][a-zA-Z0-9]*;
 
 
             /* final rules */
-            VAR  { setToken(Token::Var, *m_lexerState); return LexerStatus::Ok; }
-            LET  { setToken(Token::Let, *m_lexerState);return LexerStatus::Ok; }
-            TRUE  { setToken(Token::True, *m_lexerState); return LexerStatus::Ok; }
-            FALSE  { setToken(Token::False, *m_lexerState); return LexerStatus::Ok; }
-            AND  { setToken(Token::And, *m_lexerState); return LexerStatus::Ok; }
-            OR  { setToken(Token::Or, *m_lexerState); return LexerStatus::Ok; }
-            NOT  { setToken(Token::Not, *m_lexerState); return LexerStatus::Ok; }
-            THIS  { setToken(Token::This, *m_lexerState);return LexerStatus::Ok; }
+            VAR  { setToken(Token::Var, *m_lexerState); return Status::Ok; }
+            LET  { setToken(Token::Let, *m_lexerState);return Status::Ok; }
+            TYPE { setToken(Token::Type, *m_lexerState); return Status::Ok;}
+            TRUE  { setToken(Token::True, *m_lexerState); return Status::Ok; }
+            FALSE  { setToken(Token::False, *m_lexerState); return Status::Ok; }
+            AND  { setToken(Token::And, *m_lexerState); return Status::Ok; }
+            OR  { setToken(Token::Or, *m_lexerState); return Status::Ok; }
+            NOT  { setToken(Token::Not, *m_lexerState); return Status::Ok; }
+            THIS  { setToken(Token::This, *m_lexerState);return Status::Ok; }
+            FN  { setToken(Token::Function, *m_lexerState);return Status::Ok; }
             NEWLINE {m_lexerState->updateLineStartOffset(); continue;}
-            [ \t] {continue;}
-            * { setToken(Token::TokenCount, *m_lexerState); return LexerStatus::Error;}
+
+            COLON { setToken(Token::Colon, *m_lexerState); return Status::Ok;}
+            SEMICOLON { setToken(Token::SemiColon, *m_lexerState); return Status::Ok;}
+            BEGIN_SCOPE { setToken(Token::BeginScope, *m_lexerState); return Status::Ok;}
+            END_SCOPE { setToken(Token::EndScope, *m_lexerState); return Status::Ok;}
+            NAME { setToken(Token::Name, *m_lexerState); return Status::Ok;}
+            [ \t]* {continue;}
+            * { setToken(Token::TokenCount, *m_lexerState); return Status::Error;}
             */
         }
 

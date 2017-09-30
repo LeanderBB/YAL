@@ -6,3 +6,4 @@
 include(gtest)
 
 add_subdirectory(yal-lexer)
+add_subdirectory(yal-parser)

@@ -1,10 +1,9 @@
 #pragma once
-
 namespace yal
 {
     enum class Token
     {
-        Var,
+        Var= 0,
         Let,
         True,
         False,
@@ -56,6 +55,10 @@ namespace yal
         Minus,
         Mult,
         Div,
+        Name,
+        Colon,
+        SemiColon,
+        Type,
         TokenCount
     };
 

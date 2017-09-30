@@ -31,18 +31,33 @@ set(YAL_SOURCES
     yal/lexer/tokens.cpp
     yal/lexer/lexer_re2c.cpp
     yal/lexer/lexer_re2c.in
+
+    yal/parser/parser.cpp
+    yal/parser/parser.h
+    yal/parser/parserincludes.h
+    yal/parser/parsertokens.h
+    yal/parser/parserimpl.lemon
+    yal/parser/parserimpl.cpp
+    yal/parser/parserimpl.h
 )
 
+# include parser / lexer DSL's
 set_source_files_properties(yal/lexer/lexer_re2c.in
     PROPERTIES HEADER_FILE_ONLY TRUE)
+set_source_files_properties(yal/parser/parser.lemon
+    PROPERTIES HEADER_FILE_ONLY TRUE)
+
+# How to generate files
+# lemon -m -l parserimpl.lemon  && makeheaders parserimpl.c && mv parserimpl.c parserimpl.cpp
+# re2c -i -o lexer_re2c.cpp lexer_re2c.in
 
 add_library(${YAL_LIB_NAME} STATIC
     ${YAL_SOURCES}
     )
 
+YAL_APPEND_SOURCE_FILE_COMPILE_FLAG( yal/parser/parserimpl.cpp ${YAL_DISABLE_WARNING_UNUSED_VAR})
 target_include_directories( ${YAL_LIB_NAME}
     PUBLIC ${CMAKE_CURRENT_SOURCE_DIR} ${YAL_CONFIG_INCLUDE_DIR}
     )
 
-
-YAL_APPLY_COMPILER_FLAGS(${YAL_LIB_NAME})
+YAL_APPLY_COMPILER_FLAGS_WERROR(${YAL_LIB_NAME})

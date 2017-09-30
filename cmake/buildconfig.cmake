@@ -8,8 +8,10 @@ endif()
 
 if (NOT MSVC) # Clang and GCC
     # Common flags
-    set(YAL_C_FLAGS -std=c99 -Wall -Wextra -Werror -pedantic)
-    set(YAL_CXX_FLAGS -Wall -Wextra -std=c++14 -fexceptions -fno-rtti -Werror )
+    set(YAL_WERROR_FLAG -Werror)
+    set(YAL_DISABLE_WARNING_UNUSED_VAR "-Wno-unused-parameter")
+    set(YAL_C_FLAGS -std=c99 -Wall -Wextra -pedantic)
+    set(YAL_CXX_FLAGS -Wall -Wextra -std=c++14 -fexceptions -fno-rtti)
 
     set(YAL_DEFINITIONS)
     # Release flags
@@ -21,10 +23,11 @@ if (NOT MSVC) # Clang and GCC
 
 else() # MSVC
     # Common flags
+    set(YAL_WERROR_FLAG /WX)
     set(YAL_DEFINITIONS WIN32 _WINDOWS _CRT_SECURE_NO_WARNINGS)
-    set(YAL_C_FLAGS /Wall /WX)
+    set(YAL_C_FLAGS /Wall)
     set(YAL_C_WARNING_FLAGS /W2)
-    set(YAL_CXX_FLAGS /W2 /WX /EHsc)
+    set(YAL_CXX_FLAGS /W2 /EHsc)
 
      # Release flags
      set(YAL_DEFINITIONS_RELEASE NDEBUG)
@@ -40,7 +43,7 @@ endif()
 
 
 
-macro(YAL_APPLY_COMPILER_FLAGS TARGET)
+macro(YAL_APPLY_COMPILER_FLAGS_IMPL TARGET WERROR)
 
     target_compile_definitions( ${TARGET}
         PUBLIC ${YAL_DEFINITIONS}
@@ -58,4 +61,25 @@ macro(YAL_APPLY_COMPILER_FLAGS TARGET)
         PRIVATE $<$<AND:$<COMPILE_LANGUAGE:C>,$<CONFIG:RELEASE>>:${YAL_C_FLAGS_RELEASE}>
         )
 
+    if (${WERROR})
+        target_compile_options(${TARGET}
+            PRIVATE $<$<COMPILE_LANGUAGE:CXX>:${YAL_WERROR_FLAG}>
+            PRIVATE $<$<COMPILE_LANGUAGE:C>:${YAL_WERROR_FLAG}>
+            )
+    endif()
+
+endmacro()
+
+
+macro(YAL_APPLY_COMPILER_FLAGS_WERROR TARGET)
+    YAL_APPLY_COMPILER_FLAGS_IMPL(${TARGET} ON)
+endmacro()
+
+macro(YAL_APPLY_COMPILER_FLAGS_NOWERROR TARGET)
+    YAL_APPLY_COMPILER_FLAGS_IMPL(${TARGET} OFF)
+endmacro()
+
+macro(YAL_APPEND_SOURCE_FILE_COMPILE_FLAG SOURCE FLAG)
+    message(" set_property(SOURCE ${SOURCE} APPEND_STRING PROPERTY COMPILE_FLAGS \" ${FLAG} \")")
+    set_property(SOURCE ${SOURCE} APPEND_STRING PROPERTY COMPILE_FLAGS " ${FLAG} ")
 endmacro()

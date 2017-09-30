@@ -4,7 +4,7 @@
 
 namespace yal {
 
-    Lexer::LexerStatus
+    Lexer::Status
     Lexer::scan() {
         return re2cExecute();
     }

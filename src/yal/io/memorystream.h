@@ -7,19 +7,22 @@ namespace yal
     class MemoryStream : public ByteStream
     {
     public:
-        static std::unique_ptr<MemoryStream> Open(const size_t initialSizeBytes,
-                                                  const uint32_t mode);
-
-        static std::unique_ptr<MemoryStream> Attach(void* ptr,
-                                                    const size_t sizeBytes,
-                                                    const uint32_t mode,
-                                                    const bool takeOwnerShip);
-
-        static std::unique_ptr<MemoryStream> Attach(const void* ptr,
-                                                    const size_t sizeBytes);
         MemoryStream();
 
         YAL_NO_COPY_CLASS(MemoryStream);
+
+        bool open(const size_t initialSizeBytes,
+                  const uint32_t mode);
+
+        bool attach(void* ptr,
+                    const size_t sizeBytes,
+                    const uint32_t mode,
+                    const bool takeOwnerShip);
+
+        bool attach(const void* ptr,
+                    const size_t sizeBytes,
+                    const bool takeOwnerShip);
+
 
         virtual size_t read(void* buffer,
                             const size_t bytes) override;

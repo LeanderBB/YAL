@@ -18,7 +18,7 @@ namespace yal{
             size_t tokenOffsetInStream = 0;
         };
 
-        enum class LexerStatus
+        enum class Status
         {
             Ok,
             Error,
@@ -29,7 +29,7 @@ namespace yal{
 
         ~Lexer();
 
-        LexerStatus scan();
+        Status scan();
 
         const TokenInfo& getLastToken() const {
             return m_curToken;
@@ -41,7 +41,7 @@ namespace yal{
 
         static std::unique_ptr<LexerState> createLexerState();
 
-        LexerStatus re2cExecute();
+        Status re2cExecute();
 
         void setToken(const Token token,
                       const LexerState& state);

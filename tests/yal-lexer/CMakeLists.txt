@@ -8,4 +8,4 @@ target_link_libraries(test_yal_lexer
         PRIVATE gtest yal
     )
 
-YAL_APPLY_COMPILER_FLAGS(test_yal_lexer)
+YAL_APPLY_COMPILER_FLAGS_WERROR(test_yal_lexer)

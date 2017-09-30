@@ -8,8 +8,37 @@ namespace yal {
         }
     }
 
-    std::unique_ptr<FileStream>
-    FileStream::Open(const char* path,
+    static inline void stdStreamDtor(FILE*) {
+    }
+
+    FileStream::FileStream():
+        m_file(nullptr, fileDtor) {
+
+    }
+
+    bool
+    FileStream::open(const StdStream stream) {
+
+        if (stream == StdStream::In) {
+            m_file = FileType(::stdin, stdStreamDtor);
+            m_mode = kModeRead;
+            m_fileSizeBytes = 0;
+        } else if (stream == StdStream::Out) {
+            m_file = FileType(::stdout, stdStreamDtor);
+            m_mode = kModeWrite;
+            m_fileSizeBytes = 0;
+        } else if (stream == StdStream::Error){
+            m_file = FileType(::stderr, stdStreamDtor);
+            m_mode = kModeWrite;
+            m_fileSizeBytes = 0;
+        } else {
+            return false;
+        }
+        return true;
+    }
+
+    bool
+    FileStream::open(const char* path,
                      const uint32_t mode) {
         const char* fmode = nullptr;
         if ((mode & kModeReadWrite) == kModeReadWrite){
@@ -28,25 +57,22 @@ namespace yal {
             ::fseek(file.get(), 0, SEEK_END);
             fileSize = static_cast<size_t>(::ftell(file.get()));
             ::fseek(file.get(), 0, SEEK_SET);
-
-            auto result = std::make_unique<FileStream>();
-            result->m_fileSizeBytes = fileSize;
-            result->m_file = std::move(file);
-            result->m_mode = mode;
-            return result;
+             m_file = std::move(file);
+             m_fileSizeBytes = fileSize;
+             m_mode = mode;
+             return true;
         }
-        return nullptr;
-    }
-
-    FileStream::FileStream():
-        m_file(nullptr, fileDtor) {
-
+        return false;
     }
 
     size_t
     FileStream::read(void* buffer,
                      const size_t bytes) {
         if (!(m_mode & kModeRead)) {
+            return 0;
+        }
+
+        if (feof(m_file.get())) {
             return 0;
         }
 
@@ -57,6 +83,10 @@ namespace yal {
     FileStream::write(const void* buffer,
                       const size_t bytes) {
         if (!(m_mode & kModeWrite)) {
+            return 0;
+        }
+
+        if (feof(m_file.get())) {
             return 0;
         }
 
