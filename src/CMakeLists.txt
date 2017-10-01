@@ -2,6 +2,7 @@
 # YAL Source Files
 #
 
+include(lexerparsertools)
 
 set(YAL_VERSION_MAJOR 0)
 set(YAL_VERSION_MINOR 1)
@@ -29,8 +30,8 @@ set(YAL_SOURCES
     yal/lexer/lexer.cpp
     yal/lexer/tokens.h
     yal/lexer/tokens.cpp
-    yal/lexer/lexer_re2c.cpp
     yal/lexer/lexer_re2c.in
+    yal/lexer/lexer_re2c.cpp
 
     yal/parser/parser.cpp
     yal/parser/parser.h
@@ -47,13 +48,26 @@ set_source_files_properties(yal/lexer/lexer_re2c.in
 set_source_files_properties(yal/parser/parser.lemon
     PROPERTIES HEADER_FILE_ONLY TRUE)
 
-# How to generate files
-# lemon -m -l parserimpl.lemon  && makeheaders parserimpl.c && mv parserimpl.c parserimpl.cpp
-# re2c -i -o lexer_re2c.cpp lexer_re2c.in
+#if re2c is availabe use custom targets
+if (${RE2C_TOOLS_FOUND})
+    RE2C_GEN(
+        "${CMAKE_CURRENT_SOURCE_DIR}/yal/lexer/lexer_re2c.in"
+        "${CMAKE_CURRENT_SOURCE_DIR}/yal/lexer/lexer_re2c.cpp")
+endif()
+
+#if lemon is availabe use custom targets
+if (${LEMON_TOOLS_FOUND})
+    LEMON_GEN(
+        "${CMAKE_CURRENT_SOURCE_DIR}/yal/parser/"
+        parserimpl.lemon
+        parserimpl.cpp)
+endif()
 
 add_library(${YAL_LIB_NAME} STATIC
     ${YAL_SOURCES}
     )
+
+
 
 YAL_APPEND_SOURCE_FILE_COMPILE_FLAG( yal/parser/parserimpl.cpp ${YAL_DISABLE_WARNING_UNUSED_VAR})
 target_include_directories( ${YAL_LIB_NAME}

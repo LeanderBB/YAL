@@ -159,6 +159,8 @@ namespace yal {
             COLON = ":";
             SEMICOLON = ";";
             TYPE = "type";
+            BEGIN_ARRAY = "[";
+            END_ARRAY = "]";
             BEGIN_SCOPE = "{";
             END_SCOPE = "}";
             NAME = [a-zA-Z][a-zA-Z0-9]*;
@@ -181,6 +183,8 @@ namespace yal {
             SEMICOLON { setToken(Token::SemiColon, *m_lexerState); return Status::Ok;}
             BEGIN_SCOPE { setToken(Token::BeginScope, *m_lexerState); return Status::Ok;}
             END_SCOPE { setToken(Token::EndScope, *m_lexerState); return Status::Ok;}
+            BEGIN_ARRAY { setToken(Token::BeginArray, *m_lexerState); return Status::Ok;}
+            END_ARRAY { setToken(Token::EndArray, *m_lexerState); return Status::Ok;}
             NAME { setToken(Token::Name, *m_lexerState); return Status::Ok;}
             [ \t]* {continue;}
             * { setToken(Token::TokenCount, *m_lexerState); return Status::Error;}
