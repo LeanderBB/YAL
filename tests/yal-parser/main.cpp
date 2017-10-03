@@ -5,7 +5,7 @@
 #include <iostream>
 #include <yal/parser/parser.h>
 #include <yal/io/filestream.h>
-
+#include <yal/util/log.h>
 
 
 int main(const int argc,
@@ -28,8 +28,12 @@ int main(const int argc,
         }
     }
 
+    yal::FileStream stdoutStream;
+    stdoutStream.open(yal::FileStream::StdStream::Out);
+
     yal::Lexer lexer(stream);
-    yal::Parser parser (lexer);
+    yal::Log log(stdoutStream);
+    yal::Parser parser (lexer, log);
 
     return parser.run()  ? EXIT_SUCCESS : EXIT_FAILURE;
 }

@@ -40,6 +40,11 @@ set(YAL_SOURCES
     yal/parser/parserimpl.lemon
     yal/parser/parserimpl.cpp
     yal/parser/parserimpl.h
+
+    yal/util/log.h
+    yal/util/log.cpp
+    yal/util/prettyprint.cpp
+    yal/util/prettyprint.h
 )
 
 # include parser / lexer DSL's
@@ -47,6 +52,9 @@ set_source_files_properties(yal/lexer/lexer_re2c.in
     PROPERTIES HEADER_FILE_ONLY TRUE)
 set_source_files_properties(yal/parser/parser.lemon
     PROPERTIES HEADER_FILE_ONLY TRUE)
+
+
+
 
 #if re2c is availabe use custom targets
 if (${RE2C_TOOLS_FOUND})
@@ -68,10 +76,9 @@ add_library(${YAL_LIB_NAME} STATIC
     )
 
 
-
-YAL_APPEND_SOURCE_FILE_COMPILE_FLAG( yal/parser/parserimpl.cpp ${YAL_DISABLE_WARNING_UNUSED_VAR})
 target_include_directories( ${YAL_LIB_NAME}
     PUBLIC ${CMAKE_CURRENT_SOURCE_DIR} ${YAL_CONFIG_INCLUDE_DIR}
     )
 
 YAL_APPLY_COMPILER_FLAGS_WERROR(${YAL_LIB_NAME})
+YAL_REMOVE_WERROR_FROM_SOURCE(yal/parser/parserimpl.cpp)

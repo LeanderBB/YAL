@@ -1,6 +1,6 @@
 /* This file was automatically generated.  Do not edit! */
 #define YALParserTOKENTYPE void*
-#define YALParserARG_PDECL
+#define YALParserARG_PDECL , yal::Parser *pParser 
 void YALParser(void *yyp,int yymajor,YALParserTOKENTYPE yyminor YALParserARG_PDECL);
 #if defined(YYTRACKMAXSTACKDEPTH)
 int YALParserStackPeak(void *p);
@@ -10,15 +10,36 @@ void *YALParserAlloc(void *(*mallocProc)(size_t));
 #if !defined(NDEBUG)
 void YALParserTrace(FILE *TraceFILE,char *zTracePrompt);
 #endif
-#define YALParserARG_STORE
-#define YALParserARG_FETCH
-#define YALParserARG_SDECL
-#define YAL_TOKEN_SEMI_COLON                     27
-#define YAL_TOKEN_SCOPE_END                      26
-#define YAL_TOKEN_SCOPE_BEGIN                    25
-#define YAL_TOKEN_TYPE                           24
-#define YAL_TOKEN_COLON                          23
-#define YAL_TOKEN_NAME                           22
+#define YALParserARG_STORE yypParser->pParser  = pParser 
+#define YALParserARG_FETCH  yal::Parser *pParser  = yypParser->pParser 
+#define YALParserARG_SDECL  yal::Parser *pParser ;
+#define YAL_TOKEN_DECIMAL_LITERAL                48
+#define YAL_TOKEN_INTEGER_LITERAL                47
+#define YAL_TOKEN_LET                            46
+#define YAL_TOKEN_VAR                            45
+#define YAL_TOKEN_COMMA                          44
+#define YAL_TOKEN_PAR_END                        43
+#define YAL_TOKEN_PAR_BEGIN                      42
+#define YAL_TOKEN_FUNCTION                       41
+#define YAL_TOKEN_SEMI_COLON                     40
+#define YAL_TOKEN_SCOPE_END                      39
+#define YAL_TOKEN_SCOPE_BEGIN                    38
+#define YAL_TOKEN_TYPE                           37
+#define YAL_TOKEN_COLON                          36
+#define YAL_TOKEN_ARRAY_END                      35
+#define YAL_TOKEN_ARRAY_BEGIN                    34
+#define YAL_TOKEN_TYPE_DOUBLE                    33
+#define YAL_TOKEN_TYPE_FLOAT                     32
+#define YAL_TOKEN_TYPE_UINT64                    31
+#define YAL_TOKEN_TYPE_INT64                     30
+#define YAL_TOKEN_TYPE_UINT32                    29
+#define YAL_TOKEN_TYPE_INT32                     28
+#define YAL_TOKEN_TYPE_UINT16                    27
+#define YAL_TOKEN_TYPE_INT16                     26
+#define YAL_TOKEN_TYPE_UINT8                     25
+#define YAL_TOKEN_TYPE_INT8                      24
+#define YAL_TOKEN_TYPE_BOOL                      23
+#define YAL_TOKEN_IDENTIFIER                     22
 #define YAL_TOKEN_END                            21
 #define YAL_TOKEN_DOT                            20
 #define YAL_TOKEN_NOT                            19

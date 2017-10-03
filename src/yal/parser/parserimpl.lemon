@@ -3,25 +3,28 @@
 %token_prefix YAL_TOKEN_
 
 %include {
-#include "yal/parser/parserincludes.h"
+#include "yal/parser/parser.h"
+#include "yal/util/log.h"
 #include <cassert>
-#include <iostream>
 }
 
 
-//%extra_argument { YALParserState_t *pParseState }
+%extra_argument { yal::Parser *pParser }
 
 %syntax_error {
-    std::cerr << "syntax error - ";
-    int n = sizeof(yyTokenName) / sizeof(yyTokenName[0]);
-    for (int i = 0; i < n; ++i) {
-        int a = yy_find_shift_action(yypParser, (YYCODETYPE)i);
-        if (a < YYNSTATE + YYNRULE) {
-            std::cout << "expected " << yyTokenName[i] << std::endl;
+    pParser->logParseFailure();
+    pParser->getLog().error("Expected one of the following tokens:\n");
+    {
+        yal::Log::MultiLineScope multiLineScope(pParser->getLog());
+        int n = sizeof(yyTokenName) / sizeof(yyTokenName[0]);
+        for (int i = 0; i < n; ++i) {
+            int a = yy_find_shift_action(yypParser, (YYCODETYPE)i);
+            if (a < YYNSTATE + YYNRULE) {
+                pParser->getLog().error("%s \n",yyTokenName[i]);
+            }
         }
     }
 }
-
 
 %right ASSIGN.
 %left OR.
@@ -37,16 +40,102 @@
 %right DOT.
 
 
-yalprog ::= program END.
+%start_symbol  prog
 
-program ::= program type_decl.
-program ::= .
+prog ::= translation_unit END.
+
+translation_unit ::= translation_unit type_decl.
+translation_unit ::= translation_unit function_decl.
+translation_unit ::= translation_unit type_function_decl.
+translation_unit ::=.
 
 
+// Type  specifiers
+type_specifier ::= type_basic.
+type_specifier ::= type_array.
+type_specifier ::= IDENTIFIER.
 
-type_decl ::= NAME COLON TYPE SCOPE_BEGIN type_var_decls SCOPE_END.
+type_basic ::= TYPE_BOOL.
+type_basic ::= TYPE_INT8.
+type_basic ::= TYPE_UINT8.
+type_basic ::= TYPE_INT16.
+type_basic ::= TYPE_UINT16.
+type_basic ::= TYPE_INT32.
+type_basic ::= TYPE_UINT32.
+type_basic ::= TYPE_INT64.
+type_basic ::= TYPE_UINT64.
+type_basic ::= TYPE_FLOAT.
+type_basic ::= TYPE_DOUBLE.
+
+type_array ::= type_basic ARRAY_BEGIN ARRAY_END.
+
+// custom type declaration
+type_decl ::= IDENTIFIER COLON TYPE SCOPE_BEGIN type_var_decls SCOPE_END.
 
 type_var_decls ::= type_var_decls type_var_decl.
 type_var_decls ::= type_var_decl.
 
-type_var_decl ::= NAME COLON TYPE SEMI_COLON.
+type_var_decl ::= IDENTIFIER COLON type_specifier SEMI_COLON.
+
+// Functions
+
+function_decl ::= FUNCTION IDENTIFIER PAR_BEGIN function_args_decl PAR_END
+        function_return_decl function_scope.
+
+
+type_function_decl::= FUNCTION type_specifier COLON COLON IDENTIFIER
+        PAR_BEGIN function_args_decl PAR_END
+        function_return_decl function_scope.
+
+
+function_args_decl ::= function_args_decl COMMA function_arg_decl.
+function_args_decl ::= function_arg_decl.
+function_args_decl ::= .
+
+function_arg_decl ::= IDENTIFIER COLON type_specifier.
+
+function_return_decl ::= COLON type_specifier.
+function_return_decl ::=.
+
+function_scope ::= SCOPE_BEGIN SCOPE_END.
+function_scope ::= SCOPE_BEGIN statement_list SCOPE_END.
+
+// Statements
+statement_list ::= statement_list statement.
+statement_list ::= statement.
+
+
+statement ::= var_assignment SEMI_COLON.
+statement ::= var_decl SEMI_COLON.
+
+var_assignment ::= IDENTIFIER ASSIGN expression.
+
+
+// Variable Decls
+
+var_decl ::= VAR IDENTIFIER var_type_spec ASSIGN expression.
+var_decl ::= LET IDENTIFIER var_type_spec ASSIGN expression.
+
+var_type_spec ::= COLON type_specifier.
+var_type_spec ::=.
+
+
+// Expressions
+expression ::= PAR_BEGIN expression PAR_END.
+expression ::= expression AND expression.
+expression ::= expression OR expression.
+expression ::= NOT PAR_BEGIN expression PAR_END.
+expression ::= expression PLUS expression.
+expression ::= expression MINUS expression.
+expression ::= expression MULT expression.
+expression ::= expression DIV expression.
+expression ::= expression MOD expression.
+expression ::= expression ASSIGN expression.
+expression ::= literal.
+
+// Literals
+
+literal ::= INTEGER_LITERAL.
+literal ::= DECIMAL_LITERAL.
+
+

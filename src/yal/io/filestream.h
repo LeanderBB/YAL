@@ -36,10 +36,18 @@ namespace yal {
         virtual size_t getPosition() const override;
 
         virtual size_t getSizeBytes() const override;
+
+        virtual void skipLine() override;
+
+        virtual std::string readLine() override;
+
+        virtual bool isSeekable() const override;
+
     private:
         using FileType = std::unique_ptr<FILE, void(*)(FILE*)>;
         FileType m_file;
         size_t m_fileSizeBytes;
-        uint32_t m_mode;
+        size_t m_offset;
+        uint32_t m_flags;
     };
 }

@@ -3,74 +3,106 @@
 #include "yal/parser/parserimpl.h"
 #include "yal/lexer/lexer.h"
 #include "yal/lexer/tokens.h"
-#include <iostream>
+#include "yal/util/log.h"
+#include "yal/io/bytestream.h"
+#include "yal/util/prettyprint.h"
 namespace yal{
 
     static int TokenToParserToken(const Token token) {
-        static const int sLookupTable[static_cast<uint32_t>(Token::TokenCount)] ={
-                -1,
-                -1,
-                -1,
-                -1,
-                -1,
-                -1,
-                -1,
-                YAL_TOKEN_AND,
-                YAL_TOKEN_OR,
-                YAL_TOKEN_NOT,
-                -1,
-                -1,
-                -1,
-                -1,
-                -1,
-                -1,
-                -1,
-                -1,
-                -1,
-                -1,
-                -1,
-                YAL_TOKEN_MOD,
-                YAL_TOKEN_DOT,
-                -1,
-                -1,
-                YAL_TOKEN_SCOPE_BEGIN,
-                YAL_TOKEN_SCOPE_END,
-                -1,
-                -1,
-                YAL_TOKEN_BIT_XOR,
-                -1,
-                YAL_TOKEN_BIT_OR,
-                YAL_TOKEN_GE,
-                YAL_TOKEN_GT,
-                YAL_TOKEN_LE,
-                YAL_TOKEN_LT,
-                YAL_TOKEN_EQ,
-                YAL_TOKEN_NE,
-                YAL_TOKEN_ASSIGN,
-                -1,
-                -1,
-                -1,
-                -1,
-                -1,
-                -1,
-                -1,
-                -1,
-                -1,
-                YAL_TOKEN_PLUS,
-                YAL_TOKEN_MINUS,
-                YAL_TOKEN_MULT,
-                YAL_TOKEN_DIV,
-                YAL_TOKEN_NAME,
-                YAL_TOKEN_COLON,
-                YAL_TOKEN_SEMI_COLON,
-                YAL_TOKEN_TYPE
-    };
 
-        static_assert(sizeof(sLookupTable)/sizeof(sLookupTable[0]) ==
-                static_cast<uint32_t>(Token::TokenCount),
-                "Table size must match Token::TokenCount value");
-
-        return sLookupTable[static_cast<uint32_t>(token)];
+        // TODO: Optimize out later when all tokens are known
+        switch(token)
+        {
+        case Token::And:
+            return YAL_TOKEN_AND;
+        case Token::Or:
+            return YAL_TOKEN_OR;
+        case Token::Not:
+            return YAL_TOKEN_NOT;
+        case Token::TypeBool:
+            return YAL_TOKEN_TYPE_BOOL;
+        case Token::TypeInt8:
+            return YAL_TOKEN_TYPE_INT8;
+        case Token::TypeUInt8:
+            return YAL_TOKEN_TYPE_UINT8;
+        case Token::TypeInt16:
+            return YAL_TOKEN_TYPE_INT16;
+        case Token::TypeUInt16:
+            return YAL_TOKEN_TYPE_UINT16;
+        case Token::TypeInt32:
+            return YAL_TOKEN_TYPE_INT32;
+        case Token::TypeUInt32:
+            return YAL_TOKEN_TYPE_UINT32;
+        case Token::TypeInt64:
+            return YAL_TOKEN_TYPE_INT64;
+        case Token::TypeUInt64:
+            return YAL_TOKEN_TYPE_UINT64;
+        case Token::TypeFloat:
+            return YAL_TOKEN_TYPE_FLOAT;
+        case Token::TypeDouble:
+            return YAL_TOKEN_TYPE_DOUBLE;
+        case Token::Mod:
+            return YAL_TOKEN_MOD;
+        case Token::Dot:
+            return YAL_TOKEN_DOT;
+        case Token::BitXor:
+            return YAL_TOKEN_BIT_XOR;
+        case Token::BitOr:
+            return YAL_TOKEN_BIT_OR;
+        case Token::CompareGe:
+            return YAL_TOKEN_GE;
+        case Token::CompareGt:
+            return YAL_TOKEN_GT;
+        case Token::CompareLe:
+            return YAL_TOKEN_LE;
+        case Token::CompareLt:
+            return YAL_TOKEN_LT;
+        case Token::CompareEq:
+            return YAL_TOKEN_EQ;
+        case Token::CompareNe:
+            return YAL_TOKEN_NE;
+        case Token::Assign:
+            return YAL_TOKEN_ASSIGN;
+        case Token::Plus:
+            return YAL_TOKEN_PLUS;
+        case Token::Minus:
+            return YAL_TOKEN_MINUS;
+        case Token::Mult:
+            return YAL_TOKEN_MULT;
+        case Token::Div:
+            return YAL_TOKEN_DIV;
+        case Token::Identifier:
+            return YAL_TOKEN_IDENTIFIER;
+        case Token::Colon:
+            return YAL_TOKEN_COLON;
+        case Token::SemiColon:
+            return YAL_TOKEN_SEMI_COLON;
+        case Token::Type:
+            return YAL_TOKEN_TYPE;
+        case Token::BeginScope:
+            return YAL_TOKEN_SCOPE_BEGIN;
+        case Token::EndScope:
+            return YAL_TOKEN_SCOPE_END;
+        case Token::BeginPar:
+            return YAL_TOKEN_PAR_BEGIN;
+        case Token::EndPar:
+            return YAL_TOKEN_PAR_END;
+        case Token::IntegerLiteral:
+            return YAL_TOKEN_INTEGER_LITERAL;
+        case Token::DecimalLiteral:
+            return YAL_TOKEN_DECIMAL_LITERAL;
+        case Token::Function:
+            return YAL_TOKEN_FUNCTION;
+        case Token::Comma:
+            return YAL_TOKEN_COMMA;
+        case Token::Var:
+            return YAL_TOKEN_VAR;
+        case Token::Let:
+            return YAL_TOKEN_LET;
+        default:
+            YAL_ASSERT_MESSAGE(false, "Shouldn't be reached!");
+            return -1;
+        }
     }
 
     static void ParserDtor(void* ptr) {
@@ -79,38 +111,67 @@ namespace yal{
         }
     }
 
-    Parser::Parser(Lexer& lexer):
+    Parser::Parser(Lexer& lexer,
+                   Log &log):
         m_parserImpl(YALParserAlloc(::malloc), ParserDtor),
-        m_lexer(lexer)
-    {
+        m_lexer(lexer),
+        m_log(log),
+        m_syntaxError(false) {
 
     }
 
     bool
     Parser::run() {
+        m_syntaxError = false;
         Lexer::Status status = Lexer::Status::Ok;
-        while(true){
+        while(!m_syntaxError){
             status = m_lexer.scan();
             if (status == Lexer::Status::Ok) {
                 const Lexer::TokenInfo& ti = m_lexer.getLastToken();
                 const int parserToken = TokenToParserToken(ti.token);
-                /*const char* strToken = TokenToString(ti.token);
-                std::cout << "Token: " << strToken
-                          << " c: " << ti.columnStart
-                          << " l: " << ti.lineEnd
-                          << std::endl;*/
-
+#if defined(YAL_PARSER_DEBUG_DUMP_TOKENS)
+                m_log.debug("Token(%s) l:%04d c:%03u\n",
+                            TokenToString(ti.token),
+                            ti.lineStart, ti.columnStart);
+#endif
                 YALParser(m_parserImpl.get(),
                           parserToken,
-                          nullptr);
+                          nullptr,
+                          this);
             } else if (status == Lexer::Status::EOS) {
                 YALParser(m_parserImpl.get(),
                           YAL_TOKEN_END,
-                          nullptr);
+                          nullptr,
+                          this);
                 return true;
             } else {
+                ByteStream& stream = m_lexer.getStream();
+                const Lexer::TokenInfo& ti = m_lexer.getLastToken();
+
+                PrettyPrint::SourceErrorPrint(stream,
+                                              m_log,
+                                              ti.lineStart,
+                                              ti.lineEnd);
+                m_log.error("Unknown token: %0004u  column:%03u\n",
+                            ti.lineStart, ti.columnStart);
                 return false;
             }
         }
+
+        return !m_syntaxError;
     }
+
+     void
+     Parser::logParseFailure()
+     {
+        ByteStream& stream = m_lexer.getStream();
+        const Lexer::TokenInfo& ti = m_lexer.getLastToken();
+        PrettyPrint::SourceErrorPrint(stream,
+                                      m_log,
+                                      ti.lineStart,
+                                      ti.lineEnd);
+        m_log.error("Syntax Error at line: %0004u  column:%03u\n",
+                    ti.lineStart, ti.columnStart);
+        m_syntaxError = true;
+     }
 }

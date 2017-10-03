@@ -1,5 +1,6 @@
 #include "yal/io/filestream.h"
 #include <cstdio>
+#include <string>
 namespace yal {
     static inline void fileDtor(FILE* file) {
         if (file != nullptr)
@@ -12,7 +13,10 @@ namespace yal {
     }
 
     FileStream::FileStream():
-        m_file(nullptr, fileDtor) {
+        m_file(nullptr, fileDtor),
+        m_fileSizeBytes(0),
+        m_offset(0),
+        m_flags(0){
 
     }
 
@@ -21,16 +25,19 @@ namespace yal {
 
         if (stream == StdStream::In) {
             m_file = FileType(::stdin, stdStreamDtor);
-            m_mode = kModeRead;
+            m_flags = kModeRead;
             m_fileSizeBytes = 0;
+            m_offset = 0;
         } else if (stream == StdStream::Out) {
             m_file = FileType(::stdout, stdStreamDtor);
-            m_mode = kModeWrite;
+            m_flags = kModeWrite;
             m_fileSizeBytes = 0;
+            m_offset = 0;
         } else if (stream == StdStream::Error){
             m_file = FileType(::stderr, stdStreamDtor);
-            m_mode = kModeWrite;
+            m_flags = kModeWrite;
             m_fileSizeBytes = 0;
+            m_offset = 0;
         } else {
             return false;
         }
@@ -59,7 +66,9 @@ namespace yal {
             ::fseek(file.get(), 0, SEEK_SET);
              m_file = std::move(file);
              m_fileSizeBytes = fileSize;
-             m_mode = mode;
+             m_flags = mode;
+             m_flags |= kFlagSeekable;
+             m_offset = 0;
              return true;
         }
         return false;
@@ -68,7 +77,7 @@ namespace yal {
     size_t
     FileStream::read(void* buffer,
                      const size_t bytes) {
-        if (!(m_mode & kModeRead)) {
+        if (!(m_flags & kModeRead)) {
             return 0;
         }
 
@@ -76,13 +85,15 @@ namespace yal {
             return 0;
         }
 
-        return ::fread(buffer, 1, bytes, m_file.get());
+        const size_t bytesRead = ::fread(buffer, 1, bytes, m_file.get());
+        m_offset += bytesRead;
+        return bytesRead;
     }
 
     size_t
     FileStream::write(const void* buffer,
                       const size_t bytes) {
-        if (!(m_mode & kModeWrite)) {
+        if (!(m_flags & kModeWrite)) {
             return 0;
         }
 
@@ -96,6 +107,8 @@ namespace yal {
            m_fileSizeBytes = currentPosition;
        }
 
+       m_offset += bytesWritten;
+
        return bytesWritten;
     }
 
@@ -106,12 +119,69 @@ namespace yal {
 
     size_t
     FileStream::getPosition() const {
-        return static_cast<size_t>(::ftell(m_file.get()));
+        return m_offset;
     }
 
+
+    enum {
+        kSkipLineBuffer = 1024
+    };
+
     size_t
-    FileStream::getSizeBytes() const
-    {
+    FileStream::getSizeBytes() const {
         return m_fileSizeBytes;
+    }
+
+    void
+    FileStream::skipLine() {
+        char buffer[kSkipLineBuffer];
+        while(true){
+            const char* result = fgets(buffer, kSkipLineBuffer, m_file.get());
+            if (result == nullptr) {
+                return;
+            }else {
+                const size_t lineSize = strlen(buffer);
+                if (lineSize < kSkipLineBuffer - 1) {
+                    // found new line
+                    return;
+                } else if (lineSize == kSkipLineBuffer -1
+                           && buffer[kSkipLineBuffer-2] == '\n') {
+                    // found new line with size the same as the buffer
+                    return;
+                }
+            }
+        }
+    }
+
+    std::string
+    FileStream::readLine() {
+        std::string strResult;
+        char buffer[kSkipLineBuffer];
+        while(true){
+            const char* result = fgets(buffer, kSkipLineBuffer, m_file.get());
+            if (result == nullptr) {
+                break;
+            }else {
+                const size_t lineSize = strlen(buffer);
+                if (lineSize < kSkipLineBuffer ) {
+                    // found new line
+                    strResult.append(buffer, lineSize - 1);
+                    break;
+                } else if (lineSize == kSkipLineBuffer -1
+                           && buffer[kSkipLineBuffer-2] == '\n') {
+                    // found new line with size the same as the buffer
+                    strResult.append(buffer, lineSize - 1);
+                    break;
+                } else {
+                    strResult.append(buffer, lineSize);
+                }
+            }
+        }
+        return strResult;
+    }
+
+    bool
+    FileStream::isSeekable() const {
+        return m_flags & kFlagSeekable;
     }
 }

@@ -8,6 +8,7 @@ endif()
 
 if (NOT MSVC) # Clang and GCC
     # Common flags
+    set(YAL_NO_WERROR_FLAG -Wno-error)
     set(YAL_WERROR_FLAG -Werror)
     set(YAL_DISABLE_WARNING_UNUSED_VAR "-Wno-unused-parameter")
     set(YAL_C_FLAGS -std=c99 -Wall -Wextra -pedantic)
@@ -79,6 +80,6 @@ macro(YAL_APPLY_COMPILER_FLAGS_NOWERROR TARGET)
     YAL_APPLY_COMPILER_FLAGS_IMPL(${TARGET} OFF)
 endmacro()
 
-macro(YAL_APPEND_SOURCE_FILE_COMPILE_FLAG SOURCE FLAG)
-    set_property(SOURCE ${SOURCE} APPEND_STRING PROPERTY COMPILE_FLAGS " ${FLAG} ")
+macro(YAL_REMOVE_WERROR_FROM_SOURCE SOURCE)
+    set_property(SOURCE ${SOURCE} APPEND PROPERTY COMPILE_FLAGS  "${YAL_NO_WERROR_FLAG}")
 endmacro()

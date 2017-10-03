@@ -35,6 +35,10 @@ namespace yal{
             return m_curToken;
         }
 
+        ByteStream& getStream() const {
+            return m_stream;
+        }
+
     private:
 
         struct LexerState;
@@ -45,6 +49,8 @@ namespace yal{
 
         void setToken(const Token token,
                       const LexerState& state);
+
+        void setLexerError(const LexerState& state);
 
         ByteStream& m_stream;
         std::unique_ptr<LexerState> m_lexerState;

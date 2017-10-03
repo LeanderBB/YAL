@@ -5,7 +5,7 @@ namespace yal
 {
 
     const char* TokenToString(const Token token){
-        static const char* sLookupTable[static_cast<uint32_t>(Token::TokenCount)] ={
+        static const char* sLookupTable[] ={
             "Var",
             "Let",
             "True",
@@ -21,8 +21,14 @@ namespace yal
             "While",
             "For",
             "TypeBool",
+            "TypeInt8",
+            "TypeUInt8",
+            "TypeInt16",
+            "TypeUInt16",
             "TypeInt32",
             "TypeUInt32",
+            "TypeInt64",
+            "TypeUInt64",
             "TypeFlaot",
             "TypeDouble",
             "TypeString",
@@ -58,10 +64,15 @@ namespace yal
             "Minus",
             "Mult",
             "Div",
-            "Name",
+            "Identifier",
             "Colon",
             "SemiColon",
-            "Type"
+            "Type",
+            "BeginParentheses",
+            "EndParentheses",
+            "IntegerLiteral",
+            "DecimalLiteral",
+            "Comma"
         };
 
         static_assert(sizeof(sLookupTable)/sizeof(sLookupTable[0]) ==

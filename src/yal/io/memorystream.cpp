@@ -1,5 +1,6 @@
 #include "yal/io/memorystream.h"
 #include <algorithm>
+#include <cstdint>
 namespace yal {
 
     static inline void ptrDtor(void* ptr) {
@@ -90,7 +91,8 @@ namespace yal {
         }
 
         if (nBytesToRead != 0) {
-            ::memcpy(buffer,m_ptr.get(), nBytesToRead);
+            const int8_t* srcBuffer = reinterpret_cast<const int8_t*>(m_ptr.get()) + m_offset;
+            ::memcpy(buffer,srcBuffer, nBytesToRead);
             m_offset = newOffset;
             bytesRead = nBytesToRead;
         }
@@ -112,7 +114,8 @@ namespace yal {
         }
 
         if (newOffset < m_sizeBytes && newOffset > m_offset) {
-            ::memcpy(m_ptr.get(), buffer, bytes);
+            int8_t* dstBuffer = reinterpret_cast<int8_t*>(m_ptr.get()) + m_offset;
+            ::memcpy(dstBuffer, buffer, bytes);
             m_offset = newOffset;
             bytesWritten = bytes;
         }
@@ -128,6 +131,36 @@ namespace yal {
     size_t
     MemoryStream::getPosition() const {
         return m_offset;
+    }
+
+    void
+    MemoryStream::skipLine() {
+        const int8_t* srcBuffer = reinterpret_cast<const int8_t*>(m_ptr.get());
+        while (m_offset < m_sizeBytes) {
+            if (srcBuffer[m_offset]=='\n') {
+                m_offset++;
+                break;
+            }
+            m_offset++;
+        }
+    }
+
+    std::string
+    MemoryStream::readLine() {
+        std::string result;
+        size_t lineOffset = m_offset;
+        const int8_t* srcBuffer = reinterpret_cast<const int8_t*>(m_ptr.get());
+        while (lineOffset < m_sizeBytes && srcBuffer[lineOffset]=='\n') {
+            lineOffset++;
+        }
+
+        if (lineOffset > m_offset) {
+            const size_t lineSize = lineOffset - m_offset;
+            result.resize(lineSize,'\0');
+            ::memcpy(&result[0], srcBuffer + m_offset, lineSize -1);
+            m_offset = lineOffset + 1;
+        }
+        return result;
     }
 
     void

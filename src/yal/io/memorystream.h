@@ -34,6 +34,10 @@ namespace yal
 
         virtual size_t getPosition() const override;
 
+        void skipLine() override;
+
+        std::string readLine() override;
+
         void* getPtr() {
             return m_ptr.get();
         }
@@ -44,6 +48,10 @@ namespace yal
 
         virtual size_t getSizeBytes() const override{
             return m_sizeBytes;
+        }
+
+        virtual bool isSeekable() const override {
+            return true;
         }
 
     private:
