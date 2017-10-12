@@ -1,5 +1,22 @@
+/*
+ *  Copyright 2017 by Leander Beernaert (leanderbb@gmail.com)
+ *
+ *  This file is part of YAL.
+ *
+ *  YAL is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU Lesser General Public License as
+ *  published by the Free Software Foundation, either version 3
+ *  of the License, or (at your option) any later version.
+ *
+ *  YAL is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ *  GNU Lesser General Public License for more details.
+ *
+ *  You should have received a copy of the GNU Lesser General Public
+ *  License along with YAL. If not, see <http://www.gnu.org/licenses/>.
+ */
 #include "yal/parser/parser.h"
-#include "yal/parser/parserincludes.h"
 #include "yal/parser/parserimpl.h"
 #include "yal/lexer/lexer.h"
 #include "yal/lexer/tokens.h"
@@ -99,6 +116,8 @@ namespace yal{
             return YAL_TOKEN_VAR;
         case Token::Let:
             return YAL_TOKEN_LET;
+        case Token::Struct:
+            return YAL_TOKEN_STRUCT;
         default:
             YAL_ASSERT_MESSAGE(false, "Shouldn't be reached!");
             return -1;
@@ -112,10 +131,12 @@ namespace yal{
     }
 
     Parser::Parser(Lexer& lexer,
-                   Log &log):
+                   Log &log,
+                   Module& context):
         m_parserImpl(YALParserAlloc(::malloc), ParserDtor),
         m_lexer(lexer),
         m_log(log),
+        m_module(context),
         m_syntaxError(false) {
 
     }
@@ -173,5 +194,19 @@ namespace yal{
         m_log.error("Syntax Error at line: %0004u  column:%03u\n",
                     ti.lineStart, ti.columnStart);
         m_syntaxError = true;
+     }
+
+
+     void
+     Parser::onNode(DeclModule* module)
+     {
+         m_module.setRootNode(module);
+     }
+
+     void
+     Parser::onNode(DeclFunction* function)
+     {
+        (void) function;
+        m_log.message("Function added\n");
      }
 }

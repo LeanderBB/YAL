@@ -16,15 +16,27 @@
  *  You should have received a copy of the GNU Lesser General Public
  *  License along with YAL. If not, see <http://www.gnu.org/licenses/>.
  */
-#include "yal/lexer/lexer.h"
-#include "yal/io/memorystream.h"
-#include "yal/lexer/tokens.h"
+#pragma once
+
 
 namespace yal {
 
-    Lexer::Status
-    Lexer::scan() {
-        return re2cExecute();
-    }
+    enum class ASTType {
+#define YAL_AST_NODE_TYPE(type) type,
+#include "yal/ast/astnodes.def"
+#undef YAL_AST_NODE_TYPE
+        TypeInvalid,
+    };
 
+
+    template <class V, class T>
+    T* ast_cast(V* in);
+
+    template <class T>
+    ASTType ast_type(const T* type);
+
+    template <class T>
+    ASTType ast_type(const T& type) {
+        return ast_type<T>(&type);
+    }
 }

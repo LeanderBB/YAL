@@ -18,6 +18,30 @@ set(YAL_LIB_NAME yal)
 
 set(YAL_SOURCES
     yal/yal.h
+    ${YAL_CONFIG_FILE}
+
+    yal/ast/module.h
+    yal/ast/module.cpp
+    yal/ast/modulemanager.h
+    yal/ast/modulemanager.cpp
+    yal/ast/astcontext.h
+    yal/ast/astcontext.cpp
+    yal/ast/declbase.h
+    yal/ast/declbase.cpp
+    yal/ast/declbasetypes.def
+    yal/ast/asttypes.h
+    yal/ast/astnodes.def
+    yal/ast/declfunction.h
+    yal/ast/declfunction.cpp
+    yal/ast/type.h
+    yal/ast/type.cpp
+    yal/ast/typelist.def
+    yal/ast/typebuiltin.cpp
+    yal/ast/typebuiltin.h
+    yal/ast/typeregistry.cpp
+    yal/ast/typeregistry.h
+    yal/ast/declmodule.cpp
+    yal/ast/declmodule.h
 
     yal/io/memorystream.cpp
     yal/io/memorystream.h
@@ -25,6 +49,10 @@ set(YAL_SOURCES
     yal/io/bytestream.h
     yal/io/filestream.cpp
     yal/io/filestream.h
+    yal/io/sourcemanager.cpp
+    yal/io/sourcemanager.h
+    yal/io/sourceitems.cpp
+    yal/io/sourceitems.h
 
     yal/lexer/lexer.h
     yal/lexer/lexer.cpp
@@ -35,7 +63,6 @@ set(YAL_SOURCES
 
     yal/parser/parser.cpp
     yal/parser/parser.h
-    yal/parser/parserincludes.h
     yal/parser/parsertokens.h
     yal/parser/parserimpl.lemon
     yal/parser/parserimpl.cpp
@@ -45,6 +72,8 @@ set(YAL_SOURCES
     yal/util/log.cpp
     yal/util/prettyprint.cpp
     yal/util/prettyprint.h
+    yal/util/allocatorstack.cpp
+    yal/util/allocatorstack.h
 )
 
 # include parser / lexer DSL's
@@ -52,6 +81,15 @@ set_source_files_properties(yal/lexer/lexer_re2c.in
     PROPERTIES HEADER_FILE_ONLY TRUE)
 set_source_files_properties(yal/parser/parser.lemon
     PROPERTIES HEADER_FILE_ONLY TRUE)
+
+# include .def files
+set_source_files_properties(yal/parser/astnodes.def
+    PROPERTIES HEADER_FILE_ONLY TRUE)
+set_source_files_properties(yal/parser/declbasetypes.def
+    PROPERTIES HEADER_FILE_ONLY TRUE)
+set_source_files_properties(yal/parser/typelist.def
+    PROPERTIES HEADER_FILE_ONLY TRUE)
+
 
 
 

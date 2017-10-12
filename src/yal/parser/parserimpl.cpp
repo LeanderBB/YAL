@@ -8,6 +8,10 @@
 #include "yal/parser/parser.h"
 #include "yal/util/log.h"
 #include <cassert>
+#include <vector>
+#include "yal/ast/typebuiltin.h"
+#include "yal/ast/declfunction.h"
+#include "yal/ast/declmodule.h"
 #include "parserimpl.h"
 /* Next is all token values, in a form suitable for use by makeheaders.
 ** This section will be null unless lemon is run with the -m switch.
@@ -55,19 +59,20 @@
 #define YAL_TOKEN_TYPE_DOUBLE                    33
 #define YAL_TOKEN_ARRAY_BEGIN                    34
 #define YAL_TOKEN_ARRAY_END                      35
-#define YAL_TOKEN_COLON                          36
-#define YAL_TOKEN_TYPE                           37
-#define YAL_TOKEN_SCOPE_BEGIN                    38
-#define YAL_TOKEN_SCOPE_END                      39
-#define YAL_TOKEN_SEMI_COLON                     40
-#define YAL_TOKEN_FUNCTION                       41
-#define YAL_TOKEN_PAR_BEGIN                      42
-#define YAL_TOKEN_PAR_END                        43
-#define YAL_TOKEN_COMMA                          44
-#define YAL_TOKEN_VAR                            45
-#define YAL_TOKEN_LET                            46
-#define YAL_TOKEN_INTEGER_LITERAL                47
-#define YAL_TOKEN_DECIMAL_LITERAL                48
+#define YAL_TOKEN_TYPE                           36
+#define YAL_TOKEN_COLON                          37
+#define YAL_TOKEN_STRUCT                         38
+#define YAL_TOKEN_SCOPE_BEGIN                    39
+#define YAL_TOKEN_SCOPE_END                      40
+#define YAL_TOKEN_SEMI_COLON                     41
+#define YAL_TOKEN_FUNCTION                       42
+#define YAL_TOKEN_PAR_BEGIN                      43
+#define YAL_TOKEN_PAR_END                        44
+#define YAL_TOKEN_COMMA                          45
+#define YAL_TOKEN_VAR                            46
+#define YAL_TOKEN_LET                            47
+#define YAL_TOKEN_INTEGER_LITERAL                48
+#define YAL_TOKEN_DECIMAL_LITERAL                49
 #endif
 /* Make sure the INTERFACE macro is defined.
 */
@@ -109,7 +114,7 @@
 **                       defined, then do no error processing.
 */
 #define YYCODETYPE unsigned char
-#define YYNOCODE 72
+#define YYNOCODE 73
 #define YYACTIONTYPE unsigned char
 #if INTERFACE
 #define YALParserTOKENTYPE void*
@@ -117,6 +122,9 @@
 typedef union {
   int yyinit;
   YALParserTOKENTYPE yy0;
+  const yal::TypeBuiltin* yy29;
+  yal::DeclModule* yy87;
+  yal::DeclFunction* yy135;
 } YYMINORTYPE;
 #ifndef YYSTACKDEPTH
 #define YYSTACKDEPTH 100
@@ -127,8 +135,8 @@ typedef union {
 #define YALParserARG_FETCH  yal::Parser *pParser  = yypParser->pParser 
 #define YALParserARG_STORE yypParser->pParser  = pParser 
 #endif
-#define YYNSTATE 109
-#define YYNRULE 56
+#define YYNSTATE 112
+#define YYNRULE 57
 #define YY_NO_ACTION      (YYNSTATE+YYNRULE+2)
 #define YY_ACCEPT_ACTION  (YYNSTATE+YYNRULE+1)
 #define YY_ERROR_ACTION   (YYNSTATE+YYNRULE)
@@ -199,75 +207,80 @@ static const YYMINORTYPE yyzerominor = { 0 };
 */
 static const YYACTIONTYPE yy_action[] = {
  /*     0 */    75,   76,   77,   78,   79,   80,   81,   82,   83,   84,
- /*    10 */    85,   86,   53,   76,   77,   78,   79,   80,   81,   82,
- /*    20 */    83,   84,   85,   86,   10,   17,   15,   18,   19,   20,
- /*    30 */    21,    9,    7,  104,   66,   46,   18,   19,   20,   21,
- /*    40 */     9,   10,   17,   15,   48,    3,   57,   64,   74,  105,
- /*    50 */    64,   74,   51,   18,   19,   20,   21,    9,   10,   17,
- /*    60 */    15,   91,   92,   66,   46,    2,   99,   52,   55,   71,
- /*    70 */    18,   19,   20,   21,    9,   15,    1,   60,   48,  107,
- /*    80 */    64,   74,   67,   95,  106,   18,   19,   20,   21,    9,
- /*    90 */   103,   64,   74,  166,    8,   90,   20,   21,    9,   50,
- /*   100 */    16,   52,   55,   63,   62,  101,  102,   49,   64,   74,
- /*   110 */    13,   68,   69,   70,   56,   38,   36,  100,  100,   40,
- /*   120 */    47,  100,   34,    6,  100,   25,   88,   51,   39,   42,
- /*   130 */   100,  100,   41,   96,  100,  100,   97,   89,  100,   43,
- /*   140 */    44,   14,  108,  108,   31,   27,   29,   27,   72,   22,
- /*   150 */    94,   73,   98,   93,  100,   37,   33,  100,  100,   35,
- /*   160 */    87,  100,    5,   65,    4,   24,   32,  109,   59,   23,
- /*   170 */    12,   45,   30,   11,   58,   54,   26,   61,   28,
+ /*    10 */    85,   86,    8,  107,   49,   51,   47,   75,   76,   77,
+ /*    20 */    78,   79,   80,   81,   82,   83,   84,   85,   86,   66,
+ /*    30 */    76,   77,   78,   79,   80,   81,   82,   83,   84,   85,
+ /*    40 */    86,   12,   19,   17,   20,   21,   22,   10,   11,   95,
+ /*    50 */    49,   51,    4,   20,   21,   22,   10,   11,   12,   19,
+ /*    60 */    17,   53,   57,   22,   10,   11,   30,   29,   58,   74,
+ /*    70 */    20,   21,   22,   10,   11,   12,   19,   17,   71,   93,
+ /*    80 */    45,   70,   72,  111,  102,   60,   67,   20,   21,   22,
+ /*    90 */    10,   11,   17,   46,   68,   53,    9,  170,  100,   59,
+ /*   100 */   103,   98,   20,   21,   22,   10,   11,   88,   61,   57,
+ /*   110 */    26,   90,   92,   94,    3,   63,   74,   87,   18,   60,
+ /*   120 */    67,   57,   59,  104,  105,   32,   29,  108,   74,   57,
+ /*   130 */   101,   57,  103,   64,   65,  106,   74,  110,   74,   57,
+ /*   140 */    36,    1,  103,    7,   44,   54,   74,  111,   35,   27,
+ /*   150 */   103,   39,  112,  103,   37,   38,  103,  103,   33,   41,
+ /*   160 */    34,  103,  103,   40,   42,  103,  103,   43,   99,  103,
+ /*   170 */   103,  109,   69,   62,   23,   73,    2,   96,   97,   16,
+ /*   180 */    52,   24,   89,   55,   48,   56,    5,   31,   50,   14,
+ /*   190 */     6,   15,   91,   28,  171,  171,  171,   25,   13,
 };
 static const YYCODETYPE yy_lookahead[] = {
  /*     0 */    22,   23,   24,   25,   26,   27,   28,   29,   30,   31,
- /*    10 */    32,   33,   22,   23,   24,   25,   26,   27,   28,   29,
- /*    20 */    30,   31,   32,   33,    1,    2,    3,   13,   14,   15,
- /*    30 */    16,   17,   64,   65,   66,   67,   13,   14,   15,   16,
- /*    40 */    17,    1,    2,    3,   22,   36,   55,   56,   57,   55,
- /*    50 */    56,   57,   22,   13,   14,   15,   16,   17,    1,    2,
- /*    60 */     3,   39,   65,   66,   67,   36,   43,   45,   46,   39,
- /*    70 */    13,   14,   15,   16,   17,    3,   38,   19,   22,   55,
- /*    80 */    56,   57,   62,   43,   63,   13,   14,   15,   16,   17,
- /*    90 */    55,   56,   57,   50,   51,   39,   15,   16,   17,   22,
- /*   100 */    42,   45,   46,   21,   22,   47,   48,   55,   56,   57,
- /*   110 */     1,   52,   53,   54,   36,   68,   68,   70,   70,   68,
- /*   120 */    37,   70,   68,   41,   70,   58,   59,   22,   68,   68,
- /*   130 */    70,   70,   68,   68,   70,   70,   68,   62,   70,   60,
- /*   140 */    60,    1,   63,   63,   43,   44,   43,   44,   59,   38,
- /*   150 */    40,   35,   68,   40,   70,   68,   68,   70,   70,   68,
- /*   160 */    40,   70,   36,   34,   36,   42,   22,    0,   22,   42,
- /*   170 */     1,   36,   22,   42,   36,   69,   61,   69,   61,
+ /*    10 */    32,   33,   65,   66,   67,   68,   38,   22,   23,   24,
+ /*    20 */    25,   26,   27,   28,   29,   30,   31,   32,   33,   22,
+ /*    30 */    23,   24,   25,   26,   27,   28,   29,   30,   31,   32,
+ /*    40 */    33,    1,    2,    3,   13,   14,   15,   16,   17,   66,
+ /*    50 */    67,   68,   37,   13,   14,   15,   16,   17,    1,    2,
+ /*    60 */     3,   22,   51,   15,   16,   17,   44,   45,   57,   58,
+ /*    70 */    13,   14,   15,   16,   17,    1,    2,    3,   52,   40,
+ /*    80 */    61,   55,   56,   64,   44,   46,   47,   13,   14,   15,
+ /*    90 */    16,   17,    3,   21,   19,   22,   53,   54,   69,   22,
+ /*   100 */    71,   44,   13,   14,   15,   16,   17,   60,   36,   51,
+ /*   110 */    59,   60,   63,   40,   42,   57,   58,   40,   43,   46,
+ /*   120 */    47,   51,   22,   48,   49,   44,   45,   57,   58,   51,
+ /*   130 */    69,   51,   71,   22,   70,   57,   58,   57,   58,   51,
+ /*   140 */    69,   39,   71,   37,   61,   57,   58,   64,   69,   62,
+ /*   150 */    71,   69,    0,   71,   69,   69,   71,   71,   62,   69,
+ /*   160 */    69,   71,   71,   69,   69,   71,   71,   69,   69,   71,
+ /*   170 */    71,   64,   63,   70,   39,   35,   37,   41,   41,    1,
+ /*   180 */    22,   43,   41,   37,   34,   37,   37,   22,   22,    1,
+ /*   190 */    37,    1,   41,   22,   72,   72,   72,   43,   43,
 };
 #define YY_SHIFT_USE_DFLT (-23)
-#define YY_SHIFT_MAX 66
+#define YY_SHIFT_MAX 68
 static const short yy_shift_ofst[] = {
- /*     0 */   -23,   56,  -22,  -22,  -22,  -22,  -10,   22,   82,   58,
- /*    10 */    58,   58,   58,   58,   58,   58,   58,   58,   58,   58,
- /*    20 */    58,   58,  105,   77,   77,   30,   38,   77,   38,   29,
- /*    30 */     9,   29,    9,   23,   40,   57,   57,   57,   57,   72,
- /*    40 */    14,   81,   81,  101,  103,   83,  110,  111,  140,  120,
- /*    50 */   126,  128,  144,  127,  169,  150,  138,   78,  146,  123,
- /*    60 */   131,  109,  135,  167,  129,  116,  113,
+ /*     0 */   -23,   39,  -22,    7,   -5,   -5,   -5,   -5,   73,   72,
+ /*    10 */    75,   75,   75,   75,   75,   75,   75,   75,   75,   75,
+ /*    20 */    75,   75,   75,  100,  111,  111,   77,  102,   15,  111,
+ /*    30 */   106,   15,  106,  102,   57,   40,   74,   74,   74,   74,
+ /*    40 */    89,   31,   48,   48,   22,   81,  152,  135,  140,  136,
+ /*    50 */   139,  137,  138,  178,  141,  158,  146,  150,  148,  149,
+ /*    60 */   165,  166,  188,  151,  153,  190,  154,  171,  155,
 };
-#define YY_REDUCE_USE_DFLT (-33)
-#define YY_REDUCE_MAX 32
+#define YY_REDUCE_USE_DFLT (-54)
+#define YY_REDUCE_MAX 33
 static const signed char yy_reduce_ofst[] = {
- /*     0 */    43,  -32,   -6,   35,   52,   24,   -9,   -3,   59,   84,
- /*    10 */    87,   88,   91,   47,   48,   51,   54,   60,   61,   64,
- /*    20 */    65,   68,   67,   79,   80,   89,   75,   21,   20,  117,
- /*    30 */   108,  115,  106,
+ /*     0 */    43,  -53,   58,   11,   78,   88,   80,   70,  -17,   26,
+ /*    10 */    29,   61,   71,   79,   82,   85,   86,   90,   91,   94,
+ /*    20 */    95,   98,   99,   51,   19,   83,   47,   49,   64,  107,
+ /*    30 */    87,  103,   96,  109,
 };
 static const YYACTIONTYPE yy_default[] = {
- /*     0 */   113,  165,  165,  165,  165,  165,  165,  165,  165,  165,
- /*    10 */   165,  165,  165,  165,  165,  165,  165,  165,  165,  165,
- /*    20 */   165,  165,  165,  137,  137,  165,  165,  165,  165,  140,
- /*    30 */   151,  140,  151,  165,  165,  148,  147,  161,  149,  154,
- /*    40 */   153,  157,  156,  165,  165,  165,  165,  165,  165,  165,
- /*    50 */   165,  165,  165,  116,  165,  165,  165,  165,  165,  165,
- /*    60 */   165,  165,  165,  165,  114,  165,  165,  134,  110,  111,
- /*    70 */   112,  129,  130,  128,  115,  116,  117,  118,  119,  120,
- /*    80 */   121,  122,  123,  124,  125,  126,  127,  132,  131,  133,
- /*    90 */   141,  142,  143,  145,  146,  152,  158,  159,  160,  155,
- /*   100 */   162,  163,  164,  150,  144,  139,  135,  138,  136,
+ /*     0 */   116,  169,  169,  169,  169,  169,  169,  169,  169,  169,
+ /*    10 */   169,  169,  169,  169,  169,  169,  169,  169,  169,  169,
+ /*    20 */   169,  169,  169,  169,  141,  141,  169,  169,  155,  169,
+ /*    30 */   144,  155,  144,  169,  169,  169,  165,  153,  151,  152,
+ /*    40 */   158,  157,  160,  161,  169,  169,  169,  169,  169,  169,
+ /*    50 */   169,  169,  169,  169,  169,  169,  169,  117,  169,  169,
+ /*    60 */   169,  169,  169,  169,  169,  169,  119,  169,  169,  138,
+ /*    70 */   113,  114,  115,  131,  118,  119,  120,  121,  122,  123,
+ /*    80 */   124,  125,  126,  127,  128,  129,  130,  132,  134,  136,
+ /*    90 */   135,  133,  137,  145,  146,  147,  149,  150,  156,  162,
+ /*   100 */   163,  164,  159,  166,  167,  168,  154,  148,  143,  139,
+ /*   110 */   142,  140,
 };
 #define YY_SZ_ACTTAB (int)(sizeof(yy_action)/sizeof(yy_action[0]))
 
@@ -370,15 +383,15 @@ static const char *const yyTokenName[] = {
   "TYPE_INT8",     "TYPE_UINT8",    "TYPE_INT16",    "TYPE_UINT16", 
   "TYPE_INT32",    "TYPE_UINT32",   "TYPE_INT64",    "TYPE_UINT64", 
   "TYPE_FLOAT",    "TYPE_DOUBLE",   "ARRAY_BEGIN",   "ARRAY_END",   
-  "COLON",         "TYPE",          "SCOPE_BEGIN",   "SCOPE_END",   
-  "SEMI_COLON",    "FUNCTION",      "PAR_BEGIN",     "PAR_END",     
-  "COMMA",         "VAR",           "LET",           "INTEGER_LITERAL",
-  "DECIMAL_LITERAL",  "error",         "prog",          "translation_unit",
-  "type_decl",     "function_decl",  "type_function_decl",  "type_specifier",
-  "type_basic",    "type_array",    "type_var_decls",  "type_var_decl",
-  "function_args_decl",  "function_return_decl",  "function_scope",  "function_arg_decl",
-  "statement_list",  "statement",     "var_assignment",  "var_decl",    
-  "expression",    "var_type_spec",  "literal",     
+  "TYPE",          "COLON",         "STRUCT",        "SCOPE_BEGIN", 
+  "SCOPE_END",     "SEMI_COLON",    "FUNCTION",      "PAR_BEGIN",   
+  "PAR_END",       "COMMA",         "VAR",           "LET",         
+  "INTEGER_LITERAL",  "DECIMAL_LITERAL",  "error",         "type_builtin",
+  "decl_function",  "decls",         "module",        "type_decl",   
+  "type_function_decl",  "type_specifier",  "type_array",    "type_var_decls",
+  "type_var_decl",  "function_args_decl",  "function_return_decl",  "function_scope",
+  "function_arg_decl",  "statement_list",  "statement",     "var_assignment",
+  "var_decl",      "expression",    "var_type_spec",  "literal",     
 };
 #endif /* NDEBUG */
 
@@ -386,62 +399,63 @@ static const char *const yyTokenName[] = {
 /* For tracing reduce actions, the names of all rules are required.
 */
 static const char *const yyRuleName[] = {
- /*   0 */ "prog ::= translation_unit END",
- /*   1 */ "translation_unit ::= translation_unit type_decl",
- /*   2 */ "translation_unit ::= translation_unit function_decl",
- /*   3 */ "translation_unit ::= translation_unit type_function_decl",
- /*   4 */ "translation_unit ::=",
- /*   5 */ "type_specifier ::= type_basic",
+ /*   0 */ "module ::= decls END",
+ /*   1 */ "decls ::= decls type_decl",
+ /*   2 */ "decls ::= decls decl_function",
+ /*   3 */ "decls ::= decls type_function_decl",
+ /*   4 */ "decls ::=",
+ /*   5 */ "type_specifier ::= type_builtin",
  /*   6 */ "type_specifier ::= type_array",
  /*   7 */ "type_specifier ::= IDENTIFIER",
- /*   8 */ "type_basic ::= TYPE_BOOL",
- /*   9 */ "type_basic ::= TYPE_INT8",
- /*  10 */ "type_basic ::= TYPE_UINT8",
- /*  11 */ "type_basic ::= TYPE_INT16",
- /*  12 */ "type_basic ::= TYPE_UINT16",
- /*  13 */ "type_basic ::= TYPE_INT32",
- /*  14 */ "type_basic ::= TYPE_UINT32",
- /*  15 */ "type_basic ::= TYPE_INT64",
- /*  16 */ "type_basic ::= TYPE_UINT64",
- /*  17 */ "type_basic ::= TYPE_FLOAT",
- /*  18 */ "type_basic ::= TYPE_DOUBLE",
- /*  19 */ "type_array ::= type_basic ARRAY_BEGIN ARRAY_END",
- /*  20 */ "type_decl ::= IDENTIFIER COLON TYPE SCOPE_BEGIN type_var_decls SCOPE_END",
- /*  21 */ "type_var_decls ::= type_var_decls type_var_decl",
- /*  22 */ "type_var_decls ::= type_var_decl",
- /*  23 */ "type_var_decl ::= IDENTIFIER COLON type_specifier SEMI_COLON",
- /*  24 */ "function_decl ::= FUNCTION IDENTIFIER PAR_BEGIN function_args_decl PAR_END function_return_decl function_scope",
- /*  25 */ "type_function_decl ::= FUNCTION type_specifier COLON COLON IDENTIFIER PAR_BEGIN function_args_decl PAR_END function_return_decl function_scope",
- /*  26 */ "function_args_decl ::= function_args_decl COMMA function_arg_decl",
- /*  27 */ "function_args_decl ::= function_arg_decl",
- /*  28 */ "function_args_decl ::=",
- /*  29 */ "function_arg_decl ::= IDENTIFIER COLON type_specifier",
- /*  30 */ "function_return_decl ::= COLON type_specifier",
- /*  31 */ "function_return_decl ::=",
- /*  32 */ "function_scope ::= SCOPE_BEGIN SCOPE_END",
- /*  33 */ "function_scope ::= SCOPE_BEGIN statement_list SCOPE_END",
- /*  34 */ "statement_list ::= statement_list statement",
- /*  35 */ "statement_list ::= statement",
- /*  36 */ "statement ::= var_assignment SEMI_COLON",
- /*  37 */ "statement ::= var_decl SEMI_COLON",
- /*  38 */ "var_assignment ::= IDENTIFIER ASSIGN expression",
- /*  39 */ "var_decl ::= VAR IDENTIFIER var_type_spec ASSIGN expression",
- /*  40 */ "var_decl ::= LET IDENTIFIER var_type_spec ASSIGN expression",
- /*  41 */ "var_type_spec ::= COLON type_specifier",
- /*  42 */ "var_type_spec ::=",
- /*  43 */ "expression ::= PAR_BEGIN expression PAR_END",
- /*  44 */ "expression ::= expression AND expression",
- /*  45 */ "expression ::= expression OR expression",
- /*  46 */ "expression ::= NOT PAR_BEGIN expression PAR_END",
- /*  47 */ "expression ::= expression PLUS expression",
- /*  48 */ "expression ::= expression MINUS expression",
- /*  49 */ "expression ::= expression MULT expression",
- /*  50 */ "expression ::= expression DIV expression",
- /*  51 */ "expression ::= expression MOD expression",
- /*  52 */ "expression ::= expression ASSIGN expression",
- /*  53 */ "expression ::= literal",
- /*  54 */ "literal ::= INTEGER_LITERAL",
- /*  55 */ "literal ::= DECIMAL_LITERAL",
+ /*   8 */ "type_builtin ::= TYPE_BOOL",
+ /*   9 */ "type_builtin ::= TYPE_INT8",
+ /*  10 */ "type_builtin ::= TYPE_UINT8",
+ /*  11 */ "type_builtin ::= TYPE_INT16",
+ /*  12 */ "type_builtin ::= TYPE_UINT16",
+ /*  13 */ "type_builtin ::= TYPE_INT32",
+ /*  14 */ "type_builtin ::= TYPE_UINT32",
+ /*  15 */ "type_builtin ::= TYPE_INT64",
+ /*  16 */ "type_builtin ::= TYPE_UINT64",
+ /*  17 */ "type_builtin ::= TYPE_FLOAT",
+ /*  18 */ "type_builtin ::= TYPE_DOUBLE",
+ /*  19 */ "type_array ::= type_builtin ARRAY_BEGIN ARRAY_END",
+ /*  20 */ "type_decl ::= TYPE IDENTIFIER COLON STRUCT SCOPE_BEGIN type_var_decls SCOPE_END",
+ /*  21 */ "type_decl ::= TYPE IDENTIFIER COLON type_specifier SEMI_COLON",
+ /*  22 */ "type_var_decls ::= type_var_decls type_var_decl",
+ /*  23 */ "type_var_decls ::= type_var_decl",
+ /*  24 */ "type_var_decl ::= IDENTIFIER COLON type_specifier SEMI_COLON",
+ /*  25 */ "decl_function ::= FUNCTION IDENTIFIER PAR_BEGIN function_args_decl PAR_END function_return_decl function_scope",
+ /*  26 */ "type_function_decl ::= FUNCTION type_specifier COLON COLON IDENTIFIER PAR_BEGIN function_args_decl PAR_END function_return_decl function_scope",
+ /*  27 */ "function_args_decl ::= function_args_decl COMMA function_arg_decl",
+ /*  28 */ "function_args_decl ::= function_arg_decl",
+ /*  29 */ "function_args_decl ::=",
+ /*  30 */ "function_arg_decl ::= IDENTIFIER COLON type_specifier",
+ /*  31 */ "function_return_decl ::= COLON type_specifier",
+ /*  32 */ "function_return_decl ::=",
+ /*  33 */ "function_scope ::= SCOPE_BEGIN SCOPE_END",
+ /*  34 */ "function_scope ::= SCOPE_BEGIN statement_list SCOPE_END",
+ /*  35 */ "statement_list ::= statement_list statement",
+ /*  36 */ "statement_list ::= statement",
+ /*  37 */ "statement ::= var_assignment SEMI_COLON",
+ /*  38 */ "statement ::= var_decl SEMI_COLON",
+ /*  39 */ "var_assignment ::= IDENTIFIER ASSIGN expression",
+ /*  40 */ "var_decl ::= VAR IDENTIFIER var_type_spec ASSIGN expression",
+ /*  41 */ "var_decl ::= LET IDENTIFIER var_type_spec ASSIGN expression",
+ /*  42 */ "var_type_spec ::= COLON type_specifier",
+ /*  43 */ "var_type_spec ::=",
+ /*  44 */ "expression ::= PAR_BEGIN expression PAR_END",
+ /*  45 */ "expression ::= expression AND expression",
+ /*  46 */ "expression ::= expression OR expression",
+ /*  47 */ "expression ::= NOT PAR_BEGIN expression PAR_END",
+ /*  48 */ "expression ::= expression PLUS expression",
+ /*  49 */ "expression ::= expression MINUS expression",
+ /*  50 */ "expression ::= expression MULT expression",
+ /*  51 */ "expression ::= expression DIV expression",
+ /*  52 */ "expression ::= expression MOD expression",
+ /*  53 */ "expression ::= expression ASSIGN expression",
+ /*  54 */ "expression ::= literal",
+ /*  55 */ "literal ::= INTEGER_LITERAL",
+ /*  56 */ "literal ::= DECIMAL_LITERAL",
 };
 #endif /* NDEBUG */
 
@@ -746,62 +760,63 @@ static const struct {
   YYCODETYPE lhs;         /* Symbol on the left-hand side of the rule */
   unsigned char nrhs;     /* Number of right-hand side symbols in the rule */
 } yyRuleInfo[] = {
-  { 50, 2 },
-  { 51, 2 },
-  { 51, 2 },
-  { 51, 2 },
-  { 51, 0 },
-  { 55, 1 },
-  { 55, 1 },
-  { 55, 1 },
-  { 56, 1 },
-  { 56, 1 },
-  { 56, 1 },
-  { 56, 1 },
-  { 56, 1 },
-  { 56, 1 },
-  { 56, 1 },
-  { 56, 1 },
-  { 56, 1 },
-  { 56, 1 },
-  { 56, 1 },
-  { 57, 3 },
-  { 52, 6 },
-  { 58, 2 },
-  { 58, 1 },
-  { 59, 4 },
-  { 53, 7 },
-  { 54, 10 },
-  { 60, 3 },
-  { 60, 1 },
-  { 60, 0 },
-  { 63, 3 },
-  { 61, 2 },
+  { 54, 2 },
+  { 53, 2 },
+  { 53, 2 },
+  { 53, 2 },
+  { 53, 0 },
+  { 57, 1 },
+  { 57, 1 },
+  { 57, 1 },
+  { 51, 1 },
+  { 51, 1 },
+  { 51, 1 },
+  { 51, 1 },
+  { 51, 1 },
+  { 51, 1 },
+  { 51, 1 },
+  { 51, 1 },
+  { 51, 1 },
+  { 51, 1 },
+  { 51, 1 },
+  { 58, 3 },
+  { 55, 7 },
+  { 55, 5 },
+  { 59, 2 },
+  { 59, 1 },
+  { 60, 4 },
+  { 52, 7 },
+  { 56, 10 },
+  { 61, 3 },
+  { 61, 1 },
   { 61, 0 },
+  { 64, 3 },
   { 62, 2 },
-  { 62, 3 },
-  { 64, 2 },
-  { 64, 1 },
+  { 62, 0 },
+  { 63, 2 },
+  { 63, 3 },
   { 65, 2 },
-  { 65, 2 },
-  { 66, 3 },
-  { 67, 5 },
-  { 67, 5 },
-  { 69, 2 },
-  { 69, 0 },
-  { 68, 3 },
-  { 68, 3 },
-  { 68, 3 },
-  { 68, 4 },
-  { 68, 3 },
-  { 68, 3 },
-  { 68, 3 },
-  { 68, 3 },
-  { 68, 3 },
-  { 68, 3 },
-  { 68, 1 },
-  { 70, 1 },
-  { 70, 1 },
+  { 65, 1 },
+  { 66, 2 },
+  { 66, 2 },
+  { 67, 3 },
+  { 68, 5 },
+  { 68, 5 },
+  { 70, 2 },
+  { 70, 0 },
+  { 69, 3 },
+  { 69, 3 },
+  { 69, 3 },
+  { 69, 4 },
+  { 69, 3 },
+  { 69, 3 },
+  { 69, 3 },
+  { 69, 3 },
+  { 69, 3 },
+  { 69, 3 },
+  { 69, 1 },
+  { 71, 1 },
+  { 71, 1 },
 };
 
 static void yy_accept(yyParser*);  /* Forward Declaration */
@@ -856,63 +871,100 @@ static void yy_reduce(
   **  #line <lineno> <thisfile>
   **     break;
   */
+      case 2: /* decls ::= decls decl_function */
+{
+        yygotominor.yy87 =yymsp[-1].minor.yy87; yymsp[-1].minor.yy87->addDecl(yymsp[0].minor.yy135);
+}
+        break;
+      case 4: /* decls ::= */
+{
+        yygotominor.yy87 =  pParser->newASTNode<yal::DeclModule>();
+        pParser->onNode(yygotominor.yy87);
+     }
+        break;
+      case 8: /* type_builtin ::= TYPE_BOOL */
+{yygotominor.yy29 = yal::TypeBuiltin::GetTypeForDataType(yal::TypeBuiltin::DataType::Boolean);}
+        break;
+      case 9: /* type_builtin ::= TYPE_INT8 */
+{yygotominor.yy29 = yal::TypeBuiltin::GetTypeForDataType(yal::TypeBuiltin::DataType::Int8);}
+        break;
+      case 10: /* type_builtin ::= TYPE_UINT8 */
+{yygotominor.yy29 = yal::TypeBuiltin::GetTypeForDataType(yal::TypeBuiltin::DataType::UInt8);}
+        break;
+      case 11: /* type_builtin ::= TYPE_INT16 */
+{yygotominor.yy29 = yal::TypeBuiltin::GetTypeForDataType(yal::TypeBuiltin::DataType::Int16);}
+        break;
+      case 12: /* type_builtin ::= TYPE_UINT16 */
+{yygotominor.yy29 = yal::TypeBuiltin::GetTypeForDataType(yal::TypeBuiltin::DataType::UInt16);}
+        break;
+      case 13: /* type_builtin ::= TYPE_INT32 */
+{yygotominor.yy29 = yal::TypeBuiltin::GetTypeForDataType(yal::TypeBuiltin::DataType::Int32);}
+        break;
+      case 14: /* type_builtin ::= TYPE_UINT32 */
+{yygotominor.yy29 = yal::TypeBuiltin::GetTypeForDataType(yal::TypeBuiltin::DataType::UInt32);}
+        break;
+      case 15: /* type_builtin ::= TYPE_INT64 */
+{yygotominor.yy29 = yal::TypeBuiltin::GetTypeForDataType(yal::TypeBuiltin::DataType::Int64);}
+        break;
+      case 16: /* type_builtin ::= TYPE_UINT64 */
+{yygotominor.yy29 = yal::TypeBuiltin::GetTypeForDataType(yal::TypeBuiltin::DataType::UInt64);}
+        break;
+      case 17: /* type_builtin ::= TYPE_FLOAT */
+{yygotominor.yy29 = yal::TypeBuiltin::GetTypeForDataType(yal::TypeBuiltin::DataType::Float);}
+        break;
+      case 18: /* type_builtin ::= TYPE_DOUBLE */
+{yygotominor.yy29 = yal::TypeBuiltin::GetTypeForDataType(yal::TypeBuiltin::DataType::Double);}
+        break;
+      case 25: /* decl_function ::= FUNCTION IDENTIFIER PAR_BEGIN function_args_decl PAR_END function_return_decl function_scope */
+{
+        yygotominor.yy135 = pParser->newASTNode<yal::DeclFunction>();
+        pParser->onNode(yygotominor.yy135);
+        }
+        break;
       default:
-      /* (0) prog ::= translation_unit END */ yytestcase(yyruleno==0);
-      /* (1) translation_unit ::= translation_unit type_decl */ yytestcase(yyruleno==1);
-      /* (2) translation_unit ::= translation_unit function_decl */ yytestcase(yyruleno==2);
-      /* (3) translation_unit ::= translation_unit type_function_decl */ yytestcase(yyruleno==3);
-      /* (4) translation_unit ::= */ yytestcase(yyruleno==4);
-      /* (5) type_specifier ::= type_basic */ yytestcase(yyruleno==5);
+      /* (0) module ::= decls END */ yytestcase(yyruleno==0);
+      /* (1) decls ::= decls type_decl */ yytestcase(yyruleno==1);
+      /* (3) decls ::= decls type_function_decl */ yytestcase(yyruleno==3);
+      /* (5) type_specifier ::= type_builtin */ yytestcase(yyruleno==5);
       /* (6) type_specifier ::= type_array */ yytestcase(yyruleno==6);
       /* (7) type_specifier ::= IDENTIFIER */ yytestcase(yyruleno==7);
-      /* (8) type_basic ::= TYPE_BOOL */ yytestcase(yyruleno==8);
-      /* (9) type_basic ::= TYPE_INT8 */ yytestcase(yyruleno==9);
-      /* (10) type_basic ::= TYPE_UINT8 */ yytestcase(yyruleno==10);
-      /* (11) type_basic ::= TYPE_INT16 */ yytestcase(yyruleno==11);
-      /* (12) type_basic ::= TYPE_UINT16 */ yytestcase(yyruleno==12);
-      /* (13) type_basic ::= TYPE_INT32 */ yytestcase(yyruleno==13);
-      /* (14) type_basic ::= TYPE_UINT32 */ yytestcase(yyruleno==14);
-      /* (15) type_basic ::= TYPE_INT64 */ yytestcase(yyruleno==15);
-      /* (16) type_basic ::= TYPE_UINT64 */ yytestcase(yyruleno==16);
-      /* (17) type_basic ::= TYPE_FLOAT */ yytestcase(yyruleno==17);
-      /* (18) type_basic ::= TYPE_DOUBLE */ yytestcase(yyruleno==18);
-      /* (19) type_array ::= type_basic ARRAY_BEGIN ARRAY_END */ yytestcase(yyruleno==19);
-      /* (20) type_decl ::= IDENTIFIER COLON TYPE SCOPE_BEGIN type_var_decls SCOPE_END */ yytestcase(yyruleno==20);
-      /* (21) type_var_decls ::= type_var_decls type_var_decl */ yytestcase(yyruleno==21);
-      /* (22) type_var_decls ::= type_var_decl */ yytestcase(yyruleno==22);
-      /* (23) type_var_decl ::= IDENTIFIER COLON type_specifier SEMI_COLON */ yytestcase(yyruleno==23);
-      /* (24) function_decl ::= FUNCTION IDENTIFIER PAR_BEGIN function_args_decl PAR_END function_return_decl function_scope */ yytestcase(yyruleno==24);
-      /* (25) type_function_decl ::= FUNCTION type_specifier COLON COLON IDENTIFIER PAR_BEGIN function_args_decl PAR_END function_return_decl function_scope */ yytestcase(yyruleno==25);
-      /* (26) function_args_decl ::= function_args_decl COMMA function_arg_decl */ yytestcase(yyruleno==26);
-      /* (27) function_args_decl ::= function_arg_decl */ yytestcase(yyruleno==27);
-      /* (28) function_args_decl ::= */ yytestcase(yyruleno==28);
-      /* (29) function_arg_decl ::= IDENTIFIER COLON type_specifier */ yytestcase(yyruleno==29);
-      /* (30) function_return_decl ::= COLON type_specifier */ yytestcase(yyruleno==30);
-      /* (31) function_return_decl ::= */ yytestcase(yyruleno==31);
-      /* (32) function_scope ::= SCOPE_BEGIN SCOPE_END */ yytestcase(yyruleno==32);
-      /* (33) function_scope ::= SCOPE_BEGIN statement_list SCOPE_END */ yytestcase(yyruleno==33);
-      /* (34) statement_list ::= statement_list statement */ yytestcase(yyruleno==34);
-      /* (35) statement_list ::= statement */ yytestcase(yyruleno==35);
-      /* (36) statement ::= var_assignment SEMI_COLON */ yytestcase(yyruleno==36);
-      /* (37) statement ::= var_decl SEMI_COLON */ yytestcase(yyruleno==37);
-      /* (38) var_assignment ::= IDENTIFIER ASSIGN expression */ yytestcase(yyruleno==38);
-      /* (39) var_decl ::= VAR IDENTIFIER var_type_spec ASSIGN expression */ yytestcase(yyruleno==39);
-      /* (40) var_decl ::= LET IDENTIFIER var_type_spec ASSIGN expression */ yytestcase(yyruleno==40);
-      /* (41) var_type_spec ::= COLON type_specifier */ yytestcase(yyruleno==41);
-      /* (42) var_type_spec ::= */ yytestcase(yyruleno==42);
-      /* (43) expression ::= PAR_BEGIN expression PAR_END */ yytestcase(yyruleno==43);
-      /* (44) expression ::= expression AND expression */ yytestcase(yyruleno==44);
-      /* (45) expression ::= expression OR expression */ yytestcase(yyruleno==45);
-      /* (46) expression ::= NOT PAR_BEGIN expression PAR_END */ yytestcase(yyruleno==46);
-      /* (47) expression ::= expression PLUS expression */ yytestcase(yyruleno==47);
-      /* (48) expression ::= expression MINUS expression */ yytestcase(yyruleno==48);
-      /* (49) expression ::= expression MULT expression */ yytestcase(yyruleno==49);
-      /* (50) expression ::= expression DIV expression */ yytestcase(yyruleno==50);
-      /* (51) expression ::= expression MOD expression */ yytestcase(yyruleno==51);
-      /* (52) expression ::= expression ASSIGN expression */ yytestcase(yyruleno==52);
-      /* (53) expression ::= literal */ yytestcase(yyruleno==53);
-      /* (54) literal ::= INTEGER_LITERAL */ yytestcase(yyruleno==54);
-      /* (55) literal ::= DECIMAL_LITERAL */ yytestcase(yyruleno==55);
+      /* (19) type_array ::= type_builtin ARRAY_BEGIN ARRAY_END */ yytestcase(yyruleno==19);
+      /* (20) type_decl ::= TYPE IDENTIFIER COLON STRUCT SCOPE_BEGIN type_var_decls SCOPE_END */ yytestcase(yyruleno==20);
+      /* (21) type_decl ::= TYPE IDENTIFIER COLON type_specifier SEMI_COLON */ yytestcase(yyruleno==21);
+      /* (22) type_var_decls ::= type_var_decls type_var_decl */ yytestcase(yyruleno==22);
+      /* (23) type_var_decls ::= type_var_decl */ yytestcase(yyruleno==23);
+      /* (24) type_var_decl ::= IDENTIFIER COLON type_specifier SEMI_COLON */ yytestcase(yyruleno==24);
+      /* (26) type_function_decl ::= FUNCTION type_specifier COLON COLON IDENTIFIER PAR_BEGIN function_args_decl PAR_END function_return_decl function_scope */ yytestcase(yyruleno==26);
+      /* (27) function_args_decl ::= function_args_decl COMMA function_arg_decl */ yytestcase(yyruleno==27);
+      /* (28) function_args_decl ::= function_arg_decl */ yytestcase(yyruleno==28);
+      /* (29) function_args_decl ::= */ yytestcase(yyruleno==29);
+      /* (30) function_arg_decl ::= IDENTIFIER COLON type_specifier */ yytestcase(yyruleno==30);
+      /* (31) function_return_decl ::= COLON type_specifier */ yytestcase(yyruleno==31);
+      /* (32) function_return_decl ::= */ yytestcase(yyruleno==32);
+      /* (33) function_scope ::= SCOPE_BEGIN SCOPE_END */ yytestcase(yyruleno==33);
+      /* (34) function_scope ::= SCOPE_BEGIN statement_list SCOPE_END */ yytestcase(yyruleno==34);
+      /* (35) statement_list ::= statement_list statement */ yytestcase(yyruleno==35);
+      /* (36) statement_list ::= statement */ yytestcase(yyruleno==36);
+      /* (37) statement ::= var_assignment SEMI_COLON */ yytestcase(yyruleno==37);
+      /* (38) statement ::= var_decl SEMI_COLON */ yytestcase(yyruleno==38);
+      /* (39) var_assignment ::= IDENTIFIER ASSIGN expression */ yytestcase(yyruleno==39);
+      /* (40) var_decl ::= VAR IDENTIFIER var_type_spec ASSIGN expression */ yytestcase(yyruleno==40);
+      /* (41) var_decl ::= LET IDENTIFIER var_type_spec ASSIGN expression */ yytestcase(yyruleno==41);
+      /* (42) var_type_spec ::= COLON type_specifier */ yytestcase(yyruleno==42);
+      /* (43) var_type_spec ::= */ yytestcase(yyruleno==43);
+      /* (44) expression ::= PAR_BEGIN expression PAR_END */ yytestcase(yyruleno==44);
+      /* (45) expression ::= expression AND expression */ yytestcase(yyruleno==45);
+      /* (46) expression ::= expression OR expression */ yytestcase(yyruleno==46);
+      /* (47) expression ::= NOT PAR_BEGIN expression PAR_END */ yytestcase(yyruleno==47);
+      /* (48) expression ::= expression PLUS expression */ yytestcase(yyruleno==48);
+      /* (49) expression ::= expression MINUS expression */ yytestcase(yyruleno==49);
+      /* (50) expression ::= expression MULT expression */ yytestcase(yyruleno==50);
+      /* (51) expression ::= expression DIV expression */ yytestcase(yyruleno==51);
+      /* (52) expression ::= expression MOD expression */ yytestcase(yyruleno==52);
+      /* (53) expression ::= expression ASSIGN expression */ yytestcase(yyruleno==53);
+      /* (54) expression ::= literal */ yytestcase(yyruleno==54);
+      /* (55) literal ::= INTEGER_LITERAL */ yytestcase(yyruleno==55);
+      /* (56) literal ::= DECIMAL_LITERAL */ yytestcase(yyruleno==56);
         break;
   };
   yygoto = yyRuleInfo[yyruleno].lhs;

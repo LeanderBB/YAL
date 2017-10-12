@@ -16,15 +16,35 @@
  *  You should have received a copy of the GNU Lesser General Public
  *  License along with YAL. If not, see <http://www.gnu.org/licenses/>.
  */
-#include "yal/lexer/lexer.h"
-#include "yal/io/memorystream.h"
-#include "yal/lexer/tokens.h"
+
+#pragma once
+
+#include "yal/yal.h"
+#include <vector>
+#include "yal/util/allocatorstack.h"
 
 namespace yal {
+    class DeclModule;
+    class DeclBase;
+    class ASTContext {
+    public:
 
-    Lexer::Status
-    Lexer::scan() {
-        return re2cExecute();
-    }
+        ASTContext();
 
+        YAL_MOVE_ONLY_CLASS(ASTContext);
+
+        void* allocate(const size_t size);
+
+        AllocatorStack& getAllocator() {
+            return m_allocator;
+        }
+
+        void addNode(DeclBase* node);
+
+        void addNode(DeclModule* node);
+    private:
+        AllocatorStack m_allocator;
+        std::vector<DeclBase*> m_declNodes;
+        std::vector<DeclModule*> m_moduleNodes;
+    };
 }

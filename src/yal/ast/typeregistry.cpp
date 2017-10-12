@@ -16,15 +16,12 @@
  *  You should have received a copy of the GNU Lesser General Public
  *  License along with YAL. If not, see <http://www.gnu.org/licenses/>.
  */
-#include "yal/lexer/lexer.h"
-#include "yal/io/memorystream.h"
-#include "yal/lexer/tokens.h"
 
-namespace yal {
+#include "yal/ast/typeregistry.h"
 
-    Lexer::Status
-    Lexer::scan() {
-        return re2cExecute();
+namespace yal{
+
+    TypeRegistry::TypeRegistry() {
+
     }
-
 }

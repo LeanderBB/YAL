@@ -16,15 +16,27 @@
  *  You should have received a copy of the GNU Lesser General Public
  *  License along with YAL. If not, see <http://www.gnu.org/licenses/>.
  */
-#include "yal/lexer/lexer.h"
-#include "yal/io/memorystream.h"
-#include "yal/lexer/tokens.h"
+#include "yal/io/sourceitems.h"
 
 namespace yal {
 
-    Lexer::Status
-    Lexer::scan() {
-        return re2cExecute();
+    bool
+    SourceItemFile::open(const char* path) {
+        m_stream.close();
+        if (m_stream.open(path, FileStream::kModeRead)) {
+            m_filePath = path;
+            return true;
+        }
+        return false;
     }
 
+    const ByteStream &
+    SourceItemFile::getByteStream() const {
+        return m_stream;
+    }
+
+    const char *
+    SourceItemFile::getPath() const {
+        return m_filePath.c_str();
+    }
 }

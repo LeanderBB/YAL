@@ -16,15 +16,20 @@
  *  You should have received a copy of the GNU Lesser General Public
  *  License along with YAL. If not, see <http://www.gnu.org/licenses/>.
  */
-#include "yal/lexer/lexer.h"
-#include "yal/io/memorystream.h"
-#include "yal/lexer/tokens.h"
+
+#include "yal/ast/module.h"
 
 namespace yal {
+    Module::Module(const char* name,
+                   ModuleManager& manager,
+                   const SourceManager::Handle handle,
+                   const Id id):
+        m_id(id),
+        m_sourceHandle(handle),
+        m_manager(manager),
+        m_name(name),
+        m_astContext() {
 
-    Lexer::Status
-    Lexer::scan() {
-        return re2cExecute();
     }
 
 }

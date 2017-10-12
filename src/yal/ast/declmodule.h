@@ -17,50 +17,43 @@
  *  License along with YAL. If not, see <http://www.gnu.org/licenses/>.
  */
 #pragma once
-#include <memory>
-#include <yal/ast/module.h>
+
+#include <vector>
+
 namespace yal {
-    class Log;
-    class Lexer;
-
-    class DeclModule;
-    class DeclFunction;
-    class DeclFunctionType;
-    class Parser
-    {
+    class DeclBase;
+    class Module;
+    class DeclModule {
     public:
-        Parser(Lexer& lexer,
-               Log& log,
-               Module& context);
 
+        static void* operator new(std::size_t bytes,
+                                  Module& ctx);
 
-        bool run();
+        DeclModule(Module& module);
 
-        Log& getLog() {
-            return m_log;
+        DeclModule(Module& module,
+                   std::vector<DeclBase*>&& declarations);
+
+        std::vector<DeclBase*>& getDeclarations()  {
+            const DeclModule* const_this = this;
+            return const_cast<std::vector<DeclBase*>&>(const_this->getDeclarations());
+        }
+        const std::vector<DeclBase*>& getDeclarations() const {
+            return m_declartions;
         }
 
         Module& getModule() {
             return m_module;
         }
 
-        void logParseFailure();
-
-        template <typename T, typename... ARGS>
-        T* newASTNode(ARGS&& ...args) {
-            return new(m_module) T(m_module, std::forward<ARGS>(args)...);
+        const Module& getModule() const {
+            return m_module;
         }
 
-        void onNode(DeclModule* module);
-
-        void onNode(DeclFunction* function);
+        void addDecl(DeclBase* node);
 
     private:
-        std::unique_ptr<void, void(*)(void*)> m_parserImpl;
-        Lexer& m_lexer;
-        Log& m_log;
         Module& m_module;
-        bool m_syntaxError;
+        std::vector<DeclBase*> m_declartions;
     };
-
 }

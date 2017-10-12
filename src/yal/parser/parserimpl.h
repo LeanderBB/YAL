@@ -13,19 +13,20 @@ void YALParserTrace(FILE *TraceFILE,char *zTracePrompt);
 #define YALParserARG_STORE yypParser->pParser  = pParser 
 #define YALParserARG_FETCH  yal::Parser *pParser  = yypParser->pParser 
 #define YALParserARG_SDECL  yal::Parser *pParser ;
-#define YAL_TOKEN_DECIMAL_LITERAL                48
-#define YAL_TOKEN_INTEGER_LITERAL                47
-#define YAL_TOKEN_LET                            46
-#define YAL_TOKEN_VAR                            45
-#define YAL_TOKEN_COMMA                          44
-#define YAL_TOKEN_PAR_END                        43
-#define YAL_TOKEN_PAR_BEGIN                      42
-#define YAL_TOKEN_FUNCTION                       41
-#define YAL_TOKEN_SEMI_COLON                     40
-#define YAL_TOKEN_SCOPE_END                      39
-#define YAL_TOKEN_SCOPE_BEGIN                    38
-#define YAL_TOKEN_TYPE                           37
-#define YAL_TOKEN_COLON                          36
+#define YAL_TOKEN_DECIMAL_LITERAL                49
+#define YAL_TOKEN_INTEGER_LITERAL                48
+#define YAL_TOKEN_LET                            47
+#define YAL_TOKEN_VAR                            46
+#define YAL_TOKEN_COMMA                          45
+#define YAL_TOKEN_PAR_END                        44
+#define YAL_TOKEN_PAR_BEGIN                      43
+#define YAL_TOKEN_FUNCTION                       42
+#define YAL_TOKEN_SEMI_COLON                     41
+#define YAL_TOKEN_SCOPE_END                      40
+#define YAL_TOKEN_SCOPE_BEGIN                    39
+#define YAL_TOKEN_STRUCT                         38
+#define YAL_TOKEN_COLON                          37
+#define YAL_TOKEN_TYPE                           36
 #define YAL_TOKEN_ARRAY_END                      35
 #define YAL_TOKEN_ARRAY_BEGIN                    34
 #define YAL_TOKEN_TYPE_DOUBLE                    33

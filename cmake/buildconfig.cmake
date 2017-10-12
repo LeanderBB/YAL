@@ -12,7 +12,7 @@ if (NOT MSVC) # Clang and GCC
     set(YAL_WERROR_FLAG -Werror)
     set(YAL_DISABLE_WARNING_UNUSED_VAR "-Wno-unused-parameter")
     set(YAL_C_FLAGS -std=c99 -Wall -Wextra -pedantic)
-    set(YAL_CXX_FLAGS -Wall -Wextra -std=c++14 -fexceptions -fno-rtti)
+    set(YAL_CXX_FLAGS -Wall -Wextra -std=c++14 -fno-exceptions -fno-rtti)
 
     set(YAL_DEFINITIONS)
     # Release flags

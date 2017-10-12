@@ -18,15 +18,48 @@
  */
 #pragma once
 
-namespace yal {
-    class ByteStream;
-    class Log;
+#include "yal/ast/declbase.h"
 
-    class PrettyPrint {
+namespace yal {
+    class Module;
+    class DeclFunctionBase : public DeclBase
+    {
     public:
-        static void SourceErrorPrint(ByteStream& stream,
-                                     Log& log,
-                                     const size_t lineStart,
-                                     const size_t columnStart);
+        DeclFunctionBase(Module& module,
+                         const Kind kind,
+                         const ASTType type);
+
+        virtual ~DeclFunctionBase();
+
+        bool hasReturnValue() const;
+
+        bool hasFunctionParameters() const;
+
+        QualType getReturnType() const;
+
+        // getFunctionParameters()...
+
+    protected:
+        QualType m_returnType;
+    };
+
+
+
+
+    class DeclFunction : public DeclFunctionBase {
+    public:
+        DeclFunction(Module& module);
+    };
+
+
+    class DeclTypeFunction : public DeclFunctionBase {
+    public:
+        DeclTypeFunction(Module& module);
+
+        QualType getTypeForFunction() const;
+
+
+    protected:
+        QualType m_typeForFunction;
     };
 }

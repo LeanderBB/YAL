@@ -16,15 +16,39 @@
  *  You should have received a copy of the GNU Lesser General Public
  *  License along with YAL. If not, see <http://www.gnu.org/licenses/>.
  */
-#include "yal/lexer/lexer.h"
-#include "yal/io/memorystream.h"
-#include "yal/lexer/tokens.h"
+#include "yal/ast/declfunction.h"
 
 namespace yal {
 
-    Lexer::Status
-    Lexer::scan() {
-        return re2cExecute();
+    DeclFunctionBase::DeclFunctionBase(Module& module,
+                                       const Kind kind,
+                                       const ASTType type):
+        DeclBase(module, kind, type) {
     }
 
+    DeclFunctionBase::~DeclFunctionBase(){
+
+    }
+
+
+
+
+
+
+
+    DeclFunction::DeclFunction(Module& module):
+        DeclFunctionBase(module,
+                         Kind::FunctionDecl,
+                         ASTType::FunctionDecl) {
+
+    }
+
+
+
+    DeclTypeFunction::DeclTypeFunction(Module& module):
+        DeclFunctionBase(module,
+                         Kind::TypeFunctionDecl,
+                         ASTType::TypeFunctionDecl) {
+
+    }
 }

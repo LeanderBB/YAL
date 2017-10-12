@@ -16,15 +16,16 @@
  *  You should have received a copy of the GNU Lesser General Public
  *  License along with YAL. If not, see <http://www.gnu.org/licenses/>.
  */
-#include "yal/lexer/lexer.h"
-#include "yal/io/memorystream.h"
-#include "yal/lexer/tokens.h"
 
-namespace yal {
 
-    Lexer::Status
-    Lexer::scan() {
-        return re2cExecute();
-    }
+/* List of AST Nodes in the compiler
+ *
+ * Define YAL_AST_NODE_TYPE(type) macro to use this list
+ *
+ */
 
-}
+YAL_AST_NODE_TYPE(FunctionDecl)
+YAL_AST_NODE_TYPE(TypeFunctionDecl)
+YAL_AST_NODE_TYPE(StructDecl)
+YAL_AST_NODE_TYPE(StrongAliasDecl)
+YAL_AST_NODE_TYPE(WeakAliasDecl)

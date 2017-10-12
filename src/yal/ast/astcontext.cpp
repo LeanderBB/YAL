@@ -16,15 +16,39 @@
  *  You should have received a copy of the GNU Lesser General Public
  *  License along with YAL. If not, see <http://www.gnu.org/licenses/>.
  */
-#include "yal/lexer/lexer.h"
-#include "yal/io/memorystream.h"
-#include "yal/lexer/tokens.h"
+#include "yal/ast/astcontext.h"
+#include <cstdint>
+#include <cinttypes>
+#include "yal/ast/declbase.h"
+#include "yal/ast/declmodule.h"
+#include "yal/ast/module.h"
+namespace yal{
 
-namespace yal {
+    enum {
+        kStackSizeBytes = 1024 * 1024
+    };
 
-    Lexer::Status
-    Lexer::scan() {
-        return re2cExecute();
+    ASTContext::ASTContext() :
+        m_allocator(kStackSizeBytes){
+
     }
 
+    void*
+    ASTContext::allocate(const size_t size) {
+        return m_allocator.allocate(size);
+    }
+
+    void
+    ASTContext::addNode(DeclBase* node) {
+        if (&node->getModule().getASTContext() == this) {
+            m_declNodes.push_back(node);
+        }
+    }
+
+    void
+    ASTContext::addNode(DeclModule* node) {
+        if (&node->getModule().getASTContext() == this) {
+            m_moduleNodes.push_back(node);
+        }
+    }
 }
