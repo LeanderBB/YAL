@@ -18,7 +18,7 @@
  */
 
 #include "yal/io/sourcemanager.h"
-#include "yal/io/filestream.h"
+#include "yal/io/memorystream.h"
 
 namespace yal {
 
@@ -27,12 +27,12 @@ namespace yal {
 
         bool open(const char* path);
 
-        const ByteStream &getByteStream() const override;
+        const MemoryStream &getByteStream() const override;
 
         const char *getPath() const override;
 
     private:
-        FileStream m_stream;
+        MemoryStream m_stream;
         std::string m_filePath;
     };
 }

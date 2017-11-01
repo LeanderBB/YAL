@@ -38,10 +38,19 @@ set(YAL_SOURCES
     yal/ast/typelist.def
     yal/ast/typebuiltin.cpp
     yal/ast/typebuiltin.h
-    yal/ast/typeregistry.cpp
-    yal/ast/typeregistry.h
+    yal/ast/typecontext.cpp
+    yal/ast/typecontext.h
+    yal/ast/typefunction.cpp
+    yal/ast/typefunction.h
     yal/ast/declmodule.cpp
     yal/ast/declmodule.h
+    yal/ast/refbase.h
+    yal/ast/refbase.cpp
+    yal/ast/refbasetypes.def
+    yal/ast/reftype.cpp
+    yal/ast/reftype.h
+    yal/ast/reftypebuiltin.cpp
+    yal/ast/reftypebuiltin.h
 
     yal/io/memorystream.cpp
     yal/io/memorystream.h
@@ -74,6 +83,8 @@ set(YAL_SOURCES
     yal/util/prettyprint.h
     yal/util/allocatorstack.cpp
     yal/util/allocatorstack.h
+    yal/util/stringref.cpp
+    yal/util/stringref.h
 )
 
 # include parser / lexer DSL's
@@ -89,7 +100,8 @@ set_source_files_properties(yal/parser/declbasetypes.def
     PROPERTIES HEADER_FILE_ONLY TRUE)
 set_source_files_properties(yal/parser/typelist.def
     PROPERTIES HEADER_FILE_ONLY TRUE)
-
+set_source_files_properties(yal/parser/refbasetypes.def
+    PROPERTIES HEADER_FILE_ONLY TRUE)
 
 
 

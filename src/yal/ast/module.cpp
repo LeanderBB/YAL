@@ -28,7 +28,9 @@ namespace yal {
         m_sourceHandle(handle),
         m_manager(manager),
         m_name(name),
-        m_astContext() {
+        m_astContext(),
+        m_typeContext(),
+        m_rootNode(nullptr){
 
     }
 

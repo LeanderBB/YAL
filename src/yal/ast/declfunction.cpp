@@ -17,13 +17,19 @@
  *  License along with YAL. If not, see <http://www.gnu.org/licenses/>.
  */
 #include "yal/ast/declfunction.h"
+#include "yal/ast/module.h"
+
 
 namespace yal {
 
     DeclFunctionBase::DeclFunctionBase(Module& module,
                                        const Kind kind,
-                                       const ASTType type):
-        DeclBase(module, kind, type) {
+                                       const ASTType type,
+                                       const StringRef functionName,
+                                       const RefType*returnType):
+        DeclBase(module, kind, type),
+        m_name(functionName),
+        m_returnType(returnType) {
     }
 
     DeclFunctionBase::~DeclFunctionBase(){
@@ -32,23 +38,27 @@ namespace yal {
 
 
 
-
-
-
-
-    DeclFunction::DeclFunction(Module& module):
+    DeclFunction::DeclFunction(Module& module,
+                               const StringRef functionName,
+                               const RefType* returnType):
         DeclFunctionBase(module,
                          Kind::FunctionDecl,
-                         ASTType::FunctionDecl) {
+                         ASTType::FunctionDecl,
+                         functionName,
+                         returnType) {
 
     }
 
-
-
-    DeclTypeFunction::DeclTypeFunction(Module& module):
+    DeclTypeFunction::DeclTypeFunction(Module& module,
+                                       const StringRef functionName,
+                                       const RefType *returnType,
+                                       const RefType *destType):
         DeclFunctionBase(module,
                          Kind::TypeFunctionDecl,
-                         ASTType::TypeFunctionDecl) {
+                         ASTType::TypeFunctionDecl,
+                         functionName,
+                         returnType),
+        m_typeForFunction(destType){
 
     }
 }

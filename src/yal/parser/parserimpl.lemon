@@ -21,13 +21,15 @@
 %token_prefix YAL_TOKEN_
 
 %include {
-#include "yal/parser/parser.h"
-#include "yal/util/log.h"
 #include <cassert>
 #include <vector>
+#include "yal/parser/parser.h"
+#include "yal/util/log.h"
+#include "yal/util/stringref.h"
 #include "yal/ast/typebuiltin.h"
 #include "yal/ast/declfunction.h"
 #include "yal/ast/declmodule.h"
+#include "yal/ast/reftypebuiltin.h"
 }
 
 
@@ -61,12 +63,15 @@
 %right NOT.
 %right DOT.
 
-%type type_builtin {const yal::TypeBuiltin*}
+%type type_builtin {const yal::RefTypeBuiltin*}
 %type decl_function {yal::DeclFunction*}
 %type decls {yal::DeclModule*}
 %type module {yal::DeclModule*}
-
+%type function_return_decl {const yal::RefType*}
+%type type_specifier {const yal::RefType*}
+%type named_decl {yal::StringRefPod}
 %start_symbol  module
+%token_type {yal::StringRefPod}
 
 module ::= decls END.
 
@@ -80,21 +85,43 @@ decls(A) ::=. {
         pParser->onNode(A);
      }
 // Type  specifiers
-type_specifier ::= type_builtin.
-type_specifier ::= type_array.
-type_specifier ::= IDENTIFIER.
+type_specifier(A) ::= type_builtin(B). {A=B;}
+type_specifier(A) ::= type_array. {A = nullptr;}
+type_specifier(A) ::= IDENTIFIER. {A = nullptr;}
 
-type_builtin(A) ::= TYPE_BOOL. {A = yal::TypeBuiltin::GetTypeForDataType(yal::TypeBuiltin::DataType::Boolean);}
-type_builtin(A) ::= TYPE_INT8. {A = yal::TypeBuiltin::GetTypeForDataType(yal::TypeBuiltin::DataType::Int8);}
-type_builtin(A) ::= TYPE_UINT8. {A = yal::TypeBuiltin::GetTypeForDataType(yal::TypeBuiltin::DataType::UInt8);}
-type_builtin(A) ::= TYPE_INT16. {A = yal::TypeBuiltin::GetTypeForDataType(yal::TypeBuiltin::DataType::Int16);}
-type_builtin(A) ::= TYPE_UINT16. {A = yal::TypeBuiltin::GetTypeForDataType(yal::TypeBuiltin::DataType::UInt16);}
-type_builtin(A) ::= TYPE_INT32. {A = yal::TypeBuiltin::GetTypeForDataType(yal::TypeBuiltin::DataType::Int32);}
-type_builtin(A) ::= TYPE_UINT32. {A = yal::TypeBuiltin::GetTypeForDataType(yal::TypeBuiltin::DataType::UInt32);}
-type_builtin(A) ::= TYPE_INT64. {A = yal::TypeBuiltin::GetTypeForDataType(yal::TypeBuiltin::DataType::Int64);}
-type_builtin(A) ::= TYPE_UINT64. {A = yal::TypeBuiltin::GetTypeForDataType(yal::TypeBuiltin::DataType::UInt64);}
-type_builtin(A) ::= TYPE_FLOAT. {A = yal::TypeBuiltin::GetTypeForDataType(yal::TypeBuiltin::DataType::Float);}
-type_builtin(A) ::= TYPE_DOUBLE. {A = yal::TypeBuiltin::GetTypeForDataType(yal::TypeBuiltin::DataType::Double);}
+type_builtin(A) ::= TYPE_BOOL. {
+        A = pParser->newASTNode<yal::RefTypeBuiltin>(pParser->getModule().getTypeContext().getTypeBuiltinBool());
+        }
+type_builtin(A) ::= TYPE_INT8. {
+        A = pParser->newASTNode<yal::RefTypeBuiltin>(pParser->getModule().getTypeContext().getTypeBuiltinI8());
+        }
+type_builtin(A) ::= TYPE_UINT8. {
+        A  = pParser->newASTNode<yal::RefTypeBuiltin>(pParser->getModule().getTypeContext().getTypeBuiltinU8());
+        }
+type_builtin(A) ::= TYPE_INT16. {
+        A = pParser->newASTNode<yal::RefTypeBuiltin>(pParser->getModule().getTypeContext().getTypeBuiltinI16());
+        }
+type_builtin(A) ::= TYPE_UINT16. {
+        A  = pParser->newASTNode<yal::RefTypeBuiltin>(pParser->getModule().getTypeContext().getTypeBuiltinU16());
+        }
+type_builtin(A) ::= TYPE_INT32. {
+        A = pParser->newASTNode<yal::RefTypeBuiltin>(pParser->getModule().getTypeContext().getTypeBuiltinI32());
+        }
+type_builtin(A) ::= TYPE_UINT32. {
+        A = pParser->newASTNode<yal::RefTypeBuiltin>(pParser->getModule().getTypeContext().getTypeBuiltinU32());
+        }
+type_builtin(A) ::= TYPE_INT64. {
+        A = pParser->newASTNode<yal::RefTypeBuiltin>(pParser->getModule().getTypeContext().getTypeBuiltinI64());
+        }
+type_builtin(A) ::= TYPE_UINT64. {
+        A = pParser->newASTNode<yal::RefTypeBuiltin>(pParser->getModule().getTypeContext().getTypeBuiltinU64());
+        }
+type_builtin(A) ::= TYPE_FLOAT. {
+        A = pParser->newASTNode<yal::RefTypeBuiltin>(pParser->getModule().getTypeContext().getTypeBuiltinFloat());
+        }
+type_builtin(A) ::= TYPE_DOUBLE. {
+        A = pParser->newASTNode<yal::RefTypeBuiltin>(pParser->getModule().getTypeContext().getTypeBuiltinDouble());
+        }
 
 type_array ::= type_builtin ARRAY_BEGIN ARRAY_END.
 
@@ -109,9 +136,9 @@ type_var_decl ::= IDENTIFIER COLON type_specifier SEMI_COLON.
 
 // Functions
 
-decl_function (A) ::= FUNCTION IDENTIFIER PAR_BEGIN function_args_decl PAR_END
-        function_return_decl function_scope. {
-        A = pParser->newASTNode<yal::DeclFunction>();
+decl_function (A) ::= FUNCTION IDENTIFIER(B) PAR_BEGIN function_args_decl PAR_END
+        function_return_decl(C) function_scope. {
+        A = pParser->newASTNode<yal::DeclFunction>(B, C);
         pParser->onNode(A);
         }
 
@@ -127,8 +154,8 @@ function_args_decl ::= .
 
 function_arg_decl ::= IDENTIFIER COLON type_specifier.
 
-function_return_decl ::= COLON type_specifier.
-function_return_decl ::=.
+function_return_decl(A) ::= COLON type_specifier(B). { A = B;}
+function_return_decl(A)::=. {A = nullptr;}
 
 function_scope ::= SCOPE_BEGIN SCOPE_END.
 function_scope ::= SCOPE_BEGIN statement_list SCOPE_END.

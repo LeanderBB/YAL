@@ -149,6 +149,9 @@ namespace yal {
         m_curToken.columnStart = state.tokenColumnStart;
         m_curToken.columnEnd =state.getColumnOffsetEnd();
         m_curToken.tokenOffsetInStream = state.getStreamOffset();
+        m_curToken.tokenStr =
+                StringRef(m_stream.getPtrAt(m_curToken.tokenOffsetInStream),
+                          m_curToken.tokLen);
     }
 
     void

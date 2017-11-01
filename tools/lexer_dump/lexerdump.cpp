@@ -20,13 +20,13 @@
 #include <yal/lexer/lexer.h>
 #include <yal/lexer/tokens.h>
 #include <yal/io/filestream.h>
+#include <yal/io/memorystream.h>
 #include <string>
 #include <iostream>
 
 int main(const int argc,
          const char** argv) {
     yal::FileStream stream;
-
     if (argc < 2)  {
         stream.open(yal::FileStream::StdStream::In);
     } else {
@@ -36,7 +36,10 @@ int main(const int argc,
         }
     }
 
-    yal::Lexer lexer(stream);
+    yal::MemoryStream memStream;
+    memStream.create(stream);
+
+    yal::Lexer lexer(memStream);
 
     while(true) {
         const yal::Lexer::Status status = lexer.scan();

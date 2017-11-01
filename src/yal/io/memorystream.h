@@ -22,6 +22,7 @@
 
 namespace yal
 {
+    class FileStream;
     class MemoryStream : public ByteStream
     {
     public:
@@ -29,8 +30,8 @@ namespace yal
 
         YAL_NO_COPY_CLASS(MemoryStream);
 
-        bool open(const size_t initialSizeBytes,
-                  const uint32_t mode);
+        bool create(const size_t initialSizeBytes,
+                    const uint32_t mode);
 
         bool attach(void* ptr,
                     const size_t sizeBytes,
@@ -41,6 +42,7 @@ namespace yal
                     const size_t sizeBytes,
                     const bool takeOwnerShip);
 
+        bool create(FileStream& stream);
 
         virtual size_t read(void* buffer,
                             const size_t bytes) override;
@@ -63,6 +65,8 @@ namespace yal
         const void* getPtr() const {
             return m_ptr.get();
         }
+
+        const void* getPtrAt(const size_t offset) const;
 
         virtual size_t getSizeBytes() const override{
             return m_sizeBytes;

@@ -210,4 +210,12 @@ namespace yal {
         m_flags = 0;
         m_offset = 0;
     }
+
+     bool
+     FileStream::isStdStream() const {
+         const FILE* file = m_file.get();
+         return file == stdin
+                 || file == stdout
+                 || file == stderr;
+     }
 }

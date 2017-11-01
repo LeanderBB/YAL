@@ -16,12 +16,28 @@
  *  You should have received a copy of the GNU Lesser General Public
  *  License along with YAL. If not, see <http://www.gnu.org/licenses/>.
  */
+#pragma once
 
-#include "yal/ast/typeregistry.h"
+#include "yal/ast/type.h"
 
 namespace yal{
+class DeclFunction;
+class TypeFunction : public Type
+{
+public:
+    TypeFunction(const Module* module,
+                 const DeclFunction* functionDecl);
 
-    TypeRegistry::TypeRegistry() {
+    const DeclFunction* getDeclFunction() const;
 
-    }
+    QualType getReturnType() const;
+
+    bool hasFunctionArguments() const;
+
+    bool hasReturnValue() const;
+
+protected:
+
+};
+
 }

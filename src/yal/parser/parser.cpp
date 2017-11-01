@@ -21,8 +21,9 @@
 #include "yal/lexer/lexer.h"
 #include "yal/lexer/tokens.h"
 #include "yal/util/log.h"
-#include "yal/io/bytestream.h"
+#include "yal/io/memorystream.h"
 #include "yal/util/prettyprint.h"
+#include "yal/ast/declfunction.h"
 namespace yal{
 
     static int TokenToParserToken(const Token token) {
@@ -157,16 +158,16 @@ namespace yal{
 #endif
                 YALParser(m_parserImpl.get(),
                           parserToken,
-                          nullptr,
+                          ti.tokenStr.toStringRefPod(),
                           this);
             } else if (status == Lexer::Status::EOS) {
                 YALParser(m_parserImpl.get(),
                           YAL_TOKEN_END,
-                          nullptr,
+                          StringRefPod{nullptr, 0},
                           this);
                 return true;
             } else {
-                ByteStream& stream = m_lexer.getStream();
+                MemoryStream& stream = m_lexer.getStream();
                 const Lexer::TokenInfo& ti = m_lexer.getLastToken();
 
                 PrettyPrint::SourceErrorPrint(stream,
@@ -183,8 +184,7 @@ namespace yal{
     }
 
      void
-     Parser::logParseFailure()
-     {
+     Parser::logParseFailure()  {
         ByteStream& stream = m_lexer.getStream();
         const Lexer::TokenInfo& ti = m_lexer.getLastToken();
         PrettyPrint::SourceErrorPrint(stream,
@@ -198,15 +198,13 @@ namespace yal{
 
 
      void
-     Parser::onNode(DeclModule* module)
-     {
+     Parser::onNode(DeclModule* module) {
          m_module.setRootNode(module);
      }
 
      void
-     Parser::onNode(DeclFunction* function)
-     {
+     Parser::onNode(DeclFunction* function) {
         (void) function;
-        m_log.message("Function added\n");
+        m_log.message("Function added: %s", function->getFunctioName().toString().c_str());
      }
 }

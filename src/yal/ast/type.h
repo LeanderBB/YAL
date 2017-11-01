@@ -25,7 +25,9 @@
 namespace yal {
 
     class TypeRegistry;
-
+    class Module;
+    class DeclBase;
+    class StringRef;
     class Type {
         friend class TypeRegistry;
     public:
@@ -35,7 +37,11 @@ namespace yal {
 #undef YAL_AST_TYPE
         };
 
-        Type(const Kind kind);
+        static std::string BuildTypeNameWithModule(const char* name,
+                                                   const Module* module);
+
+        Type(const Module*,
+             const Kind kind);
 
         virtual ~Type();
 
@@ -52,29 +58,40 @@ namespace yal {
         bool isModuleDependent() const;
         bool isExternalType() const;
         bool isModuleType() const;
-
+        bool isTriviallyCopiable() const;
 
         uint32_t getSizeBytes() const {
             return m_sizeBytes;
         }
 
-        const char* getName() const {
-            return m_name.c_str();
+        const StringRef getName() const;
+
+        const StringRef getNameWithModulePrefix() const;
+
+        const Module* getModule() const {
+            return m_module;
         }
-    protected:
 
-        enum Flags {
-            kFlagModuleDependent = 1 << 0,
-            kFlagExternalType = 1 << 1,
-            kFlagModuleType = 1 << 2,
-            kFlagDefined = 1 << 3
-        };
+        const DeclBase* getDeclNode() const {
+            return m_declNode;
+        }
 
     protected:
+
+        void buildTypeNameWithModule();
+
+    protected:
+        const Module* m_module;
+        const DeclBase* m_declNode;
         const Kind m_kind;
         std::string m_name;
+        std::string m_nameWithModule;
         uint32_t m_sizeBytes = 0;
-        uint32_t m_flags = 0;
+        unsigned m_moduleDependent:1;
+        unsigned m_moduleExternal:1;
+        unsigned m_moduleType:1;
+        unsigned m_defined:1;
+        unsigned m_trivialCopy:1;
     };
 
 
@@ -90,53 +107,34 @@ namespace yal {
         bool isImmutable() const;
         bool isReference() const;
         bool isPointer() const;
-        bool isValid() const;
 
     private:
-        enum Flags {
-            kFlagMutable = 1<< 0,
-            kFlagImmutable = 1 << 1,
-            kFlagReference = 1 << 2,
-            kFlagPointer = 1 << 3
-        };
-
-    private:
-        uint32_t m_flags = 0;
+        unsigned m_mutable:1;
+        unsigned m_reference:1;
+        unsigned m_pointer:1;
     };
 
 
     class QualType {
     public:
 
+        static QualType Create(const Qualifier& qualifier,
+                               const Type* type);
+
         bool isValid() const {
-            return m_qualifier.isValid() && m_type != nullptr;
+            return  m_type != nullptr;
         }
 
         const Qualifier& getQualifier() const {
             return m_qualifier;
         }
 
-        void setQualifier(const Qualifier& qualifier) {
-            m_qualifier = qualifier;
-        }
-
         const Type* getType() const {
             return m_type;
-        }
-
-        void setType(const Type* type) {
-            m_type = type;
         }
     private:
         Qualifier m_qualifier;
         const Type* m_type = nullptr;
     };
 
-    inline QualType MakeQualType(const Qualifier& qualifier,
-                                  const Type* type) {
-        QualType qt;
-        qt.setQualifier(qualifier);
-        qt.setType(type);
-        return qt;
-    }
 }

@@ -39,8 +39,6 @@ namespace yal {
             Double
         };
 
-        static const TypeBuiltin* GetTypeForDataType(const DataType dataType);
-
         TypeBuiltin(const DataType builtinType);
 
         bool isBool() const;

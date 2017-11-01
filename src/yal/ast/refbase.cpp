@@ -16,32 +16,30 @@
  *  You should have received a copy of the GNU Lesser General Public
  *  License along with YAL. If not, see <http://www.gnu.org/licenses/>.
  */
-#include "yal/io/sourceitems.h"
-#include "yal/io/filestream.h"
+
+#include "yal/ast/refbase.h"
+#include "yal/ast/module.h"
 namespace yal {
 
-    bool
-    SourceItemFile::open(const char* path) {
-        m_stream.close();
-        m_filePath.clear();
-        FileStream fstream;
-        // Read file into memory stream
-        if (fstream.open(path, FileStream::kModeRead)) {
-            if (m_stream.create(fstream)) {
-                m_filePath = path;
-                return true;
-            }
-        }
-        return false;
+    void* RefBase::operator new(std::size_t bytes,
+                                 Module &module) {
+        ASTContext& astctx = module.getASTContext();
+        void* ptr = astctx.allocate(bytes);
+        YAL_ASSERT_MESSAGE(ptr != nullptr, "RefBase: Failed to allocate memory");
+        return ptr;
     }
 
-    const MemoryStream &
-    SourceItemFile::getByteStream() const {
-        return m_stream;
+    RefBase::RefBase(Module& module,
+                     const Kind kind,
+                     const Type *type):
+        m_module(module),
+        m_kind(kind),
+        m_type(type){
+
     }
 
-    const char *
-    SourceItemFile::getPath() const {
-        return m_filePath.c_str();
+
+    RefBase::~RefBase() {
+
     }
 }

@@ -63,6 +63,8 @@ namespace yal {
 
         virtual void close() override;
 
+        bool isStdStream() const;
+
     private:
         using FileType = std::unique_ptr<FILE, void(*)(FILE*)>;
         FileType m_file;

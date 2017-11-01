@@ -21,6 +21,7 @@
 
 #include "yal/io/sourcemanager.h"
 #include "yal/ast/astcontext.h"
+#include "yal/ast/typecontext.h"
 #include <string>
 
 namespace yal {
@@ -73,12 +74,22 @@ namespace yal {
             return m_manager;
         }
 
+        TypeContext& getTypeContext() {
+            const Module* cthis = this;
+            return const_cast<TypeContext&>(cthis->getTypeContext());
+        }
+
+        const TypeContext& getTypeContext() const {
+            return m_typeContext;
+        }
+
     private:
         const Id m_id;
         const SourceManager::Handle m_sourceHandle;
         ModuleManager& m_manager;
         const std::string m_name;
         ASTContext m_astContext;
+        TypeContext m_typeContext;
         DeclModule* m_rootNode;
     };
 }

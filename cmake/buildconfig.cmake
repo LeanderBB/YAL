@@ -18,7 +18,7 @@ if (NOT MSVC) # Clang and GCC
     # Release flags
      set(YAL_DEFINITIONS_RELEASE "YAL_RELEASE")
     # Debug flags
-    set(YAL_CXX_FLAGS_DEBUG -fno-inline -g -O0)
+    set(YAL_CXX_FLAGS_DEBUG -fno-inline -g -O0 -fno-omit-frame-pointer)
     set(YAL_C_FLAGS_DEBUG -g -O0)
     set(YAL_DEFINITIONS_DEBUG "YAL_DEBUG")
 

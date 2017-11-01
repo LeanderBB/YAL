@@ -16,32 +16,17 @@
  *  You should have received a copy of the GNU Lesser General Public
  *  License along with YAL. If not, see <http://www.gnu.org/licenses/>.
  */
-#include "yal/io/sourceitems.h"
-#include "yal/io/filestream.h"
+#include "yal/ast/reftype.h"
+
 namespace yal {
 
-    bool
-    SourceItemFile::open(const char* path) {
-        m_stream.close();
-        m_filePath.clear();
-        FileStream fstream;
-        // Read file into memory stream
-        if (fstream.open(path, FileStream::kModeRead)) {
-            if (m_stream.create(fstream)) {
-                m_filePath = path;
-                return true;
-            }
-        }
-        return false;
+    RefType::RefType(Module& module,
+                     const Kind kind,
+                     const Type* type,
+                     const Qualifier qualifier):
+        RefBase(module, kind, type),
+        m_qualifier(qualifier) {
+
     }
 
-    const MemoryStream &
-    SourceItemFile::getByteStream() const {
-        return m_stream;
-    }
-
-    const char *
-    SourceItemFile::getPath() const {
-        return m_filePath.c_str();
-    }
 }

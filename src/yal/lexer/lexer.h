@@ -18,10 +18,11 @@
  */
 #pragma once
 #include <yal/yal.h>
+#include "yal/util/stringref.h"
 namespace yal{
 
     enum class Token;
-    class ByteStream;
+    class MemoryStream;
     class Lexer {
     public:
 
@@ -34,6 +35,7 @@ namespace yal{
             size_t columnStart = 0;
             size_t columnEnd = 0;
             size_t tokenOffsetInStream = 0;
+            StringRef tokenStr;
         };
 
         enum class Status
@@ -43,7 +45,7 @@ namespace yal{
             EOS
         };
 
-        Lexer(ByteStream& stream);
+        Lexer(MemoryStream& stream);
 
         ~Lexer();
 
@@ -53,7 +55,7 @@ namespace yal{
             return m_curToken;
         }
 
-        ByteStream& getStream() const {
+        MemoryStream& getStream() const {
             return m_stream;
         }
 
@@ -70,7 +72,7 @@ namespace yal{
 
         void setLexerError(const LexerState& state);
 
-        ByteStream& m_stream;
+        MemoryStream& m_stream;
         std::unique_ptr<LexerState> m_lexerState;
         TokenInfo m_curToken;
     };

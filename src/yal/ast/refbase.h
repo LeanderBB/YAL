@@ -16,51 +16,51 @@
  *  You should have received a copy of the GNU Lesser General Public
  *  License along with YAL. If not, see <http://www.gnu.org/licenses/>.
  */
+
 #pragma once
-#include <memory>
-#include <yal/ast/module.h>
+
+#include "yal/ast/asttypes.h"
+#include "yal/ast/type.h"
+#include "yal/io/sourcemanager.h"
+
 namespace yal {
-    class Log;
-    class Lexer;
-    class DeclModule;
-    class DeclFunction;
-    class DeclFunctionType;
-    class StringRef;
-    class Parser
-    {
+
+    class Module;
+
+    class RefBase {
     public:
-        Parser(Lexer& lexer,
-               Log& log,
-               Module& context);
 
+        static void* operator new(std::size_t bytes,
+                                  Module& ctx);
 
-        bool run();
+        enum class Kind {
+#define YAL_AST_REFBASE_TYPE(type) type,
+#include "yal/ast/refbasetypes.def"
+#undef YAL_AST_DECLBASE_TYPE
+        };
+   protected:
+        RefBase(Module& module,
+                const Kind kind,
+                const Type* type);
 
-        Log& getLog() {
-            return m_log;
+    public:
+        virtual ~RefBase();
+
+        bool isTypeDefined() const {
+            return m_type != nullptr;
         }
 
-        Module& getModule() {
-            return m_module;
+        Kind getKind() const {
+            return m_kind;
         }
 
-        void logParseFailure();
-
-        template <typename T, typename... ARGS>
-        T* newASTNode(ARGS&& ...args) {
-            return new(m_module) T(m_module, std::forward<ARGS>(args)...);
+        const Type* getType() const {
+            return m_type;
         }
 
-        void onNode(DeclModule* module);
-
-        void onNode(DeclFunction* function);
-
-    private:
-        std::unique_ptr<void, void(*)(void*)> m_parserImpl;
-        Lexer& m_lexer;
-        Log& m_log;
+    protected:
         Module& m_module;
-        bool m_syntaxError;
+        const Kind m_kind;
+        const Type* m_type;
     };
-
 }

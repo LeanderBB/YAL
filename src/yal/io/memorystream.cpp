@@ -19,7 +19,11 @@
 #include "yal/io/memorystream.h"
 #include <algorithm>
 #include <cstdint>
+#include <cinttypes>
+#include "yal/io/filestream.h"
+
 namespace yal {
+    typedef unsigned char u8;
 
     static inline void ptrDtor(void* ptr) {
         if (ptr != nullptr) {
@@ -31,15 +35,14 @@ namespace yal {
     }
 
     bool
-    MemoryStream::open(const size_t initialSizeBytes,
-                       const uint32_t mode) {
+    MemoryStream::create(const size_t initialSizeBytes,
+                         const uint32_t mode) {
         void* ptr = malloc(initialSizeBytes);
         if (ptr != nullptr) {
             m_ptr.reset(ptr);
             m_mode = mode;
             m_offset = 0;
             m_sizeBytes = initialSizeBytes;
-            m_ptr.reset(ptr);
             return true;
         }
         return false;
@@ -67,8 +70,7 @@ namespace yal {
     bool
     MemoryStream::attach(const void* ptr,
                          const size_t sizeBytes,
-                         const bool takeOwnerShip)
-    {
+                         const bool takeOwnerShip) {
         if (ptr != nullptr && sizeBytes != 0) {
             if (takeOwnerShip) {
                 m_ptr.reset(const_cast<void*>(ptr));
@@ -85,6 +87,44 @@ namespace yal {
         return false;
     }
 
+    bool
+    MemoryStream::create(FileStream& stream){
+
+        if (stream.isStdStream()) {
+            close();
+            m_mode = kModeReadWrite;
+            char buffer[512];
+            size_t bytesRead= 0;
+            size_t bytesWritten = 0;
+            while(true) {
+                bytesRead = stream.read(buffer, sizeof(buffer));
+                if (bytesRead == 0) {
+                    break;
+                }
+                bytesWritten = write(buffer, bytesRead);
+                if (bytesWritten != bytesRead) {
+                    close();
+                    return false;
+                }
+            }
+            seek(0);
+            return true;
+        } else {
+            const size_t fileSizeBytes = stream.getSizeBytes();
+            if (fileSizeBytes != 0) {
+                stream.seek(0);
+                if (create(fileSizeBytes, kModeRead)) {
+                    const size_t bytesRead = stream.read(m_ptr.get(), fileSizeBytes);
+                    if (bytesRead != fileSizeBytes) {
+                        close();
+                    } else {
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
+    }
 
     MemoryStream::MemoryStream():
         m_ptr(nullptr, ptrDtor),
@@ -109,7 +149,7 @@ namespace yal {
         }
 
         if (nBytesToRead != 0) {
-            const int8_t* srcBuffer = reinterpret_cast<const int8_t*>(m_ptr.get()) + m_offset;
+            const u8* srcBuffer = reinterpret_cast<const u8*>(m_ptr.get()) + m_offset;
             ::memcpy(buffer,srcBuffer, nBytesToRead);
             m_offset = newOffset;
             bytesRead = nBytesToRead;
@@ -131,8 +171,8 @@ namespace yal {
             expandBuffer(newOffset);
         }
 
-        if (newOffset < m_sizeBytes && newOffset > m_offset) {
-            int8_t* dstBuffer = reinterpret_cast<int8_t*>(m_ptr.get()) + m_offset;
+        if (newOffset <= m_sizeBytes && newOffset > m_offset) {
+            u8* dstBuffer = reinterpret_cast<u8*>(m_ptr.get()) + m_offset;
             ::memcpy(dstBuffer, buffer, bytes);
             m_offset = newOffset;
             bytesWritten = bytes;
@@ -153,7 +193,7 @@ namespace yal {
 
     void
     MemoryStream::skipLine() {
-        const int8_t* srcBuffer = reinterpret_cast<const int8_t*>(m_ptr.get());
+        const u8* srcBuffer = reinterpret_cast<const u8*>(m_ptr.get());
         while (m_offset < m_sizeBytes) {
             if (srcBuffer[m_offset]=='\n') {
                 m_offset++;
@@ -167,7 +207,7 @@ namespace yal {
     MemoryStream::readLine() {
         std::string result;
         size_t lineOffset = m_offset;
-        const int8_t* srcBuffer = reinterpret_cast<const int8_t*>(m_ptr.get());
+        const u8* srcBuffer = reinterpret_cast<const u8*>(m_ptr.get());
         while (lineOffset < m_sizeBytes && srcBuffer[lineOffset]=='\n') {
             lineOffset++;
         }
@@ -181,9 +221,17 @@ namespace yal {
         return result;
     }
 
+    const void*
+    MemoryStream::getPtrAt(const size_t offset) const {
+        if (offset < m_sizeBytes) {
+            return reinterpret_cast<const u8*>(m_ptr.get()) + offset;
+        }
+        return nullptr;
+    }
+
     void
     MemoryStream::expandBuffer(const size_t newOffsetReference) {
-        size_t newSize = m_sizeBytes;
+        size_t newSize = m_sizeBytes == 0 ? newOffsetReference : m_sizeBytes;
 
         do {
             newSize += (m_sizeBytes / 4);
@@ -192,8 +240,10 @@ namespace yal {
         void* newPtr = ::realloc(m_ptr.get(), newSize);
 
         if (newPtr != nullptr) {
-            m_ptr.release();
-            m_ptr.reset(newPtr);
+            if (newPtr != m_ptr.get()) {
+                m_ptr.release();
+                m_ptr.reset(newPtr);
+            }
             m_sizeBytes = newSize;
         }
     }
@@ -201,7 +251,7 @@ namespace yal {
 
     void
     MemoryStream::close() {
-        m_ptr.release();
+        m_ptr.reset(nullptr);
         m_offset = 0;
         m_mode = 0;
         m_sizeBytes =0;

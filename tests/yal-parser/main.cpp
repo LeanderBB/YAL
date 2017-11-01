@@ -23,6 +23,7 @@
 #include <iostream>
 #include <yal/parser/parser.h>
 #include <yal/io/filestream.h>
+#include <yal/io/memorystream.h>
 #include <yal/util/log.h>
 #include <yal/ast/modulemanager.h>
 #include <yal/io/sourcemanager.h>
@@ -36,7 +37,6 @@ int main(const int argc,
     }*/
 
     yal::FileStream stream;
-
     if (argc < 2)  {
         stream.open(yal::FileStream::StdStream::In);
     } else {
@@ -49,6 +49,9 @@ int main(const int argc,
     yal::FileStream stdoutStream;
     stdoutStream.open(yal::FileStream::StdStream::Out);
 
+    yal::MemoryStream memStream;
+    memStream.create(stream);
+
     yal::ModuleManager moduleManager;
 
     yal::Module* module = moduleManager.createNew("Test",
@@ -58,7 +61,7 @@ int main(const int argc,
         return EXIT_FAILURE;
     }
 
-    yal::Lexer lexer(stream);
+    yal::Lexer lexer(memStream);
     yal::Log log(stdoutStream);
     yal::Parser parser (lexer, log, *module);
 

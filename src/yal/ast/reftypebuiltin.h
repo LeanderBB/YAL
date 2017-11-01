@@ -17,15 +17,18 @@
  *  License along with YAL. If not, see <http://www.gnu.org/licenses/>.
  */
 
-namespace yal {
-
-    class TypeRegistry {
+#include "yal/ast/reftype.h"
+namespace yal{
+    class TypeBuiltin;
+    class RefTypeBuiltin : public RefType {
     public:
-        TypeRegistry();
 
+        RefTypeBuiltin(Module& module,
+                       const TypeBuiltin* type);
 
-    private:
-
+        RefTypeBuiltin(Module& module,
+                       const TypeBuiltin* type,
+                       const Qualifier qualifier);
 
     };
 

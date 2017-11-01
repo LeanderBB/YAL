@@ -22,51 +22,8 @@
 namespace yal {
 
 
-    static const TypeBuiltin sTypeBool(TypeBuiltin::DataType::Boolean);
-    static const TypeBuiltin sTypeInt8(TypeBuiltin::DataType::Int8);
-    static const TypeBuiltin sTypeUInt8(TypeBuiltin::DataType::UInt8);
-    static const TypeBuiltin sTypeInt16(TypeBuiltin::DataType::Int16);
-    static const TypeBuiltin sTypeUInt16(TypeBuiltin::DataType::UInt16);
-    static const TypeBuiltin sTypeInt32(TypeBuiltin::DataType::Int32);
-    static const TypeBuiltin sTypeUInt32(TypeBuiltin::DataType::UInt32);
-    static const TypeBuiltin sTypeInt64(TypeBuiltin::DataType::Int64);
-    static const TypeBuiltin sTypeUInt64(TypeBuiltin::DataType::UInt64);
-    static const TypeBuiltin sTypeFloat(TypeBuiltin::DataType::Float);
-    static const TypeBuiltin sTypeDouble(TypeBuiltin::DataType::Double);
-
-    const TypeBuiltin*
-    TypeBuiltin::GetTypeForDataType(const DataType dataType) {
-        switch(dataType) {
-        case DataType::Boolean:
-            return &sTypeBool;
-        case DataType::Int8:
-            return &sTypeInt8;
-        case DataType::UInt8:
-            return &sTypeUInt8;
-        case DataType::Int16:
-            return &sTypeInt16;
-        case DataType::UInt16:
-            return &sTypeUInt16;
-        case DataType::Int32:
-            return &sTypeInt32;
-        case DataType::UInt32:
-            return &sTypeUInt32;
-        case DataType::Int64:
-            return &sTypeInt64;
-        case DataType::UInt64:
-            return &sTypeUInt64;
-        case DataType::Float:
-            return &sTypeFloat;
-        case DataType::Double:
-            return &sTypeDouble;
-        default:
-            YAL_ASSERT_MESSAGE(false, "Should not be reached!");
-            return nullptr;
-        }
-    }
-
     TypeBuiltin::TypeBuiltin(const DataType builtinType):
-        Type(Kind::TypeBuiltin),
+        Type(nullptr, Kind::TypeBuiltin),
         m_builtinType(builtinType) {
 
         switch(m_builtinType) {
@@ -119,7 +76,10 @@ namespace yal {
             m_sizeBytes = 0;
             break;
         }
-        m_flags |= kFlagDefined;
+
+        m_nameWithModule = m_name;
+        m_defined = 1;
+        m_trivialCopy = 1;
     }
 
 

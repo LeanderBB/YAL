@@ -16,32 +16,13 @@
  *  You should have received a copy of the GNU Lesser General Public
  *  License along with YAL. If not, see <http://www.gnu.org/licenses/>.
  */
-#include "yal/io/sourceitems.h"
-#include "yal/io/filestream.h"
-namespace yal {
 
-    bool
-    SourceItemFile::open(const char* path) {
-        m_stream.close();
-        m_filePath.clear();
-        FileStream fstream;
-        // Read file into memory stream
-        if (fstream.open(path, FileStream::kModeRead)) {
-            if (m_stream.create(fstream)) {
-                m_filePath = path;
-                return true;
-            }
-        }
-        return false;
-    }
 
-    const MemoryStream &
-    SourceItemFile::getByteStream() const {
-        return m_stream;
-    }
+/* List of Ref AST Nodes in the compiler
+ *
+ * Define YAL_AST_REFBASE_TYPE(type) macro to use this list
+ *
+ */
 
-    const char *
-    SourceItemFile::getPath() const {
-        return m_filePath.c_str();
-    }
-}
+YAL_AST_REFBASE_TYPE(RefFunction)
+YAL_AST_REFBASE_TYPE(RefBuiltin)

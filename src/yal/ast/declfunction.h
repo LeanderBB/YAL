@@ -19,47 +19,70 @@
 #pragma once
 
 #include "yal/ast/declbase.h"
-
+#include "yal/util/stringref.h"
 namespace yal {
     class Module;
+    class RefType;
     class DeclFunctionBase : public DeclBase
     {
-    public:
+    protected:
         DeclFunctionBase(Module& module,
                          const Kind kind,
-                         const ASTType type);
+                         const ASTType type,
+                         const StringRef functionName,
+                         const RefType* returnType);
 
+    public:
         virtual ~DeclFunctionBase();
 
-        bool hasReturnValue() const;
+        bool hasReturnValue() const {
+            return m_returnType != nullptr;
+        }
 
         bool hasFunctionParameters() const;
 
-        QualType getReturnType() const;
+        const StringRef getFunctioName() const {
+            return m_name;
+        }
+
+        const RefType* getReturnType() const {
+            return m_returnType;
+        }
 
         // getFunctionParameters()...
 
     protected:
-        QualType m_returnType;
+        const StringRef m_name;
+        const RefType* m_returnType;
+
     };
-
-
 
 
     class DeclFunction : public DeclFunctionBase {
     public:
-        DeclFunction(Module& module);
+
+        static DeclFunction* Create(Module& module,
+                                    const StringRef functionName,
+                                    const RefType *returnType);
+
+        DeclFunction(Module& module,
+                     const StringRef functionName,
+                     const RefType* returnType);
+
     };
 
 
     class DeclTypeFunction : public DeclFunctionBase {
     public:
-        DeclTypeFunction(Module& module);
+        DeclTypeFunction(Module& module,
+                         const StringRef functionName,
+                         const RefType* returnType,
+                         const RefType* destType);
 
-        QualType getTypeForFunction() const;
+        const RefType* getTypeForFunction() const;
 
 
     protected:
-        QualType m_typeForFunction;
+        const RefType* m_typeForFunction;
     };
 }

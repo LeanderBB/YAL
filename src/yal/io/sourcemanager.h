@@ -24,7 +24,7 @@
 
 namespace yal {
 
-    class ByteStream;
+    class MemoryStream;
 
     class SourceItem;
     class SourceManager
@@ -74,12 +74,12 @@ namespace yal {
             return m_handle;
         }
 
-        inline ByteStream& getByteStream() {
+        inline MemoryStream& getByteStream() {
             const SourceItem* const_this = this;
-            return const_cast<ByteStream&>(const_this->getByteStream());
+            return const_cast<MemoryStream&>(const_this->getByteStream());
         }
 
-        virtual const ByteStream& getByteStream() const = 0;
+        virtual const MemoryStream& getByteStream() const = 0;
 
         virtual const char* getPath() const = 0;
 

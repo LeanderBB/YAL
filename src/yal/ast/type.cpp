@@ -18,12 +18,40 @@
  */
 
 #include "yal/ast/type.h"
+#include "yal/ast/module.h"
+#include "yal/util/stringref.h"
 
 namespace yal {
 
-    Type::Type(const Kind kind) :
-        m_kind(kind){
+    std::string
+    Type::BuildTypeNameWithModule(const char* name,
+                                  const Module* module) {
+        std::string result;
+        if (module != nullptr) {
+            result = module->getName();
+            result += "::";
+            result += name;
+        } else {
+            result= name;
+        }
+        return result;
+    }
 
+    Type::Type(const Module* module,
+               const Kind kind) :
+        m_module(module),
+        m_declNode(nullptr),
+        m_kind(kind),
+        m_moduleDependent(0),
+        m_moduleExternal(0),
+        m_moduleType(0),
+        m_defined(0),
+        m_trivialCopy(0) {
+
+        if (module != nullptr) {
+            m_moduleDependent = 1;
+            m_moduleType = 1;
+        }
     }
 
     Type::~Type() {
@@ -69,66 +97,91 @@ namespace yal {
 
     bool
     Type::isModuleDependent() const {
-        return m_flags & kFlagModuleDependent;
+        return m_moduleDependent;
     }
 
     bool
     Type::isExternalType() const {
-        return m_flags & kFlagExternalType;
+        return m_moduleExternal;
     }
 
     bool
     Type::isModuleType() const {
-        return m_flags & kFlagModuleType;
+        return m_moduleType;
+    }
+
+    void
+    Type::buildTypeNameWithModule() {
+        m_nameWithModule = BuildTypeNameWithModule(m_name.c_str(),
+                                                   m_module);
+    }
+
+    bool
+    Type::isTriviallyCopiable() const {
+        return m_trivialCopy;
+    }
+
+    const StringRef
+    Type::getName() const {
+        return StringRef(m_name);
+    }
+
+    const StringRef
+    Type::getNameWithModulePrefix() const {
+        return StringRef(m_nameWithModule);
     }
 
     void
     Qualifier::setMutable() {
-        m_flags &= ~(static_cast<uint32_t>(kFlagImmutable));
-        m_flags |= kFlagMutable;
+        m_mutable = 1;
     }
 
     void
     Qualifier::setImmutable() {
-        m_flags &= ~(static_cast<uint32_t>(kFlagMutable));
-        m_flags |= kFlagImmutable;
+        m_mutable = 0;
     }
 
     void
     Qualifier::setReference() {
-        m_flags &= ~(static_cast<uint32_t>(kFlagPointer));
-        m_flags |= kFlagReference;
+        m_reference = 1;
+        m_pointer = 0;
     }
 
     void
     Qualifier::setPointer() {
-        m_flags &= ~(static_cast<uint32_t>(kFlagReference));
-        m_flags |= kFlagPointer;
+        m_pointer = 1;
+        m_reference = 0;
     }
 
 
     bool
     Qualifier::isMutable() const {
-        return m_flags & kFlagMutable;
+        return m_mutable;
     }
 
     bool
     Qualifier::isImmutable() const {
-        return m_flags & kFlagImmutable;
+        return !m_mutable;
     }
 
     bool
     Qualifier::isReference() const {
-        return m_flags & kFlagReference;
+        return m_reference;
     }
 
     bool
     Qualifier::isPointer() const {
-        return m_flags & kFlagPointer;
+        return m_pointer;
     }
 
-    bool
-    Qualifier::isValid() const {
-        return m_flags != 0;
+
+    QualType
+    QualType::Create(const Qualifier& qualifier,
+                     const Type* type) {
+        QualType qt;
+        qt.m_qualifier = qualifier;
+        qt.m_type = type;
+        return qt;
     }
+
 }
