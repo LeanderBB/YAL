@@ -17,7 +17,7 @@
  *  License along with YAL. If not, see <http://www.gnu.org/licenses/>.
  */
 #include "yal/yal.h"
-#include "yal/io/bytestream.h"
+#include "yal/io/memorystream.h"
 #include "yal/lexer/tokens.h"
 #include "yal/lexer/lexer.h"
 #include <iostream>
@@ -123,7 +123,7 @@ namespace yal {
 
     };
 
-    Lexer::Lexer(ByteStream &stream):
+    Lexer::Lexer(MemoryStream &stream):
         m_stream(stream),
         m_lexerState(createLexerState()),
         m_curToken()

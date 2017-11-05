@@ -19,6 +19,8 @@
 #include "yal/io/filestream.h"
 #include <cstdio>
 #include <string>
+#include <memory>
+#include <cstring>
 namespace yal {
     static inline void fileDtor(FILE* file) {
         if (file != nullptr)
@@ -158,7 +160,7 @@ namespace yal {
             if (result == nullptr) {
                 return;
             }else {
-                const size_t lineSize = strlen(buffer);
+                const size_t lineSize = ::strlen(buffer);
                 if (lineSize < kSkipLineBuffer - 1) {
                     // found new line
                     return;

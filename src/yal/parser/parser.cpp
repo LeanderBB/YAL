@@ -17,6 +17,7 @@
  *  License along with YAL. If not, see <http://www.gnu.org/licenses/>.
  */
 #include "yal/parser/parser.h"
+#define YYMALLOCARGTYPE size_t
 #include "yal/parser/parserimpl.h"
 #include "yal/lexer/lexer.h"
 #include "yal/lexer/tokens.h"
@@ -24,6 +25,7 @@
 #include "yal/io/memorystream.h"
 #include "yal/util/prettyprint.h"
 #include "yal/ast/declfunction.h"
+#include <cstdlib>
 namespace yal{
 
     static int TokenToParserToken(const Token token) {
@@ -134,12 +136,15 @@ namespace yal{
     Parser::Parser(Lexer& lexer,
                    Log &log,
                    Module& context):
-        m_parserImpl(YALParserAlloc(::malloc), ParserDtor),
+        m_parserImpl(nullptr, ParserDtor),
         m_lexer(lexer),
         m_log(log),
         m_module(context),
         m_syntaxError(false) {
 
+        void*(*fnAlloc)(size_t) = ::malloc;
+        void* ptr = YALParserAlloc(fnAlloc);
+        m_parserImpl.reset(ptr);
     }
 
     bool

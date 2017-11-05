@@ -30,6 +30,7 @@
 #include "yal/ast/declfunction.h"
 #include "yal/ast/declmodule.h"
 #include "yal/ast/reftypebuiltin.h"
+#define YYMALLOCARGTYPE size_t
 }
 
 

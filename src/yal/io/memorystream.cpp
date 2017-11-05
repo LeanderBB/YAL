@@ -19,6 +19,7 @@
 #include "yal/io/memorystream.h"
 #include <algorithm>
 #include <cstdint>
+#include <cstring>
 #include <cinttypes>
 #include "yal/io/filestream.h"
 
