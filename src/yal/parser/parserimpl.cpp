@@ -15,6 +15,7 @@
 #include "yal/ast/declmodule.h"
 #include "yal/ast/reftypebuiltin.h"
 #include "yal/ast/reftypeidentifier.h"
+#define YYMALLOCARGTYPE size_t
 #include "parserimpl.h"
 /* Next is all token values, in a form suitable for use by makeheaders.
 ** This section will be null unless lemon is run with the -m switch.

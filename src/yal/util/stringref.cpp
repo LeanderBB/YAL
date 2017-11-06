@@ -18,7 +18,7 @@
  */
 #include "yal/yal.h"
 #include "yal/util/stringref.h"
-
+#include <cstring>
 namespace yal {
 
     StringRef::StringRef(const char* str):

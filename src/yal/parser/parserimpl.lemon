@@ -31,6 +31,7 @@
 #include "yal/ast/declmodule.h"
 #include "yal/ast/reftypebuiltin.h"
 #include "yal/ast/reftypeidentifier.h"
+#define YYMALLOCARGTYPE size_t
 }
 
 

@@ -34,6 +34,7 @@
 
 #include <limits>
 #include <memory>
+#include <cstring>
 
 
 #define YAL_NO_COPY_CLASS(CLASS) \
