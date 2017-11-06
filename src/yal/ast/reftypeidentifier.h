@@ -16,18 +16,28 @@
  *  You should have received a copy of the GNU Lesser General Public
  *  License along with YAL. If not, see <http://www.gnu.org/licenses/>.
  */
+#pragma once
 
+#include "yal/ast/reftype.h"
+#include "yal/util/stringref.h"
+namespace yal{
 
-/* List of AST Nodes in the compiler
- *
- * Define YAL_AST_NODE_TYPE(type) macro to use this list
- *
- */
+    class RefTypeIdentifier : public RefType
+    {
+    public:
+        RefTypeIdentifier(Module& module,
+                          const StringRef identifier,
+                          const Qualifier qualifier);
 
-YAL_AST_NODE_TYPE(DeclFunction)
-YAL_AST_NODE_TYPE(DeclTypeFunction)
-YAL_AST_NODE_TYPE(DeclStruct)
-YAL_AST_NODE_TYPE(DeclStrongAlias)
-YAL_AST_NODE_TYPE(DeclWeakAlias)
-YAL_AST_NODE_TYPE(RefTypeBuiltin)
-YAL_AST_NODE_TYPE(RefTypeIdentifier)
+        RefTypeIdentifier(Module& module,
+                          const StringRef identifier);
+
+        StringRef getIdentifier() const {
+            return m_identifier;
+        }
+
+    protected:
+        StringRef m_identifier;
+    };
+
+}

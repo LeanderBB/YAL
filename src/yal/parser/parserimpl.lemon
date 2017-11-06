@@ -30,6 +30,7 @@
 #include "yal/ast/declfunction.h"
 #include "yal/ast/declmodule.h"
 #include "yal/ast/reftypebuiltin.h"
+#include "yal/ast/reftypeidentifier.h"
 }
 
 
@@ -65,6 +66,7 @@
 
 %type type_builtin {const yal::RefTypeBuiltin*}
 %type decl_function {yal::DeclFunction*}
+%type type_function_decl {yal::DeclTypeFunction*}
 %type decls {yal::DeclModule*}
 %type module {yal::DeclModule*}
 %type function_return_decl {const yal::RefType*}
@@ -82,12 +84,11 @@ decls(A) ::= decls(B) decl_function(C). {
 decls::= decls type_function_decl.
 decls(A) ::=. {
         A =  pParser->newASTNode<yal::DeclModule>();
-        pParser->onNode(A);
      }
 // Type  specifiers
 type_specifier(A) ::= type_builtin(B). {A=B;}
 type_specifier(A) ::= type_array. {A = nullptr;}
-type_specifier(A) ::= IDENTIFIER. {A = nullptr;}
+type_specifier(A) ::= IDENTIFIER(B). {A = pParser->newASTNode<yal::RefTypeIdentifier>(B);}
 
 type_builtin(A) ::= TYPE_BOOL. {
         A = pParser->newASTNode<yal::RefTypeBuiltin>(pParser->getModule().getTypeContext().getTypeBuiltinBool());
@@ -139,13 +140,14 @@ type_var_decl ::= IDENTIFIER COLON type_specifier SEMI_COLON.
 decl_function (A) ::= FUNCTION IDENTIFIER(B) PAR_BEGIN function_args_decl PAR_END
         function_return_decl(C) function_scope. {
         A = pParser->newASTNode<yal::DeclFunction>(B, C);
-        pParser->onNode(A);
         }
 
 
-type_function_decl::= FUNCTION type_specifier COLON COLON IDENTIFIER
+type_function_decl(A)::= FUNCTION type_specifier(B) COLON COLON IDENTIFIER(C)
         PAR_BEGIN function_args_decl PAR_END
-        function_return_decl function_scope.
+        function_return_decl(D) function_scope. {
+            A = pParser->newASTNode<yal::DeclTypeFunction>(C, B, D);
+        }
 
 
 function_args_decl ::= function_args_decl COMMA function_arg_decl.

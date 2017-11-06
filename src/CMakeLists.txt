@@ -51,6 +51,8 @@ set(YAL_SOURCES
     yal/ast/reftype.h
     yal/ast/reftypebuiltin.cpp
     yal/ast/reftypebuiltin.h
+    yal/ast/reftypeidentifier.cpp
+    yal/ast/reftypeidentifier.h
 
     yal/io/memorystream.cpp
     yal/io/memorystream.h

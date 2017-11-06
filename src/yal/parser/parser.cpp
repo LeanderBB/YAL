@@ -24,6 +24,8 @@
 #include "yal/io/memorystream.h"
 #include "yal/util/prettyprint.h"
 #include "yal/ast/declfunction.h"
+#include "yal/ast/reftypebuiltin.h"
+#include "yal/ast/reftypeidentifier.h"
 namespace yal{
 
     static int TokenToParserToken(const Token token) {
@@ -138,15 +140,15 @@ namespace yal{
         m_lexer(lexer),
         m_log(log),
         m_module(context),
-        m_syntaxError(false) {
+        m_status(Result::SyntaxError) {
 
     }
 
-    bool
+    Parser::Result
     Parser::run() {
-        m_syntaxError = false;
+        m_status = Result::Ok;
         Lexer::Status status = Lexer::Status::Ok;
-        while(!m_syntaxError){
+        while(m_status == Result::Ok){
             status = m_lexer.scan();
             if (status == Lexer::Status::Ok) {
                 const Lexer::TokenInfo& ti = m_lexer.getLastToken();
@@ -165,7 +167,7 @@ namespace yal{
                           YAL_TOKEN_END,
                           StringRefPod{nullptr, 0},
                           this);
-                return true;
+                break;
             } else {
                 MemoryStream& stream = m_lexer.getStream();
                 const Lexer::TokenInfo& ti = m_lexer.getLastToken();
@@ -176,11 +178,11 @@ namespace yal{
                                               ti.lineEnd);
                 m_log.error("Unknown token: %0004u  column:%03u\n",
                             ti.lineStart, ti.columnStart);
-                return false;
+                m_status = Result::LexerError;
             }
         }
 
-        return !m_syntaxError;
+        return m_status;
     }
 
      void
@@ -193,18 +195,6 @@ namespace yal{
                                       ti.lineEnd);
         m_log.error("Syntax Error at line: %0004u  column:%03u\n",
                     ti.lineStart, ti.columnStart);
-        m_syntaxError = true;
-     }
-
-
-     void
-     Parser::onNode(DeclModule* module) {
-         m_module.setRootNode(module);
-     }
-
-     void
-     Parser::onNode(DeclFunction* function) {
-        (void) function;
-        m_log.message("Function added: %s", function->getFunctioName().toString().c_str());
+        m_status = Result::SyntaxError;
      }
 }

@@ -23,18 +23,29 @@ namespace yal {
     class Log;
     class Lexer;
     class DeclModule;
-    class DeclFunction;
-    class DeclFunctionType;
+#define YAL_AST_NODE_TYPE(N) class N;
+#include "yal/ast/astnodes.def"
+#undef YAL_AST_NODE_TYPE
     class StringRef;
     class Parser
     {
     public:
+
+        enum class Result
+        {
+            Ok,
+            SyntaxError,
+            LexerError,
+            TypeError,
+        };
+
+
         Parser(Lexer& lexer,
                Log& log,
                Module& context);
 
 
-        bool run();
+        Result run();
 
         Log& getLog() {
             return m_log;
@@ -48,19 +59,16 @@ namespace yal {
 
         template <typename T, typename... ARGS>
         T* newASTNode(ARGS&& ...args) {
-            return new(m_module) T(m_module, std::forward<ARGS>(args)...);
+            auto newNode = new(m_module) T(m_module, std::forward<ARGS>(args)...);
+            return newNode;
         }
-
-        void onNode(DeclModule* module);
-
-        void onNode(DeclFunction* function);
 
     private:
         std::unique_ptr<void, void(*)(void*)> m_parserImpl;
         Lexer& m_lexer;
         Log& m_log;
         Module& m_module;
-        bool m_syntaxError;
+        Result m_status;
     };
 
 }

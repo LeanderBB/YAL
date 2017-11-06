@@ -23,16 +23,23 @@
 
 namespace yal {
 
+
     std::string
     Type::BuildTypeNameWithModule(const char* name,
+                                  const Module* module) {
+        return BuildTypeNameWithModule(StringRef(name), module);
+    }
+
+    std::string
+    Type::BuildTypeNameWithModule(const StringRef name,
                                   const Module* module) {
         std::string result;
         if (module != nullptr) {
             result = module->getName();
             result += "::";
-            result += name;
+            result += name.toString();
         } else {
-            result= name;
+            result = name.toString();
         }
         return result;
     }

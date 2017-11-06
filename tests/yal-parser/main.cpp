@@ -65,5 +65,5 @@ int main(const int argc,
     yal::Log log(stdoutStream);
     yal::Parser parser (lexer, log, *module);
 
-    return parser.run()  ? EXIT_SUCCESS : EXIT_FAILURE;
+    return parser.run() == yal::Parser::Result::Ok  ? EXIT_SUCCESS : EXIT_FAILURE;
 }

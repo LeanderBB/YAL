@@ -40,6 +40,9 @@ namespace yal {
         static std::string BuildTypeNameWithModule(const char* name,
                                                    const Module* module);
 
+        static std::string BuildTypeNameWithModule(const StringRef name,
+                                                   const Module* module);
+
         Type(const Module*,
              const Kind kind);
 

@@ -24,5 +24,6 @@
  *
  */
 
-YAL_AST_REFBASE_TYPE(RefFunction)
-YAL_AST_REFBASE_TYPE(RefBuiltin)
+YAL_AST_REFBASE_TYPE(RefTypeFunction)
+YAL_AST_REFBASE_TYPE(RefTypeBuiltin)
+YAL_AST_REFBASE_TYPE(RefTypeIdentifier)

@@ -37,6 +37,8 @@ namespace yal {
 
         const Type* getByName(const char* name) const;
 
+        const Type* getByName(const StringRef name) const;
+
         const TypeBuiltin* getTypeBuiltinBool() const {
             return m_typeBool;
         }

@@ -14,6 +14,7 @@
 #include "yal/ast/declfunction.h"
 #include "yal/ast/declmodule.h"
 #include "yal/ast/reftypebuiltin.h"
+#include "yal/ast/reftypeidentifier.h"
 #include "parserimpl.h"
 /* Next is all token values, in a form suitable for use by makeheaders.
 ** This section will be null unless lemon is run with the -m switch.
@@ -126,6 +127,7 @@ typedef union {
   YALParserTOKENTYPE yy0;
   yal::DeclFunction* yy25;
   const yal::RefTypeBuiltin* yy60;
+  yal::DeclTypeFunction* yy65;
   const yal::RefType* yy107;
   yal::DeclModule* yy109;
 } YYMINORTYPE;
@@ -219,15 +221,15 @@ static const YYACTIONTYPE yy_action[] = {
  /*    70 */    20,   21,   22,   10,   11,   12,   19,   17,  100,   93,
  /*    80 */   103,   26,   90,   59,  102,   60,   67,   20,   21,   22,
  /*    90 */    10,   11,   17,   46,   68,   53,  101,   36,  103,  103,
- /*   100 */    88,   98,   20,   21,   22,   10,   11,   57,   61,   45,
- /*   110 */    27,  111,   58,   94,    3,   35,   74,  103,   18,   60,
- /*   120 */    67,   64,   57,  104,  105,   65,   92,   63,   57,   57,
- /*   130 */    44,   74,  111,  108,  106,  109,   57,   74,   74,   57,
- /*   140 */    59,  110,    7,   71,   54,   74,   32,   29,   74,   70,
- /*   150 */    72,   39,   37,  103,  103,   62,   33,   38,   87,  103,
- /*   160 */    41,  112,  103,   34,   40,  103,  103,   42,   43,  103,
- /*   170 */   103,   69,   23,   99,   73,  103,   96,    2,   97,   24,
- /*   180 */    16,   52,   89,   55,   48,   56,    5,   31,   50,   14,
+ /*   100 */    88,   98,   20,   21,   22,   10,   11,   45,   61,  111,
+ /*   110 */    71,   72,   92,   94,    3,   64,   59,   70,   18,   60,
+ /*   120 */    67,   65,   57,  104,  105,   32,   29,   57,   58,   57,
+ /*   130 */    35,   74,  103,   63,   87,  108,   74,   57,   74,   57,
+ /*   140 */    44,   57,  111,  106,    7,  110,   74,   54,   74,   39,
+ /*   150 */    74,  103,   37,   38,  103,  103,   27,   41,   33,  103,
+ /*   160 */   112,   34,   40,  103,  103,   42,   43,  103,  103,   99,
+ /*   170 */   109,  103,   62,   69,   23,   73,    2,   96,   97,   16,
+ /*   180 */    52,   24,   89,   55,   48,   56,    5,   31,   50,   14,
  /*   190 */     6,   15,   91,   28,  171,   25,  171,   13,
 };
 static const YYCODETYPE yy_lookahead[] = {
@@ -237,19 +239,19 @@ static const YYCODETYPE yy_lookahead[] = {
  /*    30 */    23,   24,   25,   26,   27,   28,   29,   30,   31,   32,
  /*    40 */    33,    1,    2,    3,   13,   14,   15,   16,   17,   67,
  /*    50 */    68,   69,   37,   13,   14,   15,   16,   17,    1,    2,
- /*    60 */     3,   22,   15,   16,   17,   44,   45,   53,   54,   39,
+ /*    60 */     3,   22,   15,   16,   17,   44,   45,   54,   55,   39,
  /*    70 */    13,   14,   15,   16,   17,    1,    2,    3,   70,   40,
  /*    80 */    72,   61,   62,   22,   44,   46,   47,   13,   14,   15,
  /*    90 */    16,   17,    3,   21,   19,   22,   70,   70,   72,   72,
- /*   100 */    62,   44,   13,   14,   15,   16,   17,   51,   36,   63,
- /*   110 */    55,   65,   56,   40,   42,   70,   60,   72,   43,   46,
- /*   120 */    47,   22,   51,   48,   49,   71,   64,   56,   51,   51,
- /*   130 */    63,   60,   65,   56,   56,   65,   51,   60,   60,   51,
- /*   140 */    22,   56,   37,   52,   56,   60,   44,   45,   60,   58,
- /*   150 */    59,   70,   70,   72,   72,   71,   55,   70,   40,   72,
- /*   160 */    70,    0,   72,   70,   70,   72,   72,   70,   70,   72,
- /*   170 */    72,   64,   39,   70,   35,   72,   41,   37,   41,   43,
- /*   180 */     1,   22,   41,   37,   34,   37,   37,   22,   22,    1,
+ /*   100 */    62,   44,   13,   14,   15,   16,   17,   63,   36,   65,
+ /*   110 */    52,   53,   64,   40,   42,   22,   22,   59,   43,   46,
+ /*   120 */    47,   71,   51,   48,   49,   44,   45,   51,   57,   51,
+ /*   130 */    70,   60,   72,   57,   40,   57,   60,   51,   60,   51,
+ /*   140 */    63,   51,   65,   57,   37,   57,   60,   57,   60,   70,
+ /*   150 */    60,   72,   70,   70,   72,   72,   56,   70,   56,   72,
+ /*   160 */     0,   70,   70,   72,   72,   70,   70,   72,   72,   70,
+ /*   170 */    65,   72,   71,   64,   39,   35,   37,   41,   41,    1,
+ /*   180 */    22,   43,   41,   37,   34,   37,   37,   22,   22,    1,
  /*   190 */    37,    1,   41,   22,   73,   43,   73,   43,
 };
 #define YY_SHIFT_USE_DFLT (-23)
@@ -257,19 +259,19 @@ static const YYCODETYPE yy_lookahead[] = {
 static const short yy_shift_ofst[] = {
  /*     0 */   -23,   39,  -22,    7,   -5,   -5,   -5,   -5,   73,   72,
  /*    10 */    75,   75,   75,   75,   75,   75,   75,   75,   75,   75,
- /*    20 */    75,   75,   75,   61,   99,   99,  118,   30,   15,   99,
- /*    30 */   105,   15,  105,   30,   57,   40,   74,   74,   74,   74,
- /*    40 */    89,   31,   47,   47,   21,  102,  161,  133,  139,  135,
- /*    50 */   140,  137,  136,  179,  141,  159,  146,  150,  148,  149,
+ /*    20 */    75,   75,   75,   61,   93,   93,   94,   30,   15,   93,
+ /*    30 */   107,   15,  107,   30,   57,   40,   74,   74,   74,   74,
+ /*    40 */    89,   31,   47,   47,   21,   81,  160,  135,  140,  136,
+ /*    50 */   139,  137,  138,  178,  141,  158,  146,  150,  148,  149,
  /*    60 */   165,  166,  188,  151,  153,  190,  152,  171,  154,
 };
 #define YY_REDUCE_USE_DFLT (-55)
 #define YY_REDUCE_MAX 33
 static const signed char yy_reduce_ofst[] = {
- /*     0 */    14,  -54,   71,   56,   78,   88,   85,   77,  -18,   91,
- /*    10 */     8,   26,   27,   45,   81,   82,   87,   90,   93,   94,
- /*    20 */    97,   98,  103,   20,   46,   67,   38,   62,   54,   70,
- /*    30 */    55,   84,  101,  107,
+ /*     0 */    13,  -54,   76,   71,   86,   90,   88,   78,  -18,   58,
+ /*    10 */     8,   26,   27,   60,   79,   82,   83,   87,   91,   92,
+ /*    20 */    95,   96,   99,   20,   44,   77,   38,   48,   50,  105,
+ /*    30 */   100,  101,  102,  109,
 };
 static const YYACTIONTYPE yy_default[] = {
  /*     0 */   116,  169,  169,  169,  169,  169,  169,  169,  169,  169,
@@ -390,8 +392,8 @@ static const char *const yyTokenName[] = {
   "SCOPE_END",     "SEMI_COLON",    "FUNCTION",      "PAR_BEGIN",   
   "PAR_END",       "COMMA",         "VAR",           "LET",         
   "INTEGER_LITERAL",  "DECIMAL_LITERAL",  "error",         "type_builtin",
-  "decl_function",  "decls",         "module",        "function_return_decl",
-  "type_specifier",  "named_decl",    "type_decl",     "type_function_decl",
+  "decl_function",  "type_function_decl",  "decls",         "module",      
+  "function_return_decl",  "type_specifier",  "named_decl",    "type_decl",   
   "type_array",    "type_var_decls",  "type_var_decl",  "function_args_decl",
   "function_scope",  "function_arg_decl",  "statement_list",  "statement",   
   "var_assignment",  "var_decl",      "expression",    "var_type_spec",
@@ -764,14 +766,14 @@ static const struct {
   YYCODETYPE lhs;         /* Symbol on the left-hand side of the rule */
   unsigned char nrhs;     /* Number of right-hand side symbols in the rule */
 } yyRuleInfo[] = {
+  { 55, 2 },
   { 54, 2 },
-  { 53, 2 },
-  { 53, 2 },
-  { 53, 2 },
-  { 53, 0 },
-  { 56, 1 },
-  { 56, 1 },
-  { 56, 1 },
+  { 54, 2 },
+  { 54, 2 },
+  { 54, 0 },
+  { 57, 1 },
+  { 57, 1 },
+  { 57, 1 },
   { 51, 1 },
   { 51, 1 },
   { 51, 1 },
@@ -784,19 +786,19 @@ static const struct {
   { 51, 1 },
   { 51, 1 },
   { 60, 3 },
-  { 58, 7 },
-  { 58, 5 },
+  { 59, 7 },
+  { 59, 5 },
   { 61, 2 },
   { 61, 1 },
   { 62, 4 },
   { 52, 7 },
-  { 59, 10 },
+  { 53, 10 },
   { 63, 3 },
   { 63, 1 },
   { 63, 0 },
   { 65, 3 },
-  { 55, 2 },
-  { 55, 0 },
+  { 56, 2 },
+  { 56, 0 },
   { 64, 2 },
   { 64, 3 },
   { 66, 2 },
@@ -883,16 +885,17 @@ static void yy_reduce(
       case 4: /* decls ::= */
 {
         yygotominor.yy109 =  pParser->newASTNode<yal::DeclModule>();
-        pParser->onNode(yygotominor.yy109);
      }
         break;
       case 5: /* type_specifier ::= type_builtin */
 {yygotominor.yy107=yymsp[0].minor.yy60;}
         break;
       case 6: /* type_specifier ::= type_array */
-      case 7: /* type_specifier ::= IDENTIFIER */ yytestcase(yyruleno==7);
       case 32: /* function_return_decl ::= */ yytestcase(yyruleno==32);
 {yygotominor.yy107 = nullptr;}
+        break;
+      case 7: /* type_specifier ::= IDENTIFIER */
+{yygotominor.yy107 = pParser->newASTNode<yal::RefTypeIdentifier>(yymsp[0].minor.yy0);}
         break;
       case 8: /* type_builtin ::= TYPE_BOOL */
 {
@@ -952,7 +955,11 @@ static void yy_reduce(
       case 25: /* decl_function ::= FUNCTION IDENTIFIER PAR_BEGIN function_args_decl PAR_END function_return_decl function_scope */
 {
         yygotominor.yy25 = pParser->newASTNode<yal::DeclFunction>(yymsp[-5].minor.yy0, yymsp[-1].minor.yy107);
-        pParser->onNode(yygotominor.yy25);
+        }
+        break;
+      case 26: /* type_function_decl ::= FUNCTION type_specifier COLON COLON IDENTIFIER PAR_BEGIN function_args_decl PAR_END function_return_decl function_scope */
+{
+            yygotominor.yy65 = pParser->newASTNode<yal::DeclTypeFunction>(yymsp[-5].minor.yy0, yymsp[-8].minor.yy107, yymsp[-1].minor.yy107);
         }
         break;
       case 31: /* function_return_decl ::= COLON type_specifier */
@@ -968,7 +975,6 @@ static void yy_reduce(
       /* (22) type_var_decls ::= type_var_decls type_var_decl */ yytestcase(yyruleno==22);
       /* (23) type_var_decls ::= type_var_decl */ yytestcase(yyruleno==23);
       /* (24) type_var_decl ::= IDENTIFIER COLON type_specifier SEMI_COLON */ yytestcase(yyruleno==24);
-      /* (26) type_function_decl ::= FUNCTION type_specifier COLON COLON IDENTIFIER PAR_BEGIN function_args_decl PAR_END function_return_decl function_scope */ yytestcase(yyruleno==26);
       /* (27) function_args_decl ::= function_args_decl COMMA function_arg_decl */ yytestcase(yyruleno==27);
       /* (28) function_args_decl ::= function_arg_decl */ yytestcase(yyruleno==28);
       /* (29) function_args_decl ::= */ yytestcase(yyruleno==29);

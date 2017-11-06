@@ -19,6 +19,7 @@
 
 #include "yal/ast/reftype.h"
 namespace yal{
+
     class TypeBuiltin;
     class RefTypeBuiltin : public RefType {
     public:

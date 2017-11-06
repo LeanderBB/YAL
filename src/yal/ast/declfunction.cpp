@@ -43,7 +43,7 @@ namespace yal {
                                const RefType* returnType):
         DeclFunctionBase(module,
                          Kind::FunctionDecl,
-                         ASTType::FunctionDecl,
+                         ASTType::DeclFunction,
                          functionName,
                          returnType) {
 
@@ -55,10 +55,10 @@ namespace yal {
                                        const RefType *destType):
         DeclFunctionBase(module,
                          Kind::TypeFunctionDecl,
-                         ASTType::TypeFunctionDecl,
+                         ASTType::DeclFunction,
                          functionName,
                          returnType),
-        m_typeForFunction(destType){
+        m_targetType(destType){
 
     }
 }

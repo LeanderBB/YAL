@@ -79,10 +79,12 @@ namespace yal {
                          const RefType* returnType,
                          const RefType* destType);
 
-        const RefType* getTypeForFunction() const;
+        const RefType* getTargetType() const {
+            return m_targetType;
+        }
 
 
     protected:
-        const RefType* m_typeForFunction;
+        const RefType* m_targetType;
     };
 }

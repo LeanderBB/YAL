@@ -117,12 +117,18 @@ namespace yal{
 
     const Type*
     TypeContext::getByName(const char* name) const {
-        const auto it = m_types.find(name);
-        if(it != m_types.end()) {
-            return it->second.get();
-        } else {
-            return nullptr;
-        }
+        StringRef strRef(name);
+        return getByName(strRef);
     }
+
+     const Type*
+     TypeContext::getByName(const StringRef name) const{
+         const auto it = m_types.find(name);
+         if(it != m_types.end()) {
+             return it->second.get();
+         } else {
+             return nullptr;
+         }
+     }
 
 }

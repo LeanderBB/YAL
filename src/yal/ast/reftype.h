@@ -17,6 +17,7 @@
  *  License along with YAL. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#pragma once
 #include "yal/ast/refbase.h"
 
 namespace yal {
