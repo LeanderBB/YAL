@@ -59,8 +59,7 @@ namespace yal {
 
         template <typename T, typename... ARGS>
         T* newASTNode(ARGS&& ...args) {
-            auto newNode = new(m_module) T(m_module, std::forward<ARGS>(args)...);
-            return newNode;
+           return m_module.newASTNode<T>(std::forward<ARGS>(args)...);
         }
 
     private:

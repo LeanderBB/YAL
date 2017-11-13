@@ -31,8 +31,12 @@ set(YAL_SOURCES
     yal/ast/declbasetypes.def
     yal/ast/asttypes.h
     yal/ast/astnodes.def
+    yal/ast/declfunctionbase.h
+    yal/ast/declfunctionbase.cpp
     yal/ast/declfunction.h
     yal/ast/declfunction.cpp
+    yal/ast/decltypefunction.h
+    yal/ast/decltypefunction.cpp
     yal/ast/type.h
     yal/ast/type.cpp
     yal/ast/typelist.def
@@ -87,6 +91,9 @@ set(YAL_SOURCES
     yal/util/allocatorstack.h
     yal/util/stringref.cpp
     yal/util/stringref.h
+    yal/util/cast.h
+    yal/util/format.h
+    yal/util/formattypes.h
 )
 
 # include parser / lexer DSL's

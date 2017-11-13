@@ -18,6 +18,7 @@
  */
 #pragma once
 
+#include "yal/util/cast.h"
 
 namespace yal {
 
@@ -28,15 +29,10 @@ namespace yal {
         TypeInvalid,
     };
 
-
-    template <class V, class T>
-    T* ast_cast(V* in);
-
-    template <class T>
-    ASTType ast_type(const T* type);
-
-    template <class T>
-    ASTType ast_type(const T& type) {
-        return ast_type<T>(&type);
-    }
+#define YAL_AST_NODE_TYPE(CLASS) \
+    class CLASS; \
+    template<> struct cast_typeid< CLASS >{typedef ASTType type;}; \
+    template<> constexpr cast_typeid< CLASS >::type get_typeid< CLASS >() {return ASTType::CLASS ;}
+#include "yal/ast/astnodes.def"
+#undef YAL_AST_NODE_TYPE
 }

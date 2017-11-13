@@ -35,7 +35,8 @@
 #include <limits>
 #include <memory>
 #include <cstring>
-
+#include <string>
+#include <new>
 
 #define YAL_NO_COPY_CLASS(CLASS) \
     CLASS(const CLASS& other) = delete; \

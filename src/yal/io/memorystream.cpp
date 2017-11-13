@@ -207,10 +207,15 @@ namespace yal {
     std::string
     MemoryStream::readLine() {
         std::string result;
-        size_t lineOffset = m_offset;
+        size_t lineOffset = m_sizeBytes;
         const u8* srcBuffer = reinterpret_cast<const u8*>(m_ptr.get());
-        while (lineOffset < m_sizeBytes && srcBuffer[lineOffset]=='\n') {
-            lineOffset++;
+        const u8* memFindResult = reinterpret_cast<const uint8_t*>(
+                    ::memchr(&srcBuffer[m_offset],
+                             '\n',
+                             m_sizeBytes - m_offset));
+
+        if (memFindResult != nullptr) {
+            lineOffset = static_cast<size_t>(memFindResult - srcBuffer) + 1;
         }
 
         if (lineOffset > m_offset) {

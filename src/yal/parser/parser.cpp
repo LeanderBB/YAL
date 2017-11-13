@@ -181,7 +181,7 @@ namespace yal{
                                               m_log,
                                               ti.lineStart,
                                               ti.lineEnd);
-                m_log.error("Unknown token: %0004u  column:%03u\n",
+                m_log.error("Unknown token at line:%  column:%\n",
                             ti.lineStart, ti.columnStart);
                 m_status = Result::LexerError;
             }
@@ -197,8 +197,8 @@ namespace yal{
         PrettyPrint::SourceErrorPrint(stream,
                                       m_log,
                                       ti.lineStart,
-                                      ti.lineEnd);
-        m_log.error("Syntax Error at line: %0004u  column:%03u\n",
+                                      ti.columnStart);
+        m_log.error("Syntax Error at line:% column:%\n",
                     ti.lineStart, ti.columnStart);
         m_status = Result::SyntaxError;
      }

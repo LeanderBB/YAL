@@ -18,25 +18,23 @@
  */
 
 #pragma once
-#include "yal/ast/refbase.h"
+#include "yal/ast/declfunctionbase.h"
 
 namespace yal {
 
-    class RefType : public RefBase
-    {
+    class DeclTypeFunction : public DeclFunctionBase {
     public:
-        RefType(Module& module,
-                const ASTType astType,
-                const Kind kind,
-                const Type* type,
-                const Qualifier qualifier);
+        DeclTypeFunction(Module& module,
+                         const StringRef functionName,
+                         const RefType* returnType,
+                         const RefType* destType);
 
-        Qualifier getQualifier() const {
-            return m_qualifier;
+        const RefType* getTargetType() const {
+            return m_targetType;
         }
 
-    private:
-        const Qualifier m_qualifier;
-    };
 
+    protected:
+        const RefType* m_targetType;
+    };
 }

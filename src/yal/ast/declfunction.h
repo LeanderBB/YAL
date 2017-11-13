@@ -18,45 +18,9 @@
  */
 #pragma once
 
-#include "yal/ast/declbase.h"
+#include "yal/ast/declfunctionbase.h"
 #include "yal/util/stringref.h"
 namespace yal {
-    class Module;
-    class RefType;
-    class DeclFunctionBase : public DeclBase
-    {
-    protected:
-        DeclFunctionBase(Module& module,
-                         const Kind kind,
-                         const ASTType type,
-                         const StringRef functionName,
-                         const RefType* returnType);
-
-    public:
-        virtual ~DeclFunctionBase();
-
-        bool hasReturnValue() const {
-            return m_returnType != nullptr;
-        }
-
-        bool hasFunctionParameters() const;
-
-        const StringRef getFunctioName() const {
-            return m_name;
-        }
-
-        const RefType* getReturnType() const {
-            return m_returnType;
-        }
-
-        // getFunctionParameters()...
-
-    protected:
-        const StringRef m_name;
-        const RefType* m_returnType;
-
-    };
-
 
     class DeclFunction : public DeclFunctionBase {
     public:
@@ -71,20 +35,4 @@ namespace yal {
 
     };
 
-
-    class DeclTypeFunction : public DeclFunctionBase {
-    public:
-        DeclTypeFunction(Module& module,
-                         const StringRef functionName,
-                         const RefType* returnType,
-                         const RefType* destType);
-
-        const RefType* getTargetType() const {
-            return m_targetType;
-        }
-
-
-    protected:
-        const RefType* m_targetType;
-    };
 }

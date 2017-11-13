@@ -21,7 +21,9 @@
 
 #include "yal/ast/asttypes.h"
 #include "yal/ast/type.h"
+#include "yal/ast/asttypes.h"
 #include "yal/io/sourcemanager.h"
+#include "yal/util/cast.h"
 
 namespace yal {
 
@@ -40,6 +42,7 @@ namespace yal {
         };
    protected:
         RefBase(Module& module,
+                const ASTType astType,
                 const Kind kind,
                 const Type* type);
 
@@ -58,9 +61,23 @@ namespace yal {
             return m_type;
         }
 
+        ASTType getASTType() const {
+            return m_astType;
+        }
+
     protected:
         Module& m_module;
+        const ASTType m_astType;
         const Kind m_kind;
         const Type* m_type;
     };
+
+    template<>
+    struct cast_typeid<RefBase> {
+        typedef ASTType type;
+    };
+
+    inline ASTType get_typeid(const RefBase& ref) {
+        return ref.getASTType();
+    }
 }

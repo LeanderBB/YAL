@@ -21,10 +21,7 @@
 #include "yal/ast/asttypes.h"
 #include "yal/ast/type.h"
 #include "yal/io/sourcemanager.h"
-
-#include <string>
-#include <new>
-
+#include "yal/util/cast.h"
 namespace yal{
 
     class Module;
@@ -92,5 +89,13 @@ namespace yal{
         std::string m_name;
     };
 
+    template<>
+    struct cast_typeid<DeclBase> {
+        typedef ASTType type;
+    };
+
+    inline ASTType get_typeid(const DeclBase& decl) {
+        return decl.getASTType();
+    }
 
 }

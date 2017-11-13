@@ -83,6 +83,12 @@ namespace yal {
             return m_typeContext;
         }
 
+        template <typename T, typename... ARGS>
+        T* newASTNode(ARGS&& ...args) {
+            auto newNode = new(*this) T(*this, std::forward<ARGS>(args)...);
+            return newNode;
+        }
+
     private:
         const Id m_id;
         const SourceManager::Handle m_sourceHandle;

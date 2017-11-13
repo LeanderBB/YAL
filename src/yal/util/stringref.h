@@ -19,7 +19,7 @@
 #pragma once
 
 #include <string>
-
+#include <iostream>
 namespace yal {
 
     // Only Exists so that it can be used in the parser
@@ -99,4 +99,11 @@ namespace std {
             return result;
         }
     };
+}
+
+inline std::ostream& operator<<(std::ostream &os, const yal::StringRef& strRef) {
+    if (strRef.size() != 0) {
+        os.write(strRef.data(), strRef.size());
+    }
+    return os;
 }

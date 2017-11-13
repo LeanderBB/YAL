@@ -16,27 +16,21 @@
  *  You should have received a copy of the GNU Lesser General Public
  *  License along with YAL. If not, see <http://www.gnu.org/licenses/>.
  */
-
-#pragma once
-#include "yal/ast/refbase.h"
+#include "yal/ast/decltypefunction.h"
+#include "yal/ast/module.h"
 
 namespace yal {
 
-    class RefType : public RefBase
-    {
-    public:
-        RefType(Module& module,
-                const ASTType astType,
-                const Kind kind,
-                const Type* type,
-                const Qualifier qualifier);
+    DeclTypeFunction::DeclTypeFunction(Module& module,
+                                       const StringRef functionName,
+                                       const RefType *returnType,
+                                       const RefType *destType):
+        DeclFunctionBase(module,
+                         Kind::TypeFunctionDecl,
+                         ASTType::DeclFunction,
+                         functionName,
+                         returnType),
+        m_targetType(destType){
 
-        Qualifier getQualifier() const {
-            return m_qualifier;
-        }
-
-    private:
-        const Qualifier m_qualifier;
-    };
-
+    }
 }

@@ -35,8 +35,8 @@ namespace yal {
                 stream.skipLine();
             }
             const std::string line = stream.readLine();
-            log.error("%s\n", line.c_str());
-            log.error("%*s%s", columnStart-1,"","^~~~\n");
+            log.error("%\n", line.c_str());
+            log.error("%", FormatIdent<const char*>(columnStart-1,' ',"^~~~\n"));
         }
     }
 

@@ -23,7 +23,8 @@ namespace yal {
     RefTypeIdentifier::RefTypeIdentifier(Module& module,
                                          const StringRef identifier,
                                          const Qualifier qualifier):
-        RefType(module, Kind::RefTypeIdentifier, nullptr, qualifier),
+        RefType(module, ASTType::RefTypeIdentifier,
+                Kind::RefTypeIdentifier, nullptr, qualifier),
         m_identifier(identifier)
     {
         const std::string moduleName =
@@ -33,7 +34,8 @@ namespace yal {
 
     RefTypeIdentifier::RefTypeIdentifier(Module& module,
                                          const StringRef identifier) :
-    RefType(module, Kind::RefTypeIdentifier, nullptr, Qualifier()){
+    RefType(module, ASTType::RefTypeBuiltin,
+            Kind::RefTypeIdentifier, nullptr, Qualifier()){
         const std::string moduleName =
                 Type::BuildTypeNameWithModule(identifier, &module);
         m_type = module.getTypeContext().getByName(moduleName);

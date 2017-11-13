@@ -1,4 +1,3 @@
-#pragma once
 /*
  *  Copyright 2017 by Leander Beernaert (leanderbb@gmail.com)
  *
@@ -17,14 +16,22 @@
  *  You should have received a copy of the GNU Lesser General Public
  *  License along with YAL. If not, see <http://www.gnu.org/licenses/>.
  */
+
+#pragma once
 #include <yal/yal.h>
 #include <stdarg.h>
+#include <yal/util/format.h>
 namespace yal{
 
     class ByteStream;
     class Log {
-    public:
+    private:
+        static const StringRef kTagMessage;
+        static const StringRef kTagError;
+        static const StringRef kTagWarning;
+        static const StringRef kTagDebug;
 
+    public:
         class MultiLineScope {
         public:
             MultiLineScope(Log& log);
@@ -39,28 +46,47 @@ namespace yal{
         Log(ByteStream& out,
             ByteStream& error);
 
-        void message(const char* format, ...);
+        template <typename ...Args>
+        void message(const char* format,
+                     const Args&... args) {
+            Format(m_formater, format, args...);
+            log(m_out, kTagMessage);
+        }
 
-        void warning(const char* format, ...);
+        template <typename ...Args>
+        void warning(const char* format,
+                     const Args&... args) {
+            Format(m_formater, format, args...);
+            log(m_out, kTagWarning);
+        }
 
-        void error(const char* format, ...);
+        template <typename ...Args>
+        void error(const char* format,
+                   const Args&... args) {
+            Format(m_formater, format, args...);
+            log(m_error, kTagError);
+        }
 
-        void debug(const char* format, ...);
+        template <typename ...Args>
+        void debug(const char* format,
+                   const Args&... args) {
+            Format(m_formater, format, args...);
+            log(m_out, kTagDebug);
+        }
 
     private:
 
-        size_t formatWithTag(const char* tag,
-                             const size_t tagLen,
-                             const char* format,
-                             ::va_list args);
+        void log(ByteStream& stream,
+                 const StringRef& tag);
 
 
     private:
         enum {kInternalBufferSizBytes = 4096};
-        char m_buffer[kInternalBufferSizBytes];
+        Formater<kInternalBufferSizBytes> m_formater;
         ByteStream& m_out;
         ByteStream& m_error;
         bool m_multiLine;
+        bool m_firstLine;
     };
 
 }

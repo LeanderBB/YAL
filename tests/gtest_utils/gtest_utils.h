@@ -16,27 +16,23 @@
  *  You should have received a copy of the GNU Lesser General Public
  *  License along with YAL. If not, see <http://www.gnu.org/licenses/>.
  */
-
 #pragma once
-#include "yal/ast/refbase.h"
 
-namespace yal {
 
-    class RefType : public RefBase
-    {
-    public:
-        RefType(Module& module,
-                const ASTType astType,
-                const Kind kind,
-                const Type* type,
-                const Qualifier qualifier);
+#include <gtest/gtest.h>
+#include <yal/util/stringref.h>
+#include <iostream>
 
-        Qualifier getQualifier() const {
-            return m_qualifier;
+namespace testing {
+    namespace internal {
+
+        template <>
+        void PrintTo<yal::StringRef>(const yal::StringRef& value, std::ostream *o) {
+            const char quote = '\"';
+            o->write(&quote, 1);
+            o->write(value.data(), value.size());
+            o->write(&quote, 1);
         }
 
-    private:
-        const Qualifier m_qualifier;
-    };
-
+    }
 }

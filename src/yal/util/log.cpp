@@ -21,112 +21,60 @@
 #include <cstdio>
 #include <cstring>
 #include <algorithm>
+
 namespace yal{
+
+    const StringRef Log::kTagMessage ("[ INFO] ");
+    const StringRef Log::kTagError   ("[ERROR] ");
+    const StringRef Log::kTagWarning ("[ WARN] ");
+    const StringRef Log::kTagDebug   ("[DEBUG] ");
+    static const StringRef kMultiLine("        ");
+
     Log::Log(ByteStream& stream):
-        m_buffer(),
-        m_out(stream),
-        m_error(stream),
-        m_multiLine(false){
+        Log(stream, stream){
 
     }
 
     Log::Log(ByteStream& out,
              ByteStream& error):
-        m_buffer(),
+        m_formater(),
         m_out(out),
-        m_error(error) {
+        m_error(error),
+        m_multiLine(false),
+        m_firstLine(true){
 
     }
 
     Log::MultiLineScope::MultiLineScope(Log& log):
         m_log(log) {
         m_log.m_multiLine = true;
+        m_log.m_firstLine = false;
     }
 
     Log::MultiLineScope::~MultiLineScope() {
         m_log.m_multiLine = false;
+        m_log.m_firstLine = true;
     }
 
     void
-    Log::message(const char* format, ...) {
-        static const char* tag= "[Info] ";
-        static const size_t tagLen = ::strlen(tag);
-        ::va_list args;
-        ::va_start(args, format);
-        const size_t size = formatWithTag(tag, tagLen, format, args);
-        ::va_end(args);
+    Log::log(ByteStream& stream,
+             const StringRef& tag){
 
-        if (size >0) {
-            m_out.write(m_buffer, size);
+
+        if (m_multiLine && !m_firstLine) {
+            stream.write(kMultiLine.data(),kMultiLine.size());
+        } else {
+            stream.write(tag.data(), tag.size());
         }
-    }
 
-    void
-    Log::warning(const char* format, ...) {
-        static const char* tag= "[Warning] ";
-        static const size_t tagLen = ::strlen(tag);
-        ::va_list args;
-        ::va_start(args, format);
-        const size_t size = formatWithTag(tag, tagLen, format, args);
-        ::va_end(args);
-
-        if (size >0) {
-            m_out.write(m_buffer, size);
+        if (m_formater.bufferPos > 0) {
+            stream.write(m_formater.buffer,m_formater.bufferPos);
+            if(m_multiLine && m_firstLine) {
+                if(::memchr(m_formater.buffer, '\n', m_formater.bufferPos) != nullptr) {
+                    m_firstLine = false;
+                }
+            }
         }
-    }
-
-    void
-    Log::error(const char* format, ...) {
-        static const char* tag= "[Error] ";
-        static const size_t tagLen = ::strlen(tag);
-        ::va_list args;
-        ::va_start(args, format);
-        const size_t size = formatWithTag(tag, tagLen, format, args);
-        ::va_end(args);
-
-        if (size >0) {
-            m_error.write(m_buffer, size);
-        }
-    }
-
-    void
-    Log::debug(const char* format, ...) {
-        static const char* tag= "[Debug] ";
-        static const size_t tagLen = ::strlen(tag);
-        ::va_list args;
-        ::va_start(args, format);
-        const size_t size = formatWithTag(tag, tagLen, format, args);
-        ::va_end(args);
-
-        if (size >0) {
-            m_out.write(m_buffer, size);
-        }
-    }
-
-    size_t
-    Log::formatWithTag(const char* tag,
-                       const size_t tagLen,
-                       const char* format,
-                       ::va_list args){
-
-        const char* logTag = (m_multiLine ? "--- " : tag);
-        const int bytesWrittenTag =  std::snprintf(m_buffer,
-                                                   kInternalBufferSizBytes,
-                                                   "%*s",
-                                                   static_cast<int>(tagLen),
-                                                   logTag);
-        YAL_ASSERT(bytesWrittenTag >0
-                   && static_cast<size_t>(bytesWrittenTag)<= strlen(tag));
-
-        const int bytesWrittenFormat = std::vsnprintf(m_buffer + bytesWrittenTag,
-                                                      static_cast<size_t>(static_cast<int>(kInternalBufferSizBytes) - bytesWrittenTag),
-                                                      format,
-                                                      args);
-        YAL_ASSERT(bytesWrittenFormat >= 0);
-
-        return std::min(static_cast<size_t>(bytesWrittenTag)
-                        + static_cast<size_t>(bytesWrittenFormat),
-                        static_cast<size_t>(kInternalBufferSizBytes));
     }
 
 }
