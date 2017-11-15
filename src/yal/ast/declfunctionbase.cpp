@@ -23,7 +23,7 @@
 namespace yal {
 
     DeclFunctionBase::DeclFunctionBase(Module& module,
-                                       const ASTType type,
+                                       const AstType type,
                                        const StringRef functionName,
                                        const RefType*returnType):
         DeclBase(module, type, functionName),

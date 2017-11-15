@@ -23,7 +23,7 @@ namespace yal {
     RefTypeIdentifier::RefTypeIdentifier(Module& module,
                                          const StringRef identifier,
                                          const Qualifier qualifier):
-        RefType(module, ASTType::RefTypeIdentifier, nullptr, qualifier),
+        RefType(module, AstType::RefTypeIdentifier, nullptr, qualifier),
         m_identifier(identifier)
     {
         const Identifier typeIdentifier(identifier, module);

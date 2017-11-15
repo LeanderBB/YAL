@@ -66,12 +66,12 @@ namespace yal {
     }
 
     void
-    Identifier::SetIdString(StringRef idString) {
+    Identifier::setIdString(StringRef idString) {
         m_idString = idString.toString();
     }
 
     void
-    Identifier::SetIdString(StringRef idString,
+    Identifier::setIdString(StringRef idString,
                             const Module& module) {
         m_idString =BuildTypeNameWithModule(idString, module);
     }

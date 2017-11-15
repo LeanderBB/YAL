@@ -17,33 +17,26 @@
  *  License along with YAL. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#pragma once
-#include <string>
+#include "yal/ast/statement.h"
+
 namespace yal {
 
-    class Module;
-    class StringRef;
-    class Identifier
-    {
-    public:
+    Statement::Statement(Module& module,
+                         const AstType type):
+        m_module(module),
+        m_astType(type),
+        m_sourceInfo() {
 
-        Identifier(StringRef idString,
-                   const Module& module);
+    }
 
-        Identifier(StringRef idString);
+    Statement::~Statement() {
 
-        Identifier(StringRef idString,
-                   const Module* module);
+    }
 
-
-        StringRef getAsString() const;
-
-        void setIdString(StringRef idString);
-
-        void setIdString(StringRef idString,
-                         const Module& module);
-
-    private:
-        std::string m_idString;
-    };
+    void
+    Statement::setSourceInfo(const SourceInfo& sourceInfo) {
+        m_sourceInfo = sourceInfo;
+    }
 }
+
+

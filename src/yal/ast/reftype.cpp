@@ -21,7 +21,7 @@
 namespace yal {
 
     RefType::RefType(Module& module,
-                     const ASTType astType,
+                     const AstType astType,
                      const Type* type,
                      const Qualifier qualifier):
         RefBase(module, astType, type),

@@ -17,33 +17,28 @@
  *  License along with YAL. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#pragma once
-#include <string>
+#include "yal/ast/stmtreturn.h"
+
 namespace yal {
 
-    class Module;
-    class StringRef;
-    class Identifier
-    {
-    public:
+    StmtReturn::StmtReturn(Module &module):
+        StmtReturn(module, nullptr){
 
-        Identifier(StringRef idString,
-                   const Module& module);
+    }
 
-        Identifier(StringRef idString);
+    StmtReturn::StmtReturn(Module& module,
+                           StmtExpression* expression):
+        Statement(module, AstType::StmtReturn),
+        m_expr(expression) {
+    }
 
-        Identifier(StringRef idString,
-                   const Module* module);
+    void
+    StmtReturn::setExpression(StmtExpression* expr) {
+        m_expr = expr;
+    }
 
-
-        StringRef getAsString() const;
-
-        void setIdString(StringRef idString);
-
-        void setIdString(StringRef idString,
-                         const Module& module);
-
-    private:
-        std::string m_idString;
-    };
+    bool
+    StmtReturn::hasReturnExpression() const {
+        return m_expr != nullptr;
+    }
 }

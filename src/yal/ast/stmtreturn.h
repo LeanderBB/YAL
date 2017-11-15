@@ -17,33 +17,32 @@
  *  License along with YAL. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#pragma once
-#include <string>
-namespace yal {
+#include "yal/ast/statement.h"
+namespace yal{
 
-    class Module;
-    class StringRef;
-    class Identifier
-    {
+    class StmtExpression;
+    class StmtReturn : public Statement{
     public:
 
-        Identifier(StringRef idString,
-                   const Module& module);
+        StmtReturn(Module& module);
 
-        Identifier(StringRef idString);
+        StmtReturn(Module& module,
+                   StmtExpression* expression);
 
-        Identifier(StringRef idString,
-                   const Module* module);
+        const StmtExpression* getExpression() const {
+            return m_expr;
+        }
 
+        StmtExpression* getExpression() {
+            return m_expr;
+        }
 
-        StringRef getAsString() const;
+        void setExpression(StmtExpression* expr);
 
-        void setIdString(StringRef idString);
-
-        void setIdString(StringRef idString,
-                         const Module& module);
+        bool hasReturnExpression() const;
 
     private:
-        std::string m_idString;
+        StmtExpression* m_expr;
     };
+
 }

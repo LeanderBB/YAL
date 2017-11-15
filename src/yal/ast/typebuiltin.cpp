@@ -76,7 +76,7 @@ namespace yal {
             break;
         }
 
-        m_identifier.SetIdString(m_name);
+        m_identifier.setIdString(m_name);
         m_defined = 1;
         m_trivialCopy = 1;
     }

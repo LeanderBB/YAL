@@ -59,6 +59,17 @@ set(YAL_SOURCES
     yal/ast/reftypeidentifier.h
     yal/ast/identifier.cpp
     yal/ast/identifier.h
+    yal/ast/statement.h
+    yal/ast/statement.cpp
+    yal/ast/stmtexpression.cpp
+    yal/ast/stmtexpression.h
+    yal/ast/stmtreturn.cpp
+    yal/ast/stmtreturn.h
+    yal/ast/exprunaryoperator.cpp
+    yal/ast/exprunaryoperator.h
+    yal/ast/exprbinaryoperator.cpp
+    yal/ast/exprbinaryoperator.h
+    yal/ast/operators.h
 
     yal/io/memorystream.cpp
     yal/io/memorystream.h

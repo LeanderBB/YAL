@@ -16,35 +16,34 @@
  *  You should have received a copy of the GNU Lesser General Public
  *  License along with YAL. If not, see <http://www.gnu.org/licenses/>.
  */
+#include "yal/ast/exprbinaryoperator.h"
 
-#include "yal/ast/refbase.h"
-#include "yal/ast/module.h"
 namespace yal {
 
-    void* RefBase::operator new(std::size_t bytes,
-                                 Module &module) {
-        ASTContext& astctx = module.getASTContext();
-        void* ptr = astctx.allocate(bytes);
-        YAL_ASSERT_MESSAGE(ptr != nullptr, "RefBase: Failed to allocate memory");
-        return ptr;
-    }
-
-    RefBase::RefBase(Module& module,
-                     const AstType astType,
-                     const Type *type):
-        m_module(module),
-        m_astType(astType),
-        m_type(type){
-
+    ExprBinaryOperator::ExprBinaryOperator(Module& module,
+                                           const BinaryOperatorType opType,
+                                           StmtExpression* left,
+                                           StmtExpression* right):
+        StmtExpression(module, AstType::ExprBinaryOperator),
+        m_opType(opType),
+        m_exprLeft(left),
+        m_exprRight(right) {
     }
 
     void
-    RefBase::setSourceInfo(const SourceInfo& sourceInfo) {
-        m_sourceInfo = sourceInfo;
+    ExprBinaryOperator::setExpressionLeft(StmtExpression* expr) {
+        m_exprLeft = expr;
+        updateQualType();
     }
 
+    void
+    ExprBinaryOperator::setExpressionRight(StmtExpression* expr) {
+        m_exprRight = expr;
+        updateQualType();
+    }
 
-    RefBase::~RefBase() {
-
+    void
+    ExprBinaryOperator::updateQualType() {
+        YAL_ASSERT_NOT_IMPLEMENTED();
     }
 }

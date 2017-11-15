@@ -18,32 +18,37 @@
  */
 
 #pragma once
-#include <string>
+
+#include "yal/ast/stmtexpression.h"
+#include "yal/ast/operators.h"
+
 namespace yal {
 
-    class Module;
-    class StringRef;
-    class Identifier
-    {
+    class ExprUnaryOperator : public StmtExpression {
     public:
 
-        Identifier(StringRef idString,
-                   const Module& module);
+        ExprUnaryOperator(Module& module,
+                          const UnaryOperatorType opType,
+                          StmtExpression* expr);
 
-        Identifier(StringRef idString);
+        UnaryOperatorType getOperatorType() const {
+            return m_opType;
+        }
 
-        Identifier(StringRef idString,
-                   const Module* module);
+        const StmtExpression* getExpression() const {
+            return m_expr;
+        }
 
+        StmtExpression* getExpression() {
+            return m_expr;
+        }
 
-        StringRef getAsString() const;
+        void setExpression(StmtExpression* expr);
 
-        void setIdString(StringRef idString);
-
-        void setIdString(StringRef idString,
-                         const Module& module);
 
     private:
-        std::string m_idString;
+        const UnaryOperatorType m_opType;
+        StmtExpression* m_expr;
     };
+
 }

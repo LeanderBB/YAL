@@ -17,33 +17,30 @@
  *  License along with YAL. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#pragma once
-#include <string>
+#include "yal/ast/statement.h"
+#include "yal/ast/type.h"
+
 namespace yal {
 
-    class Module;
-    class StringRef;
-    class Identifier
-    {
+    class StmtExpression : public Statement{
     public:
 
-        Identifier(StringRef idString,
-                   const Module& module);
-
-        Identifier(StringRef idString);
-
-        Identifier(StringRef idString,
-                   const Module* module);
+        StmtExpression(Module& module,
+                       const AstType astType);
 
 
-        StringRef getAsString() const;
+        QualType getQualType() const {
+            return m_qualType;
+        }
 
-        void setIdString(StringRef idString);
+        void setQualType(QualType qualType);
 
-        void setIdString(StringRef idString,
-                         const Module& module);
+    protected:
+        QualType m_qualType;
+    };
 
-    private:
-        std::string m_idString;
+    template<>
+    struct cast_typeid<StmtExpression> {
+        typedef AstType type;
     };
 }

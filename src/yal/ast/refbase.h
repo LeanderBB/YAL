@@ -37,7 +37,7 @@ namespace yal {
 
    protected:
         RefBase(Module& module,
-                const ASTType astType,
+                const AstType astType,
                 const Type* type);
 
     public:
@@ -51,22 +51,34 @@ namespace yal {
             return m_type;
         }
 
-        ASTType getASTType() const {
+        AstType getAstType() const {
             return m_astType;
         }
 
+        const SourceInfo& getSourceInfo() const {
+            return m_sourceInfo;
+        }
+
+        SourceInfo& getSourceInfo() {
+            return const_cast<SourceInfo&>(
+                        static_cast<const RefBase*>(this)->getSourceInfo());
+        }
+
+        void setSourceInfo(const SourceInfo& sourceInfo);
+
     protected:
         Module& m_module;
-        const ASTType m_astType;
+        const AstType m_astType;
         const Type* m_type;
+        SourceInfo m_sourceInfo;
     };
 
     template<>
     struct cast_typeid<RefBase> {
-        typedef ASTType type;
+        typedef AstType type;
     };
 
-    inline ASTType get_typeid(const RefBase& ref) {
-        return ref.getASTType();
+    inline AstType get_typeid(const RefBase& ref) {
+        return ref.getAstType();
     }
 }

@@ -28,7 +28,7 @@ namespace yal {
     {
     protected:
         DeclFunctionBase(Module& module,
-                         const ASTType type,
+                         const AstType type,
                          const StringRef functionName,
                          const RefType* returnType);
 

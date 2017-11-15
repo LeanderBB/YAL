@@ -22,7 +22,7 @@
 
 namespace yal {
 
-    enum class ASTType {
+    enum class AstType {
 #define YAL_AST_NODE_TYPE(type) type,
 #include "yal/ast/astnodes.def"
 #undef YAL_AST_NODE_TYPE
@@ -31,8 +31,8 @@ namespace yal {
 
 #define YAL_AST_NODE_TYPE(CLASS) \
     class CLASS; \
-    template<> struct cast_typeid< CLASS >{typedef ASTType type;}; \
-    template<> constexpr cast_typeid< CLASS >::type get_typeid< CLASS >() {return ASTType::CLASS ;}
+    template<> struct cast_typeid< CLASS >{typedef AstType type;}; \
+    template<> constexpr cast_typeid< CLASS >::type get_typeid< CLASS >() {return AstType::CLASS ;}
 #include "yal/ast/astnodes.def"
 #undef YAL_AST_NODE_TYPE
 }

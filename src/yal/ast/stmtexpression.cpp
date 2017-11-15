@@ -17,33 +17,19 @@
  *  License along with YAL. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#pragma once
-#include <string>
-namespace yal {
+#include "yal/ast/stmtexpression.h"
 
-    class Module;
-    class StringRef;
-    class Identifier
-    {
-    public:
+namespace yal{
 
-        Identifier(StringRef idString,
-                   const Module& module);
+    StmtExpression::StmtExpression(Module& module,
+                                   const AstType astType):
+        Statement(module, astType){
 
-        Identifier(StringRef idString);
+    }
 
-        Identifier(StringRef idString,
-                   const Module* module);
+    void
+    StmtExpression::setQualType(QualType qualType) {
+        m_qualType = qualType;
+    }
 
-
-        StringRef getAsString() const;
-
-        void setIdString(StringRef idString);
-
-        void setIdString(StringRef idString,
-                         const Module& module);
-
-    private:
-        std::string m_idString;
-    };
 }

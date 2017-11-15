@@ -32,6 +32,8 @@
 #define YAL_ASSERT_MESSAGE(x,y)
 #endif
 
+#define YAL_ASSERT_NOT_IMPLEMENTED() YAL_ASSERT_MESSAGE(false, "Not yet implemented")
+
 #include <limits>
 #include <memory>
 #include <cstring>

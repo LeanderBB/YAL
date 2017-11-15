@@ -17,33 +17,20 @@
  *  License along with YAL. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#pragma once
-#include <string>
 namespace yal {
 
-    class Module;
-    class StringRef;
-    class Identifier
-    {
-    public:
+    enum class UnaryOperatorType {
+        Not,
+        BinNot,
+        Minus
+    };
 
-        Identifier(StringRef idString,
-                   const Module& module);
-
-        Identifier(StringRef idString);
-
-        Identifier(StringRef idString,
-                   const Module* module);
-
-
-        StringRef getAsString() const;
-
-        void setIdString(StringRef idString);
-
-        void setIdString(StringRef idString,
-                         const Module& module);
-
-    private:
-        std::string m_idString;
+    enum class BinaryOperatorType {
+        Plus,
+        Minus,
+        Div,
+        Mult,
+        And,
+        Or
     };
 }

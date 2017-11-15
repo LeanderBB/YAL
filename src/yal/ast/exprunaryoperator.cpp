@@ -16,34 +16,22 @@
  *  You should have received a copy of the GNU Lesser General Public
  *  License along with YAL. If not, see <http://www.gnu.org/licenses/>.
  */
+#include "yal/ast/exprunaryoperator.h"
 
-#pragma once
-#include <string>
-namespace yal {
+namespace yal{
 
-    class Module;
-    class StringRef;
-    class Identifier
-    {
-    public:
+    ExprUnaryOperator::ExprUnaryOperator(Module& module,
+                                         const UnaryOperatorType opType,
+                                         StmtExpression* expr):
+        StmtExpression(module, AstType::ExprUnaryOperator),
+        m_opType(opType),
+        m_expr(expr) {
+        // TODO: set qual type ?
+    }
 
-        Identifier(StringRef idString,
-                   const Module& module);
-
-        Identifier(StringRef idString);
-
-        Identifier(StringRef idString,
-                   const Module* module);
-
-
-        StringRef getAsString() const;
-
-        void setIdString(StringRef idString);
-
-        void setIdString(StringRef idString,
-                         const Module& module);
-
-    private:
-        std::string m_idString;
-    };
+    void ExprUnaryOperator::setExpression(StmtExpression* expr) {
+        m_expr = expr;
+        // TODO: Verify!
+        m_qualType = expr->getQualType();
+    }
 }
