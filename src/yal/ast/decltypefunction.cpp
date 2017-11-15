@@ -26,7 +26,6 @@ namespace yal {
                                        const RefType *returnType,
                                        const RefType *destType):
         DeclFunctionBase(module,
-                         Kind::TypeFunctionDecl,
                          ASTType::DeclFunction,
                          functionName,
                          returnType),

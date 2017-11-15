@@ -21,9 +21,8 @@
 
 namespace yal {
 
-
     TypeBuiltin::TypeBuiltin(const DataType builtinType):
-        Type(nullptr, Kind::TypeBuiltin),
+        Type(Kind::TypeBuiltin),
         m_builtinType(builtinType) {
 
         switch(m_builtinType) {
@@ -77,7 +76,7 @@ namespace yal {
             break;
         }
 
-        m_nameWithModule = m_name;
+        m_identifier.SetIdString(m_name);
         m_defined = 1;
         m_trivialCopy = 1;
     }

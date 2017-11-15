@@ -22,16 +22,14 @@
 namespace yal{
     RefTypeBuiltin::RefTypeBuiltin(Module &module,
                                    const TypeBuiltin* type):
-        RefType(module, ASTType::RefTypeBuiltin,
-                Kind::RefTypeBuiltin, type, Qualifier()) {
+        RefType(module, ASTType::RefTypeBuiltin, type, Qualifier()) {
 
     }
 
      RefTypeBuiltin::RefTypeBuiltin(Module& module,
                     const TypeBuiltin* type,
                     const Qualifier qualifier):
-     RefType(module, ASTType::RefTypeBuiltin,
-             Kind::RefTypeBuiltin, type, qualifier) {
+     RefType(module, ASTType::RefTypeBuiltin, type, qualifier) {
 
     }
 }

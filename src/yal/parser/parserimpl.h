@@ -5,14 +5,8 @@ void YALParser(void *yyp,int yymajor,YALParserTOKENTYPE yyminor YALParserARG_PDE
 #if defined(YYTRACKMAXSTACKDEPTH)
 int YALParserStackPeak(void *p);
 #endif
-#if !defined(YALParser_ENGINEALWAYSONSTACK)
 void YALParserFree(void *p,void(*freeProc)(void *));
-#endif
-void YALParserFinalize(void *p);
-#if !defined(YALParser_ENGINEALWAYSONSTACK)
-void *YALParserAlloc(void *(*mallocProc)(YYMALLOCARGTYPE));
-#endif
-void YALParserInit(void *yypParser);
+void *YALParserAlloc(void *(*mallocProc)(size_t));
 #if !defined(NDEBUG)
 void YALParserTrace(FILE *TraceFILE,char *zTracePrompt);
 #endif

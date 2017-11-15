@@ -26,76 +26,76 @@ namespace yal{
         {
             auto type = std::make_unique<TypeBuiltin>(TypeBuiltin::DataType::Boolean);
             m_typeBool = type.get();
-            m_types.insert(std::make_pair(type->getNameWithModulePrefix(),
+            m_types.insert(std::make_pair(type->getIdentifier().getAsString(),
                                           std::move(type)));
         }
 
         {
             auto type = std::make_unique<TypeBuiltin>(TypeBuiltin::DataType::Int8);
             m_typeI8 = type.get();
-            m_types.insert(std::make_pair(type->getNameWithModulePrefix(),
+            m_types.insert(std::make_pair(type->getIdentifier().getAsString(),
                                           std::move(type)));
         }
 
         {
             auto type = std::make_unique<TypeBuiltin>(TypeBuiltin::DataType::UInt8);
             m_typeU8 = type.get();
-            m_types.insert(std::make_pair(type->getNameWithModulePrefix(),
+            m_types.insert(std::make_pair(type->getIdentifier().getAsString(),
                                           std::move(type)));
         }
 
         {
             auto type = std::make_unique<TypeBuiltin>(TypeBuiltin::DataType::Int16);
             m_typeI16 = type.get();
-            m_types.insert(std::make_pair(type->getNameWithModulePrefix(),
+            m_types.insert(std::make_pair(type->getIdentifier().getAsString(),
                                           std::move(type)));
         }
 
         {
             auto type = std::make_unique<TypeBuiltin>(TypeBuiltin::DataType::UInt16);
             m_typeU16 = type.get();
-            m_types.insert(std::make_pair(type->getNameWithModulePrefix(),
+            m_types.insert(std::make_pair(type->getIdentifier().getAsString(),
                                           std::move(type)));
         }
 
         {
             auto type = std::make_unique<TypeBuiltin>(TypeBuiltin::DataType::Int32);
             m_typeI32 = type.get();
-            m_types.insert(std::make_pair(type->getNameWithModulePrefix(),
+            m_types.insert(std::make_pair(type->getIdentifier().getAsString(),
                                           std::move(type)));
         }
 
         {
             auto type = std::make_unique<TypeBuiltin>(TypeBuiltin::DataType::UInt32);
             m_typeU32 = type.get();
-            m_types.insert(std::make_pair(type->getNameWithModulePrefix(),
+            m_types.insert(std::make_pair(type->getIdentifier().getAsString(),
                                           std::move(type)));
         }
         {
             auto type = std::make_unique<TypeBuiltin>(TypeBuiltin::DataType::Int64);
             m_typeI64 = type.get();
-            m_types.insert(std::make_pair(type->getNameWithModulePrefix(),
+            m_types.insert(std::make_pair(type->getIdentifier().getAsString(),
                                           std::move(type)));
         }
 
         {
             auto type = std::make_unique<TypeBuiltin>(TypeBuiltin::DataType::UInt64);
             m_typeU64 = type.get();
-            m_types.insert(std::make_pair(type->getNameWithModulePrefix(),
+            m_types.insert(std::make_pair(type->getIdentifier().getAsString(),
                                           std::move(type)));
         }
 
         {
             auto type = std::make_unique<TypeBuiltin>(TypeBuiltin::DataType::Float);
             m_typeFloat = type.get();
-            m_types.insert(std::make_pair(type->getNameWithModulePrefix(),
+            m_types.insert(std::make_pair(type->getIdentifier().getAsString(),
                                           std::move(type)));
         }
 
         {
             auto type = std::make_unique<TypeBuiltin>(TypeBuiltin::DataType::Double);
             m_typeDouble = type.get();
-            m_types.insert(std::make_pair(type->getNameWithModulePrefix(),
+            m_types.insert(std::make_pair(type->getIdentifier().getAsString(),
                                           std::move(type)));
         }
 
@@ -104,14 +104,14 @@ namespace yal{
     bool
     TypeContext::hasType(const Type* type) const {
         YAL_ASSERT(type != nullptr);
-        const auto it = m_types.find(type->getNameWithModulePrefix());
+        const auto it = m_types.find(type->getIdentifier().getAsString());
         return it != m_types.end();
     }
 
     void
     TypeContext::addType(std::unique_ptr<Type>&& type) {
         YAL_ASSERT(!hasType(type.get()));
-        m_types.insert(std::make_pair(type->getNameWithModulePrefix(),
+        m_types.insert(std::make_pair(type->getIdentifier().getAsString(),
                                       std::move(type)));
     }
 

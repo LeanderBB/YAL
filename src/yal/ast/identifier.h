@@ -16,17 +16,34 @@
  *  You should have received a copy of the GNU Lesser General Public
  *  License along with YAL. If not, see <http://www.gnu.org/licenses/>.
  */
-#include "yal/ast/reftype.h"
 
+#pragma once
+#include <string>
 namespace yal {
 
-    RefType::RefType(Module& module,
-                     const ASTType astType,
-                     const Type* type,
-                     const Qualifier qualifier):
-        RefBase(module, astType, type),
-        m_qualifier(qualifier) {
+    class Module;
+    class StringRef;
+    class Identifier
+    {
+    public:
 
-    }
+        Identifier(StringRef idString,
+                   const Module& module);
 
+        Identifier(StringRef idString);
+
+        Identifier(StringRef idString,
+                   const Module* module);
+
+
+        StringRef getAsString() const;
+
+        void SetIdString(StringRef idString);
+
+        void SetIdString(StringRef idString,
+                         const Module& module);
+
+    private:
+        std::string m_idString;
+    };
 }

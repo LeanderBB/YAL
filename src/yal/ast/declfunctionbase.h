@@ -23,11 +23,11 @@
 namespace yal {
     class Module;
     class RefType;
+
     class DeclFunctionBase : public DeclBase
     {
     protected:
         DeclFunctionBase(Module& module,
-                         const Kind kind,
                          const ASTType type,
                          const StringRef functionName,
                          const RefType* returnType);
@@ -41,10 +41,6 @@ namespace yal {
 
         bool hasFunctionParameters() const;
 
-        const StringRef getFunctioName() const {
-            return m_name;
-        }
-
         const RefType* getReturnType() const {
             return m_returnType;
         }
@@ -52,7 +48,6 @@ namespace yal {
         // getFunctionParameters()...
 
     protected:
-        const StringRef m_name;
         const RefType* m_returnType;
 
     };

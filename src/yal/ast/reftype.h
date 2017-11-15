@@ -27,7 +27,6 @@ namespace yal {
     public:
         RefType(Module& module,
                 const ASTType astType,
-                const Kind kind,
                 const Type* type,
                 const Qualifier qualifier);
 

@@ -35,15 +35,9 @@ namespace yal {
         static void* operator new(std::size_t bytes,
                                   Module& ctx);
 
-        enum class Kind {
-#define YAL_AST_REFBASE_TYPE(type) type,
-#include "yal/ast/refbasetypes.def"
-#undef YAL_AST_DECLBASE_TYPE
-        };
    protected:
         RefBase(Module& module,
                 const ASTType astType,
-                const Kind kind,
                 const Type* type);
 
     public:
@@ -51,10 +45,6 @@ namespace yal {
 
         bool isTypeDefined() const {
             return m_type != nullptr;
-        }
-
-        Kind getKind() const {
-            return m_kind;
         }
 
         const Type* getType() const {
@@ -68,7 +58,6 @@ namespace yal {
     protected:
         Module& m_module;
         const ASTType m_astType;
-        const Kind m_kind;
         const Type* m_type;
     };
 

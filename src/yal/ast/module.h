@@ -22,6 +22,7 @@
 #include "yal/io/sourcemanager.h"
 #include "yal/ast/astcontext.h"
 #include "yal/ast/typecontext.h"
+#include "yal/util/stringref.h"
 #include <string>
 
 namespace yal {
@@ -37,8 +38,8 @@ namespace yal {
 
         YAL_MOVE_ONLY_CLASS(Module);
 
-        const char* getName() const {
-            return m_name.c_str();
+        const StringRef getName() const {
+            return m_name;
         }
 
         SourceManager::Handle getSourceHandle() const {

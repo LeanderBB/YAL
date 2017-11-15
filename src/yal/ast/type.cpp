@@ -24,31 +24,20 @@
 namespace yal {
 
 
-    std::string
-    Type::BuildTypeNameWithModule(const char* name,
-                                  const Module* module) {
-        return BuildTypeNameWithModule(StringRef(name), module);
-    }
+    Type::Type(const Kind kind):
+        Type(nullptr, kind, nullptr) {
 
-    std::string
-    Type::BuildTypeNameWithModule(const StringRef name,
-                                  const Module* module) {
-        std::string result;
-        if (module != nullptr) {
-            result = module->getName();
-            result += "::";
-            result += name.toString();
-        } else {
-            result = name.toString();
-        }
-        return result;
     }
 
     Type::Type(const Module* module,
-               const Kind kind) :
+               const Kind kind,
+               const StringRef name) :
         m_module(module),
         m_declNode(nullptr),
         m_kind(kind),
+        m_sizeBytes(0),
+        m_name(name),
+        m_identifier(name, module),
         m_moduleDependent(0),
         m_moduleExternal(0),
         m_moduleType(0),
@@ -117,12 +106,6 @@ namespace yal {
         return m_moduleType;
     }
 
-    void
-    Type::buildTypeNameWithModule() {
-        m_nameWithModule = BuildTypeNameWithModule(m_name.c_str(),
-                                                   m_module);
-    }
-
     bool
     Type::isTriviallyCopiable() const {
         return m_trivialCopy;
@@ -131,11 +114,6 @@ namespace yal {
     const StringRef
     Type::getName() const {
         return StringRef(m_name);
-    }
-
-    const StringRef
-    Type::getNameWithModulePrefix() const {
-        return StringRef(m_nameWithModule);
     }
 
     void

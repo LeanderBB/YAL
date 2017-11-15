@@ -31,11 +31,9 @@ namespace yal {
 
     RefBase::RefBase(Module& module,
                      const ASTType astType,
-                     const Kind kind,
                      const Type *type):
         m_module(module),
         m_astType(astType),
-        m_kind(kind),
         m_type(type){
 
     }

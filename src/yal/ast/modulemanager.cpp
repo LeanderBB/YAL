@@ -64,7 +64,7 @@ namespace yal {
         auto it = std::find_if(std::begin(m_modules),
                                std::end(m_modules),
                                [&](const Module* v) {
-            return strcmp(v->getName(), name) == 0;
+            return v->getName() ==  name;
         });
         return it == m_modules.end()
                 ? nullptr

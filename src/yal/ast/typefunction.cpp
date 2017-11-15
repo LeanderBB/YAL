@@ -22,9 +22,8 @@ namespace yal{
 
     TypeFunction::TypeFunction(const Module* module,
                                const DeclFunction* functionDecl):
-    Type(module, Kind::TypeFunction) {
-        m_name = functionDecl->getFunctioName().toString();
-        buildTypeNameWithModule();
+    Type(module, Kind::TypeFunction, functionDecl->getName()) {
+
     }
 
     const DeclFunction*

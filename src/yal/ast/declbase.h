@@ -22,6 +22,7 @@
 #include "yal/ast/type.h"
 #include "yal/io/sourcemanager.h"
 #include "yal/util/cast.h"
+#include "yal/util/stringref.h"
 namespace yal{
 
     class Module;
@@ -33,15 +34,9 @@ namespace yal{
         static void* operator new(std::size_t bytes,
                                   Module& ctx);
 
-        enum class Kind {
-#define YAL_AST_DECLBASE_TYPE(type) type,
-#include "yal/ast/declbasetypes.def"
-#undef YAL_AST_DECLBASE_TYPE
-        };
-
         DeclBase(Module& module,
-                 const Kind kind,
-                 const ASTType type);
+                 const ASTType type,
+                 StringRef name);
 
         YAL_NO_COPY_CLASS(DeclBase);
 
@@ -59,18 +54,12 @@ namespace yal{
 
         void setSourceInfo(const SourceInfo& sourceInfo);
 
-        Kind getKind() const {
-            return m_kind;
-        }
-
         ASTType getASTType() const {
             return m_astType;
         }
 
-        void setName(const char* name);
-
-        const char* getName() const {
-            return m_name.c_str();
+        const StringRef getName() const {
+            return m_name;
         }
 
         Module& getModule() {
@@ -84,9 +73,8 @@ namespace yal{
     protected:
         Module& m_module;
         const ASTType m_astType;
-        const Kind m_kind;
         SourceInfo m_sourceInfo;
-        std::string m_name;
+        StringRef m_name;
     };
 
     template<>

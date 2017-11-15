@@ -20,14 +20,15 @@
 #pragma once
 
 #include "yal/yal.h"
-#include <string>
+#include "yal/ast/identifier.h"
+#include "yal/util/stringref.h"
 
 namespace yal {
 
     class TypeRegistry;
     class Module;
     class DeclBase;
-    class StringRef;
+
     class Type {
         friend class TypeRegistry;
     public:
@@ -37,14 +38,11 @@ namespace yal {
 #undef YAL_AST_TYPE
         };
 
-        static std::string BuildTypeNameWithModule(const char* name,
-                                                   const Module* module);
-
-        static std::string BuildTypeNameWithModule(const StringRef name,
-                                                   const Module* module);
+        Type(const Kind kind);
 
         Type(const Module*,
-             const Kind kind);
+             const Kind kind,
+             const StringRef name);
 
         virtual ~Type();
 
@@ -69,7 +67,9 @@ namespace yal {
 
         const StringRef getName() const;
 
-        const StringRef getNameWithModulePrefix() const;
+        const Identifier& getIdentifier() const {
+            return m_identifier;
+        }
 
         const Module* getModule() const {
             return m_module;
@@ -79,17 +79,14 @@ namespace yal {
             return m_declNode;
         }
 
-    protected:
-
-        void buildTypeNameWithModule();
 
     protected:
         const Module* m_module;
         const DeclBase* m_declNode;
         const Kind m_kind;
-        std::string m_name;
-        std::string m_nameWithModule;
         uint32_t m_sizeBytes = 0;
+        StringRef m_name;
+        Identifier m_identifier;
         unsigned m_moduleDependent:1;
         unsigned m_moduleExternal:1;
         unsigned m_moduleType:1;

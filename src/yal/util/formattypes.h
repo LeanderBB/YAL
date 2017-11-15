@@ -186,6 +186,20 @@ namespace yal {
         return std::min(loc.length -1, sresult);
     }
 
+#if defined(__APPLE__)
+    // On OSX size_t != uint64_t type
+    inline size_t FormatType(FormatTypeArgs& loc,
+                             const size_t& value) {
+        const int result = ::snprintf(loc.ptr, loc.length, "%zu", value);
+        if (result < 0) {
+            return 0;
+        }
+        const size_t sresult= size_t(result);
+        return std::min(loc.length -1, sresult);
+    }
+#endif
+
+
     inline size_t FormatType(FormatTypeArgs& loc,
                              const int64_t& value) {
         const int result = ::snprintf(loc.ptr, loc.length, "%" PRId64, value);

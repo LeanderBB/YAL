@@ -32,12 +32,12 @@ namespace yal{
     }
 
     DeclBase::DeclBase(Module &module,
-                       const Kind kind,
-                       const ASTType type):
+                       const ASTType type,
+                       StringRef name):
         m_module(module),
         m_astType(type),
-        m_kind(kind),
-        m_sourceInfo() {
+        m_sourceInfo() ,
+        m_name(name) {
 
     }
 
