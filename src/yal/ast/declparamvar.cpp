@@ -16,22 +16,34 @@
  *  You should have received a copy of the GNU Lesser General Public
  *  License along with YAL. If not, see <http://www.gnu.org/licenses/>.
  */
-#include "yal/ast/decltypefunction.h"
-#include "yal/ast/module.h"
 
+#include "yal/ast/declparamvar.h"
+#include "yal/ast/module.h"
+#include "yal/ast/astcontext.h"
 namespace yal {
 
-    DeclTypeFunction::DeclTypeFunction(Module& module,
-                                       const StringRef functionName,
-                                       DeclParamVarContainer* params,
-                                       RefType *returnType,
-                                       RefType *destType):
-        DeclFunctionBase(module,
-                         AstType::DeclFunction,
-                         functionName,
-                         params,
-                         returnType),
-        m_targetType(destType){
+    DeclParamVar::DeclParamVar(Module &module,
+                               StringRef name,
+                               const RefType *varType):
+        DeclVar(module,AstType::DeclParamVar, name, varType){
 
+    }
+
+
+    DeclParamVarContainer::DeclParamVarContainer(Module& module):
+        BaseType(module){
+
+    }
+
+    DeclParamVarContainer::DeclParamVarContainer(Module &module,
+                                                 ContainerType &&params):
+        BaseType(module, std::move(params)) {
+
+    }
+
+
+    void
+    DeclParamVarContainer::addDeclParam(DeclParamVar* decl) {
+        m_nodes.push_back(decl);
     }
 }

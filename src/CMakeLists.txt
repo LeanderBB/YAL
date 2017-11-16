@@ -70,6 +70,13 @@ set(YAL_SOURCES
     yal/ast/exprbinaryoperator.cpp
     yal/ast/exprbinaryoperator.h
     yal/ast/operators.h
+    yal/ast/declvar.h
+    yal/ast/declvar.cpp
+    yal/ast/declparamvar.cpp
+    yal/ast/declparamvar.h
+    yal/ast/nodecontainer.h
+    yal/ast/statementlist.h
+    yal/ast/statementlist.cpp
 
     yal/io/memorystream.cpp
     yal/io/memorystream.h

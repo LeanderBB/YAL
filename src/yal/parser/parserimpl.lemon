@@ -32,6 +32,14 @@
 #include "yal/ast/declmodule.h"
 #include "yal/ast/reftypebuiltin.h"
 #include "yal/ast/reftypeidentifier.h"
+#include "yal/ast/declvar.h"
+#include "yal/ast/declparamvar.h"
+#include "yal/ast/stmtexpression.h"
+#include "yal/ast/stmtreturn.h"
+#include "yal/ast/exprunaryoperator.h"
+#include "yal/ast/exprbinaryoperator.h"
+#include "yal/ast/statement.h"
+#include "yal/ast/statementlist.h"
 #define YYMALLOCARGTYPE size_t
 }
 
@@ -67,14 +75,18 @@
 %right NOT.
 %right DOT.
 
-%type type_builtin {const yal::RefTypeBuiltin*}
+%type type_builtin {yal::RefTypeBuiltin*}
 %type decl_function {yal::DeclFunction*}
 %type type_function_decl {yal::DeclTypeFunction*}
 %type decls {yal::DeclModule*}
 %type module {yal::DeclModule*}
-%type function_return_decl {const yal::RefType*}
-%type type_specifier {const yal::RefType*}
+%type function_return_decl {yal::RefType*}
+%type type_specifier {yal::RefType*}
 %type named_decl {yal::StringRefPod}
+%type function_args_decl {yal::DeclParamVarContainer*}
+%type function_arg_decl {yal::DeclParamVar*}
+%type statement_list {yal::StatementList*}
+%type statement {yal::Statement*}
 %start_symbol  module
 %token_type {yal::StringRefPod}
 
@@ -86,45 +98,45 @@ decls(A) ::= decls(B) decl_function(C). {
 }
 decls::= decls type_function_decl.
 decls(A) ::=. {
-        A =  pParser->newASTNode<yal::DeclModule>();
+        A =  pParser->newAstNode<yal::DeclModule>();
      }
 // Type  specifiers
 type_specifier(A) ::= type_builtin(B). {A=B;}
 type_specifier(A) ::= type_array. {A = nullptr;}
-type_specifier(A) ::= IDENTIFIER(B). {A = pParser->newASTNode<yal::RefTypeIdentifier>(B);}
+type_specifier(A) ::= IDENTIFIER(B). {A = pParser->newAstNode<yal::RefTypeIdentifier>(B);}
 
 type_builtin(A) ::= TYPE_BOOL. {
-        A = pParser->newASTNode<yal::RefTypeBuiltin>(pParser->getModule().getTypeContext().getTypeBuiltinBool());
+        A = pParser->newAstNode<yal::RefTypeBuiltin>(pParser->getModule().getTypeContext().getTypeBuiltinBool());
         }
 type_builtin(A) ::= TYPE_INT8. {
-        A = pParser->newASTNode<yal::RefTypeBuiltin>(pParser->getModule().getTypeContext().getTypeBuiltinI8());
+        A = pParser->newAstNode<yal::RefTypeBuiltin>(pParser->getModule().getTypeContext().getTypeBuiltinI8());
         }
 type_builtin(A) ::= TYPE_UINT8. {
-        A  = pParser->newASTNode<yal::RefTypeBuiltin>(pParser->getModule().getTypeContext().getTypeBuiltinU8());
+        A  = pParser->newAstNode<yal::RefTypeBuiltin>(pParser->getModule().getTypeContext().getTypeBuiltinU8());
         }
 type_builtin(A) ::= TYPE_INT16. {
-        A = pParser->newASTNode<yal::RefTypeBuiltin>(pParser->getModule().getTypeContext().getTypeBuiltinI16());
+        A = pParser->newAstNode<yal::RefTypeBuiltin>(pParser->getModule().getTypeContext().getTypeBuiltinI16());
         }
 type_builtin(A) ::= TYPE_UINT16. {
-        A  = pParser->newASTNode<yal::RefTypeBuiltin>(pParser->getModule().getTypeContext().getTypeBuiltinU16());
+        A  = pParser->newAstNode<yal::RefTypeBuiltin>(pParser->getModule().getTypeContext().getTypeBuiltinU16());
         }
 type_builtin(A) ::= TYPE_INT32. {
-        A = pParser->newASTNode<yal::RefTypeBuiltin>(pParser->getModule().getTypeContext().getTypeBuiltinI32());
+        A = pParser->newAstNode<yal::RefTypeBuiltin>(pParser->getModule().getTypeContext().getTypeBuiltinI32());
         }
 type_builtin(A) ::= TYPE_UINT32. {
-        A = pParser->newASTNode<yal::RefTypeBuiltin>(pParser->getModule().getTypeContext().getTypeBuiltinU32());
+        A = pParser->newAstNode<yal::RefTypeBuiltin>(pParser->getModule().getTypeContext().getTypeBuiltinU32());
         }
 type_builtin(A) ::= TYPE_INT64. {
-        A = pParser->newASTNode<yal::RefTypeBuiltin>(pParser->getModule().getTypeContext().getTypeBuiltinI64());
+        A = pParser->newAstNode<yal::RefTypeBuiltin>(pParser->getModule().getTypeContext().getTypeBuiltinI64());
         }
 type_builtin(A) ::= TYPE_UINT64. {
-        A = pParser->newASTNode<yal::RefTypeBuiltin>(pParser->getModule().getTypeContext().getTypeBuiltinU64());
+        A = pParser->newAstNode<yal::RefTypeBuiltin>(pParser->getModule().getTypeContext().getTypeBuiltinU64());
         }
 type_builtin(A) ::= TYPE_FLOAT. {
-        A = pParser->newASTNode<yal::RefTypeBuiltin>(pParser->getModule().getTypeContext().getTypeBuiltinFloat());
+        A = pParser->newAstNode<yal::RefTypeBuiltin>(pParser->getModule().getTypeContext().getTypeBuiltinFloat());
         }
 type_builtin(A) ::= TYPE_DOUBLE. {
-        A = pParser->newASTNode<yal::RefTypeBuiltin>(pParser->getModule().getTypeContext().getTypeBuiltinDouble());
+        A = pParser->newAstNode<yal::RefTypeBuiltin>(pParser->getModule().getTypeContext().getTypeBuiltinDouble());
         }
 
 type_array ::= type_builtin ARRAY_BEGIN ARRAY_END.
@@ -140,24 +152,34 @@ type_var_decl ::= IDENTIFIER COLON type_specifier SEMI_COLON.
 
 // Functions
 
-decl_function (A) ::= FUNCTION IDENTIFIER(B) PAR_BEGIN function_args_decl PAR_END
+decl_function (A) ::= FUNCTION IDENTIFIER(B) PAR_BEGIN function_args_decl(D) PAR_END
         function_return_decl(C) function_scope. {
-        A = pParser->newASTNode<yal::DeclFunction>(B, C);
+        A = pParser->newAstNode<yal::DeclFunction>(B, D, C);
         }
 
 
 type_function_decl(A)::= FUNCTION type_specifier(B) COLON COLON IDENTIFIER(C)
-        PAR_BEGIN function_args_decl PAR_END
+        PAR_BEGIN function_args_decl(E) PAR_END
         function_return_decl(D) function_scope. {
-            A = pParser->newASTNode<yal::DeclTypeFunction>(C, B, D);
+            A = pParser->newAstNode<yal::DeclTypeFunction>(C, E, B, D);
         }
 
 
-function_args_decl ::= function_args_decl COMMA function_arg_decl.
-function_args_decl ::= function_arg_decl.
-function_args_decl ::= .
+function_args_decl(A) ::= function_args_decl(B) COMMA function_arg_decl(C). {
+        B->addDeclParam(C);
+        A = B;
+}
+function_args_decl(A) ::= function_arg_decl(B). {
+        A = pParser->newAstNode<yal::DeclParamVarContainer>();
+        A->addDeclParam(B);
+}
+function_args_decl(A) ::= . {
+        A = nullptr;
+}
 
-function_arg_decl ::= IDENTIFIER COLON type_specifier.
+function_arg_decl(A) ::= IDENTIFIER(B) COLON type_specifier(C). {
+    A = pParser->newAstNode<yal::DeclParamVar>(B, C);
+}
 
 function_return_decl(A) ::= COLON type_specifier(B). { A = B;}
 function_return_decl(A)::=. {A = nullptr;}
@@ -166,12 +188,22 @@ function_scope ::= SCOPE_BEGIN SCOPE_END.
 function_scope ::= SCOPE_BEGIN statement_list SCOPE_END.
 
 // Statements
-statement_list ::= statement_list statement.
-statement_list ::= statement.
+statement_list(A) ::= statement_list(B) statement(C).{
+    B->addStatement(C);
+    A=B;
+}
+statement_list(A) ::= statement(B). {
+    A = pParser->newAstNode<yal::StatementList>();
+    A->addStatement(B);
+}
 
 
-statement ::= var_assignment SEMI_COLON.
-statement ::= var_decl SEMI_COLON.
+statement(A) ::= var_assignment SEMI_COLON. {
+   A = nullptr;
+}
+statement(A)::= var_decl SEMI_COLON. {
+    A = nullptr;
+}
 
 var_assignment ::= IDENTIFIER ASSIGN expression.
 

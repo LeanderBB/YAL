@@ -49,6 +49,7 @@ public:
 TEST_F(CastTest, TestDynCast) {
    std::string fnName = "someFunction";
    yal::DeclBase* decl = m_module->newASTNode<yal::DeclFunction>(fnName,
+                                                                 nullptr,
                                                                  nullptr);
 
    yal::DeclFunction* declFunction =

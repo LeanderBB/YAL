@@ -58,7 +58,7 @@ namespace yal {
         void logParseFailure();
 
         template <typename T, typename... ARGS>
-        T* newASTNode(ARGS&& ...args) {
+        T* newAstNode(ARGS&& ...args) {
            return m_module.newASTNode<T>(std::forward<ARGS>(args)...);
         }
 

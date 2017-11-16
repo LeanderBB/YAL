@@ -26,8 +26,9 @@ namespace yal {
     public:
         DeclTypeFunction(Module& module,
                          const StringRef functionName,
-                         const RefType* returnType,
-                         const RefType* destType);
+                         DeclParamVarContainer* params,
+                         RefType* returnType,
+                         RefType* destType);
 
         const RefType* getTargetType() const {
             return m_targetType;
@@ -35,6 +36,6 @@ namespace yal {
 
 
     protected:
-        const RefType* m_targetType;
+        RefType* m_targetType;
     };
 }

@@ -25,13 +25,10 @@ namespace yal {
     class DeclFunction : public DeclFunctionBase {
     public:
 
-        static DeclFunction* Create(Module& module,
-                                    const StringRef functionName,
-                                    const RefType *returnType);
-
         DeclFunction(Module& module,
                      const StringRef functionName,
-                     const RefType* returnType);
+                     DeclParamVarContainer* params,
+                     RefType* returnType);
 
     };
 

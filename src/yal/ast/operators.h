@@ -17,6 +17,8 @@
  *  License along with YAL. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#pragma once
+
 namespace yal {
 
     enum class UnaryOperatorType {
@@ -30,7 +32,17 @@ namespace yal {
         Minus,
         Div,
         Mult,
+        Mod,
         And,
-        Or
+        Or,
+        BitAnd,
+        BitOr,
+        BitXor,
+        Eq,
+        Ne,
+        Gt,
+        Ge,
+        Le,
+        Lt
     };
 }

@@ -23,21 +23,22 @@ namespace yal {
 
     StringRef::StringRef(const char* str):
         m_str(str),
-        m_size(::strlen(str)) {
-        YAL_ASSERT(str != nullptr && m_size != 0);
+        m_size(str != nullptr ? ::strlen(str) : 0) {
+
     }
 
     StringRef::StringRef(const char* str,
                          const size_t len):
         m_str(str),
         m_size(len){
-        YAL_ASSERT(str != nullptr && len != 0);
     }
 
     StringRef::StringRef(const std::string& str) {
-        YAL_ASSERT(!str.empty());
         m_str = str.c_str();
         m_size = str.size();
+        if (m_size == 0) {
+            m_str = nullptr;
+        }
     }
 
     StringRef::StringRef(const StringRefPod& pod):

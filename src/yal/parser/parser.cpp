@@ -180,7 +180,7 @@ namespace yal{
                 PrettyPrint::SourceErrorPrint(stream,
                                               m_log,
                                               ti.lineStart,
-                                              ti.lineEnd);
+                                              ti.columnStart);
                 m_log.error("Unknown token at line:%  column:%\n",
                             ti.lineStart, ti.columnStart);
                 m_status = Result::LexerError;

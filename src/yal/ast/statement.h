@@ -29,6 +29,10 @@ namespace yal {
 
     class Statement {
     public:
+
+        static void* operator new(std::size_t bytes,
+                                  Module& ctx);
+
         Statement(Module& module,
                   const AstType type);
 

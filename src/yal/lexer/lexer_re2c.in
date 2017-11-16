@@ -199,6 +199,7 @@ namespace yal {
             FN = "fn";
             NEWLINE="\n";
             COLON = ":";
+            COMMA = ",";
             SEMICOLON = ";";
             TYPE = "type";
             BEGIN_PAR ="(";
@@ -264,6 +265,7 @@ namespace yal {
             DECIMAL { setToken(Token::DecimalLiteral, *m_lexerState); return Status::Ok;}
 
             COLON { setToken(Token::Colon, *m_lexerState); return Status::Ok;}
+            COMMA { setToken(Token::Comma, *m_lexerState); return Status::Ok;}
             SEMICOLON { setToken(Token::SemiColon, *m_lexerState); return Status::Ok;}
             BEGIN_SCOPE { setToken(Token::BeginScope, *m_lexerState); return Status::Ok;}
             END_SCOPE { setToken(Token::EndScope, *m_lexerState); return Status::Ok;}

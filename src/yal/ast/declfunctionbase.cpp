@@ -25,8 +25,10 @@ namespace yal {
     DeclFunctionBase::DeclFunctionBase(Module& module,
                                        const AstType type,
                                        const StringRef functionName,
-                                       const RefType*returnType):
+                                       DeclParamVarContainer *params,
+                                       RefType *returnType):
         DeclBase(module, type, functionName),
+        m_params(params),
         m_returnType(returnType) {
     }
 
