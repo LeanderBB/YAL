@@ -27,7 +27,7 @@ namespace testing {
     namespace internal {
 
         template <>
-        void PrintTo<yal::StringRef>(const yal::StringRef& value, std::ostream *o) {
+        inline void PrintTo<yal::StringRef>(const yal::StringRef& value, std::ostream *o) {
             const char quote = '\"';
             o->write(&quote, 1);
             o->write(value.data(), value.size());

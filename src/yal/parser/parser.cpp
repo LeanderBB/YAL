@@ -27,7 +27,10 @@
 #include "yal/ast/declfunction.h"
 #include "yal/ast/reftypebuiltin.h"
 #include "yal/ast/reftypeidentifier.h"
+#include "yal/ast/exprintegerliteral.h"
+#include "yal/util/strconversions.h"
 #include <cstdlib>
+#include <limits>
 namespace yal{
 
     static int TokenToParserToken(const Token token) {
@@ -201,5 +204,60 @@ namespace yal{
         m_log.error("Syntax Error at line:% column:%\n",
                     ti.lineStart, ti.columnStart);
         m_status = Result::SyntaxError;
+     }
+
+     ExprIntegerLiteral*
+     Parser::newIntegerLiteral() {
+        const Lexer::TokenInfo& ti = m_lexer.getLastToken();
+        YAL_ASSERT(ti.token == Token::IntegerLiteral);
+
+        uint64_t value = 0;
+        IntegerType intType = IntegerType::U64;
+        bool negative = false;
+        if (!StringRefToInteger(value, ti.tokenStr, negative)) {
+            if (negative) {
+                const int64_t& negValue = reinterpret_cast<int64_t&>(value);
+                if (negValue >= static_cast<int64_t>(std::numeric_limits<int8_t>::lowest())) {
+                    intType = IntegerType::I8;
+                } else if (negValue >= static_cast<int64_t>(std::numeric_limits<int16_t>::lowest())) {
+                    intType = IntegerType::I16;
+                } else if (negValue >= static_cast<int64_t>(std::numeric_limits<int32_t>::lowest())) {
+                    intType = IntegerType::I32;
+                } else {
+                    intType = IntegerType::I64;
+                }
+            } else {
+                if (value <= static_cast<uint64_t>(std::numeric_limits<int8_t>::max())) {
+                    intType = IntegerType::I8;
+                } else if (value <= static_cast<uint64_t>(std::numeric_limits<uint8_t>::max())) {
+                    intType = IntegerType::U8;
+                } else if (value <= static_cast<uint64_t>(std::numeric_limits<int16_t>::max())) {
+                    intType = IntegerType::I16;
+                } else if (value <= static_cast<uint64_t>(std::numeric_limits<uint16_t>::max())) {
+                    intType = IntegerType::U16;
+                } else if (value <= static_cast<uint64_t>(std::numeric_limits<int32_t>::max())) {
+                    intType = IntegerType::I32;
+                } else if (value <= static_cast<uint64_t>(std::numeric_limits<uint32_t>::max())) {
+                    intType = IntegerType::U32;
+                } else if (value <= static_cast<uint64_t>(std::numeric_limits<int64_t>::max())) {
+                    intType = IntegerType::I64;
+                } else {
+                    intType = IntegerType::U64;
+                }
+            }
+            return newAstNode<ExprIntegerLiteral>(intType, value);
+        }
+
+
+        ByteStream& stream = m_lexer.getStream();
+        PrettyPrint::SourceErrorPrint(stream,
+                                      m_log,
+                                      ti.lineStart,
+                                      ti.columnStart);
+        m_log.error("Integer Literal error at line:% column:%\n",
+                    ti.lineStart, ti.columnStart);
+        m_log.error("%", "Value is not a valid integer literal.");
+        m_status = Result::TypeError;
+        return nullptr;
      }
 }

@@ -116,6 +116,13 @@ namespace yal {
         return StringRef(m_name);
     }
 
+    Qualifier:: Qualifier():
+        m_mutable(0),
+        m_reference(0),
+        m_pointer(0){
+
+    }
+
     void
     Qualifier::setMutable() {
         m_mutable = 1;

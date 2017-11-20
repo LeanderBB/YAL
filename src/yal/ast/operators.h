@@ -23,8 +23,8 @@ namespace yal {
 
     enum class UnaryOperatorType {
         Not,
-        BinNot,
-        Minus
+        BitNot,
+        Negate
     };
 
     enum class BinaryOperatorType {

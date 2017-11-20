@@ -17,27 +17,27 @@
  *  License along with YAL. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "yal/ast/exprboolliteral.h"
+#include "yal/ast/module.h"
+#include "yal/ast/typebuiltin.h"
 
-/* List of AST Nodes in the compiler
- *
- * Define YAL_AST_NODE_TYPE(type) macro to use this list
- *
- */
+namespace yal{
 
-YAL_AST_NODE_TYPE(DeclFunction)
-YAL_AST_NODE_TYPE(DeclTypeFunction)
-YAL_AST_NODE_TYPE(DeclStruct)
-YAL_AST_NODE_TYPE(DeclVar)
-YAL_AST_NODE_TYPE(DeclParamVar)
-YAL_AST_NODE_TYPE(DeclParamVarContainer)
-YAL_AST_NODE_TYPE(DeclStrongAlias)
-YAL_AST_NODE_TYPE(DeclWeakAlias)
-YAL_AST_NODE_TYPE(RefTypeBuiltin)
-YAL_AST_NODE_TYPE(RefTypeIdentifier)
-YAL_AST_NODE_TYPE(StatementList)
-YAL_AST_NODE_TYPE(StmtReturn)
-YAL_AST_NODE_TYPE(ExprUnaryOperator)
-YAL_AST_NODE_TYPE(ExprBinaryOperator)
-YAL_AST_NODE_TYPE(ExprBoolLiteral)
-YAL_AST_NODE_TYPE(ExprIntegerLiteral)
-YAL_AST_NODE_TYPE(ExprDecimalLiterl)
+    ExprBoolLiteral::ExprBoolLiteral(Module& module,
+                                     StringRef strvalue) :
+        StmtExpression(module, AstType::ExprBoolLiteral) {
+
+        if (strvalue == "true") {
+            m_literalValue = true;
+        } else if(strvalue == "false") {
+            m_literalValue = false;
+        } else {
+            YAL_ASSERT_MESSAGE(false, "Unknown value for bool literal");
+        }
+
+        Qualifier qual = Qualifier();
+        m_qualType = QualType::Create(qual,
+                                      module.getTypeContext().getTypeBuiltinBool());
+    }
+
+}

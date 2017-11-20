@@ -4,9 +4,10 @@
 
 
 set (SOURCES
-    allocatorstack.cpp
-    cast.cpp
-    format.cpp
+    test_allocatorstack.cpp
+    test_cast.cpp
+    test_format.cpp
+    test_strconversions.cpp
     )
 
 add_executable(test_util ${SOURCES})

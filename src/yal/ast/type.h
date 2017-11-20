@@ -98,6 +98,8 @@ namespace yal {
     class Qualifier {
     public:
 
+        Qualifier();
+
         void setMutable();
         void setImmutable();
         void setReference();
@@ -120,6 +122,9 @@ namespace yal {
 
         static QualType Create(const Qualifier& qualifier,
                                const Type* type);
+
+
+
 
         bool isValid() const {
             return  m_type != nullptr;

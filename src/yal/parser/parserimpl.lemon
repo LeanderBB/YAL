@@ -40,6 +40,7 @@
 #include "yal/ast/exprbinaryoperator.h"
 #include "yal/ast/statement.h"
 #include "yal/ast/statementlist.h"
+#include "yal/ast/exprintegerliteral.h"
 #define YYMALLOCARGTYPE size_t
 }
 
@@ -65,13 +66,12 @@
 %right ASSIGN.
 %left OR.
 %left AND.
-%left BIT_OR.
-%left BIT_XOR.
-%left BIT_AND.
+%left BIT_OR BIT_XOR BIT_AND.
 %nonassoc EQ NE GT LT GE LE.
 %left PLUS MINUS.
 %left MULT DIV MOD.
-%right NEG.
+%right NEGATE.
+%right BIT_NOT.
 %right NOT.
 %right DOT.
 
@@ -87,6 +87,10 @@
 %type function_arg_decl {yal::DeclParamVar*}
 %type statement_list {yal::StatementList*}
 %type statement {yal::Statement*}
+%type expression {yal::StmtExpression*}
+%type unaryexp {yal::ExprUnaryOperator*}
+%type binaryexp {yal::ExprBinaryOperator*}
+%type literal {yal::StmtExpression*}
 %start_symbol  module
 %token_type {yal::StringRefPod}
 
@@ -204,8 +208,9 @@ statement(A) ::= var_assignment SEMI_COLON. {
 statement(A)::= var_decl SEMI_COLON. {
     A = nullptr;
 }
+statement(A) ::= expression(B) SEMI_COLON. {A = B;}
 
-var_assignment ::= IDENTIFIER ASSIGN expression.
+var_assignment ::= IDENTIFIER ASSIGN expression SEMI_COLON.
 
 
 // Variable Decls
@@ -218,21 +223,60 @@ var_type_spec ::=.
 
 
 // Expressions
-expression ::= PAR_BEGIN expression PAR_END.
-expression ::= expression AND expression.
-expression ::= expression OR expression.
-expression ::= NOT PAR_BEGIN expression PAR_END.
-expression ::= expression PLUS expression.
-expression ::= expression MINUS expression.
-expression ::= expression MULT expression.
-expression ::= expression DIV expression.
-expression ::= expression MOD expression.
-expression ::= expression ASSIGN expression.
-expression ::= literal.
+
+
+expression(A) ::= PAR_BEGIN expression(B) PAR_END. {A = B;}
+expression(A) ::= literal. {A = nullptr;}
+expression (A) ::= unaryexp(B). {A = B;}
+expression (A) ::= binaryexp(B). {A = B;}
+
+binaryexp(A) ::= expression(B) AND expression(C). {
+        A = pParser->newAstNode<yal::ExprBinaryOperator>(yal::BinaryOperatorType::And,
+                                                        B, C);
+}
+binaryexp(A) ::= expression(B) OR expression(C). {
+        A = pParser->newAstNode<yal::ExprBinaryOperator>(yal::BinaryOperatorType::Or,
+                                                        B, C);
+}
+binaryexp(A) ::= expression(B) PLUS expression(C). {
+        A = pParser->newAstNode<yal::ExprBinaryOperator>(yal::BinaryOperatorType::Plus,
+                                                        B, C);
+}
+binaryexp(A) ::= expression(B) MINUS expression(C).  {
+        A = pParser->newAstNode<yal::ExprBinaryOperator>(yal::BinaryOperatorType::Minus,
+                                                        B, C);
+}
+binaryexp(A) ::= expression(B) MULT expression(C). {
+        A = pParser->newAstNode<yal::ExprBinaryOperator>(yal::BinaryOperatorType::Mult,
+                                                        B, C);
+}
+binaryexp(A) ::= expression(B) DIV expression(C). {
+        A = pParser->newAstNode<yal::ExprBinaryOperator>(yal::BinaryOperatorType::Div,
+                                                        B, C);
+}
+binaryexp(A) ::= expression(B) MOD expression(C). {
+        A = pParser->newAstNode<yal::ExprBinaryOperator>(yal::BinaryOperatorType::Mod,
+                                                        B, C);
+}
+
+unaryexp(A) ::= NOT expression(B). {
+    A = pParser->newAstNode<yal::ExprUnaryOperator>(yal::UnaryOperatorType::Not,
+                                               B);
+}
+unaryexp(A) ::= BIT_NOT expression(B). {
+    A = pParser->newAstNode<yal::ExprUnaryOperator>(yal::UnaryOperatorType::BitNot,
+                                               B);
+}
+unaryexp(A) ::= MINUS expression(B). [NEGATE] {
+    A = pParser->newAstNode<yal::ExprUnaryOperator>(yal::UnaryOperatorType::Negate,
+                                               B);
+}
 
 // Literals
 
-literal ::= INTEGER_LITERAL.
+literal(A) ::= INTEGER_LITERAL. {
+        A = pParser->newIntegerLiteral();
+   }
 literal ::= DECIMAL_LITERAL.
 
 

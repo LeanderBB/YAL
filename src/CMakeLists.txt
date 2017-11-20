@@ -77,6 +77,11 @@ set(YAL_SOURCES
     yal/ast/nodecontainer.h
     yal/ast/statementlist.h
     yal/ast/statementlist.cpp
+    yal/ast/exprboolliteral.cpp
+    yal/ast/exprboolliteral.h
+    yal/ast/exprintegerliteral.h
+    yal/ast/exprintegerliteral.cpp
+
 
     yal/io/memorystream.cpp
     yal/io/memorystream.h
@@ -114,7 +119,9 @@ set(YAL_SOURCES
     yal/util/cast.h
     yal/util/format.h
     yal/util/formattypes.h
-)
+    yal/util/strconversions.h
+    yal/util/strconversions.cpp
+    )
 
 # include parser / lexer DSL's
 set_source_files_properties(yal/lexer/lexer_re2c.in

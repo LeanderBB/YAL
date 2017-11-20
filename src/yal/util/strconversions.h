@@ -16,28 +16,15 @@
  *  You should have received a copy of the GNU Lesser General Public
  *  License along with YAL. If not, see <http://www.gnu.org/licenses/>.
  */
+#pragma once
+#include <cstdint>
+#include <cinttypes>
+namespace yal {
 
+    class StringRef;
 
-/* List of AST Nodes in the compiler
- *
- * Define YAL_AST_NODE_TYPE(type) macro to use this list
- *
- */
+    bool StringRefToInteger(uint64_t &out,
+                            const StringRef& ref,
+                            bool &isNegative);
 
-YAL_AST_NODE_TYPE(DeclFunction)
-YAL_AST_NODE_TYPE(DeclTypeFunction)
-YAL_AST_NODE_TYPE(DeclStruct)
-YAL_AST_NODE_TYPE(DeclVar)
-YAL_AST_NODE_TYPE(DeclParamVar)
-YAL_AST_NODE_TYPE(DeclParamVarContainer)
-YAL_AST_NODE_TYPE(DeclStrongAlias)
-YAL_AST_NODE_TYPE(DeclWeakAlias)
-YAL_AST_NODE_TYPE(RefTypeBuiltin)
-YAL_AST_NODE_TYPE(RefTypeIdentifier)
-YAL_AST_NODE_TYPE(StatementList)
-YAL_AST_NODE_TYPE(StmtReturn)
-YAL_AST_NODE_TYPE(ExprUnaryOperator)
-YAL_AST_NODE_TYPE(ExprBinaryOperator)
-YAL_AST_NODE_TYPE(ExprBoolLiteral)
-YAL_AST_NODE_TYPE(ExprIntegerLiteral)
-YAL_AST_NODE_TYPE(ExprDecimalLiterl)
+}

@@ -1,0 +1,86 @@
+/*
+ *  Copyright 2017 by Leander Beernaert (leanderbb@gmail.com)
+ *
+ *  This file is part of YAL.
+ *
+ *  YAL is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU Lesser General Public License as
+ *  published by the Free Software Foundation, either version 3
+ *  of the License, or (at your option) any later version.
+ *
+ *  YAL is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ *  GNU Lesser General Public License for more details.
+ *
+ *  You should have received a copy of the GNU Lesser General Public
+ *  License along with YAL. If not, see <http://www.gnu.org/licenses/>.
+ */
+
+#include "yal/ast/exprintegerliteral.h"
+#include "yal/ast/module.h"
+#include "yal/ast/typebuiltin.h"
+
+namespace yal{
+
+    ExprIntegerLiteral::ExprIntegerLiteral(Module& module,
+                                           const IntegerType integerType,
+                                           const uint64_t value) :
+        StmtExpression(module, AstType::ExprIntegerLiteral),
+        m_integerType(integerType),
+        m_literalValue(value){
+
+        Qualifier qual = Qualifier();
+        m_qualType = QualType::Create(qual,
+                                      module.getTypeContext().getTypeBuiltinBool());
+    }
+
+    int8_t
+    ExprIntegerLiteral::getValueAsI8() const {
+        YAL_ASSERT(m_integerType == IntegerType::I8);
+        return static_cast<int8_t>(reinterpret_cast<const int64_t&>(m_literalValue));
+    }
+
+    uint8_t
+    ExprIntegerLiteral::getValueAsU8() const {
+        YAL_ASSERT(m_integerType == IntegerType::U8);
+        return static_cast<uint8_t>(m_literalValue);
+    }
+
+    int16_t
+    ExprIntegerLiteral::getValueAsI16() const {
+        YAL_ASSERT(m_integerType == IntegerType::I16);
+        return static_cast<int16_t>(reinterpret_cast<const int64_t&>(m_literalValue));
+    }
+
+    uint16_t
+    ExprIntegerLiteral::getValueAsU16() const{
+        YAL_ASSERT(m_integerType == IntegerType::U16);
+        return static_cast<uint32_t>(m_literalValue);
+    }
+
+    int32_t
+    ExprIntegerLiteral::getValueAsI32() const {
+        YAL_ASSERT(m_integerType == IntegerType::I32);
+        return static_cast<int32_t>(reinterpret_cast<const int64_t&>(m_literalValue));
+    }
+
+    uint32_t
+    ExprIntegerLiteral::getValueAsU32() const{
+        YAL_ASSERT(m_integerType == IntegerType::U32);
+        return static_cast<uint32_t>(m_literalValue);
+    }
+
+    int64_t
+    ExprIntegerLiteral::getValueAsI64() const {
+        YAL_ASSERT(m_integerType == IntegerType::I64);
+        return reinterpret_cast<const int64_t&>(m_literalValue);
+    }
+
+    uint64_t
+    ExprIntegerLiteral::getValueAsU64() const {
+        YAL_ASSERT(m_integerType == IntegerType::U64);
+        return m_literalValue;
+    }
+}
+
