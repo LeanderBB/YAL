@@ -28,7 +28,8 @@ namespace yal {
         DeclFunction(Module& module,
                      const StringRef functionName,
                      DeclParamVarContainer* params,
-                     RefType* returnType);
+                     RefType* returnType,
+                     StatementList* body);
 
     };
 

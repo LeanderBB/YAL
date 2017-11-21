@@ -24,6 +24,7 @@ namespace yal {
     class Module;
     class RefType;
     class DeclParamVarContainer;
+    class StatementList;
     class DeclFunctionBase : public DeclBase
     {
     protected:
@@ -31,7 +32,8 @@ namespace yal {
                          const AstType type,
                          const StringRef functionName,
                          DeclParamVarContainer* params,
-                         RefType* returnType);
+                         RefType* returnType,
+                         StatementList* body);
 
     public:
         virtual ~DeclFunctionBase();
@@ -50,9 +52,14 @@ namespace yal {
             return m_params;
         }
 
+        const StatementList* getFunctionBody() const {
+            return m_functionBody;
+        }
+
     protected:
         DeclParamVarContainer* m_params;
         RefType* m_returnType;
+        StatementList* m_functionBody;
 
     };
 }

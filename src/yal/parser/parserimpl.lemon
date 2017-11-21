@@ -41,6 +41,9 @@
 #include "yal/ast/statement.h"
 #include "yal/ast/statementlist.h"
 #include "yal/ast/exprintegerliteral.h"
+#include "yal/ast/stmtreturn.h"
+#include "yal/ast/exprboolliteral.h"
+#include "yal/ast/stmtdecl.h"
 #define YYMALLOCARGTYPE size_t
 }
 
@@ -82,17 +85,21 @@
 %type module {yal::DeclModule*}
 %type function_return_decl {yal::RefType*}
 %type type_specifier {yal::RefType*}
+%type var_type_spec {yal::RefType*}
 %type named_decl {yal::StringRefPod}
 %type function_args_decl {yal::DeclParamVarContainer*}
 %type function_arg_decl {yal::DeclParamVar*}
 %type statement_list {yal::StatementList*}
+%type function_scope {yal::StatementList*}
 %type statement {yal::Statement*}
 %type expression {yal::StmtExpression*}
 %type unaryexp {yal::ExprUnaryOperator*}
 %type binaryexp {yal::ExprBinaryOperator*}
 %type literal {yal::StmtExpression*}
+%type var_decl {yal::StmtDecl*}
 %start_symbol  module
 %token_type {yal::StringRefPod}
+
 
 module ::= decls END.
 
@@ -157,15 +164,15 @@ type_var_decl ::= IDENTIFIER COLON type_specifier SEMI_COLON.
 // Functions
 
 decl_function (A) ::= FUNCTION IDENTIFIER(B) PAR_BEGIN function_args_decl(D) PAR_END
-        function_return_decl(C) function_scope. {
-        A = pParser->newAstNode<yal::DeclFunction>(B, D, C);
+        function_return_decl(C) function_scope(E). {
+        A = pParser->newAstNode<yal::DeclFunction>(B, D, C, E);
         }
 
 
 type_function_decl(A)::= FUNCTION type_specifier(B) COLON COLON IDENTIFIER(C)
         PAR_BEGIN function_args_decl(E) PAR_END
-        function_return_decl(D) function_scope. {
-            A = pParser->newAstNode<yal::DeclTypeFunction>(C, E, B, D);
+        function_return_decl(D) function_scope(F). {
+            A = pParser->newAstNode<yal::DeclTypeFunction>(C, E, B, D, F);
         }
 
 
@@ -188,8 +195,8 @@ function_arg_decl(A) ::= IDENTIFIER(B) COLON type_specifier(C). {
 function_return_decl(A) ::= COLON type_specifier(B). { A = B;}
 function_return_decl(A)::=. {A = nullptr;}
 
-function_scope ::= SCOPE_BEGIN SCOPE_END.
-function_scope ::= SCOPE_BEGIN statement_list SCOPE_END.
+function_scope(A)::= SCOPE_BEGIN SCOPE_END. { A = nullptr;}
+function_scope(A)::= SCOPE_BEGIN statement_list(B) SCOPE_END. {A = B;}
 
 // Statements
 statement_list(A) ::= statement_list(B) statement(C).{
@@ -205,28 +212,38 @@ statement_list(A) ::= statement(B). {
 statement(A) ::= var_assignment SEMI_COLON. {
    A = nullptr;
 }
-statement(A)::= var_decl SEMI_COLON. {
-    A = nullptr;
+statement(A)::= var_decl(B) SEMI_COLON. {
+    A = B;
 }
 statement(A) ::= expression(B) SEMI_COLON. {A = B;}
+statement(A) ::= RETURN expression(B) SEMI_COLON. {
+    A = pParser->newAstNode<yal::StmtReturn>(B);
+}
+statement(A) ::= RETURN SEMI_COLON. {
+    A = pParser->newAstNode<yal::StmtReturn>();
+}
+
 
 var_assignment ::= IDENTIFIER ASSIGN expression SEMI_COLON.
 
 
 // Variable Decls
 
-var_decl ::= VAR IDENTIFIER var_type_spec ASSIGN expression.
+var_decl(A) ::= VAR IDENTIFIER(B) var_type_spec(C) ASSIGN expression(D). {
+    auto varDecl = pParser->newAstNode<yal::DeclVar>(B, C, D);
+    A= pParser->newAstNode<yal::StmtDecl>(varDecl);
+}
 var_decl ::= LET IDENTIFIER var_type_spec ASSIGN expression.
 
-var_type_spec ::= COLON type_specifier.
-var_type_spec ::=.
+var_type_spec(A) ::= COLON type_specifier(B). {A = B;}
+var_type_spec(A)::=. {A = nullptr;}
 
 
 // Expressions
 
 
 expression(A) ::= PAR_BEGIN expression(B) PAR_END. {A = B;}
-expression(A) ::= literal. {A = nullptr;}
+expression(A) ::= literal(B). {A = B;}
 expression (A) ::= unaryexp(B). {A = B;}
 expression (A) ::= binaryexp(B). {A = B;}
 
@@ -274,9 +291,12 @@ unaryexp(A) ::= MINUS expression(B). [NEGATE] {
 
 // Literals
 
-literal(A) ::= INTEGER_LITERAL. {
-        A = pParser->newIntegerLiteral();
+literal(A) ::= INTEGER_LITERAL(B). {
+        A = pParser->newIntegerLiteral(B);
    }
 literal ::= DECIMAL_LITERAL.
+literal(A) ::= BOOL_LITERAL(B). {
+        A = pParser->newAstNode<yal::ExprBoolLiteral>(B);
+}
 
 

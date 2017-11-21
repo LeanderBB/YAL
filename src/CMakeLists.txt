@@ -81,6 +81,8 @@ set(YAL_SOURCES
     yal/ast/exprboolliteral.h
     yal/ast/exprintegerliteral.h
     yal/ast/exprintegerliteral.cpp
+    yal/ast/stmtdecl.cpp
+    yal/ast/stmtdecl.h
 
 
     yal/io/memorystream.cpp

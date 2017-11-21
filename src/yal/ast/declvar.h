@@ -24,16 +24,25 @@
 namespace yal {
 
     class RefType;
+    class StmtExpression;
     class DeclVar : public DeclBase{
     public:
         DeclVar(Module& module,
                 StringRef name,
-                const RefType* varType);
+                const RefType* varType,
+                StmtExpression* expr);
 
         const RefType* getVarType() const {
             return m_varType;
         }
 
+        const StmtExpression* getExpression() const {
+            return m_expression;
+        }
+
+        StmtExpression* getExpression() {
+            return m_expression;
+        }
 
     protected:
 
@@ -44,6 +53,7 @@ namespace yal {
 
     protected:
         const RefType* m_varType;
+        StmtExpression* m_expression;
     };
 
 }

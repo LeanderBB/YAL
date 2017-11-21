@@ -16,26 +16,14 @@
  *  You should have received a copy of the GNU Lesser General Public
  *  License along with YAL. If not, see <http://www.gnu.org/licenses/>.
  */
-#include "yal/ast/declfunctionbase.h"
-#include "yal/ast/module.h"
-
+#include "yal/ast/stmtdecl.h"
 
 namespace yal {
 
-    DeclFunctionBase::DeclFunctionBase(Module& module,
-                                       const AstType type,
-                                       const StringRef functionName,
-                                       DeclParamVarContainer *params,
-                                       RefType *returnType,
-                                       StatementList* body):
-        DeclBase(module, type, functionName),
-        m_params(params),
-        m_returnType(returnType),
-        m_functionBody(body){
-    }
-
-    DeclFunctionBase::~DeclFunctionBase(){
+    StmtDecl::StmtDecl(Module& module,
+                       DeclBase* decl):
+        Statement(module, AstType::StmtDecl),
+        m_decl(decl) {
 
     }
-
 }

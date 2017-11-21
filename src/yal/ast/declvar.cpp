@@ -23,9 +23,11 @@ namespace yal {
 
     DeclVar::DeclVar(Module& module,
                      StringRef name,
-                     const RefType* varType):
+                     const RefType* varType,
+                     StmtExpression *expr):
         DeclBase(module, AstType::DeclVar, name),
-        m_varType(varType) {
+        m_varType(varType),
+        m_expression(expr){
 
     }
 
@@ -35,7 +37,8 @@ namespace yal {
                      StringRef name,
                      const RefType* varType) :
         DeclBase(module, type, name),
-        m_varType(varType) {
+        m_varType(varType),
+        m_expression(nullptr){
 
     }
 

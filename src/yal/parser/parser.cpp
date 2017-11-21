@@ -126,6 +126,11 @@ namespace yal{
             return YAL_TOKEN_LET;
         case Token::Struct:
             return YAL_TOKEN_STRUCT;
+        case Token::Return:
+            return YAL_TOKEN_RETURN;
+        case Token::True:
+        case Token::False:
+            return YAL_TOKEN_BOOL_LITERAL;
         default:
             YAL_ASSERT_MESSAGE(false, "Shouldn't be reached!");
             return -1;
@@ -207,14 +212,15 @@ namespace yal{
      }
 
      ExprIntegerLiteral*
-     Parser::newIntegerLiteral() {
+     Parser::newIntegerLiteral(const StringRef& str) {
         const Lexer::TokenInfo& ti = m_lexer.getLastToken();
-        YAL_ASSERT(ti.token == Token::IntegerLiteral);
+        // TODO: Change token type
+        //YAL_ASSERT(ti.token == Token::IntegerLiteral);
 
         uint64_t value = 0;
         IntegerType intType = IntegerType::U64;
         bool negative = false;
-        if (!StringRefToInteger(value, ti.tokenStr, negative)) {
+        if (StringRefToInteger(value, str, negative)) {
             if (negative) {
                 const int64_t& negValue = reinterpret_cast<int64_t&>(value);
                 if (negValue >= static_cast<int64_t>(std::numeric_limits<int8_t>::lowest())) {

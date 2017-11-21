@@ -62,7 +62,7 @@ namespace yal {
            return m_module.newASTNode<T>(std::forward<ARGS>(args)...);
         }
 
-        ExprIntegerLiteral* newIntegerLiteral();
+        ExprIntegerLiteral* newIntegerLiteral(const StringRef& str);
 
     private:
         std::unique_ptr<void, void(*)(void*)> m_parserImpl;

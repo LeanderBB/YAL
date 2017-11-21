@@ -30,9 +30,38 @@ namespace yal{
         m_integerType(integerType),
         m_literalValue(value){
 
+        const Type* type= nullptr;
+        switch (integerType) {
+        case IntegerType::I8:
+            type = module.getTypeContext().getTypeBuiltinI8();
+            break;
+        case IntegerType::U8:
+            type = module.getTypeContext().getTypeBuiltinU8();
+            break;
+        case IntegerType::I16:
+            type = module.getTypeContext().getTypeBuiltinI16();
+            break;
+        case IntegerType::U16:
+            type = module.getTypeContext().getTypeBuiltinU16();
+            break;
+        case IntegerType::I32:
+            type = module.getTypeContext().getTypeBuiltinI32();
+            break;
+        case IntegerType::U32:
+            type = module.getTypeContext().getTypeBuiltinU32();
+            break;
+        case IntegerType::I64:
+            type = module.getTypeContext().getTypeBuiltinI64();
+            break;
+        case IntegerType::U64:
+            type = module.getTypeContext().getTypeBuiltinU64();
+            break;
+        default:
+            YAL_ASSERT_MESSAGE(false, "Unknown integer type");
+            break;
+        }
         Qualifier qual = Qualifier();
-        m_qualType = QualType::Create(qual,
-                                      module.getTypeContext().getTypeBuiltinBool());
+        m_qualType = QualType::Create(qual,type);
     }
 
     int8_t

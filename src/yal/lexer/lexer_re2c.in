@@ -192,6 +192,7 @@ namespace yal {
             LET = "let";
             TRUE = "true";
             FALSE= "false";
+            RETURN= "return";
             AND = "and";
             OR = "or";
             NOT = "not";
@@ -233,6 +234,7 @@ namespace yal {
             /* final rules */
             VAR  { setToken(Token::Var, *m_lexerState); return Status::Ok; }
             LET  { setToken(Token::Let, *m_lexerState);return Status::Ok; }
+            RETURN { setToken(Token::Return, *m_lexerState);return Status::Ok; }
             TYPE { setToken(Token::Type, *m_lexerState); return Status::Ok;}
             TRUE  { setToken(Token::True, *m_lexerState); return Status::Ok; }
             FALSE  { setToken(Token::False, *m_lexerState); return Status::Ok; }

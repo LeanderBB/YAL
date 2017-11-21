@@ -28,7 +28,8 @@ namespace yal {
                          const StringRef functionName,
                          DeclParamVarContainer* params,
                          RefType* returnType,
-                         RefType* destType);
+                         RefType* destType,
+                         StatementList *body);
 
         const RefType* getTargetType() const {
             return m_targetType;
