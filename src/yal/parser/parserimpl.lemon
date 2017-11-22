@@ -45,6 +45,8 @@
 #include "yal/ast/exprboolliteral.h"
 #include "yal/ast/stmtdecl.h"
 #include "yal/lexer/lexer.h"
+#include "yal/ast/stmtassign.h"
+#include "yal/ast/exprvarref.h"
 #define YYMALLOCARGTYPE size_t
 }
 
@@ -190,7 +192,7 @@ function_args_decl(A) ::= . {
 }
 
 function_arg_decl(A) ::= IDENTIFIER(B) COLON type_specifier(C). {
-    A = pParser->newAstNode<yal::DeclParamVar>(B.tokenStr, C);
+    A = pParser->newAstNode<yal::DeclParamVar>(B.tokenStr, yal::Qualifier(),C);
 }
 
 function_return_decl(A) ::= COLON type_specifier(B). { A = B;}
@@ -210,8 +212,8 @@ statement_list(A) ::= statement(B). {
 }
 
 
-statement(A) ::= var_assignment SEMI_COLON. {
-   A = nullptr;
+statement(A) ::= expression(B) ASSIGN expression(C) SEMI_COLON. {
+   A = pParser->newAstNode<yal::StmtAssign>(B,C);
 }
 statement(A)::= var_decl(B) SEMI_COLON. {
     A = B;
@@ -224,17 +226,18 @@ statement(A) ::= RETURN SEMI_COLON. {
     A = pParser->newAstNode<yal::StmtReturn>();
 }
 
-
-var_assignment ::= IDENTIFIER ASSIGN expression SEMI_COLON.
-
-
 // Variable Decls
 
 var_decl(A) ::= VAR IDENTIFIER(B) var_type_spec(C) ASSIGN expression(D). {
-    auto varDecl = pParser->newAstNode<yal::DeclVar>(B.tokenStr, C, D);
+    auto varDecl = pParser->newAstNode<yal::DeclVar>(B.tokenStr, yal::Qualifier(), C, D);
     A= pParser->newAstNode<yal::StmtDecl>(varDecl);
 }
-var_decl ::= LET IDENTIFIER var_type_spec ASSIGN expression.
+var_decl(A) ::= LET IDENTIFIER(B) var_type_spec(C) ASSIGN expression(D). {
+    yal::Qualifier qualifier;
+    qualifier.setImmutable();
+    auto varDecl = pParser->newAstNode<yal::DeclVar>(B.tokenStr, qualifier, C, D);
+    A= pParser->newAstNode<yal::StmtDecl>(varDecl);
+}
 
 var_type_spec(A) ::= COLON type_specifier(B). {A = B;}
 var_type_spec(A)::=. {A = nullptr;}
@@ -247,6 +250,9 @@ expression(A) ::= PAR_BEGIN expression(B) PAR_END. {A = B;}
 expression(A) ::= literal(B). {A = B;}
 expression (A) ::= unaryexp(B). {A = B;}
 expression (A) ::= binaryexp(B). {A = B;}
+expression (A) ::= IDENTIFIER(B). {
+    A = pParser->newAstNode<yal::ExprVarRef>(B.tokenStr);
+}
 
 binaryexp(A) ::= expression(B) AND expression(C). {
         A = pParser->newAstNode<yal::ExprBinaryOperator>(yal::BinaryOperatorType::And,

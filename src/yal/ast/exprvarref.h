@@ -19,38 +19,23 @@
 
 #pragma once
 
-#include "yal/ast/declvar.h"
-#include "yal/ast/nodecontainer.h"
+#include "yal/ast/stmtexpression.h"
 
 namespace yal {
 
-    class DeclParamVar : public DeclVar{
+    class ExprVarRef : public StmtExpression
+    {
     public:
-        DeclParamVar(Module& module,
-                     StringRef name,
-                     const Qualifier qualifier,
-                     const RefType* varType);
-    };
+        ExprVarRef(Module& module,
+                   const StringRef& variableName);
 
+        StringRef getVariableName() const {
+            return m_variableName;
+        }
 
-
-
-
-    class DeclParamVarContainer :
-            public NodeContainer<DeclParamVar*,AstType::DeclParamVarContainer> {
-        using BaseType = NodeContainer<DeclParamVar*,AstType::DeclParamVarContainer>;
-    public:
-
-        DeclParamVarContainer(Module& module);
-
-        DeclParamVarContainer(Module& module,
-                              ContainerType&& params);
-
-        void addDeclParam(DeclParamVar* decl);
+    private:
+        StringRef m_variableName;
 
     };
 
-    inline AstType get_typeid(const DeclParamVarContainer& container) {
-        return container.getAstType();
-    }
 }

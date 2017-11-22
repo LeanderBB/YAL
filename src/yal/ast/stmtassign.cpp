@@ -17,33 +17,16 @@
  *  License along with YAL. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "yal/ast/declvar.h"
+#include "yal/ast/stmtassign.h"
 
 namespace yal {
 
-    DeclVar::DeclVar(Module& module,
-                     StringRef name,
-                     const Qualifier qualifier,
-                     const RefType* varType,
-                     StmtExpression *expr):
-        DeclBase(module, AstType::DeclVar, name),
-        m_varType(varType),
-        m_qualifier(qualifier),
-        m_expression(expr){
+    StmtAssign::StmtAssign(Module& module,
+                           StmtExpression* destExpr,
+                           StmtExpression* valueExpr) :
+        Statement(module, AstType::StmtAssign),
+        m_destExpr(destExpr),
+        m_valueExpr(valueExpr) {
 
     }
-
-
-    DeclVar::DeclVar(Module& module,
-                     const AstType type,
-                     const Qualifier qualifier,
-                     StringRef name,
-                     const RefType* varType) :
-        DeclBase(module, type, name),
-        m_varType(varType),
-        m_qualifier(qualifier),
-        m_expression(nullptr){
-
-    }
-
 }

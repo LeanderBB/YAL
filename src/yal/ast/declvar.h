@@ -29,6 +29,7 @@ namespace yal {
     public:
         DeclVar(Module& module,
                 StringRef name,
+                const Qualifier qualifier,
                 const RefType* varType,
                 StmtExpression* expr);
 
@@ -44,15 +45,21 @@ namespace yal {
             return m_expression;
         }
 
+        Qualifier getQualifier() const  {
+            return m_qualifier;
+        }
+
     protected:
 
         DeclVar(Module& module,
                 const AstType type,
+                const Qualifier qualifier,
                 StringRef name,
                 const RefType* varType);
 
     protected:
         const RefType* m_varType;
+        Qualifier m_qualifier;
         StmtExpression* m_expression;
     };
 

@@ -83,7 +83,10 @@ set(YAL_SOURCES
     yal/ast/exprintegerliteral.cpp
     yal/ast/stmtdecl.cpp
     yal/ast/stmtdecl.h
-
+    yal/ast/stmtassign.cpp
+    yal/ast/stmtassign.h
+    yal/ast/exprvarref.cpp
+    yal/ast/exprvarref.h
 
     yal/io/memorystream.cpp
     yal/io/memorystream.h
