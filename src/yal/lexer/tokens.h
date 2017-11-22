@@ -17,6 +17,9 @@
  *  License along with YAL. If not, see <http://www.gnu.org/licenses/>.
  */
 #pragma once
+
+#include <cstdlib>
+#include "yal/util/stringref.h"
 namespace yal
 {
     enum class Token
@@ -93,4 +96,17 @@ namespace yal
     };
 
     const char* TokenToString(const Token token);
+
+
+    struct TokenInfo
+    {
+        Token token;
+        size_t lineStart;
+        size_t lineEnd;
+        size_t columnStart;
+        size_t columnEnd;
+        size_t tokenOffsetInStream;
+        StringRefPod tokenStr;
+    };
+
 }

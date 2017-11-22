@@ -44,6 +44,7 @@
 #include "yal/ast/stmtreturn.h"
 #include "yal/ast/exprboolliteral.h"
 #include "yal/ast/stmtdecl.h"
+#include "yal/lexer/lexer.h"
 #define YYMALLOCARGTYPE size_t
 }
 
@@ -98,7 +99,7 @@
 %type literal {yal::StmtExpression*}
 %type var_decl {yal::StmtDecl*}
 %start_symbol  module
-%token_type {yal::StringRefPod}
+%token_type {yal::TokenInfo}
 
 
 module ::= decls END.
@@ -114,7 +115,7 @@ decls(A) ::=. {
 // Type  specifiers
 type_specifier(A) ::= type_builtin(B). {A=B;}
 type_specifier(A) ::= type_array. {A = nullptr;}
-type_specifier(A) ::= IDENTIFIER(B). {A = pParser->newAstNode<yal::RefTypeIdentifier>(B);}
+type_specifier(A) ::= IDENTIFIER(B). {A = pParser->newAstNode<yal::RefTypeIdentifier>(B.tokenStr);}
 
 type_builtin(A) ::= TYPE_BOOL. {
         A = pParser->newAstNode<yal::RefTypeBuiltin>(pParser->getModule().getTypeContext().getTypeBuiltinBool());
@@ -165,14 +166,14 @@ type_var_decl ::= IDENTIFIER COLON type_specifier SEMI_COLON.
 
 decl_function (A) ::= FUNCTION IDENTIFIER(B) PAR_BEGIN function_args_decl(D) PAR_END
         function_return_decl(C) function_scope(E). {
-        A = pParser->newAstNode<yal::DeclFunction>(B, D, C, E);
+        A = pParser->newAstNode<yal::DeclFunction>(B.tokenStr, D, C, E);
         }
 
 
 type_function_decl(A)::= FUNCTION type_specifier(B) COLON COLON IDENTIFIER(C)
         PAR_BEGIN function_args_decl(E) PAR_END
         function_return_decl(D) function_scope(F). {
-            A = pParser->newAstNode<yal::DeclTypeFunction>(C, E, B, D, F);
+            A = pParser->newAstNode<yal::DeclTypeFunction>(C.tokenStr, E, B, D, F);
         }
 
 
@@ -189,7 +190,7 @@ function_args_decl(A) ::= . {
 }
 
 function_arg_decl(A) ::= IDENTIFIER(B) COLON type_specifier(C). {
-    A = pParser->newAstNode<yal::DeclParamVar>(B, C);
+    A = pParser->newAstNode<yal::DeclParamVar>(B.tokenStr, C);
 }
 
 function_return_decl(A) ::= COLON type_specifier(B). { A = B;}
@@ -230,7 +231,7 @@ var_assignment ::= IDENTIFIER ASSIGN expression SEMI_COLON.
 // Variable Decls
 
 var_decl(A) ::= VAR IDENTIFIER(B) var_type_spec(C) ASSIGN expression(D). {
-    auto varDecl = pParser->newAstNode<yal::DeclVar>(B, C, D);
+    auto varDecl = pParser->newAstNode<yal::DeclVar>(B.tokenStr, C, D);
     A= pParser->newAstNode<yal::StmtDecl>(varDecl);
 }
 var_decl ::= LET IDENTIFIER var_type_spec ASSIGN expression.
@@ -296,7 +297,7 @@ literal(A) ::= INTEGER_LITERAL(B). {
    }
 literal ::= DECIMAL_LITERAL.
 literal(A) ::= BOOL_LITERAL(B). {
-        A = pParser->newAstNode<yal::ExprBoolLiteral>(B);
+        A = pParser->newAstNode<yal::ExprBoolLiteral>(B.tokenStr);
 }
 
 

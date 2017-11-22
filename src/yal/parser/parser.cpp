@@ -18,6 +18,7 @@
  */
 #include "yal/parser/parser.h"
 #define YYMALLOCARGTYPE size_t
+#include "yal/lexer/lexer.h"
 #include "yal/parser/parserimpl.h"
 #include "yal/lexer/lexer.h"
 #include "yal/lexer/tokens.h"
@@ -164,7 +165,7 @@ namespace yal{
         while(m_status == Result::Ok){
             status = m_lexer.scan();
             if (status == Lexer::Status::Ok) {
-                const Lexer::TokenInfo& ti = m_lexer.getLastToken();
+                const TokenInfo& ti = m_lexer.getLastToken();
                 const int parserToken = TokenToParserToken(ti.token);
 #if defined(YAL_PARSER_DEBUG_DUMP_TOKENS)
                 m_log.debug("Token(%s) l:%04d c:%03u\n",
@@ -173,17 +174,18 @@ namespace yal{
 #endif
                 YALParser(m_parserImpl.get(),
                           parserToken,
-                          ti.tokenStr.toStringRefPod(),
+                          ti,
                           this);
             } else if (status == Lexer::Status::EOS) {
+                const TokenInfo& ti = m_lexer.getLastToken();
                 YALParser(m_parserImpl.get(),
                           YAL_TOKEN_END,
-                          StringRefPod{nullptr, 0},
+                          ti,
                           this);
                 break;
             } else {
                 MemoryStream& stream = m_lexer.getStream();
-                const Lexer::TokenInfo& ti = m_lexer.getLastToken();
+                const TokenInfo& ti = m_lexer.getLastToken();
 
                 PrettyPrint::SourceErrorPrint(stream,
                                               m_log,
@@ -201,7 +203,7 @@ namespace yal{
      void
      Parser::logParseFailure()  {
         ByteStream& stream = m_lexer.getStream();
-        const Lexer::TokenInfo& ti = m_lexer.getLastToken();
+        const TokenInfo& ti = m_lexer.getLastToken();
         PrettyPrint::SourceErrorPrint(stream,
                                       m_log,
                                       ti.lineStart,
@@ -212,10 +214,9 @@ namespace yal{
      }
 
      ExprIntegerLiteral*
-     Parser::newIntegerLiteral(const StringRef& str) {
-        const Lexer::TokenInfo& ti = m_lexer.getLastToken();
-        // TODO: Change token type
-        //YAL_ASSERT(ti.token == Token::IntegerLiteral);
+     Parser::newIntegerLiteral(const TokenInfo& ti) {
+        const StringRef& str = ti.tokenStr;
+        YAL_ASSERT(ti.token == Token::IntegerLiteral);
 
         uint64_t value = 0;
         IntegerType intType = IntegerType::U64;
@@ -262,7 +263,7 @@ namespace yal{
                                       ti.columnStart);
         m_log.error("Integer Literal error at line:% column:%\n",
                     ti.lineStart, ti.columnStart);
-        m_log.error("%", "Value is not a valid integer literal.");
+        m_log.error("%", "Value is not a valid integer literal.\n");
         m_status = Result::TypeError;
         return nullptr;
      }

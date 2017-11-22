@@ -19,6 +19,7 @@
 #pragma once
 #include <memory>
 #include <yal/ast/module.h>
+#include "yal/lexer/tokens.h"
 namespace yal {
     class Log;
     class Lexer;
@@ -62,7 +63,7 @@ namespace yal {
            return m_module.newASTNode<T>(std::forward<ARGS>(args)...);
         }
 
-        ExprIntegerLiteral* newIntegerLiteral(const StringRef& str);
+        ExprIntegerLiteral* newIntegerLiteral(const TokenInfo& ti);
 
     private:
         std::unique_ptr<void, void(*)(void*)> m_parserImpl;

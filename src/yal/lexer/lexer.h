@@ -19,24 +19,14 @@
 #pragma once
 #include <yal/yal.h>
 #include "yal/util/stringref.h"
+#include "yal/lexer/tokens.h"
 namespace yal{
 
     enum class Token;
     class MemoryStream;
+
     class Lexer {
     public:
-
-        struct TokenInfo
-        {
-            Token token;
-            size_t tokLen =0;
-            size_t lineStart = 0;
-            size_t lineEnd = 0;
-            size_t columnStart = 0;
-            size_t columnEnd = 0;
-            size_t tokenOffsetInStream = 0;
-            StringRef tokenStr;
-        };
 
         enum class Status
         {

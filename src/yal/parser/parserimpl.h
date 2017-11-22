@@ -1,5 +1,5 @@
 /* This file was automatically generated.  Do not edit! */
-#define YALParserTOKENTYPE yal::StringRefPod
+#define YALParserTOKENTYPE yal::TokenInfo
 #define YALParserARG_PDECL , yal::Parser *pParser 
 void YALParser(void *yyp,int yymajor,YALParserTOKENTYPE yyminor YALParserARG_PDECL);
 #if defined(YYTRACKMAXSTACKDEPTH)

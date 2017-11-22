@@ -43,7 +43,7 @@ int main(const int argc,
 
     while(true) {
         const yal::Lexer::Status status = lexer.scan();
-        const yal::Lexer::TokenInfo info = lexer.getLastToken();
+        const yal::TokenInfo info = lexer.getLastToken();
         if (status == yal::Lexer::Status::Ok) {
             std::cout <<"[Token] " << yal::TokenToString(info.token)
                       << " (l: " << info.lineStart

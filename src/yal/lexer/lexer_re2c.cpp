@@ -145,7 +145,6 @@ namespace yal {
     Lexer::setToken(const Token token,
                     const LexerState& state) {
         m_curToken.token = token;
-        m_curToken.tokLen = state.getTokenLength();
         m_curToken.lineStart = state.tokenLineStart;
         m_curToken.lineEnd = state.lineNum;
         m_curToken.columnStart = state.tokenColumnStart;
@@ -153,18 +152,18 @@ namespace yal {
         m_curToken.tokenOffsetInStream = state.getStreamOffset();
         const char* streamStr =
                 static_cast<const char*>(m_stream.getPtrAt(m_curToken.tokenOffsetInStream));
-        m_curToken.tokenStr = StringRef(streamStr, m_curToken.tokLen);
+        m_curToken.tokenStr = StringRefPod{streamStr, state.getTokenLength()};
     }
 
     void
     Lexer::setLexerError(const LexerState& state) {
         m_curToken.token = Token::TokenCount;
-        m_curToken.tokLen = state.getTokenLength();
         m_curToken.lineStart = state.tokenLineStart;
         m_curToken.lineEnd = m_curToken.lineEnd;
         m_curToken.columnStart = state.tokenColumnStart;
         m_curToken.columnEnd = m_curToken.columnStart;
         m_curToken.tokenOffsetInStream = state.getStreamOffset();
+        m_curToken.tokenStr = StringRefPod {nullptr, 0};
     }
 
     std::unique_ptr<Lexer::LexerState>

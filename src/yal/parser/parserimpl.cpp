@@ -28,6 +28,7 @@
 #include "yal/ast/stmtreturn.h"
 #include "yal/ast/exprboolliteral.h"
 #include "yal/ast/stmtdecl.h"
+#include "yal/lexer/lexer.h"
 #define YYMALLOCARGTYPE size_t
 #include "parserimpl.h"
 /* Next is all token values, in a form suitable for use by makeheaders.
@@ -137,7 +138,7 @@
 #define YYNOCODE 79
 #define YYACTIONTYPE unsigned char
 #if INTERFACE
-#define YALParserTOKENTYPE yal::StringRefPod
+#define YALParserTOKENTYPE yal::TokenInfo
 #endif
 typedef union {
   int yyinit;
@@ -145,6 +146,7 @@ typedef union {
   yal::StmtExpression* yy1;
   yal::DeclFunction* yy3;
   yal::RefType* yy24;
+  yal::StringRefPod yy46;
   yal::DeclModule* yy63;
   yal::DeclTypeFunction* yy105;
   yal::ExprBinaryOperator* yy106;
@@ -955,7 +957,7 @@ static void yy_reduce(
 {yygotominor.yy24 = nullptr;}
         break;
       case 7: /* type_specifier ::= IDENTIFIER */
-{yygotominor.yy24 = pParser->newAstNode<yal::RefTypeIdentifier>(yymsp[0].minor.yy0);}
+{yygotominor.yy24 = pParser->newAstNode<yal::RefTypeIdentifier>(yymsp[0].minor.yy0.tokenStr);}
         break;
       case 8: /* type_builtin ::= TYPE_BOOL */
 {
@@ -1014,12 +1016,12 @@ static void yy_reduce(
         break;
       case 25: /* decl_function ::= FUNCTION IDENTIFIER PAR_BEGIN function_args_decl PAR_END function_return_decl function_scope */
 {
-        yygotominor.yy3 = pParser->newAstNode<yal::DeclFunction>(yymsp[-5].minor.yy0, yymsp[-3].minor.yy122, yymsp[-1].minor.yy24, yymsp[0].minor.yy123);
+        yygotominor.yy3 = pParser->newAstNode<yal::DeclFunction>(yymsp[-5].minor.yy0.tokenStr, yymsp[-3].minor.yy122, yymsp[-1].minor.yy24, yymsp[0].minor.yy123);
         }
         break;
       case 26: /* type_function_decl ::= FUNCTION type_specifier COLON COLON IDENTIFIER PAR_BEGIN function_args_decl PAR_END function_return_decl function_scope */
 {
-            yygotominor.yy105 = pParser->newAstNode<yal::DeclTypeFunction>(yymsp[-5].minor.yy0, yymsp[-3].minor.yy122, yymsp[-8].minor.yy24, yymsp[-1].minor.yy24, yymsp[0].minor.yy123);
+            yygotominor.yy105 = pParser->newAstNode<yal::DeclTypeFunction>(yymsp[-5].minor.yy0.tokenStr, yymsp[-3].minor.yy122, yymsp[-8].minor.yy24, yymsp[-1].minor.yy24, yymsp[0].minor.yy123);
         }
         break;
       case 27: /* function_args_decl ::= function_args_decl COMMA function_arg_decl */
@@ -1041,7 +1043,7 @@ static void yy_reduce(
         break;
       case 30: /* function_arg_decl ::= IDENTIFIER COLON type_specifier */
 {
-    yygotominor.yy143 = pParser->newAstNode<yal::DeclParamVar>(yymsp[-2].minor.yy0, yymsp[0].minor.yy24);
+    yygotominor.yy143 = pParser->newAstNode<yal::DeclParamVar>(yymsp[-2].minor.yy0.tokenStr, yymsp[0].minor.yy24);
 }
         break;
       case 31: /* function_return_decl ::= COLON type_specifier */
@@ -1090,7 +1092,7 @@ static void yy_reduce(
         break;
       case 43: /* var_decl ::= VAR IDENTIFIER var_type_spec ASSIGN expression */
 {
-    auto varDecl = pParser->newAstNode<yal::DeclVar>(yymsp[-3].minor.yy0, yymsp[-2].minor.yy24, yymsp[0].minor.yy1);
+    auto varDecl = pParser->newAstNode<yal::DeclVar>(yymsp[-3].minor.yy0.tokenStr, yymsp[-2].minor.yy24, yymsp[0].minor.yy1);
     yygotominor.yy107= pParser->newAstNode<yal::StmtDecl>(varDecl);
 }
         break;
@@ -1176,7 +1178,7 @@ static void yy_reduce(
         break;
       case 63: /* literal ::= BOOL_LITERAL */
 {
-        yygotominor.yy1 = pParser->newAstNode<yal::ExprBoolLiteral>(yymsp[0].minor.yy0);
+        yygotominor.yy1 = pParser->newAstNode<yal::ExprBoolLiteral>(yymsp[0].minor.yy0.tokenStr);
 }
         break;
       default:
