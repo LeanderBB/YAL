@@ -20,6 +20,7 @@
 #include "yal/ast/exprintegerliteral.h"
 #include "yal/ast/module.h"
 #include "yal/ast/typebuiltin.h"
+#include "yal/ast/astvisitor.h"
 
 namespace yal{
 
@@ -110,6 +111,11 @@ namespace yal{
     ExprIntegerLiteral::getValueAsU64() const {
         YAL_ASSERT(m_integerType == IntegerType::U64);
         return m_literalValue;
+    }
+
+    void
+    ExprIntegerLiteral::acceptVisitor(AstVisitor& visitor) {
+        visitor.visit(*this);
     }
 }
 

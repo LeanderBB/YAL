@@ -18,7 +18,7 @@
  */
 #include "yal/ast/reftypeidentifier.h"
 #include "yal/ast/module.h"
-
+#include "yal/ast/astvisitor.h"
 namespace yal {
     RefTypeIdentifier::RefTypeIdentifier(Module& module,
                                          const StringRef identifier,
@@ -34,5 +34,10 @@ namespace yal {
                                          const StringRef identifier) :
         RefTypeIdentifier(module, identifier, Qualifier()){
 
+    }
+
+    void
+    RefTypeIdentifier::acceptVisitor(AstVisitor& visitor) {
+        visitor.visit(*this);
     }
 }

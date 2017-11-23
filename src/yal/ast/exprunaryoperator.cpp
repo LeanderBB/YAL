@@ -17,7 +17,7 @@
  *  License along with YAL. If not, see <http://www.gnu.org/licenses/>.
  */
 #include "yal/ast/exprunaryoperator.h"
-
+#include "yal/ast/astvisitor.h"
 namespace yal{
 
     ExprUnaryOperator::ExprUnaryOperator(Module& module,
@@ -33,5 +33,10 @@ namespace yal{
         m_expr = expr;
         // TODO: Verify!
         m_qualType = expr->getQualType();
+    }
+
+    void
+    ExprUnaryOperator::acceptVisitor(AstVisitor &visitor) {
+        visitor.visit(*this);
     }
 }

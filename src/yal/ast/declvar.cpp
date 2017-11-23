@@ -18,7 +18,7 @@
  */
 
 #include "yal/ast/declvar.h"
-
+#include "yal/ast/astvisitor.h"
 namespace yal {
 
     DeclVar::DeclVar(Module& module,
@@ -44,6 +44,11 @@ namespace yal {
         m_qualifier(qualifier),
         m_expression(nullptr){
 
+    }
+
+    void
+    DeclVar::acceptVisitor(AstVisitor& visitor) {
+        visitor.visit(*this);
     }
 
 }

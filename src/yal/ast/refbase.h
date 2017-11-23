@@ -28,6 +28,7 @@
 namespace yal {
 
     class Module;
+    class AstVisitor;
 
     class RefBase {
     public:
@@ -65,6 +66,8 @@ namespace yal {
         }
 
         void setSourceInfo(const SourceInfo& sourceInfo);
+
+        virtual void acceptVisitor(AstVisitor& visitor) = 0;
 
     protected:
         Module& m_module;

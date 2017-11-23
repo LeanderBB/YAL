@@ -63,6 +63,9 @@ namespace yal {
         int64_t getValueAsI64() const;
 
         uint64_t getValueAsU64() const;
+
+        virtual void acceptVisitor(AstVisitor& visitor) override;
+
     private:
         const IntegerType m_integerType;
         uint64_t m_literalValue;

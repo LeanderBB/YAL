@@ -19,15 +19,14 @@
 #pragma once
 
 #include <vector>
+#include "declbase.h"
 
 namespace yal {
     class DeclBase;
     class Module;
-    class DeclModule {
+    class AstVisitor;
+    class DeclModule : public DeclBase{
     public:
-
-        static void* operator new(std::size_t bytes,
-                                  Module& ctx);
 
         DeclModule(Module& module);
 
@@ -52,8 +51,9 @@ namespace yal {
 
         void addDecl(DeclBase* node);
 
+        virtual void acceptVisitor(AstVisitor& visitor) override;
+
     private:
-        Module& m_module;
         std::vector<DeclBase*> m_declartions;
     };
 }

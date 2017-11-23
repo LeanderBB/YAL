@@ -65,6 +65,10 @@ namespace yal {
 
         ExprIntegerLiteral* newIntegerLiteral(const TokenInfo& ti);
 
+        void onAstNodeCreate(DeclModule* module);
+
+        void onAstNodeCreate(DeclBase* declnode);
+
     private:
         std::unique_ptr<void, void(*)(void*)> m_parserImpl;
         Lexer& m_lexer;

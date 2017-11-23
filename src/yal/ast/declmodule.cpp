@@ -19,27 +19,17 @@
 #include "yal/ast/declmodule.h"
 #include "yal/ast/module.h"
 #include "yal/ast/astcontext.h"
-
+#include "yal/ast/astvisitor.h"
 namespace yal {
 
-    void* DeclModule::operator new(std::size_t bytes,
-                                   Module& module) {
-        ASTContext& astctx = module.getASTContext();
-        void* ptr = astctx.allocate(bytes);
-        YAL_ASSERT_MESSAGE(ptr != nullptr, "DeclModule: Failed to allocate memory");
-        astctx.addNode(reinterpret_cast<DeclModule*>(ptr));
-        return ptr;
-    }
-
-
-    DeclModule::DeclModule(Module& module):
-        m_module(module){
+     DeclModule::DeclModule(Module& module):
+        DeclBase(module, AstType::DeclModule, ""){
 
     }
 
     DeclModule::DeclModule(Module& module,
                            std::vector<DeclBase*>&& declarations) :
-        m_module(module),
+        DeclBase(module, AstType::DeclModule, ""),
         m_declartions(std::move(declarations)) {
 
     }
@@ -49,4 +39,8 @@ namespace yal {
         m_declartions.push_back(node);
     }
 
+    void
+    DeclModule::acceptVisitor(AstVisitor &visitor) {
+        visitor.visit(*this);
+    }
 }

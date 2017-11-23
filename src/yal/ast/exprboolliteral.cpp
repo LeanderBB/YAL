@@ -20,6 +20,7 @@
 #include "yal/ast/exprboolliteral.h"
 #include "yal/ast/module.h"
 #include "yal/ast/typebuiltin.h"
+#include "yal/ast/astvisitor.h"
 
 namespace yal{
 
@@ -40,4 +41,8 @@ namespace yal{
                                       module.getTypeContext().getTypeBuiltinBool());
     }
 
+    void
+    ExprBoolLiteral::acceptVisitor(AstVisitor& visitor) {
+        visitor.visit(*this);
+    }
 }

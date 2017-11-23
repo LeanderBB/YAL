@@ -17,6 +17,7 @@
  *  License along with YAL. If not, see <http://www.gnu.org/licenses/>.
  */
 #include "yal/ast/statementlist.h"
+#include "yal/ast/astvisitor.h"
 
 namespace  yal {
 
@@ -37,4 +38,8 @@ namespace  yal {
         m_nodes.push_back(st);
     }
 
+    void
+    StatementList::acceptVisitor(AstVisitor& visitor) {
+        visitor.visit(*this);
+    }
 }

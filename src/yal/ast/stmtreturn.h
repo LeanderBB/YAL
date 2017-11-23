@@ -41,6 +41,8 @@ namespace yal{
 
         bool hasReturnExpression() const;
 
+        virtual void acceptVisitor(AstVisitor &visitor) override;
+
     private:
         StmtExpression* m_expr;
     };

@@ -54,6 +54,9 @@ namespace yal {
 
         void setExpressionRight(StmtExpression* expr);
 
+
+        virtual void acceptVisitor(AstVisitor& visitor) override;
+
     private:
 
         void updateQualType();

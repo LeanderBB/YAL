@@ -17,7 +17,7 @@
  *  License along with YAL. If not, see <http://www.gnu.org/licenses/>.
  */
 #include "yal/ast/exprbinaryoperator.h"
-
+#include "yal/ast/astvisitor.h"
 namespace yal {
 
     ExprBinaryOperator::ExprBinaryOperator(Module& module,
@@ -45,5 +45,10 @@ namespace yal {
     void
     ExprBinaryOperator::updateQualType() {
         YAL_ASSERT_NOT_IMPLEMENTED();
+    }
+
+    void
+    ExprBinaryOperator::acceptVisitor(AstVisitor& visitor) {
+        visitor.visit(*this);
     }
 }

@@ -20,6 +20,7 @@
 #include "yal/ast/declparamvar.h"
 #include "yal/ast/module.h"
 #include "yal/ast/astcontext.h"
+#include "yal/ast/astvisitor.h"
 namespace yal {
 
     DeclParamVar::DeclParamVar(Module &module,
@@ -30,6 +31,10 @@ namespace yal {
 
     }
 
+    void
+    DeclParamVar::acceptVisitor(AstVisitor& visitor) {
+        visitor.visit(*this);
+    }
 
     DeclParamVarContainer::DeclParamVarContainer(Module& module):
         BaseType(module){
@@ -42,9 +47,13 @@ namespace yal {
 
     }
 
-
     void
     DeclParamVarContainer::addDeclParam(DeclParamVar* decl) {
         m_nodes.push_back(decl);
+    }
+
+    void
+    DeclParamVarContainer::acceptVisitor(AstVisitor& visitor) {
+        visitor.visit(*this);
     }
 }

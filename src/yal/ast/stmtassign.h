@@ -32,14 +32,16 @@ namespace yal {
                    StmtExpression* valueExpr);
 
 
-        const StmtExpression* getDestExpr() const {
+        StmtExpression* getDestExpr() const {
             return m_destExpr;
         }
 
 
-        const StmtExpression* getValueExpr() const {
+        StmtExpression* getValueExpr() const {
             return m_valueExpr;
         }
+
+        virtual void acceptVisitor(AstVisitor& visitor) override;
 
     private:
        StmtExpression* m_destExpr;

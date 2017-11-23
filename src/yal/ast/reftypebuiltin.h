@@ -31,6 +31,8 @@ namespace yal{
                        const TypeBuiltin* type,
                        const Qualifier qualifier);
 
+        virtual void acceptVisitor(AstVisitor& visitor) override;
+
     };
 
 }

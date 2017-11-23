@@ -31,6 +31,9 @@ namespace yal {
                      RefType* returnType,
                      StatementList* body);
 
+
+        virtual void acceptVisitor(AstVisitor& visitor) override;
+
     };
 
 }

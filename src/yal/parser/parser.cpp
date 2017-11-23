@@ -30,6 +30,7 @@
 #include "yal/ast/reftypeidentifier.h"
 #include "yal/ast/exprintegerliteral.h"
 #include "yal/util/strconversions.h"
+#include "yal/ast/declmodule.h"
 #include <cstdlib>
 #include <limits>
 namespace yal{
@@ -266,5 +267,15 @@ namespace yal{
         m_log.error("%", "Value is not a valid integer literal.\n");
         m_status = Result::TypeError;
         return nullptr;
+     }
+
+     void
+     Parser::onAstNodeCreate(DeclModule* module) {
+        m_module.setRootNode(module);
+     }
+
+     void
+     Parser::onAstNodeCreate(DeclBase* declnode) {
+        m_module.getRootAstNode()->addDecl(declnode);
      }
 }

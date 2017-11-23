@@ -24,6 +24,8 @@
 namespace  yal {
 
     class Statement;
+    class AstVisitor;
+
     class StatementList :
             public NodeContainer<Statement*, AstType::StatementList> {
         using BaseType = NodeContainer<Statement*, AstType::StatementList>;
@@ -35,6 +37,8 @@ namespace  yal {
                       ContainerType&& params);
 
         void addStatement(Statement* st);
+
+        void acceptVisitor(AstVisitor& visitor);
     };
 
 

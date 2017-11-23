@@ -27,6 +27,8 @@
 #include <yal/util/log.h>
 #include <yal/ast/modulemanager.h>
 #include <yal/io/sourcemanager.h>
+#include <yal/ast/astprinter.h>
+#include <yal/ast/astcontext.h>
 int main(const int argc,
          const char** argv) {
 
@@ -65,5 +67,12 @@ int main(const int argc,
     yal::Log log(stdoutStream);
     yal::Parser parser (lexer, log, *module);
 
-    return parser.run() == yal::Parser::Result::Ok  ? EXIT_SUCCESS : EXIT_FAILURE;
+    auto result =  parser.run();
+
+    yal::AstPrinter astPrinter(stdoutStream);
+
+    astPrinter.visit(*module->getRootAstNode());
+
+
+    return result == yal::Parser::Result::Ok  ? EXIT_SUCCESS : EXIT_FAILURE;
 }

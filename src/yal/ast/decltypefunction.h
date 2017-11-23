@@ -35,6 +35,7 @@ namespace yal {
             return m_targetType;
         }
 
+        virtual void acceptVisitor(AstVisitor& visitor) override;
 
     protected:
         RefType* m_targetType;

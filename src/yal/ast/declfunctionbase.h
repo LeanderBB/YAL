@@ -44,15 +44,15 @@ namespace yal {
 
         bool hasFunctionParameters() const;
 
-        const RefType* getReturnType() const {
+        RefType* getReturnType() const {
             return m_returnType;
         }
 
-        const DeclParamVarContainer* getParams() const {
+        DeclParamVarContainer* getParams() const {
             return m_params;
         }
 
-        const StatementList* getFunctionBody() const {
+        StatementList* getFunctionBody() const {
             return m_functionBody;
         }
 

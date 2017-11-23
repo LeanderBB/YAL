@@ -16,19 +16,22 @@
  *  You should have received a copy of the GNU Lesser General Public
  *  License along with YAL. If not, see <http://www.gnu.org/licenses/>.
  */
-#include "yal/ast/stmtdecl.h"
-#include "yal/ast/astvisitor.h"
+
+#pragma once
+
+#include "yal/ast/asttypes.h"
+
 namespace yal {
 
-    StmtDecl::StmtDecl(Module& module,
-                       DeclBase* decl):
-        Statement(module, AstType::StmtDecl),
-        m_decl(decl) {
+    class AstVisitor {
+    public:
 
-    }
+        virtual ~AstVisitor() {}
 
-    void
-    StmtDecl::acceptVisitor(AstVisitor& visitor) {
-        visitor.visit(*this);
-    }
+#define YAL_AST_NODE_TYPE(type) virtual void visit(type& node) = 0;
+#include "yal/ast/astnodes.def"
+#undef YAL_AST_NODE_TYPE
+
+    };
 }
+

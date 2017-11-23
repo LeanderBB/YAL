@@ -87,6 +87,9 @@ set(YAL_SOURCES
     yal/ast/stmtassign.h
     yal/ast/exprvarref.cpp
     yal/ast/exprvarref.h
+    yal/ast/astvisitor.h
+    yal/ast/astprinter.cpp
+    yal/ast/astprinter.h
 
     yal/io/memorystream.cpp
     yal/io/memorystream.h

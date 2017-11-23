@@ -944,9 +944,15 @@ static void yy_reduce(
         yygotominor.yy63 =yymsp[-1].minor.yy63; yymsp[-1].minor.yy63->addDecl(yymsp[0].minor.yy115);
 }
         break;
+      case 3: /* decls ::= decls type_function_decl */
+{
+        yygotominor.yy63 =yymsp[-1].minor.yy63; yymsp[-1].minor.yy63->addDecl(yymsp[0].minor.yy113);
+}
+        break;
       case 4: /* decls ::= */
 {
         yygotominor.yy63 =  pParser->newAstNode<yal::DeclModule>();
+        pParser->onAstNodeCreate(yygotominor.yy63);
      }
         break;
       case 5: /* type_specifier ::= type_builtin */
@@ -1198,7 +1204,6 @@ static void yy_reduce(
       default:
       /* (0) module ::= decls END */ yytestcase(yyruleno==0);
       /* (1) decls ::= decls type_decl */ yytestcase(yyruleno==1);
-      /* (3) decls ::= decls type_function_decl */ yytestcase(yyruleno==3);
       /* (19) type_array ::= type_builtin ARRAY_BEGIN ARRAY_END */ yytestcase(yyruleno==19);
       /* (20) type_decl ::= TYPE IDENTIFIER COLON STRUCT SCOPE_BEGIN type_var_decls SCOPE_END */ yytestcase(yyruleno==20);
       /* (21) type_decl ::= TYPE IDENTIFIER COLON type_specifier SEMI_COLON */ yytestcase(yyruleno==21);

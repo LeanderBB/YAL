@@ -16,19 +16,36 @@
  *  You should have received a copy of the GNU Lesser General Public
  *  License along with YAL. If not, see <http://www.gnu.org/licenses/>.
  */
-#include "yal/ast/stmtdecl.h"
+#pragma once
+
 #include "yal/ast/astvisitor.h"
+#include "yal/util/format.h"
 namespace yal {
 
-    StmtDecl::StmtDecl(Module& module,
-                       DeclBase* decl):
-        Statement(module, AstType::StmtDecl),
-        m_decl(decl) {
+    class ByteStream;
 
-    }
+    class AstPrinter : public AstVisitor {
+    public:
+        AstPrinter(ByteStream&);
 
-    void
-    StmtDecl::acceptVisitor(AstVisitor& visitor) {
-        visitor.visit(*this);
-    }
+#define YAL_AST_NODE_TYPE(type) void visit(type& node) override;
+#include "yal/ast/astnodes.def"
+#undef YAL_AST_NODE_TYPE
+
+    private:
+
+        template <typename ...Args>
+        void print(const char* format,
+                   const Args&... args) {
+            Format(m_formater, format, args...);
+            printToStream();
+        }
+
+        void printToStream();
+
+    private:
+        ByteStream& m_stream;
+        Formater<1024> m_formater;
+    };
+
 }

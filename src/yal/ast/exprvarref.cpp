@@ -18,14 +18,19 @@
  */
 
 #include "yal/ast/exprvarref.h"
+#include "yal/ast/astvisitor.h"
 
 namespace yal {
 
     ExprVarRef::ExprVarRef(Module &module,
                            const StringRef &variableName) :
-    StmtExpression(module, AstType::ExprVarRef),
-    m_variableName(variableName){
+        StmtExpression(module, AstType::ExprVarRef),
+        m_variableName(variableName){
 
     }
 
+    void
+    ExprVarRef::acceptVisitor(AstVisitor& visitor) {
+        visitor.visit(*this);
+    }
 }

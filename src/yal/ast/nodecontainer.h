@@ -69,6 +69,14 @@ namespace yal {
             return TYPE;
         }
 
+        typename ContainerType::iterator childBegin() {
+            return m_nodes.begin();
+        }
+
+        typename ContainerType::iterator childEnd() {
+            return m_nodes.end();
+        }
+
     protected:
         ContainerType m_nodes;
     };

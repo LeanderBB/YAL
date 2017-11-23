@@ -49,6 +49,8 @@ namespace yal {
             return m_qualifier;
         }
 
+        virtual void acceptVisitor(AstVisitor& visitor) override;
+
     protected:
 
         DeclVar(Module& module,

@@ -19,6 +19,7 @@
 
 #include "yal/ast/reftypebuiltin.h"
 #include "yal/ast/typebuiltin.h"
+#include "yal/ast/astvisitor.h"
 namespace yal{
     RefTypeBuiltin::RefTypeBuiltin(Module &module,
                                    const TypeBuiltin* type):
@@ -32,4 +33,9 @@ namespace yal{
      RefType(module, AstType::RefTypeBuiltin, type, qualifier) {
 
     }
+
+     void
+     RefTypeBuiltin::acceptVisitor(AstVisitor& visitor) {
+         visitor.visit(*this);
+     }
 }

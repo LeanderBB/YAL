@@ -33,6 +33,8 @@ namespace yal {
             return m_variableName;
         }
 
+        virtual void acceptVisitor(AstVisitor& visitor) override;
+
     private:
         StringRef m_variableName;
 

@@ -26,6 +26,7 @@
 namespace yal {
 
     class Module;
+    class AstVisitor;
 
     class Statement {
     public:
@@ -54,6 +55,8 @@ namespace yal {
         AstType getAstType() const {
             return m_astType;
         }
+
+        virtual void acceptVisitor(AstVisitor& visitor) = 0;
 
     protected:
         Module& m_module;

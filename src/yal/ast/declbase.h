@@ -26,6 +26,7 @@
 namespace yal{
 
     class Module;
+    class AstVisitor;
 
     class DeclBase
     {
@@ -69,6 +70,8 @@ namespace yal{
         const Module& getModule() const {
             return m_module;
         }
+
+        virtual void acceptVisitor(AstVisitor& visitor) = 0;
 
     protected:
         Module& m_module;

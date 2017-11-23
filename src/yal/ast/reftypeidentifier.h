@@ -36,6 +36,8 @@ namespace yal{
             return m_identifier;
         }
 
+        virtual void acceptVisitor(AstVisitor& visitor) override;
+
     protected:
         StringRef m_identifier;
     };

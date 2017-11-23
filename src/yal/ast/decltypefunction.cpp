@@ -18,7 +18,7 @@
  */
 #include "yal/ast/decltypefunction.h"
 #include "yal/ast/module.h"
-
+#include "yal/ast/astvisitor.h"
 namespace yal {
 
     DeclTypeFunction::DeclTypeFunction(Module& module,
@@ -35,5 +35,10 @@ namespace yal {
                          body),
         m_targetType(destType){
 
+    }
+
+    void
+    DeclTypeFunction::acceptVisitor(AstVisitor &visitor) {
+        visitor.visit(*this);
     }
 }

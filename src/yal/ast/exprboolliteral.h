@@ -32,6 +32,8 @@ namespace yal {
             return m_literalValue;
         }
 
+        virtual void acceptVisitor(AstVisitor& visitor) override;
+
     private:
         bool m_literalValue;
     };

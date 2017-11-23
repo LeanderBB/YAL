@@ -18,7 +18,7 @@
  */
 #include "yal/ast/declfunction.h"
 #include "yal/ast/module.h"
-
+#include "yal/ast/astvisitor.h"
 
 namespace yal {
 
@@ -36,5 +36,9 @@ namespace yal {
 
     }
 
+    void
+    DeclFunction::acceptVisitor(AstVisitor& visitor) {
+        visitor.visit(*this);
+    }
 
 }

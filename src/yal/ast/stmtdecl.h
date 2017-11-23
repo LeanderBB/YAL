@@ -36,6 +36,8 @@ namespace yal{
             return m_decl;
         }
 
+        virtual void acceptVisitor(AstVisitor& visitor) override;
+
     private:
         DeclBase* m_decl;
     };

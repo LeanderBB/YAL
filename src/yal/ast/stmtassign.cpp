@@ -18,7 +18,7 @@
  */
 
 #include "yal/ast/stmtassign.h"
-
+#include "yal/ast/astvisitor.h"
 namespace yal {
 
     StmtAssign::StmtAssign(Module& module,
@@ -28,5 +28,10 @@ namespace yal {
         m_destExpr(destExpr),
         m_valueExpr(valueExpr) {
 
+    }
+
+    void
+    StmtAssign::acceptVisitor( AstVisitor& visitor) {
+        visitor.visit(*this);
     }
 }

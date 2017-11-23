@@ -50,11 +50,11 @@ namespace yal {
             return m_astContext;
         }
 
-        const DeclModule* getRootASTNode() const {
+        const DeclModule* getRootAstNode() const {
             return m_rootNode;
         }
 
-        DeclModule* getRootNode() {
+        DeclModule* getRootAstNode() {
             return m_rootNode;
         }
 

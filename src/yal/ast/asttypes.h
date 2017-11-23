@@ -35,4 +35,5 @@ namespace yal {
     template<> constexpr cast_typeid< CLASS >::type get_typeid< CLASS >() {return AstType::CLASS ;}
 #include "yal/ast/astnodes.def"
 #undef YAL_AST_NODE_TYPE
+
 }

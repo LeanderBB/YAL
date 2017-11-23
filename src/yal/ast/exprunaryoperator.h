@@ -45,6 +45,7 @@ namespace yal {
 
         void setExpression(StmtExpression* expr);
 
+        virtual void acceptVisitor(AstVisitor& visitor) override;
 
     private:
         const UnaryOperatorType m_opType;

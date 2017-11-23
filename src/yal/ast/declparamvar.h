@@ -30,11 +30,9 @@ namespace yal {
                      StringRef name,
                      const Qualifier qualifier,
                      const RefType* varType);
+
+       virtual void acceptVisitor(AstVisitor& visitor) override;
     };
-
-
-
-
 
     class DeclParamVarContainer :
             public NodeContainer<DeclParamVar*,AstType::DeclParamVarContainer> {
@@ -47,6 +45,8 @@ namespace yal {
                               ContainerType&& params);
 
         void addDeclParam(DeclParamVar* decl);
+
+        void acceptVisitor(AstVisitor& visitor);
 
     };
 

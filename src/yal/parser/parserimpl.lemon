@@ -110,9 +110,12 @@ decls ::= decls type_decl.
 decls(A) ::= decls(B) decl_function(C). {
         A =B; B->addDecl(C);
 }
-decls::= decls type_function_decl.
+decls(A) ::= decls(B) type_function_decl(C). {
+        A =B; B->addDecl(C);
+}
 decls(A) ::=. {
         A =  pParser->newAstNode<yal::DeclModule>();
+        pParser->onAstNodeCreate(A);
      }
 // Type  specifiers
 type_specifier(A) ::= type_builtin(B). {A=B;}
