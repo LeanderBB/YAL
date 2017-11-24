@@ -40,21 +40,27 @@ namespace yal {
     AstPrinter::AstPrinter(ByteStream& stream):
         m_stream(stream),
         m_formater() {
-
+        m_identationChars.reserve(32);
     }
 
     void
     AstPrinter::visit(DeclFunction& node) {
         print("DeclFunction %\n", node.getName());
 
+        bool hasStatmentList = node.getFunctionBody() != nullptr;
+
         if (node.getParams() != nullptr) {
+            scopeBegin(!hasStatmentList);
             DeclParamVarContainer* params = node.getParams();
             params->acceptVisitor(*this);
+            scopeEnd();
         }
 
-        if (node.getFunctionBody() != nullptr) {
+        if (hasStatmentList) {
+            scopeBegin();
             StatementList* stmts = node.getFunctionBody();
             stmts->acceptVisitor(*this);
+            scopeEnd();
         }
     }
 
@@ -62,14 +68,20 @@ namespace yal {
     AstPrinter::visit(DeclTypeFunction& node) {
         print("DeclTypeFunction %\n", node.getName());
 
+         bool hasStatmentList = node.getFunctionBody() != nullptr;
+
         if (node.getParams() != nullptr) {
+            scopeBegin(false);
             DeclParamVarContainer* params = node.getParams();
             params->acceptVisitor(*this);
+            scopeEnd();
         }
 
-        if (node.getFunctionBody() != nullptr) {
+        if (hasStatmentList) {
+            scopeBegin();
             StatementList* stmts = node.getFunctionBody();
             stmts->acceptVisitor(*this);
+            scopeEnd();
         }
     }
 
@@ -86,9 +98,11 @@ namespace yal {
     void
     AstPrinter::visit(DeclModule& node) {
         print("DeclModule %\n", node.getName());
-
-        for (auto& v : node.getDeclarations()) {
-            v->acceptVisitor(*this);
+        auto& decls = node.getDeclarations();
+        for (auto it = decls.begin(); it != decls.end(); ++it) {
+            scopeBegin(it + 1 == decls.end());
+            (*it)->acceptVisitor(*this);
+            scopeEnd();
         }
     }
 
@@ -101,7 +115,9 @@ namespace yal {
     AstPrinter::visit(DeclParamVarContainer& node) {
         print("DeclParamVarContainer\n");
         for (auto it = node.childBegin(); it != node.childEnd(); ++it) {
+            scopeBegin(it + 1 == node.childEnd());
             (*it)->acceptVisitor(*this);
+            scopeEnd();
         }
     }
 
@@ -128,48 +144,78 @@ namespace yal {
     void
     AstPrinter::visit(StatementList& node) {
         print("StatementList\n");
+
         for (auto it = node.childBegin(); it != node.childEnd(); ++it) {
+            scopeBegin(it + 1 == node.childEnd());
             (*it)->acceptVisitor(*this);
+            scopeEnd();
         }
+
     }
 
     void
     AstPrinter::visit(StmtReturn& node) {
         print("StmtReturn\n");
         if (node.hasReturnExpression()) {
+            scopeBegin();
             node.getExpression()->acceptVisitor(*this);
+            scopeEnd();
         }
     }
 
     void
     AstPrinter::visit(StmtDecl& node) {
         print("StmtDecl\n");
-        node.getDecl()->acceptVisitor(*this);
+        scopeBegin();
+        {
+            node.getDecl()->acceptVisitor(*this);
+        }
+        scopeEnd();
     }
 
     void
     AstPrinter::visit(StmtAssign& node) {
         print("StmtAssign\n");
-        node.getDestExpr()->acceptVisitor(*this);
-        node.getValueExpr()->acceptVisitor(*this);
+        scopeBegin(false);
+        {
+            node.getDestExpr()->acceptVisitor(*this);
+        }
+        scopeEnd();
+        scopeBegin();
+        {
+            node.getValueExpr()->acceptVisitor(*this);
+        }
+        scopeEnd();
     }
 
     void
     AstPrinter::visit(ExprVarRef& node) {
-         print("ExprVarRef %\n", node.getVariableName());
+        print("ExprVarRef %\n", node.getVariableName());
     }
 
     void
     AstPrinter::visit(ExprUnaryOperator& node) {
         print("ExpUnaryOperator\n");
-        node.getExpression()->acceptVisitor(*this);
+        scopeBegin();
+        {
+            node.getExpression()->acceptVisitor(*this);
+        }
+        scopeEnd();
     }
 
     void
     AstPrinter::visit(ExprBinaryOperator& node) {
         print("ExpBinaryOperator\n");
-        node.getExpressionLeft()->acceptVisitor(*this);
-        node.getExpressionRight()->acceptVisitor(*this);
+        {
+            scopeBegin(false);
+            node.getExpressionLeft()->acceptVisitor(*this);
+            scopeEnd();
+        }
+        {
+            scopeBegin();
+            node.getExpressionRight()->acceptVisitor(*this);
+            scopeEnd();
+        }
     }
 
     void
@@ -190,6 +236,33 @@ namespace yal {
 
     void
     AstPrinter::printToStream() {
+        if (!m_identationChars.empty()) {
+            m_stream.write(&m_identationChars[0], m_identationChars.size());
+        }
         m_stream.write(m_formater.buffer, m_formater.bufferPos);
+    }
+
+    void
+    AstPrinter::scopeBegin(const bool lastNode)
+    {
+        if (m_identationChars.size() > 1) {
+            auto it = m_identationChars.rbegin();
+            *it = ' ';
+            ++it;
+            if (*it == '`') {
+                *it = ' ';
+            }
+        }
+        m_identationChars.push_back(' ');
+        m_identationChars.push_back(lastNode ? '`' : '|');
+        m_identationChars.push_back('-');
+    }
+
+    void
+    AstPrinter::scopeEnd() {
+        YAL_ASSERT(!m_identationChars.empty());
+        const size_t size = m_identationChars.size() - 3;
+        m_identationChars.erase(m_identationChars.begin() + size,
+                                m_identationChars.end());
     }
 }

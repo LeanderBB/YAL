@@ -20,6 +20,7 @@
 
 #include "yal/ast/astvisitor.h"
 #include "yal/util/format.h"
+#include <vector>
 namespace yal {
 
     class ByteStream;
@@ -43,9 +44,14 @@ namespace yal {
 
         void printToStream();
 
+        void scopeBegin(const bool lastNode = true);
+
+        void scopeEnd();
+
     private:
         ByteStream& m_stream;
         Formater<1024> m_formater;
+        std::vector<char> m_identationChars;
     };
 
 }
