@@ -88,8 +88,11 @@ set(YAL_SOURCES
     yal/ast/exprvarref.cpp
     yal/ast/exprvarref.h
     yal/ast/astvisitor.h
+    yal/ast/astvisitor.cpp
     yal/ast/astprinter.cpp
     yal/ast/astprinter.h
+    yal/ast/declstruct.h
+    yal/ast/declstruct.cpp
 
     yal/io/memorystream.cpp
     yal/io/memorystream.h

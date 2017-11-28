@@ -17,34 +17,33 @@
  *  License along with YAL. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#pragma once
 
-#include "yal/ast/asttypes.h"
-
+#include "yal/ast/astvisitor.h"
+#include "yal/ast/statementlist.h"
+#include "yal/ast/declparamvar.h"
+#include "yal/ast/declmodule.h"
+#include "yal/ast/statement.h"
 namespace yal {
 
-    class DeclModule;
-    class StatementList;
-    class DeclParamVarContainer;
-    class AstVisitor {
-    public:
 
-        virtual ~AstVisitor() {}
+    void
+    RecursiveAstVisitor::visit(DeclModule& node){
+        for (auto& decl : node.getDeclarations()) {
+            decl->acceptVisitor(*this);
+        }
+    }
 
-#define YAL_AST_NODE_TYPE(type) virtual void visit(type& node) = 0;
-#include "yal/ast/astnodes.def"
-#undef YAL_AST_NODE_TYPE
+    void
+    RecursiveAstVisitor::visit(StatementList& node){
+        for (auto it = node.childBegin(); it != node.childEnd(); ++it) {
+            (*it)->acceptVisitor(*this);
+        }
+    }
 
-    };
 
-    class RecursiveAstVisitor : public AstVisitor {
-    public:
-
-        virtual void visit(DeclModule& node) override;
-
-        virtual void visit(StatementList& node) override;
-
-        virtual void visit(DeclParamVarContainer& node) override;
-    };
+    void RecursiveAstVisitor::visit(DeclParamVarContainer& node) {
+        for (auto it = node.childBegin(); it != node.childEnd(); ++it) {
+            (*it)->acceptVisitor(*this);
+        }
+    }
 }
-

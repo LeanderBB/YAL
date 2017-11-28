@@ -34,6 +34,7 @@
 #include "yal/ast/reftypeidentifier.h"
 #include "yal/ast/stmtassign.h"
 #include "yal/ast/declmodule.h"
+#include "yal/ast/declstruct.h"
 
 namespace yal {
 
@@ -86,14 +87,35 @@ namespace yal {
     }
 
     void
-    AstPrinter::visit(DeclStruct&) {
+    AstPrinter::visit(DeclStruct& node) {
+        print("DeclStruct: %\n", node.getName());
+        if (node.getMembers() != nullptr) {
+            scopeBegin();
+            node.getMembers()->acceptVisitor(*this);
+            scopeEnd();
+        }
+    }
 
+    void
+    AstPrinter::visit(DeclStructMembers& node) {
+        print("DeclStructMembers\n");
+        for (auto it = node.childBegin(); it != node.childEnd(); ++it) {
+            scopeBegin(it + 1 == node.childEnd());
+            (*it)->acceptVisitor(*this);
+            scopeEnd();
+        }
     }
 
     void
     AstPrinter::visit(DeclVar& node) {
         print("DeclVar %\n", node.getName());
+        if (node.getExpression() != nullptr) {
+            scopeBegin();
+            node.getExpression()->acceptVisitor(*this);
+            scopeEnd();
+        }
     }
+
 
     void
     AstPrinter::visit(DeclModule& node) {

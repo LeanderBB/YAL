@@ -47,6 +47,7 @@
 #include "yal/lexer/lexer.h"
 #include "yal/ast/stmtassign.h"
 #include "yal/ast/exprvarref.h"
+#include "yal/ast/declstruct.h"
 #define YYMALLOCARGTYPE size_t
 }
 
@@ -100,13 +101,18 @@
 %type binaryexp {yal::ExprBinaryOperator*}
 %type literal {yal::StmtExpression*}
 %type var_decl {yal::StmtDecl*}
+%type type_decl {yal::DeclStruct*}
+%type type_var_decl {yal::DeclVar*}
+%type type_var_decls {yal::DeclStructMembers*}
 %start_symbol  module
 %token_type {yal::TokenInfo}
 
 
 module ::= decls END.
 
-decls ::= decls type_decl.
+decls (A)::= decls(B) type_decl(C). {
+    A =B; B->addDecl(C);
+}
 decls(A) ::= decls(B) decl_function(C). {
         A =B; B->addDecl(C);
 }
@@ -159,13 +165,26 @@ type_builtin(A) ::= TYPE_DOUBLE. {
 type_array ::= type_builtin ARRAY_BEGIN ARRAY_END.
 
 // custom type declaration
-type_decl ::= TYPE IDENTIFIER COLON STRUCT SCOPE_BEGIN type_var_decls SCOPE_END.
-type_decl ::= TYPE IDENTIFIER COLON type_specifier SEMI_COLON.
+type_decl(A) ::= TYPE IDENTIFIER(B) COLON STRUCT SCOPE_BEGIN type_var_decls(C) SCOPE_END. {
+     A = pParser->newAstNode<yal::DeclStruct>(B.tokenStr, C);
+}
+type_decl(A) ::= TYPE IDENTIFIER COLON type_specifier SEMI_COLON. {
+    A = nullptr;
+}
 
-type_var_decls ::= type_var_decls type_var_decl.
-type_var_decls ::= type_var_decl.
+type_var_decls(A) ::= type_var_decls(B) type_var_decl(C). {
+    A = B;
+    A->addDeclVar(C);
+}
+type_var_decls(A) ::= type_var_decl(B). {
+    A = pParser->newAstNode<yal::DeclStructMembers>();
+    A->addDeclVar(B);
+}
 
-type_var_decl ::= IDENTIFIER COLON type_specifier SEMI_COLON.
+type_var_decl(A) ::= IDENTIFIER(B) COLON type_specifier(C) ASSIGN expression(D) SEMI_COLON. {
+    yal::Qualifier qualifier;
+    A = pParser->newAstNode<yal::DeclVar>(B.tokenStr, qualifier, C, D);
+}
 
 // Functions
 

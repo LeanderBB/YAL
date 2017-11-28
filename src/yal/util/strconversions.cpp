@@ -19,6 +19,7 @@
 
 #include "yal/util/strconversions.h"
 #include "yal/util/stringref.h"
+#include <limits>
 
 namespace yal {
 

@@ -22,6 +22,9 @@
 
 namespace yal {
 
+    //TODO : Specialize this for resolved and unresolved types
+    // so that we can run a type resolution pass on the ast tree and
+    // handle duplicates there followed by an actual type checker afterwards
     class RefType : public RefBase
     {
     public:

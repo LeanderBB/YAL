@@ -143,7 +143,6 @@ namespace yal {
     Lexer::setToken(const Token token,
                     const LexerState& state) {
         m_curToken.token = token;
-        m_curToken.tokLen = state.getTokenLength();
         m_curToken.lineStart = state.tokenLineStart;
         m_curToken.lineEnd = state.lineNum;
         m_curToken.columnStart = state.tokenColumnStart;
@@ -151,13 +150,12 @@ namespace yal {
         m_curToken.tokenOffsetInStream = state.getStreamOffset();
         const char* streamStr =
                 static_cast<const char*>(m_stream.getPtrAt(m_curToken.tokenOffsetInStream));
-        m_curToken.tokenStr = StringRef(streamStr, m_curToken.tokLen);
+        m_curToken.tokenStr = StringRefPod{streamStr, state.getTokenLength()};
     }
 
     void
     Lexer::setLexerError(const LexerState& state) {
         m_curToken.token = Token::TokenCount;
-        m_curToken.tokLen = state.getTokenLength();
         m_curToken.lineStart = state.tokenLineStart;
         m_curToken.lineEnd = m_curToken.lineEnd;
         m_curToken.columnStart = state.tokenColumnStart;
@@ -200,6 +198,7 @@ namespace yal {
             FN = "fn";
             NEWLINE="\n";
             COLON = ":";
+            DOT = ".";
             COMMA = ",";
             SEMICOLON = ";";
             TYPE = "type";
@@ -227,7 +226,7 @@ namespace yal {
             MOD = "mod";
             MULT = "*";
             ASSIGN= "=";
-            INTEGER = [1-9][0-9]*;
+            INTEGER = [0-9][0-9]*;
             DECIMAL = [0-9]+ "." [0-9]+;
             IDENTIFIER = [a-zA-Z][a-zA-Z0-9]*;
 
@@ -276,7 +275,7 @@ namespace yal {
             BEGIN_PAR { setToken(Token::BeginPar, *m_lexerState); return Status::Ok;}
             END_PAR { setToken(Token::EndPar, *m_lexerState); return Status::Ok;}
             IDENTIFIER { setToken(Token::Identifier, *m_lexerState); return Status::Ok;}
-
+            DOT { setToken(Token::Dot, *m_lexerState); return Status::Ok;}
 
             [ \t]* {continue;}
             * { setToken(Token::TokenCount, *m_lexerState); return Status::Error;}
