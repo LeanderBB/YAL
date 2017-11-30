@@ -23,9 +23,13 @@
 
 namespace yal {
 
-    class ExprVarRef : public StmtExpression
-    {
+    class ExprVarRef : public StmtExpression {
+    protected:
+        ExprVarRef(Module& module,
+                   const AstType astType,
+                   const StringRef& variableName);
     public:
+
         ExprVarRef(Module& module,
                    const StringRef& variableName);
 

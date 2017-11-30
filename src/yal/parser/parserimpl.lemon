@@ -30,8 +30,7 @@
 #include "yal/ast/declfunction.h"
 #include "yal/ast/decltypefunction.h"
 #include "yal/ast/declmodule.h"
-#include "yal/ast/reftypebuiltin.h"
-#include "yal/ast/reftypeidentifier.h"
+#include "yal/ast/reftype.h"
 #include "yal/ast/declvar.h"
 #include "yal/ast/declparamvar.h"
 #include "yal/ast/stmtexpression.h"
@@ -48,6 +47,9 @@
 #include "yal/ast/stmtassign.h"
 #include "yal/ast/exprvarref.h"
 #include "yal/ast/declstruct.h"
+#include "yal/ast/exprstructvarref.h"
+#include "yal/ast/exprstructfncall.h"
+#include "yal/ast/exprlist.h"
 #define YYMALLOCARGTYPE size_t
 }
 
@@ -82,7 +84,7 @@
 %right NOT.
 %right DOT.
 
-%type type_builtin {yal::RefTypeBuiltin*}
+%type type_builtin {yal::RefTypeResolved*}
 %type decl_function {yal::DeclFunction*}
 %type type_function_decl {yal::DeclTypeFunction*}
 %type decls {yal::DeclModule*}
@@ -104,6 +106,7 @@
 %type type_decl {yal::DeclStruct*}
 %type type_var_decl {yal::DeclVar*}
 %type type_var_decls {yal::DeclStructMembers*}
+%type function_call_args{yal::ExprList*}
 %start_symbol  module
 %token_type {yal::TokenInfo}
 
@@ -126,40 +129,42 @@ decls(A) ::=. {
 // Type  specifiers
 type_specifier(A) ::= type_builtin(B). {A=B;}
 type_specifier(A) ::= type_array. {A = nullptr;}
-type_specifier(A) ::= IDENTIFIER(B). {A = pParser->newAstNode<yal::RefTypeIdentifier>(B.tokenStr);}
+type_specifier(A) ::= IDENTIFIER(B). {
+        A = pParser->newAstNode<yal::RefTypeUnresolved>(B.tokenStr);
+ }
 
 type_builtin(A) ::= TYPE_BOOL. {
-        A = pParser->newAstNode<yal::RefTypeBuiltin>(pParser->getModule().getTypeContext().getTypeBuiltinBool());
+        A = pParser->newAstNode<yal::RefTypeResolved>(pParser->getModule().getTypeContext().getTypeBuiltinBool());
         }
 type_builtin(A) ::= TYPE_INT8. {
-        A = pParser->newAstNode<yal::RefTypeBuiltin>(pParser->getModule().getTypeContext().getTypeBuiltinI8());
+        A = pParser->newAstNode<yal::RefTypeResolved>(pParser->getModule().getTypeContext().getTypeBuiltinI8());
         }
 type_builtin(A) ::= TYPE_UINT8. {
-        A  = pParser->newAstNode<yal::RefTypeBuiltin>(pParser->getModule().getTypeContext().getTypeBuiltinU8());
+        A  = pParser->newAstNode<yal::RefTypeResolved>(pParser->getModule().getTypeContext().getTypeBuiltinU8());
         }
 type_builtin(A) ::= TYPE_INT16. {
-        A = pParser->newAstNode<yal::RefTypeBuiltin>(pParser->getModule().getTypeContext().getTypeBuiltinI16());
+        A = pParser->newAstNode<yal::RefTypeResolved>(pParser->getModule().getTypeContext().getTypeBuiltinI16());
         }
 type_builtin(A) ::= TYPE_UINT16. {
-        A  = pParser->newAstNode<yal::RefTypeBuiltin>(pParser->getModule().getTypeContext().getTypeBuiltinU16());
+        A  = pParser->newAstNode<yal::RefTypeResolved>(pParser->getModule().getTypeContext().getTypeBuiltinU16());
         }
 type_builtin(A) ::= TYPE_INT32. {
-        A = pParser->newAstNode<yal::RefTypeBuiltin>(pParser->getModule().getTypeContext().getTypeBuiltinI32());
+        A = pParser->newAstNode<yal::RefTypeResolved>(pParser->getModule().getTypeContext().getTypeBuiltinI32());
         }
 type_builtin(A) ::= TYPE_UINT32. {
-        A = pParser->newAstNode<yal::RefTypeBuiltin>(pParser->getModule().getTypeContext().getTypeBuiltinU32());
+        A = pParser->newAstNode<yal::RefTypeResolved>(pParser->getModule().getTypeContext().getTypeBuiltinU32());
         }
 type_builtin(A) ::= TYPE_INT64. {
-        A = pParser->newAstNode<yal::RefTypeBuiltin>(pParser->getModule().getTypeContext().getTypeBuiltinI64());
+        A = pParser->newAstNode<yal::RefTypeResolved>(pParser->getModule().getTypeContext().getTypeBuiltinI64());
         }
 type_builtin(A) ::= TYPE_UINT64. {
-        A = pParser->newAstNode<yal::RefTypeBuiltin>(pParser->getModule().getTypeContext().getTypeBuiltinU64());
+        A = pParser->newAstNode<yal::RefTypeResolved>(pParser->getModule().getTypeContext().getTypeBuiltinU64());
         }
 type_builtin(A) ::= TYPE_FLOAT. {
-        A = pParser->newAstNode<yal::RefTypeBuiltin>(pParser->getModule().getTypeContext().getTypeBuiltinFloat());
+        A = pParser->newAstNode<yal::RefTypeResolved>(pParser->getModule().getTypeContext().getTypeBuiltinFloat());
         }
 type_builtin(A) ::= TYPE_DOUBLE. {
-        A = pParser->newAstNode<yal::RefTypeBuiltin>(pParser->getModule().getTypeContext().getTypeBuiltinDouble());
+        A = pParser->newAstNode<yal::RefTypeResolved>(pParser->getModule().getTypeContext().getTypeBuiltinDouble());
         }
 
 type_array ::= type_builtin ARRAY_BEGIN ARRAY_END.
@@ -276,6 +281,20 @@ expression (A) ::= IDENTIFIER(B). {
     A = pParser->newAstNode<yal::ExprVarRef>(B.tokenStr);
 }
 
+expression (A) ::= expression(B) DOT IDENTIFIER(C). {
+    A = pParser->newAstNode<yal::ExprStructVarRef>(B, C.tokenStr);
+}
+
+expression(A) ::= IDENTIFIER(C) PAR_BEGIN function_call_args(D) PAR_END. {
+    auto fnType = pParser->newAstNode<yal::RefTypeUnresolved>(C.tokenStr);
+    A = pParser->newAstNode<yal::ExprFnCall>(fnType, D);
+}
+
+expression(A) ::= expression(B) DOT IDENTIFIER(C) PAR_BEGIN function_call_args(D) PAR_END. {
+    auto fnType = pParser->newAstNode<yal::RefTypeUnresolved>(C.tokenStr);
+    A = pParser->newAstNode<yal::ExprStructFnCall>(B, fnType, D);
+}
+
 binaryexp(A) ::= expression(B) AND expression(C). {
         A = pParser->newAstNode<yal::ExprBinaryOperator>(yal::BinaryOperatorType::And,
                                                         B, C);
@@ -305,6 +324,36 @@ binaryexp(A) ::= expression(B) MOD expression(C). {
                                                         B, C);
 }
 
+binaryexp(A) ::= expression(B) EQ expression(C). {
+        A = pParser->newAstNode<yal::ExprBinaryOperator>(yal::BinaryOperatorType::Eq,
+                                                        B, C);
+}
+
+binaryexp(A) ::= expression(B) NE expression(C). {
+        A = pParser->newAstNode<yal::ExprBinaryOperator>(yal::BinaryOperatorType::Ne,
+                                                        B, C);
+}
+
+binaryexp(A) ::= expression(B) LE expression(C). {
+        A = pParser->newAstNode<yal::ExprBinaryOperator>(yal::BinaryOperatorType::Le,
+                                                        B, C);
+}
+
+binaryexp(A) ::= expression(B) LT expression(C). {
+        A = pParser->newAstNode<yal::ExprBinaryOperator>(yal::BinaryOperatorType::Lt,
+                                                        B, C);
+}
+
+binaryexp(A) ::= expression(B) GE expression(C). {
+        A = pParser->newAstNode<yal::ExprBinaryOperator>(yal::BinaryOperatorType::Ge,
+                                                        B, C);
+}
+
+binaryexp(A) ::= expression(B) GT expression(C). {
+        A = pParser->newAstNode<yal::ExprBinaryOperator>(yal::BinaryOperatorType::Gt,
+                                                        B, C);
+}
+
 unaryexp(A) ::= NOT expression(B). {
     A = pParser->newAstNode<yal::ExprUnaryOperator>(yal::UnaryOperatorType::Not,
                                                B);
@@ -316,6 +365,20 @@ unaryexp(A) ::= BIT_NOT expression(B). {
 unaryexp(A) ::= MINUS expression(B). [NEGATE] {
     A = pParser->newAstNode<yal::ExprUnaryOperator>(yal::UnaryOperatorType::Negate,
                                                B);
+}
+
+// Function call
+
+function_call_args(A) ::= function_call_args(B) COMMA expression(C). {
+    A = B;
+    A->addExpression(C);
+}
+function_call_args(A)::= expression(B). {
+    A = pParser->newAstNode<yal::ExprList>();
+    A->addExpression(B);
+}
+function_call_args(A) ::=. {
+    A= nullptr;
 }
 
 // Literals

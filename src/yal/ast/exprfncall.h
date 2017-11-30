@@ -17,21 +17,42 @@
  *  License along with YAL. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "yal/ast/reftype.h"
-namespace yal{
+#pragma once
 
-    class TypeBuiltin;
-    class RefTypeBuiltin : public RefType {
+#include "yal/ast/stmtexpression.h"
+#include "yal/ast/nodecontainer.h"
+
+namespace yal {
+
+    class RefType;
+    class StatementList;
+    class ExprList;
+    class ExprFnCall : public StmtExpression {
+
+    protected:
+        ExprFnCall(Module& module,
+                   const AstType astType,
+                   RefType* functionType,
+                   ExprList* functionArgs);
     public:
 
-        RefTypeBuiltin(Module& module,
-                       const TypeBuiltin* type);
+        ExprFnCall(Module& module,
+                   RefType* functionType,
+                   ExprList* functionArgs);
 
-        RefTypeBuiltin(Module& module,
-                       const TypeBuiltin* type,
-                       const Qualifier qualifier);
+        RefType* getFunctionType() const {
+            return m_functionType;
+        }
+
+        ExprList* getFunctionArgs() const {
+            return m_functionArgs;
+        }
 
         virtual void acceptVisitor(AstVisitor& visitor) override;
+
+    private:
+        RefType* m_functionType;
+        ExprList* m_functionArgs;
 
     };
 

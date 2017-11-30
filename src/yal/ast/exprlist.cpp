@@ -16,28 +16,29 @@
  *  You should have received a copy of the GNU Lesser General Public
  *  License along with YAL. If not, see <http://www.gnu.org/licenses/>.
  */
-#include "yal/ast/reftypeidentifier.h"
-#include "yal/ast/module.h"
+#include "yal/ast/exprlist.h"
 #include "yal/ast/astvisitor.h"
-namespace yal {
-    RefTypeIdentifier::RefTypeIdentifier(Module& module,
-                                         const StringRef identifier,
-                                         const Qualifier qualifier):
-        RefType(module, AstType::RefTypeIdentifier, nullptr, qualifier),
-        m_identifier(identifier)
-    {
-        const Identifier typeIdentifier(identifier, module);
-        m_type = module.getTypeContext().getByName(typeIdentifier.getAsString());
+
+namespace  yal {
+
+    ExprList::ExprList(Module& module):
+        BaseType(module){
+
     }
 
-    RefTypeIdentifier::RefTypeIdentifier(Module& module,
-                                         const StringRef identifier) :
-        RefTypeIdentifier(module, identifier, Qualifier()){
+    ExprList::ExprList(Module &module,
+                       ContainerType &&params):
+        BaseType(module, std::move(params)) {
 
     }
 
     void
-    RefTypeIdentifier::acceptVisitor(AstVisitor& visitor) {
+    ExprList::addExpression(StmtExpression* expression) {
+        m_nodes.push_back(expression);
+    }
+
+    void
+    ExprList::acceptVisitor(AstVisitor& visitor) {
         visitor.visit(*this);
     }
 }

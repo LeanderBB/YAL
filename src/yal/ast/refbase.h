@@ -38,19 +38,10 @@ namespace yal {
 
    protected:
         RefBase(Module& module,
-                const AstType astType,
-                const Type* type);
+                const AstType astType);
 
     public:
         virtual ~RefBase();
-
-        bool isTypeDefined() const {
-            return m_type != nullptr;
-        }
-
-        const Type* getType() const {
-            return m_type;
-        }
 
         AstType getAstType() const {
             return m_astType;
@@ -72,7 +63,6 @@ namespace yal {
     protected:
         Module& m_module;
         const AstType m_astType;
-        const Type* m_type;
         SourceInfo m_sourceInfo;
     };
 

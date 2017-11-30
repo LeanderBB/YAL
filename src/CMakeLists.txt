@@ -53,10 +53,6 @@ set(YAL_SOURCES
     yal/ast/refbasetypes.def
     yal/ast/reftype.cpp
     yal/ast/reftype.h
-    yal/ast/reftypebuiltin.cpp
-    yal/ast/reftypebuiltin.h
-    yal/ast/reftypeidentifier.cpp
-    yal/ast/reftypeidentifier.h
     yal/ast/identifier.cpp
     yal/ast/identifier.h
     yal/ast/statement.h
@@ -93,6 +89,14 @@ set(YAL_SOURCES
     yal/ast/astprinter.h
     yal/ast/declstruct.h
     yal/ast/declstruct.cpp
+    yal/ast/exprstructvarref.cpp
+    yal/ast/exprstructvarref.h
+    yal/ast/exprfncall.h
+    yal/ast/exprfncall.cpp
+    yal/ast/exprstructfncall.h
+    yal/ast/exprstructfncall.cpp
+    yal/ast/exprlist.h
+    yal/ast/exprlist.cpp
 
     yal/io/memorystream.cpp
     yal/io/memorystream.h

@@ -17,29 +17,36 @@
  *  License along with YAL. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "yal/ast/exprvarref.h"
-#include "yal/ast/astvisitor.h"
+#pragma once
 
-namespace yal {
+#include "yal/ast/nodecontainer.h"
 
-    ExprVarRef::ExprVarRef(Module& module,
-                           const AstType astType,
-                           const StringRef& variableName):
-        StmtExpression(module, astType),
-        m_variableName(variableName){
+namespace  yal {
 
+    class StmtExpression;
+    class AstVisitor;
+
+    class ExprList :
+            public NodeContainer<StmtExpression*,AstType::ExprList> {
+        using BaseType = NodeContainer<StmtExpression*,AstType::ExprList>;
+    public:
+
+        ExprList(Module& module);
+
+        ExprList(Module& module,
+                      ContainerType&& params);
+
+        void addExpression(StmtExpression* expr);
+
+        void acceptVisitor(AstVisitor& visitor);
+
+    };
+
+
+    inline AstType get_typeid(const ExprList& container) {
+        return container.getAstType();
     }
-
-    ExprVarRef::ExprVarRef(Module &module,
-                           const StringRef &variableName) :
-        ExprVarRef(module, AstType::ExprVarRef, variableName) {
-    }
-
-
-    void
-    ExprVarRef::acceptVisitor(AstVisitor& visitor) {
-        visitor.visit(*this);
-    }
-
 
 }
+
+

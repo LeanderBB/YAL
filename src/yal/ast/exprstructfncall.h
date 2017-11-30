@@ -16,30 +16,31 @@
  *  You should have received a copy of the GNU Lesser General Public
  *  License along with YAL. If not, see <http://www.gnu.org/licenses/>.
  */
+
 #pragma once
 
-#include "yal/ast/reftype.h"
-#include "yal/util/stringref.h"
-namespace yal{
+#include "yal/ast/exprfncall.h"
 
-    class RefTypeIdentifier : public RefType
-    {
+namespace yal {
+
+
+    class ExprStructFnCall : public ExprFnCall {
     public:
-        RefTypeIdentifier(Module& module,
-                          const StringRef identifier,
-                          const Qualifier qualifier);
 
-        RefTypeIdentifier(Module& module,
-                          const StringRef identifier);
+        ExprStructFnCall(Module& module,
+                         StmtExpression* expression,
+                         RefType* functionType,
+                         ExprList* functionArgs);
 
-        StringRef getIdentifier() const {
-            return m_identifier;
+        StmtExpression* getExpression() const {
+            return m_expression;
         }
 
         virtual void acceptVisitor(AstVisitor& visitor) override;
 
-    protected:
-        StringRef m_identifier;
+    private:
+        StmtExpression* m_expression;
+
     };
 
 }

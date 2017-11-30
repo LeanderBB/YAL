@@ -226,6 +226,13 @@ namespace yal {
             MOD = "mod";
             MULT = "*";
             ASSIGN= "=";
+            GE =">=";
+            GT =">";
+            LE ="<=";
+            LT ="<";
+            EQ ="==";
+            NE ="!=";
+
             INTEGER = [0-9][0-9]*;
             DECIMAL = [0-9]+ "." [0-9]+;
             IDENTIFIER = [a-zA-Z][a-zA-Z0-9]*;
@@ -276,6 +283,13 @@ namespace yal {
             END_PAR { setToken(Token::EndPar, *m_lexerState); return Status::Ok;}
             IDENTIFIER { setToken(Token::Identifier, *m_lexerState); return Status::Ok;}
             DOT { setToken(Token::Dot, *m_lexerState); return Status::Ok;}
+
+            GE { setToken(Token::CompareGe, *m_lexerState); return Status::Ok;}
+            GT { setToken(Token::CompareGt, *m_lexerState); return Status::Ok;}
+            LE { setToken(Token::CompareLe, *m_lexerState); return Status::Ok;}
+            LT { setToken(Token::CompareLt, *m_lexerState); return Status::Ok;}
+            EQ { setToken(Token::CompareEq, *m_lexerState); return Status::Ok;}
+            NE { setToken(Token::CompareNe, *m_lexerState); return Status::Ok;}
 
             [ \t]* {continue;}
             * { setToken(Token::TokenCount, *m_lexerState); return Status::Error;}

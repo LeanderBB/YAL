@@ -30,11 +30,13 @@
 #include "yal/ast/statementlist.h"
 #include "yal/ast/stmtreturn.h"
 #include "yal/ast/stmtdecl.h"
-#include "yal/ast/reftypebuiltin.h"
-#include "yal/ast/reftypeidentifier.h"
+#include "yal/ast/reftype.h"
 #include "yal/ast/stmtassign.h"
 #include "yal/ast/declmodule.h"
 #include "yal/ast/declstruct.h"
+#include "yal/ast/exprstructvarref.h"
+#include "yal/ast/exprstructfncall.h"
+#include "yal/ast/exprlist.h"
 
 namespace yal {
 
@@ -144,6 +146,16 @@ namespace yal {
     }
 
     void
+    AstPrinter::visit(ExprList& node) {
+        print("ExprList\n");
+        for (auto it = node.childBegin(); it != node.childEnd(); ++it) {
+            scopeBegin(it + 1 == node.childEnd());
+            (*it)->acceptVisitor(*this);
+            scopeEnd();
+        }
+    }
+
+    void
     AstPrinter::visit(DeclStrongAlias&) {
 
     }
@@ -154,13 +166,13 @@ namespace yal {
     }
 
     void
-    AstPrinter::visit(RefTypeBuiltin& node) {
-        print("RefTypeBuiltin %\n", node.getType()->getName());
+    AstPrinter::visit(RefTypeResolved& node) {
+        print("RefTypeResolved %\n", node.getResolvedType()->getName());
     }
 
     void
-    AstPrinter::visit(RefTypeIdentifier& node) {
-        print("RefTypeBuiltin %\n", node.getIdentifier());
+    AstPrinter::visit(RefTypeUnresolved& node) {
+        print("RefTypeUnresolved %\n", node.getTypeName());
     }
 
     void
@@ -216,6 +228,16 @@ namespace yal {
     }
 
     void
+    AstPrinter::visit(ExprStructVarRef& node) {
+        print("ExprStructVarRef %\n", node.getVariableName());
+        scopeBegin();
+        {
+            node.getExpression()->acceptVisitor(*this);
+        }
+        scopeEnd();
+    }
+
+    void
     AstPrinter::visit(ExprUnaryOperator& node) {
         print("ExpUnaryOperator\n");
         scopeBegin();
@@ -254,6 +276,37 @@ namespace yal {
     void
     AstPrinter::visit(ExprDecimalLiteral&) {
 
+    }
+
+    void
+    AstPrinter::visit(ExprFnCall& node) {
+        print("ExprFnCall\n");
+        const bool hasFunctionArgs = node.getFunctionArgs() != nullptr;
+        scopeBegin(!hasFunctionArgs);
+        node.getFunctionType()->acceptVisitor(*this);
+        scopeEnd();
+        if (hasFunctionArgs) {
+            scopeBegin();
+            node.getFunctionArgs()->acceptVisitor(*this);
+            scopeEnd();
+        }
+    }
+
+    void
+    AstPrinter::visit(ExprStructFnCall& node) {
+        print("ExprStructFnCall\n");
+        scopeBegin();
+        node.getExpression()->acceptVisitor(*this);
+        scopeEnd();
+        const bool hasFunctionArgs = node.getFunctionArgs() != nullptr;
+        scopeBegin(!hasFunctionArgs);
+        node.getFunctionType()->acceptVisitor(*this);
+        scopeEnd();
+        if (hasFunctionArgs) {
+            scopeBegin();
+            node.getFunctionArgs()->acceptVisitor(*this);
+            scopeEnd();
+        }
     }
 
     void

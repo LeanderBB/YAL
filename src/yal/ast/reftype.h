@@ -22,15 +22,11 @@
 
 namespace yal {
 
-    //TODO : Specialize this for resolved and unresolved types
-    // so that we can run a type resolution pass on the ast tree and
-    // handle duplicates there followed by an actual type checker afterwards
     class RefType : public RefBase
     {
     public:
         RefType(Module& module,
                 const AstType astType,
-                const Type* type,
                 const Qualifier qualifier);
 
         Qualifier getQualifier() const {
@@ -38,7 +34,48 @@ namespace yal {
         }
 
     private:
-        const Qualifier m_qualifier;
+        Qualifier m_qualifier;
     };
 
+
+    class RefTypeUnresolved : public RefType {
+    public:
+
+        RefTypeUnresolved(Module& module,
+                          const Qualifier qualifier,
+                          const StringRef& typeName);
+
+        RefTypeUnresolved(Module& module,
+                          const StringRef& typeName);
+
+        StringRef getTypeName() const {
+            return m_typeName;
+        }
+
+        virtual void acceptVisitor(AstVisitor& visitor) override;
+
+    private:
+        StringRef m_typeName;
+    };
+
+
+    class RefTypeResolved : public RefType {
+    public:
+
+        RefTypeResolved(Module& module,
+                        const Qualifier qualifier,
+                        const Type* resolvedType);
+
+        RefTypeResolved(Module& module,
+                        const Type* resolvedType);
+
+        const Type* getResolvedType() const {
+            return m_resolvedType;
+        }
+
+        virtual void acceptVisitor(AstVisitor& visitor) override;
+
+    private:
+        const Type* m_resolvedType;
+    };
 }

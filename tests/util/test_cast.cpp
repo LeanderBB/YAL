@@ -24,7 +24,7 @@
 #include <yal/ast/modulemanager.h>
 #include <yal/ast/declfunction.h>
 #include <yal/ast/declbase.h>
-#include <yal/ast/reftypebuiltin.h>
+#include <yal/ast/reftype.h>
 #include <yal/io/sourcemanager.h>
 
 

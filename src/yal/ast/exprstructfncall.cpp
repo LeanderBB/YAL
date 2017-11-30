@@ -17,29 +17,24 @@
  *  License along with YAL. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "yal/ast/exprvarref.h"
+#include "yal/ast/exprstructfncall.h"
 #include "yal/ast/astvisitor.h"
 
 namespace yal {
 
-    ExprVarRef::ExprVarRef(Module& module,
-                           const AstType astType,
-                           const StringRef& variableName):
-        StmtExpression(module, astType),
-        m_variableName(variableName){
+    ExprStructFnCall::ExprStructFnCall(Module& module,
+                                       StmtExpression* expression,
+                                       RefType *functionType,
+                                       ExprList *functionArgs):
+        ExprFnCall(module, AstType::ExprStructFnCall,
+                   functionType, functionArgs),
+        m_expression(expression) {
 
     }
-
-    ExprVarRef::ExprVarRef(Module &module,
-                           const StringRef &variableName) :
-        ExprVarRef(module, AstType::ExprVarRef, variableName) {
-    }
-
 
     void
-    ExprVarRef::acceptVisitor(AstVisitor& visitor) {
+    ExprStructFnCall::acceptVisitor(AstVisitor& visitor) {
         visitor.visit(*this);
     }
-
 
 }

@@ -17,25 +17,29 @@
  *  License along with YAL. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "yal/ast/reftypebuiltin.h"
-#include "yal/ast/typebuiltin.h"
-#include "yal/ast/astvisitor.h"
-namespace yal{
-    RefTypeBuiltin::RefTypeBuiltin(Module &module,
-                                   const TypeBuiltin* type):
-        RefType(module, AstType::RefTypeBuiltin, type, Qualifier()) {
+#pragma once
 
-    }
+#include "yal/ast/exprvarref.h"
 
-     RefTypeBuiltin::RefTypeBuiltin(Module& module,
-                    const TypeBuiltin* type,
-                    const Qualifier qualifier):
-     RefType(module, AstType::RefTypeBuiltin, type, qualifier) {
+namespace yal {
 
-    }
+    class ExprStructVarRef : public ExprVarRef
+    {
+    public:
+        ExprStructVarRef(Module& module,
+                         StmtExpression* expression,
+                         const StringRef& variableName);
 
-     void
-     RefTypeBuiltin::acceptVisitor(AstVisitor& visitor) {
-         visitor.visit(*this);
-     }
+
+        StmtExpression* getExpression() const {
+            return m_expression;
+        }
+
+        virtual void acceptVisitor(AstVisitor& visitor) override;
+
+    private:
+        StmtExpression*  m_expression;
+
+    };
+
 }
