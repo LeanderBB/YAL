@@ -29,6 +29,11 @@ namespace yal {
 
     }
 
+    void
+    RefType::setQualifier(const Qualifier qualifier) {
+        m_qualifier = qualifier;
+    }
+
     RefTypeUnresolved::RefTypeUnresolved(Module& module,
                                          const Qualifier qualifier,
                                          const StringRef& typeName):

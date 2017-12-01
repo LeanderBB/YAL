@@ -186,6 +186,7 @@ namespace yal {
         /* common character classes */
 
             /* basic tokens */
+            MUT="mut";
             VAR = "var";
             LET = "let";
             TRUE = "true";
@@ -220,6 +221,7 @@ namespace yal {
             TYPE_FLOAT = "float";
             TYPE_DOUBLE= "double";
             STRUCT = "struct";
+            REFERENCE="&";
             PLUS = "+";
             MINUS ="-";
             DIV = "/";
@@ -240,6 +242,8 @@ namespace yal {
             /* final rules */
             VAR  { setToken(Token::Var, *m_lexerState); return Status::Ok; }
             LET  { setToken(Token::Let, *m_lexerState);return Status::Ok; }
+            MUT { setToken(Token::Mutable, *m_lexerState); return Status::Ok;}
+            REFERENCE { setToken(Token::Reference, *m_lexerState); return Status::Ok;}
             RETURN { setToken(Token::Return, *m_lexerState);return Status::Ok; }
             TYPE { setToken(Token::Type, *m_lexerState); return Status::Ok;}
             TRUE  { setToken(Token::True, *m_lexerState); return Status::Ok; }
@@ -283,6 +287,7 @@ namespace yal {
             END_PAR { setToken(Token::EndPar, *m_lexerState); return Status::Ok;}
             IDENTIFIER { setToken(Token::Identifier, *m_lexerState); return Status::Ok;}
             DOT { setToken(Token::Dot, *m_lexerState); return Status::Ok;}
+
 
             GE { setToken(Token::CompareGe, *m_lexerState); return Status::Ok;}
             GT { setToken(Token::CompareGt, *m_lexerState); return Status::Ok;}

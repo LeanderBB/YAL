@@ -24,6 +24,7 @@
 #include <cassert>
 #include <vector>
 #include "yal/parser/parser.h"
+#include "yal/parser/parserhelper.h"
 #include "yal/util/log.h"
 #include "yal/util/stringref.h"
 #include "yal/ast/typebuiltin.h"
@@ -60,6 +61,7 @@
 
     pParser->logParseFailure();
     {
+#if defined(YAL_DEBUG)
         yal::Log::MultiLineScope multiLineScope(pParser->getLog());
         pParser->getLog().error("Expected one of the following tokens:\n");
         int n = sizeof(yyTokenName) / sizeof(yyTokenName[0]);
@@ -70,6 +72,7 @@
             }
         }
     }
+#endif
 }
 
 %right ASSIGN.
@@ -107,6 +110,9 @@
 %type type_var_decl {yal::DeclVar*}
 %type type_var_decls {yal::DeclStructMembers*}
 %type function_call_args{yal::ExprList*}
+%type pre_qualifier {uint32_t}
+%type post_qualifier {uint32_t}
+%type qualified_type {yal::RefType*}
 %start_symbol  module
 %token_type {yal::TokenInfo}
 
@@ -126,12 +132,26 @@ decls(A) ::=. {
         A =  pParser->newAstNode<yal::DeclModule>();
         pParser->onAstNodeCreate(A);
      }
+
 // Type  specifiers
+
 type_specifier(A) ::= type_builtin(B). {A=B;}
 type_specifier(A) ::= type_array. {A = nullptr;}
 type_specifier(A) ::= IDENTIFIER(B). {
         A = pParser->newAstNode<yal::RefTypeUnresolved>(B.tokenStr);
  }
+
+pre_qualifier(A)::= MUT. {A = yal::parser::kQualifierMutable;}
+pre_qualifier(A) ::=. {A = 0;}
+
+post_qualifier(A) ::= REFERENCE. {A = yal::parser::kQualifierReference;}
+post_qualifier(A) ::=. {A = 0;}
+
+qualified_type(A) ::= pre_qualifier(B) type_specifier(C) post_qualifier(D). {
+        const uint32_t qualifierFlags = B | D;
+        C->setQualifier(yal::parser::MakeQualifierFromFlags(qualifierFlags));
+        A = C;
+}
 
 type_builtin(A) ::= TYPE_BOOL. {
         A = pParser->newAstNode<yal::RefTypeResolved>(pParser->getModule().getTypeContext().getTypeBuiltinBool());
@@ -186,9 +206,8 @@ type_var_decls(A) ::= type_var_decl(B). {
     A->addDeclVar(B);
 }
 
-type_var_decl(A) ::= IDENTIFIER(B) COLON type_specifier(C) ASSIGN expression(D) SEMI_COLON. {
-    yal::Qualifier qualifier;
-    A = pParser->newAstNode<yal::DeclVar>(B.tokenStr, qualifier, C, D);
+type_var_decl(A) ::= IDENTIFIER(B) COLON qualified_type(C) ASSIGN expression(D) SEMI_COLON. {
+    A = pParser->newAstNode<yal::DeclVar>(B.tokenStr, yal::Qualifier(), C, D);
 }
 
 // Functions
@@ -218,11 +237,11 @@ function_args_decl(A) ::= . {
         A = nullptr;
 }
 
-function_arg_decl(A) ::= IDENTIFIER(B) COLON type_specifier(C). {
+function_arg_decl(A) ::= IDENTIFIER(B) COLON qualified_type(C). {
     A = pParser->newAstNode<yal::DeclParamVar>(B.tokenStr, yal::Qualifier(),C);
 }
 
-function_return_decl(A) ::= COLON type_specifier(B). { A = B;}
+function_return_decl(A) ::= COLON qualified_type(B). { A = B;}
 function_return_decl(A)::=. {A = nullptr;}
 
 function_scope(A)::= SCOPE_BEGIN SCOPE_END. { A = nullptr;}
@@ -266,7 +285,7 @@ var_decl(A) ::= LET IDENTIFIER(B) var_type_spec(C) ASSIGN expression(D). {
     A= pParser->newAstNode<yal::StmtDecl>(varDecl);
 }
 
-var_type_spec(A) ::= COLON type_specifier(B). {A = B;}
+var_type_spec(A) ::= COLON qualified_type(B). {A = B;}
 var_type_spec(A)::=. {A = nullptr;}
 
 

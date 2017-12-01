@@ -122,6 +122,8 @@ set(YAL_SOURCES
     yal/parser/parserimpl.lemon
     yal/parser/parserimpl.cpp
     yal/parser/parserimpl.h
+    yal/parser/parserhelper.h
+    yal/parser/parserhelper.cpp
 
     yal/util/log.h
     yal/util/log.cpp

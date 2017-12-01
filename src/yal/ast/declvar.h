@@ -30,10 +30,10 @@ namespace yal {
         DeclVar(Module& module,
                 StringRef name,
                 const Qualifier qualifier,
-                const RefType* varType,
+                RefType* varType,
                 StmtExpression* expr);
 
-        const RefType* getVarType() const {
+        RefType* getVarType() const {
             return m_varType;
         }
 
@@ -57,10 +57,10 @@ namespace yal {
                 const AstType type,
                 const Qualifier qualifier,
                 StringRef name,
-                const RefType* varType);
+                RefType* varType);
 
     protected:
-        const RefType* m_varType;
+        RefType* m_varType;
         Qualifier m_qualifier;
         StmtExpression* m_expression;
     };

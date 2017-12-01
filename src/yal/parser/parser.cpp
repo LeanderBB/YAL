@@ -132,6 +132,10 @@ namespace yal{
         case Token::True:
         case Token::False:
             return YAL_TOKEN_BOOL_LITERAL;
+        case Token::Mutable:
+            return YAL_TOKEN_MUT;
+        case Token::Reference:
+            return YAL_TOKEN_REFERENCE;
         default:
             YAL_ASSERT_MESSAGE(false, "Shouldn't be reached!");
             return -1;

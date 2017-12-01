@@ -29,7 +29,7 @@ namespace yal {
         DeclParamVar(Module& module,
                      StringRef name,
                      const Qualifier qualifier,
-                     const RefType* varType);
+                     RefType* varType);
 
        virtual void acceptVisitor(AstVisitor& visitor) override;
     };

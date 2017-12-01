@@ -90,7 +90,9 @@ namespace yal
             "IntegerLiteral",
             "DecimalLiteral",
             "Comma",
-            "Struct"
+            "Struct",
+            "Mutable",
+            "Reference"
         };
 
         static_assert(sizeof(sLookupTable)/sizeof(sLookupTable[0]) ==

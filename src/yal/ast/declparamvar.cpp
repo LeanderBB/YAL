@@ -26,7 +26,7 @@ namespace yal {
     DeclParamVar::DeclParamVar(Module &module,
                                StringRef name,
                                const Qualifier qualifier,
-                               const RefType *varType):
+                               RefType *varType):
         DeclVar(module,AstType::DeclParamVar, qualifier, name, varType){
 
     }

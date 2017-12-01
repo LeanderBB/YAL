@@ -92,6 +92,8 @@ namespace yal
         DecimalLiteral,
         Comma,
         Struct,
+        Mutable,
+        Reference,
         TokenCount
     };
 

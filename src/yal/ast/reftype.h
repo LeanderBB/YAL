@@ -33,6 +33,8 @@ namespace yal {
             return m_qualifier;
         }
 
+        void setQualifier(const Qualifier qualifier);
+
     private:
         Qualifier m_qualifier;
     };

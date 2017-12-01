@@ -24,7 +24,7 @@
 namespace yal {
 
     class ByteStream;
-
+    class Qualifier;
     class AstPrinter : public AstVisitor {
     public:
         AstPrinter(ByteStream&);
@@ -42,11 +42,25 @@ namespace yal {
             printToStream();
         }
 
+        template <typename ...Args>
+        void printOnLine(const char* format,
+                         const Args&... args) {
+            Format(m_formater, format, args...);
+            printToStreamNoPrefix();
+        }
+
+        void print();
+
         void printToStream();
+
+        void printToStreamNoPrefix();
 
         void scopeBegin(const bool lastNode = true);
 
         void scopeEnd();
+
+    private:
+        void printQualifier(const Qualifier& qualifier);
 
     private:
         ByteStream& m_stream;

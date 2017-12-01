@@ -120,7 +120,6 @@ namespace yal {
         m_mutable(0),
         m_reference(0),
         m_pointer(0){
-
     }
 
     void

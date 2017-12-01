@@ -133,6 +133,9 @@ namespace yal {
     void
     AstPrinter::visit(DeclParamVar& node) {
         print("DeclParamVar %\n", node.getName());
+        scopeBegin();
+        node.getVarType()->acceptVisitor(*this);
+        scopeEnd();
     }
 
     void
@@ -167,12 +170,16 @@ namespace yal {
 
     void
     AstPrinter::visit(RefTypeResolved& node) {
-        print("RefTypeResolved %\n", node.getResolvedType()->getName());
+        print("RefTypeResolved %", node.getResolvedType()->getName());
+        printQualifier(node.getQualifier());
+        print();
     }
 
     void
     AstPrinter::visit(RefTypeUnresolved& node) {
-        print("RefTypeUnresolved %\n", node.getTypeName());
+        print("RefTypeUnresolved %", node.getTypeName());
+        printQualifier(node.getQualifier());
+        print();
     }
 
     void
@@ -310,10 +317,21 @@ namespace yal {
     }
 
     void
+    AstPrinter::print() {
+        const char newLine= '\n';
+        m_stream.write(&newLine, 1);
+    }
+
+    void
     AstPrinter::printToStream() {
         if (!m_identationChars.empty()) {
             m_stream.write(&m_identationChars[0], m_identationChars.size());
         }
+        m_stream.write(m_formater.buffer, m_formater.bufferPos);
+    }
+
+    void
+    AstPrinter::printToStreamNoPrefix() {
         m_stream.write(m_formater.buffer, m_formater.bufferPos);
     }
 
@@ -339,5 +357,15 @@ namespace yal {
         const size_t size = m_identationChars.size() - 3;
         m_identationChars.erase(m_identationChars.begin() + size,
                                 m_identationChars.end());
+    }
+
+    void
+    AstPrinter::printQualifier(const Qualifier& qualifier){
+        if (qualifier.isMutable()) {
+            printOnLine(" mut");
+        }
+        if (qualifier.isReference()) {
+            printOnLine(" &");
+        }
     }
 }
