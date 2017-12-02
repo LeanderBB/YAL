@@ -44,4 +44,12 @@ namespace yal {
 
     };
 
+
+    class ExprVarRefSelf : public ExprVarRef {
+    public:
+        ExprVarRefSelf(Module& module);
+
+        virtual void acceptVisitor(AstVisitor& visitor) override;
+    };
+
 }

@@ -25,13 +25,27 @@
 namespace yal {
 
     class DeclParamVar : public DeclVar{
+    protected:
+        DeclParamVar(Module& module,
+                     const AstType astType,
+                     StringRef name,
+                     const Qualifier qualifier,
+                     RefType* varType);
     public:
         DeclParamVar(Module& module,
                      StringRef name,
                      const Qualifier qualifier,
                      RefType* varType);
 
-       virtual void acceptVisitor(AstVisitor& visitor) override;
+        virtual void acceptVisitor(AstVisitor& visitor) override;
+    };
+
+    class DeclParamVarSelf : public DeclParamVar {
+    public:
+        DeclParamVarSelf(Module& module,
+                         const Qualifier qualifier);
+
+        virtual void acceptVisitor(AstVisitor& visitor) override;
     };
 
     class DeclParamVarContainer :

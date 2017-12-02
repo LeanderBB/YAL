@@ -28,6 +28,7 @@
 #include "yal/ast/declfunction.h"
 #include "yal/ast/reftype.h"
 #include "yal/ast/exprintegerliteral.h"
+#include "yal/ast/exprdecimalliteral.h"
 #include "yal/util/strconversions.h"
 #include "yal/ast/declmodule.h"
 #include <cstdlib>
@@ -136,6 +137,8 @@ namespace yal{
             return YAL_TOKEN_MUT;
         case Token::Reference:
             return YAL_TOKEN_REFERENCE;
+        case Token::Self:
+            return YAL_TOKEN_SELF;
         default:
             YAL_ASSERT_MESSAGE(false, "Shouldn't be reached!");
             return -1;
@@ -204,8 +207,8 @@ namespace yal{
         return m_status;
     }
 
-     void
-     Parser::logParseFailure()  {
+    void
+    Parser::logParseFailure()  {
         ByteStream& stream = m_lexer.getStream();
         const TokenInfo& ti = m_lexer.getLastToken();
         PrettyPrint::SourceErrorPrint(stream,
@@ -215,10 +218,10 @@ namespace yal{
         m_log.error("Syntax Error at line:% column:%\n",
                     ti.lineStart, ti.columnStart);
         m_status = Result::SyntaxError;
-     }
+    }
 
-     ExprIntegerLiteral*
-     Parser::newIntegerLiteral(const TokenInfo& ti) {
+    ExprIntegerLiteral*
+    Parser::newIntegerLiteral(const TokenInfo& ti) {
         const StringRef& str = ti.tokenStr;
         YAL_ASSERT(ti.token == Token::IntegerLiteral);
 
@@ -259,7 +262,6 @@ namespace yal{
             return newAstNode<ExprIntegerLiteral>(intType, value);
         }
 
-
         ByteStream& stream = m_lexer.getStream();
         PrettyPrint::SourceErrorPrint(stream,
                                       m_log,
@@ -270,15 +272,39 @@ namespace yal{
         m_log.error("%", "Value is not a valid integer literal.\n");
         m_status = Result::TypeError;
         return nullptr;
-     }
+    }
 
-     void
-     Parser::onAstNodeCreate(DeclModule* module) {
+
+    ExprDecimalLiteral*
+    Parser::newDecimalLiteral(const TokenInfo& ti) {
+        const StringRef& str = ti.tokenStr;
+        YAL_ASSERT(ti.token == Token::IntegerLiteral);
+
+        double value = 0;
+
+        if (StringRefToDecimal(value, str)) {
+            return newAstNode<ExprDecimalLiteral>(value);
+        }
+
+        ByteStream& stream = m_lexer.getStream();
+        PrettyPrint::SourceErrorPrint(stream,
+                                      m_log,
+                                      ti.lineStart,
+                                      ti.columnStart);
+        m_log.error("Decimal Literal error at line:% column:%\n",
+                    ti.lineStart, ti.columnStart);
+        m_log.error("%", "Value is not a valid decimal literal.\n");
+        m_status = Result::TypeError;
+        return nullptr;
+    }
+
+    void
+    Parser::onAstNodeCreate(DeclModule* module) {
         m_module.setRootNode(module);
-     }
+    }
 
-     void
-     Parser::onAstNodeCreate(DeclBase* declnode) {
+    void
+    Parser::onAstNodeCreate(DeclBase* declnode) {
         m_module.getRootAstNode()->addDecl(declnode);
-     }
+    }
 }

@@ -19,13 +19,14 @@ void YALParserTrace(FILE *TraceFILE,char *zTracePrompt);
 #define YALParserARG_STORE yypParser->pParser  = pParser 
 #define YALParserARG_FETCH  yal::Parser *pParser  = yypParser->pParser 
 #define YALParserARG_SDECL  yal::Parser *pParser ;
-#define YAL_TOKEN_BOOL_LITERAL                   54
-#define YAL_TOKEN_DECIMAL_LITERAL                53
-#define YAL_TOKEN_INTEGER_LITERAL                52
-#define YAL_TOKEN_LET                            51
-#define YAL_TOKEN_VAR                            50
-#define YAL_TOKEN_RETURN                         49
-#define YAL_TOKEN_COMMA                          48
+#define YAL_TOKEN_BOOL_LITERAL                   55
+#define YAL_TOKEN_DECIMAL_LITERAL                54
+#define YAL_TOKEN_INTEGER_LITERAL                53
+#define YAL_TOKEN_LET                            52
+#define YAL_TOKEN_VAR                            51
+#define YAL_TOKEN_RETURN                         50
+#define YAL_TOKEN_COMMA                          49
+#define YAL_TOKEN_SELF                           48
 #define YAL_TOKEN_PAR_END                        47
 #define YAL_TOKEN_PAR_BEGIN                      46
 #define YAL_TOKEN_FUNCTION                       45

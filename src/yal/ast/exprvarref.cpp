@@ -42,4 +42,13 @@ namespace yal {
     }
 
 
+    ExprVarRefSelf::ExprVarRefSelf(Module& module):
+        ExprVarRef(module, AstType::ExprVarRefSelf, "self") {
+
+    }
+
+    void
+    ExprVarRefSelf::acceptVisitor(AstVisitor& visitor) {
+        visitor.visit(*this);
+    }
 }

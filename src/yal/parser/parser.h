@@ -65,6 +65,8 @@ namespace yal {
 
         ExprIntegerLiteral* newIntegerLiteral(const TokenInfo& ti);
 
+        ExprDecimalLiteral* newDecimalLiteral(const TokenInfo& ti);
+
         void onAstNodeCreate(DeclModule* module);
 
         void onAstNodeCreate(DeclBase* declnode);

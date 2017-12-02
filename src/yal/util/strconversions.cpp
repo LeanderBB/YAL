@@ -94,5 +94,82 @@ namespace yal {
         return parsingStarted;
     }
 
+    bool StringRefToDecimal(double &out,
+                            const StringRef& ref) {
+        // TODO: Works for now, but is very incomplete!!
+        bool parsingStarted = false;
+        bool terminateLoop = false;
+        bool dotFound = false;
+        bool isNegative = false;
+        double frac = 1.0;
+        out = 0.0;
+        for (size_t i = 0; i < ref.size() && !terminateLoop; ++i) {
+            const char ch = ref[i];
 
+            switch (ch) {
+            case ' ':
+                if (!parsingStarted) {
+                    continue;
+                } else {
+                    terminateLoop = true;
+                }
+                break;
+            case '.':
+                dotFound = true;
+                break;
+            case '-':
+                isNegative = true;
+                continue;
+
+            case '0':
+            case '1':
+            case '2':
+            case '3':
+            case '4':
+            case '5':
+            case '6':
+            case '7':
+            case '8':
+            case '9': {
+                double result = static_cast<double>(ch - '0');
+                if (!dotFound) {
+                    double nextValue = result;
+                    if (parsingStarted) {
+                        nextValue  = (out * 10.0) + result;
+                        // detect overflow and invalid value
+                        if (nextValue < out) {
+                            return false;
+                        }
+                    }
+
+                    if (isNegative) {
+                        if (nextValue > std::abs(std::numeric_limits<double>::lowest())) {
+                            return false;
+                        }
+                    }
+
+                    if (parsingStarted) {
+                        out *= 10.0;
+                    }
+                    out += result;
+                    parsingStarted = true;
+                } else {
+                    frac /= 10;
+                    out += frac * result;
+                }
+                break;
+            }
+
+            default:
+                return false;
+            }
+        }
+
+        if (parsingStarted) {
+            if (isNegative) {
+                out *= -1.0;
+            }
+        }
+        return parsingStarted;
+    }
 }

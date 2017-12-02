@@ -22,24 +22,6 @@
 #include <gtest_utils.h>
 #include <yal/util/strconversions.h>
 
-/*
-127
--128
-255
-
--32768
-32767
-65535
-
--2147483648
-2147483647
-4294967295
-
--9223372036854775808
-9223372036854775807
-18446744073709551615
-*/
-
 TEST(StringConversion, int8Pos) {
     const yal::StringRef input ="127";
     uint64_t value = 0;
@@ -161,3 +143,23 @@ TEST(StringConversion, uint64) {
     EXPECT_EQ(value, std::numeric_limits<uint64_t>::max());
     EXPECT_EQ(isNegative, false);
 }
+
+
+TEST(StringConversion, doublePositive) {
+    const yal::StringRef input ="3.14534534345";
+    double value = 0;
+    const double expected = 3.14534534345;
+    const bool result = yal::StringRefToDecimal(value, input);
+    EXPECT_EQ(result, true);
+    EXPECT_EQ(value, expected);
+}
+
+TEST(StringConversion, doubleNegative) {
+    const yal::StringRef input ="-3.14534534345";
+    double value = 0;
+    const double expected = -3.14534534345;
+    const bool result = yal::StringRefToDecimal(value, input);
+    EXPECT_EQ(result, true);
+    EXPECT_EQ(value, expected);
+}
+

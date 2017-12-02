@@ -96,8 +96,7 @@ namespace yal {
 
 
     class Qualifier {
-    public:
-
+    public:        
         Qualifier();
 
         void setMutable();

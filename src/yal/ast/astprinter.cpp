@@ -37,6 +37,7 @@
 #include "yal/ast/exprstructvarref.h"
 #include "yal/ast/exprstructfncall.h"
 #include "yal/ast/exprlist.h"
+#include "yal/ast/exprdecimalliteral.h"
 
 namespace yal {
 
@@ -69,7 +70,8 @@ namespace yal {
 
     void
     AstPrinter::visit(DeclTypeFunction& node) {
-        print("DeclTypeFunction %\n", node.getName());
+        print("DeclTypeFunction %: static:%\n",
+              node.getName(), node.isStatic());
 
          bool hasStatmentList = node.getFunctionBody() != nullptr;
 
@@ -137,6 +139,22 @@ namespace yal {
         node.getVarType()->acceptVisitor(*this);
         scopeEnd();
     }
+
+    void
+    AstPrinter::visit(DeclParamVarSelf& node) {
+        print("DeclParamVarSelf");
+        printQualifier(node.getQualifier());
+        print();
+
+        scopeBegin();
+        if (node.getVarType() != nullptr) {
+            node.getVarType()->acceptVisitor(*this);
+        } else {
+            print("Self type not yet defined\n");
+        }
+        scopeEnd();
+    }
+
 
     void
     AstPrinter::visit(DeclParamVarContainer& node) {
@@ -235,6 +253,11 @@ namespace yal {
     }
 
     void
+    AstPrinter::visit(ExprVarRefSelf&) {
+        print("ExprVarRefSelf\n");
+    }
+
+    void
     AstPrinter::visit(ExprStructVarRef& node) {
         print("ExprStructVarRef %\n", node.getVariableName());
         scopeBegin();
@@ -282,7 +305,7 @@ namespace yal {
 
     void
     AstPrinter::visit(ExprDecimalLiteral&) {
-
+        print("ExprDecimalLiteral\n");
     }
 
     void

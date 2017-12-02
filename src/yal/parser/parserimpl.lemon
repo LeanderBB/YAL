@@ -97,6 +97,8 @@
 %type var_type_spec {yal::RefType*}
 %type named_decl {yal::StringRefPod}
 %type function_args_decl {yal::DeclParamVarContainer*}
+%type type_function_args_decl {yal::DeclParamVarContainer*}
+%type type_function_args_decl_other {yal::DeclParamVarContainer*}
 %type function_arg_decl {yal::DeclParamVar*}
 %type statement_list {yal::StatementList*}
 %type function_scope {yal::StatementList*}
@@ -110,8 +112,7 @@
 %type type_var_decl {yal::DeclVar*}
 %type type_var_decls {yal::DeclStructMembers*}
 %type function_call_args{yal::ExprList*}
-%type pre_qualifier {uint32_t}
-%type post_qualifier {uint32_t}
+%type qualifier {uint32_t}
 %type qualified_type {yal::RefType*}
 %start_symbol  module
 %token_type {yal::TokenInfo}
@@ -133,7 +134,7 @@ decls(A) ::=. {
         pParser->onAstNodeCreate(A);
      }
 
-// Type  specifiers
+// Type References  -----------------------------------------------------------
 
 type_specifier(A) ::= type_builtin(B). {A=B;}
 type_specifier(A) ::= type_array. {A = nullptr;}
@@ -141,15 +142,14 @@ type_specifier(A) ::= IDENTIFIER(B). {
         A = pParser->newAstNode<yal::RefTypeUnresolved>(B.tokenStr);
  }
 
-pre_qualifier(A)::= MUT. {A = yal::parser::kQualifierMutable;}
-pre_qualifier(A) ::=. {A = 0;}
-
-post_qualifier(A) ::= REFERENCE. {A = yal::parser::kQualifierReference;}
-post_qualifier(A) ::=. {A = 0;}
-
-qualified_type(A) ::= pre_qualifier(B) type_specifier(C) post_qualifier(D). {
-        const uint32_t qualifierFlags = B | D;
-        C->setQualifier(yal::parser::MakeQualifierFromFlags(qualifierFlags));
+qualifier(A)::=. {A = 0;}
+qualifier(A)::= MUT. {A = yal::parser::kQualifierMutable;}
+qualifier(A)::= REFERENCE. {A = yal::parser::kQualifierReference;}
+qualifier(A)::= MUT REFERENCE. {
+        A = yal::parser::kQualifierReference | yal::parser::kQualifierMutable;
+ }
+qualified_type(A) ::= qualifier(D) type_specifier(C). {
+        C->setQualifier(yal::parser::MakeQualifierFromFlags(D));
         A = C;
 }
 
@@ -189,7 +189,8 @@ type_builtin(A) ::= TYPE_DOUBLE. {
 
 type_array ::= type_builtin ARRAY_BEGIN ARRAY_END.
 
-// custom type declaration
+// Type Decl -----------------------------------------------------------------
+
 type_decl(A) ::= TYPE IDENTIFIER(B) COLON STRUCT SCOPE_BEGIN type_var_decls(C) SCOPE_END. {
      A = pParser->newAstNode<yal::DeclStruct>(B.tokenStr, C);
 }
@@ -210,7 +211,7 @@ type_var_decl(A) ::= IDENTIFIER(B) COLON qualified_type(C) ASSIGN expression(D) 
     A = pParser->newAstNode<yal::DeclVar>(B.tokenStr, yal::Qualifier(), C, D);
 }
 
-// Functions
+// Function decl --------------------------------------------------------------
 
 decl_function (A) ::= FUNCTION IDENTIFIER(B) PAR_BEGIN function_args_decl(D) PAR_END
         function_return_decl(C) function_scope(E). {
@@ -219,16 +220,46 @@ decl_function (A) ::= FUNCTION IDENTIFIER(B) PAR_BEGIN function_args_decl(D) PAR
 
 
 type_function_decl(A)::= FUNCTION type_specifier(B) COLON COLON IDENTIFIER(C)
-        PAR_BEGIN function_args_decl(E) PAR_END
+        PAR_BEGIN type_function_args_decl(E) PAR_END
         function_return_decl(D) function_scope(F). {
             A = pParser->newAstNode<yal::DeclTypeFunction>(C.tokenStr, E, B, D, F);
-        }
+        }        
 
+// Type function args decl ---------------------------------------------------
+
+type_function_args_decl(A) ::= qualifier(B) SELF. {
+        A = pParser->newAstNode<yal::DeclParamVarContainer>();
+        auto qualifier = yal::parser::MakeQualifierFromFlags(B);
+        A->addDeclParam(pParser->newAstNode<yal::DeclParamVarSelf>(qualifier));
+}
+
+type_function_args_decl(A) ::= qualifier(C) SELF COMMA type_function_args_decl_other(B). {
+    A = B;
+    auto qualifier = yal::parser::MakeQualifierFromFlags(C);
+    A->addDeclParam(pParser->newAstNode<yal::DeclParamVarSelf>(qualifier));
+}
+
+type_function_args_decl(A) ::= function_args_decl(B). {
+        A = B;
+}
+
+type_function_args_decl_other(A) ::= type_function_args_decl_other(B) COMMA function_arg_decl(C). {
+    A = B;
+    A->addDeclParam(C);
+}
+
+type_function_args_decl_other(A) ::= function_arg_decl(C). {
+        A = pParser->newAstNode<yal::DeclParamVarContainer>();
+        A->addDeclParam(C);
+}
+
+// Function args decl --------------------------------------------------------
 
 function_args_decl(A) ::= function_args_decl(B) COMMA function_arg_decl(C). {
         B->addDeclParam(C);
         A = B;
 }
+
 function_args_decl(A) ::= function_arg_decl(B). {
         A = pParser->newAstNode<yal::DeclParamVarContainer>();
         A->addDeclParam(B);
@@ -247,7 +278,7 @@ function_return_decl(A)::=. {A = nullptr;}
 function_scope(A)::= SCOPE_BEGIN SCOPE_END. { A = nullptr;}
 function_scope(A)::= SCOPE_BEGIN statement_list(B) SCOPE_END. {A = B;}
 
-// Statements
+// Statments -----------------------------------------------------------------
 statement_list(A) ::= statement_list(B) statement(C).{
     B->addStatement(C);
     A=B;
@@ -272,7 +303,7 @@ statement(A) ::= RETURN SEMI_COLON. {
     A = pParser->newAstNode<yal::StmtReturn>();
 }
 
-// Variable Decls
+// Var Decls -----------------------------------------------------------------
 
 var_decl(A) ::= VAR IDENTIFIER(B) var_type_spec(C) ASSIGN expression(D). {
     auto varDecl = pParser->newAstNode<yal::DeclVar>(B.tokenStr, yal::Qualifier(), C, D);
@@ -289,8 +320,7 @@ var_type_spec(A) ::= COLON qualified_type(B). {A = B;}
 var_type_spec(A)::=. {A = nullptr;}
 
 
-// Expressions
-
+// Expressions- --------------------------------------------------------------
 
 expression(A) ::= PAR_BEGIN expression(B) PAR_END. {A = B;}
 expression(A) ::= literal(B). {A = B;}
@@ -298,6 +328,9 @@ expression (A) ::= unaryexp(B). {A = B;}
 expression (A) ::= binaryexp(B). {A = B;}
 expression (A) ::= IDENTIFIER(B). {
     A = pParser->newAstNode<yal::ExprVarRef>(B.tokenStr);
+}
+expression (A) ::= SELF. {
+    A  = pParser->newAstNode<yal::ExprVarRefSelf>();
 }
 
 expression (A) ::= expression(B) DOT IDENTIFIER(C). {
@@ -313,6 +346,8 @@ expression(A) ::= expression(B) DOT IDENTIFIER(C) PAR_BEGIN function_call_args(D
     auto fnType = pParser->newAstNode<yal::RefTypeUnresolved>(C.tokenStr);
     A = pParser->newAstNode<yal::ExprStructFnCall>(B, fnType, D);
 }
+
+// Binary operators ----------------------------------------------------------
 
 binaryexp(A) ::= expression(B) AND expression(C). {
         A = pParser->newAstNode<yal::ExprBinaryOperator>(yal::BinaryOperatorType::And,
@@ -373,6 +408,8 @@ binaryexp(A) ::= expression(B) GT expression(C). {
                                                         B, C);
 }
 
+// Unary operators -----------------------------------------------------------
+
 unaryexp(A) ::= NOT expression(B). {
     A = pParser->newAstNode<yal::ExprUnaryOperator>(yal::UnaryOperatorType::Not,
                                                B);
@@ -386,7 +423,7 @@ unaryexp(A) ::= MINUS expression(B). [NEGATE] {
                                                B);
 }
 
-// Function call
+// Function call ------------------------------------------------------------
 
 function_call_args(A) ::= function_call_args(B) COMMA expression(C). {
     A = B;
@@ -400,7 +437,7 @@ function_call_args(A) ::=. {
     A= nullptr;
 }
 
-// Literals
+// Literals ------------------------------------------------------------------
 
 literal(A) ::= INTEGER_LITERAL(B). {
         A = pParser->newIntegerLiteral(B);

@@ -23,11 +23,20 @@
 #include "yal/ast/astvisitor.h"
 namespace yal {
 
+    DeclParamVar::DeclParamVar(Module& module,
+                               const AstType astType,
+                               StringRef name,
+                               const Qualifier qualifier,
+                               RefType* varType) :
+        DeclVar(module,astType, qualifier, name, varType){
+
+    }
+
     DeclParamVar::DeclParamVar(Module &module,
                                StringRef name,
                                const Qualifier qualifier,
                                RefType *varType):
-        DeclVar(module,AstType::DeclParamVar, qualifier, name, varType){
+        DeclParamVar(module,AstType::DeclParamVar,name, qualifier, varType){
 
     }
 
@@ -35,6 +44,23 @@ namespace yal {
     DeclParamVar::acceptVisitor(AstVisitor& visitor) {
         visitor.visit(*this);
     }
+
+
+    DeclParamVarSelf::DeclParamVarSelf(Module& module,
+                                       const Qualifier qualifier):
+        DeclParamVar(module,
+                     AstType::DeclParamVarSelf,
+                     "self",
+                     qualifier,
+                     nullptr) {
+
+    }
+
+    void
+    DeclParamVarSelf::acceptVisitor(AstVisitor& visitor) {
+        visitor.visit(*this);
+    }
+
 
     DeclParamVarContainer::DeclParamVarContainer(Module& module):
         BaseType(module){

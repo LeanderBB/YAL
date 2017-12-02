@@ -92,6 +92,7 @@ namespace yal
             "Comma",
             "Struct",
             "Mutable",
+            "Self",
             "Reference"
         };
 

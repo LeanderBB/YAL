@@ -192,6 +192,7 @@ namespace yal {
             TRUE = "true";
             FALSE= "false";
             RETURN= "return";
+            SELF ="self";
             AND = "and";
             OR = "or";
             NOT = "not";
@@ -253,6 +254,7 @@ namespace yal {
             NOT  { setToken(Token::Not, *m_lexerState); return Status::Ok; }
             THIS  { setToken(Token::This, *m_lexerState);return Status::Ok; }
             FN  { setToken(Token::Function, *m_lexerState);return Status::Ok; }
+            SELF  { setToken(Token::Self, *m_lexerState);return Status::Ok; }
             NEWLINE {m_lexerState->updateLineStartOffset(); continue;}
             TYPE_BOOL { setToken(Token::TypeBool, *m_lexerState); return Status::Ok;}
             TYPE_INT8 { setToken(Token::TypeInt8, *m_lexerState); return Status::Ok;}

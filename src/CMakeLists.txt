@@ -97,6 +97,8 @@ set(YAL_SOURCES
     yal/ast/exprstructfncall.cpp
     yal/ast/exprlist.h
     yal/ast/exprlist.cpp
+    yal/ast/exprdecimalliteral.cpp
+    yal/ast/exprdecimalliteral.h
 
     yal/io/memorystream.cpp
     yal/io/memorystream.h

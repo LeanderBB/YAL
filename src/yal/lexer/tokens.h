@@ -94,6 +94,7 @@ namespace yal
         Struct,
         Mutable,
         Reference,
+        Self,
         TokenCount
     };
 

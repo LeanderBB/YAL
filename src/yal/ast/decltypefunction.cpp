@@ -19,6 +19,7 @@
 #include "yal/ast/decltypefunction.h"
 #include "yal/ast/module.h"
 #include "yal/ast/astvisitor.h"
+#include "yal/ast/declparamvar.h"
 namespace yal {
 
     DeclTypeFunction::DeclTypeFunction(Module& module,
@@ -35,6 +36,15 @@ namespace yal {
                          body),
         m_targetType(destType){
 
+    }
+
+
+    bool
+    DeclTypeFunction::isStatic() const{
+        if (m_params != nullptr) {
+            return dyn_cast<DeclParamVarSelf>(*m_params->childBegin()) == nullptr;
+        }
+        return true;
     }
 
     void

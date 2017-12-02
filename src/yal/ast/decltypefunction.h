@@ -35,6 +35,8 @@ namespace yal {
             return m_targetType;
         }
 
+        bool isStatic() const;
+
         virtual void acceptVisitor(AstVisitor& visitor) override;
 
     protected:

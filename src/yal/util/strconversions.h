@@ -27,4 +27,8 @@ namespace yal {
                             const StringRef& ref,
                             bool &isNegative);
 
+    bool StringRefToDecimal(double &out,
+                            const StringRef& ref);
+
+
 }
