@@ -19,32 +19,15 @@
 
 #pragma once
 
-#include "yal/ast/asttypes.h"
-
 namespace yal {
+    class Log;
+    class Module;
 
-    class DeclModule;
-    class StatementList;
-    class DeclParamVarContainer;
-    class AstVisitor {
+    class CPassTypeRegistration {
     public:
 
-        virtual ~AstVisitor() {}
 
-#define YAL_AST_NODE_TYPE(type) virtual void visit(type&) {}
-#include "yal/ast/astnodes.def"
-#undef YAL_AST_NODE_TYPE
+        bool run(Log& log, Module& module);
 
-    };
-
-    class RecursiveAstVisitor : public AstVisitor {
-    public:
-
-        virtual void visit(DeclModule& node) override;
-
-        virtual void visit(StatementList& node) override;
-
-        virtual void visit(DeclParamVarContainer& node) override;
     };
 }
-

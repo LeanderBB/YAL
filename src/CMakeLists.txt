@@ -100,6 +100,9 @@ set(YAL_SOURCES
     yal/ast/exprdecimalliteral.cpp
     yal/ast/exprdecimalliteral.h
 
+    yal/compiler/cpasstyperegistration.cpp
+    yal/compiler/cpasstyperegistration.h
+
     yal/io/memorystream.cpp
     yal/io/memorystream.h
     yal/io/bytestream.cpp

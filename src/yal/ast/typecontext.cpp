@@ -19,6 +19,7 @@
 
 #include "yal/ast/typecontext.h"
 #include "yal/ast/typebuiltin.h"
+#include "yal/ast/identifier.h"
 namespace yal{
 
     TypeContext::TypeContext() {
@@ -102,28 +103,21 @@ namespace yal{
     }
 
     bool
-    TypeContext::hasType(const Type* type) const {
-        YAL_ASSERT(type != nullptr);
-        const auto it = m_types.find(type->getIdentifier().getAsString());
+    TypeContext::hasType(const Identifier& identifier) const {
+        const auto it = m_types.find(identifier.getAsString());
         return it != m_types.end();
     }
 
     void
     TypeContext::addType(std::unique_ptr<Type>&& type) {
-        YAL_ASSERT(!hasType(type.get()));
+        YAL_ASSERT(!hasType(type->getIdentifier()));
         m_types.insert(std::make_pair(type->getIdentifier().getAsString(),
                                       std::move(type)));
     }
 
-    const Type*
-    TypeContext::getByName(const char* name) const {
-        StringRef strRef(name);
-        return getByName(strRef);
-    }
-
      const Type*
-     TypeContext::getByName(const StringRef name) const{
-         const auto it = m_types.find(name);
+     TypeContext::getByIdentifier(const Identifier& identifier) const{
+         const auto it = m_types.find(identifier.getAsString());
          if(it != m_types.end()) {
              return it->second.get();
          } else {

@@ -20,6 +20,7 @@
 #include <memory>
 #include <yal/ast/module.h>
 #include "yal/lexer/tokens.h"
+#include "yal/io/sourcemanager.h"
 namespace yal {
     class Log;
     class Lexer;
@@ -60,7 +61,7 @@ namespace yal {
 
         template <typename T, typename... ARGS>
         T* newAstNode(ARGS&& ...args) {
-           return m_module.newASTNode<T>(std::forward<ARGS>(args)...);
+            return m_module.newASTNode<T>(std::forward<ARGS>(args)...);
         }
 
         ExprIntegerLiteral* newIntegerLiteral(const TokenInfo& ti);
@@ -70,6 +71,18 @@ namespace yal {
         void onAstNodeCreate(DeclModule* module);
 
         void onAstNodeCreate(DeclBase* declnode);
+
+        SourceInfo createSourceInfo(const TokenInfo& start,
+                                    const TokenInfo& end) const;
+
+        SourceInfo createSourceInfo(const TokenInfo& start,
+                                    const SourceInfo& end) const;
+
+        SourceInfo createSourceInfo(const SourceInfo& start,
+                                    const TokenInfo& end) const;
+
+        SourceInfo createSourceInfo(const SourceInfo& start,
+                                    const SourceInfo& end) const;
 
     private:
         std::unique_ptr<void, void(*)(void*)> m_parserImpl;

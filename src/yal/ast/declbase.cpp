@@ -20,6 +20,7 @@
 #include "yal/ast/declbase.h"
 #include "yal/ast/module.h"
 #include "yal/ast/astcontext.h"
+
 namespace yal{
 
     void* DeclBase::operator new(std::size_t bytes,
@@ -27,7 +28,6 @@ namespace yal{
         ASTContext& astctx = module.getASTContext();
         void* ptr = astctx.allocate(bytes);
         YAL_ASSERT_MESSAGE(ptr != nullptr, "DeclBase: Failed to allocate memory");
-        astctx.addNode(reinterpret_cast<DeclBase*>(ptr));
         return ptr;
     }
 
@@ -37,7 +37,8 @@ namespace yal{
         m_module(module),
         m_astType(type),
         m_sourceInfo() ,
-        m_name(name) {
+        m_name(name),
+        m_identifier(name, m_module){
 
     }
 

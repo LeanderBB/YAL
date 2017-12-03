@@ -49,7 +49,9 @@ namespace yal {
 
     void
     AstPrinter::visit(DeclFunction& node) {
-        print("DeclFunction %\n", node.getName());
+        print("DeclFunction ");
+        printSourceInfo(node.getSourceInfo());
+        printOnLine(" %\n", node.getName());
 
         bool hasStatmentList = node.getFunctionBody() != nullptr;
 
@@ -70,8 +72,9 @@ namespace yal {
 
     void
     AstPrinter::visit(DeclTypeFunction& node) {
-        print("DeclTypeFunction %: static:%\n",
-              node.getName(), node.isStatic());
+        print("DeclTypeFunction ");
+        printSourceInfo(node.getSourceInfo());
+        printOnLine(" % static:%\n", node.getName(), node.isStatic());
 
          bool hasStatmentList = node.getFunctionBody() != nullptr;
 
@@ -92,7 +95,9 @@ namespace yal {
 
     void
     AstPrinter::visit(DeclStruct& node) {
-        print("DeclStruct: %\n", node.getName());
+        print("DeclStruct ");
+        printSourceInfo(node.getSourceInfo());
+        printOnLine(" %\n", node.getName());
         if (node.getMembers() != nullptr) {
             scopeBegin();
             node.getMembers()->acceptVisitor(*this);
@@ -102,7 +107,9 @@ namespace yal {
 
     void
     AstPrinter::visit(DeclStructMembers& node) {
-        print("DeclStructMembers\n");
+        print("DeclStructMembers ");
+        printSourceInfo(node.getSourceInfo());
+        print();
         for (auto it = node.childBegin(); it != node.childEnd(); ++it) {
             scopeBegin(it + 1 == node.childEnd());
             (*it)->acceptVisitor(*this);
@@ -112,7 +119,9 @@ namespace yal {
 
     void
     AstPrinter::visit(DeclVar& node) {
-        print("DeclVar %\n", node.getName());
+        print("DeclVar ");
+        printSourceInfo(node.getSourceInfo());
+        printOnLine(" %\n", node.getName());
         if (node.getExpression() != nullptr) {
             scopeBegin();
             node.getExpression()->acceptVisitor(*this);
@@ -134,7 +143,9 @@ namespace yal {
 
     void
     AstPrinter::visit(DeclParamVar& node) {
-        print("DeclParamVar %\n", node.getName());
+        print("DeclParamVar  ");
+        printSourceInfo(node.getSourceInfo());
+        printOnLine(" %\n", node.getName());
         scopeBegin();
         node.getVarType()->acceptVisitor(*this);
         scopeEnd();
@@ -142,7 +153,8 @@ namespace yal {
 
     void
     AstPrinter::visit(DeclParamVarSelf& node) {
-        print("DeclParamVarSelf");
+        print("DeclParamVarSelf ");
+        printSourceInfo(node.getSourceInfo());
         printQualifier(node.getQualifier());
         print();
 
@@ -158,7 +170,9 @@ namespace yal {
 
     void
     AstPrinter::visit(DeclParamVarContainer& node) {
-        print("DeclParamVarContainer\n");
+        print("DeclParamVarContainer ");
+        printSourceInfo(node.getSourceInfo());
+        print();
         for (auto it = node.childBegin(); it != node.childEnd(); ++it) {
             scopeBegin(it + 1 == node.childEnd());
             (*it)->acceptVisitor(*this);
@@ -168,7 +182,9 @@ namespace yal {
 
     void
     AstPrinter::visit(ExprList& node) {
-        print("ExprList\n");
+        print("ExprList ");
+        printSourceInfo(node.getSourceInfo());
+        print();
         for (auto it = node.childBegin(); it != node.childEnd(); ++it) {
             scopeBegin(it + 1 == node.childEnd());
             (*it)->acceptVisitor(*this);
@@ -188,21 +204,27 @@ namespace yal {
 
     void
     AstPrinter::visit(RefTypeResolved& node) {
-        print("RefTypeResolved %", node.getResolvedType()->getName());
+        print("RefTypeResolved  ");
+        printSourceInfo(node.getSourceInfo());
+        printOnLine (" %", node.getResolvedType()->getName());
         printQualifier(node.getQualifier());
         print();
     }
 
     void
     AstPrinter::visit(RefTypeUnresolved& node) {
-        print("RefTypeUnresolved %", node.getTypeName());
+        print("RefTypeUnresolved ");
+        printSourceInfo(node.getSourceInfo());
+        printOnLine(" %", node.getTypeName());
         printQualifier(node.getQualifier());
         print();
     }
 
     void
     AstPrinter::visit(StatementList& node) {
-        print("StatementList\n");
+        print("StatementList ");
+        printSourceInfo(node.getSourceInfo());
+        print();
 
         for (auto it = node.childBegin(); it != node.childEnd(); ++it) {
             scopeBegin(it + 1 == node.childEnd());
@@ -214,7 +236,9 @@ namespace yal {
 
     void
     AstPrinter::visit(StmtReturn& node) {
-        print("StmtReturn\n");
+        print("StmtReturn ");
+        printSourceInfo(node.getSourceInfo());
+        print();
         if (node.hasReturnExpression()) {
             scopeBegin();
             node.getExpression()->acceptVisitor(*this);
@@ -224,7 +248,9 @@ namespace yal {
 
     void
     AstPrinter::visit(StmtDecl& node) {
-        print("StmtDecl\n");
+        print("StmtDecl ");
+        printSourceInfo(node.getSourceInfo());
+        print();
         scopeBegin();
         {
             node.getDecl()->acceptVisitor(*this);
@@ -234,7 +260,9 @@ namespace yal {
 
     void
     AstPrinter::visit(StmtAssign& node) {
-        print("StmtAssign\n");
+        print("StmtAssign ");
+        printSourceInfo(node.getSourceInfo());
+        print();
         scopeBegin(false);
         {
             node.getDestExpr()->acceptVisitor(*this);
@@ -249,17 +277,23 @@ namespace yal {
 
     void
     AstPrinter::visit(ExprVarRef& node) {
-        print("ExprVarRef %\n", node.getVariableName());
+        print("ExprVarRef ");
+        printSourceInfo(node.getSourceInfo());
+        printOnLine(" %\n", node.getVariableName());
     }
 
     void
-    AstPrinter::visit(ExprVarRefSelf&) {
-        print("ExprVarRefSelf\n");
+    AstPrinter::visit(ExprVarRefSelf& node) {
+        print("ExprVarRefSelf ");
+        printSourceInfo(node.getSourceInfo());
+        print();
     }
 
     void
     AstPrinter::visit(ExprStructVarRef& node) {
-        print("ExprStructVarRef %\n", node.getVariableName());
+        print("ExprStructVarRef ");
+        printSourceInfo(node.getSourceInfo());
+        printOnLine (" %\n", node.getVariableName());
         scopeBegin();
         {
             node.getExpression()->acceptVisitor(*this);
@@ -279,7 +313,9 @@ namespace yal {
 
     void
     AstPrinter::visit(ExprBinaryOperator& node) {
-        print("ExpBinaryOperator\n");
+        print("ExpBinaryOperator ");
+        printSourceInfo(node.getSourceInfo());
+        print();
         {
             scopeBegin(false);
             node.getExpressionLeft()->acceptVisitor(*this);
@@ -294,23 +330,30 @@ namespace yal {
 
     void
     AstPrinter::visit(ExprBoolLiteral& node) {
-        print("ExprBoolLiteral %\n", node.getLiteralValue());
+        print("ExprBoolLiteral ");
+        printSourceInfo(node.getSourceInfo());
+        printOnLine(" %\n", node.getLiteralValue());
     }
 
     void
     AstPrinter::visit(ExprIntegerLiteral& node) {
-        (void) node;
-        print("ExprIntegerLiteral\n");
+        print("ExprIntegerLiteral ");
+        printSourceInfo(node.getSourceInfo());
+        print();
     }
 
     void
-    AstPrinter::visit(ExprDecimalLiteral&) {
-        print("ExprDecimalLiteral\n");
+    AstPrinter::visit(ExprDecimalLiteral& node) {
+        print("ExprDecimalLiteral ");
+        printSourceInfo(node.getSourceInfo());
+        print();
     }
 
     void
     AstPrinter::visit(ExprFnCall& node) {
-        print("ExprFnCall\n");
+        print("ExprFnCall ");
+        printSourceInfo(node.getSourceInfo());
+        print();
         const bool hasFunctionArgs = node.getFunctionArgs() != nullptr;
         scopeBegin(!hasFunctionArgs);
         node.getFunctionType()->acceptVisitor(*this);
@@ -324,7 +367,9 @@ namespace yal {
 
     void
     AstPrinter::visit(ExprStructFnCall& node) {
-        print("ExprStructFnCall\n");
+        print("ExprStructFnCall ");
+        printSourceInfo(node.getSourceInfo());
+        print();
         scopeBegin();
         node.getExpression()->acceptVisitor(*this);
         scopeEnd();
@@ -390,5 +435,14 @@ namespace yal {
         if (qualifier.isReference()) {
             printOnLine(" &");
         }
+    }
+
+    void
+    AstPrinter::printSourceInfo(const SourceInfo& info) {
+        printOnLine("<l:% c:% - l:% c:%>",
+                    info.begin.line,
+                    info.begin.column,
+                    info.end.line,
+                    info.end.column);
     }
 }

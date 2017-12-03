@@ -122,9 +122,6 @@ namespace yal {
         static QualType Create(const Qualifier& qualifier,
                                const Type* type);
 
-
-
-
         bool isValid() const {
             return  m_type != nullptr;
         }

@@ -22,7 +22,7 @@
 #include "yal/util/format.h"
 #include <vector>
 namespace yal {
-
+    struct SourceInfo;
     class ByteStream;
     class Qualifier;
     class AstPrinter : public AstVisitor {
@@ -61,6 +61,8 @@ namespace yal {
 
     private:
         void printQualifier(const Qualifier& qualifier);
+
+        void printSourceInfo(const SourceInfo& info);
 
     private:
         ByteStream& m_stream;

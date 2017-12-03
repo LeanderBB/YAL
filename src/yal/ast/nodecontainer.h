@@ -22,6 +22,7 @@
 #include "yal/ast/asttypes.h"
 #include "yal/ast/astcontext.h"
 #include "yal/ast/module.h"
+#include "yal/io/sourcemanager.h"
 #include <vector>
 #include <type_traits>
 
@@ -69,16 +70,45 @@ namespace yal {
             return TYPE;
         }
 
-        typename ContainerType::iterator childBegin() {
-            return m_nodes.begin();
+        typename ContainerType::reverse_iterator childBegin() {
+            return m_nodes.rbegin();
         }
 
-        typename ContainerType::iterator childEnd() {
-            return m_nodes.end();
+        typename ContainerType::reverse_iterator childEnd() {
+            return m_nodes.rend();
+        }
+
+        const SourceInfo& getSourceInfo() const {
+            return m_sourceInfo;
+        }
+
+        SourceInfo& getSourceInfo() {
+            return const_cast<SourceInfo&>(
+                        static_cast<const ThisType*>(this)->getSourceInfo());
+        }
+
+        void setSourceInfo(const SourceInfo& sourceInfo) {
+            m_sourceInfo = sourceInfo;
+        }
+
+        void updateSourceInfo() {
+            if (m_nodes.size() == 1) {
+                m_sourceInfo = m_nodes[0]->getSourceInfo();
+            } else {
+                auto back = m_nodes.front()->getSourceInfo();
+                auto front = m_nodes.back()->getSourceInfo();
+                m_sourceInfo.begin.line = front.begin.line;
+                m_sourceInfo.begin.column = front.begin.column;
+                m_sourceInfo.begin.streamOffset = front.begin.streamOffset;
+                m_sourceInfo.end.line = back.end.line;
+                m_sourceInfo.end.column = back.end.column;
+                m_sourceInfo.end.streamOffset = back.end.streamOffset;
+            }
         }
 
     protected:
         ContainerType m_nodes;
+        SourceInfo m_sourceInfo;
     };
 
 }

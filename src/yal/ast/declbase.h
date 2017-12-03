@@ -23,6 +23,7 @@
 #include "yal/io/sourcemanager.h"
 #include "yal/util/cast.h"
 #include "yal/util/stringref.h"
+#include "yal/ast/identifier.h"
 namespace yal{
 
     class Module;
@@ -59,8 +60,12 @@ namespace yal{
             return m_astType;
         }
 
-        const StringRef getName() const {
+        StringRef getName() const {
             return m_name;
+        }
+
+        const Identifier& getIdentifier() const {
+            return m_identifier;
         }
 
         Module& getModule() {
@@ -78,6 +83,7 @@ namespace yal{
         const AstType m_astType;
         SourceInfo m_sourceInfo;
         StringRef m_name;
+        Identifier m_identifier;
     };
 
     template<>

@@ -29,6 +29,9 @@ namespace yal {
     class ASTContext {
     public:
 
+        using DeclBaseList = std::vector<DeclBase*>;
+        using DeclModuleList = std::vector<DeclModule*>;
+
         ASTContext();
 
         YAL_MOVE_ONLY_CLASS(ASTContext);
@@ -42,9 +45,26 @@ namespace yal {
         void addNode(DeclBase* node);
 
         void addNode(DeclModule* node);
+
+        DeclBaseList& getDeclNodes() {
+            return m_declNodes;
+        }
+
+        const DeclBaseList& getDeclNodes() const{
+            return m_declNodes;
+        }
+
+        DeclModuleList& getDeclModules() {
+            return m_moduleNodes;
+        }
+
+        const DeclModuleList& getDeclModules() const {
+            return m_moduleNodes;
+        }
+
     private:
         AllocatorStack m_allocator;
-        std::vector<DeclBase*> m_declNodes;
-        std::vector<DeclModule*> m_moduleNodes;
+        DeclBaseList m_declNodes;
+        DeclModuleList m_moduleNodes;
     };
 }

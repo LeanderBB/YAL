@@ -29,6 +29,7 @@
 #include <yal/io/sourcemanager.h>
 #include <yal/ast/astprinter.h>
 #include <yal/ast/astcontext.h>
+#include <yal/compiler/cpasstyperegistration.h>
 int main(const int argc,
          const char** argv) {
 
@@ -72,6 +73,9 @@ int main(const int argc,
     if (result == yal::Parser::Result::Ok) {
         yal::AstPrinter astPrinter(stdoutStream);
         astPrinter.visit(*module->getRootAstNode());
+
+        yal::CPassTypeRegistration typeRegPass;
+        typeRegPass.run(log, *module);
     }
 
     return result == yal::Parser::Result::Ok  ? EXIT_SUCCESS : EXIT_FAILURE;

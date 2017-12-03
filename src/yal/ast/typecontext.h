@@ -16,7 +16,7 @@
  *  You should have received a copy of the GNU Lesser General Public
  *  License along with YAL. If not, see <http://www.gnu.org/licenses/>.
  */
-
+#pragma once
 #include <yal/yal.h>
 #include <unordered_map>
 #include <string>
@@ -26,18 +26,17 @@ namespace yal {
 
     class Type;
     class TypeBuiltin;
+    class Identifier;
     class TypeContext {
     public:
 
         TypeContext();
 
-        bool hasType(const Type* type) const;
+        bool hasType(const Identifier& identifier) const;
 
         void addType(std::unique_ptr<Type>&& type);
 
-        const Type* getByName(const char* name) const;
-
-        const Type* getByName(const StringRef name) const;
+        const Type* getByIdentifier(const Identifier& identifier) const;
 
         const TypeBuiltin* getTypeBuiltinBool() const {
             return m_typeBool;

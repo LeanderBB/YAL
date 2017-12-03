@@ -307,4 +307,59 @@ namespace yal{
     Parser::onAstNodeCreate(DeclBase* declnode) {
         m_module.getRootAstNode()->addDecl(declnode);
     }
+
+    SourceInfo
+    Parser::createSourceInfo(const TokenInfo& start,
+                             const TokenInfo& end) const{
+        SourceInfo srcInfo;
+        srcInfo.begin.line = start.lineStart;
+        srcInfo.begin.column = start.columnStart;
+        srcInfo.begin.streamOffset = start.tokenOffsetInStream;
+        srcInfo.end.line = end.lineEnd;
+        srcInfo.end.column = end.columnEnd;
+        srcInfo.end.streamOffset = end.tokenOffsetInStream + end.tokenStr.size;
+        srcInfo.handle = m_module.getSourceHandle();
+        return srcInfo;
+    }
+
+    SourceInfo
+    Parser::createSourceInfo(const TokenInfo& start,
+                             const SourceInfo& end) const {
+        SourceInfo srcInfo;
+        srcInfo.begin.line = start.lineStart;
+        srcInfo.begin.column = start.columnStart;
+        srcInfo.begin.streamOffset = start.tokenOffsetInStream;
+        srcInfo.end.line = end.end.line;
+        srcInfo.end.column = end.end.column;
+        srcInfo.end.streamOffset = end.end.streamOffset;
+        srcInfo.handle = m_module.getSourceHandle();
+        return srcInfo;
+    }
+
+    SourceInfo
+    Parser::createSourceInfo(const SourceInfo& start,
+                             const TokenInfo& end) const {
+        SourceInfo srcInfo;
+        srcInfo.begin.line = start.begin.line;
+        srcInfo.begin.column = start.begin.column;
+        srcInfo.begin.streamOffset = start.begin.streamOffset;
+        srcInfo.end.line = end.lineEnd;
+        srcInfo.end.column = end.columnEnd;
+        srcInfo.end.streamOffset = end.tokenOffsetInStream + end.tokenStr.size;
+        srcInfo.handle = m_module.getSourceHandle();
+        return srcInfo;
+    }
+
+    SourceInfo
+    Parser::createSourceInfo(const SourceInfo& start,
+                             const SourceInfo& end) const{
+        SourceInfo srcInfo;
+        srcInfo.begin.line = start.begin.line;
+        srcInfo.begin.column = start.begin.column;
+        srcInfo.begin.streamOffset = start.begin.streamOffset;
+        srcInfo.end.line = end.end.line;
+        srcInfo.end.column = end.end.column;
+        srcInfo.end.streamOffset = end.end.streamOffset;
+        return srcInfo;
+    }
 }
