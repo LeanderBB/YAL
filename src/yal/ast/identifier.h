@@ -27,6 +27,8 @@ namespace yal {
     {
     public:
 
+        Identifier();
+
         Identifier(StringRef idString,
                    const Module& module);
 
@@ -42,6 +44,9 @@ namespace yal {
 
         void setIdString(StringRef idString,
                          const Module& module);
+
+        bool operator == (const Identifier& other) const;
+        bool operator != (const Identifier& other) const;
 
     private:
         std::string m_idString;

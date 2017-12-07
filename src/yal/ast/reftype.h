@@ -18,16 +18,55 @@
  */
 
 #pragma once
-#include "yal/ast/refbase.h"
-
+#include "yal/ast/asttypes.h"
+#include "yal/io/sourcemanager.h"
+#include "yal/ast/identifier.h"
+#include "yal/ast/type.h"
 namespace yal {
 
-    class RefType : public RefBase
-    {
+    class Module;
+    class AstVisitor;
+
+    class RefType {
     public:
+
+        static void* operator new(std::size_t bytes,
+                                  Module& ctx);
+
         RefType(Module& module,
-                const AstType astType,
-                const Qualifier qualifier);
+                const StringRef identifier);
+
+        RefType(Module& module,
+                const Identifier& identifier);
+
+        RefType(Module& module,
+                const Type* resolvedType);
+
+        RefType(Module& module,
+                const Qualifier qualifier,
+                const Identifier& identifier);
+
+        RefType(Module& module,
+                const Qualifier qualifier,
+                const Type* resolvedType);
+
+        ~RefType();
+
+        AstType getAstType() const {
+            return AstType::RefType;
+        }
+
+        const SourceInfo& getSourceInfo() const {
+            return m_sourceInfo;
+        }
+
+        SourceInfo& getSourceInfo() {
+            return const_cast<SourceInfo&>(
+                        static_cast<const RefType*>(this)->getSourceInfo());
+        }
+
+        void setSourceInfo(const SourceInfo& sourceInfo);
+
 
         Qualifier getQualifier() const {
             return m_qualifier;
@@ -35,49 +74,29 @@ namespace yal {
 
         void setQualifier(const Qualifier qualifier);
 
-    private:
-        Qualifier m_qualifier;
-    };
-
-
-    class RefTypeUnresolved : public RefType {
-    public:
-
-        RefTypeUnresolved(Module& module,
-                          const Qualifier qualifier,
-                          const StringRef& typeName);
-
-        RefTypeUnresolved(Module& module,
-                          const StringRef& typeName);
-
-        StringRef getTypeName() const {
-            return m_typeName;
+        bool isResolved() const {
+            return m_resolvedType != nullptr;
         }
-
-        virtual void acceptVisitor(AstVisitor& visitor) override;
-
-    private:
-        StringRef m_typeName;
-    };
-
-
-    class RefTypeResolved : public RefType {
-    public:
-
-        RefTypeResolved(Module& module,
-                        const Qualifier qualifier,
-                        const Type* resolvedType);
-
-        RefTypeResolved(Module& module,
-                        const Type* resolvedType);
 
         const Type* getResolvedType() const {
             return m_resolvedType;
         }
 
-        virtual void acceptVisitor(AstVisitor& visitor) override;
+        Identifier getIdentitfier() const;
 
-    private:
+        void acceptVisitor(AstVisitor& visitor);
+
+    protected:
+        Module& m_module;
+        SourceInfo m_sourceInfo;
+        Qualifier m_qualifier;
+        Identifier m_identifier;
         const Type* m_resolvedType;
     };
+
+    inline AstType get_typeid(const RefType& ref) {
+        return ref.getAstType();
+    }
+
+
 }

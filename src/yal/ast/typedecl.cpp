@@ -16,28 +16,31 @@
  *  You should have received a copy of the GNU Lesser General Public
  *  License along with YAL. If not, see <http://www.gnu.org/licenses/>.
  */
-#pragma once
+#include "yal/ast/typedecl.h"
+#include "yal/ast/declbase.h"
+#include "yal/ast/decltypefunction.h"
+#include "yal/ast/declstruct.h"
+#include "yal/ast/declfunction.h"
+namespace yal {
 
-#include "yal/ast/type.h"
+    TypeDecl::TypeDecl(DeclFunction* decl):
+        Type(&decl->getModule(), Kind::TypeDecl, decl->getIdentifier()),
+        m_decl(decl) {
+        m_function = 1;
+    }
 
-namespace yal{
-class DeclFunction;
-class TypeFunction : public Type
-{
-public:
-    TypeFunction(const Module* module,
-                 const DeclFunction* functionDecl);
+    TypeDecl::TypeDecl(DeclTypeFunction* decl):
+        Type(&decl->getModule(), Kind::TypeDecl, decl->getIdentifier()),
+        m_decl(decl) {
+        m_typefunction = 1;
+    }
 
-    const DeclFunction* getDeclFunction() const;
+    TypeDecl::TypeDecl(DeclStruct* decl):
+        Type(&decl->getModule(), Kind::TypeDecl, decl->getIdentifier()),
+        m_decl(decl) {
+        m_struct = 1;
 
-    QualType getReturnType() const;
 
-    bool hasFunctionArguments() const;
-
-    bool hasReturnValue() const;
-
-protected:
-
-};
+    }
 
 }

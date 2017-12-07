@@ -87,6 +87,9 @@ namespace yal {
         template <typename T, typename... ARGS>
         T* newASTNode(ARGS&& ...args) {
             auto newNode = new(*this) T(*this, std::forward<ARGS>(args)...);
+            m_astContext.addDtor(newNode, [](void* ptr){
+                reinterpret_cast<T*>(ptr)->~T();
+            });
             return newNode;
         }
 

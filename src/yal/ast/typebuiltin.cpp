@@ -27,47 +27,47 @@ namespace yal {
 
         switch(m_builtinType) {
         case DataType::Boolean:
-            m_name = "boolean";
+            m_identifier.setIdString("boolean");
             m_sizeBytes = 1;
             break;
         case DataType::Int8:
-            m_name = "i8";
+            m_identifier.setIdString("i8");
             m_sizeBytes = 1;
             break;
         case DataType::UInt8:
-            m_name = "u8";
+            m_identifier.setIdString("u8");
             m_sizeBytes = 1;
             break;
         case DataType::Int16:
-            m_name = "i16";
+            m_identifier.setIdString("i16");
             m_sizeBytes = 2;
             break;
         case DataType::UInt16:
-            m_name = "u16";
+            m_identifier.setIdString("u16");
             m_sizeBytes = 1;
             break;
         case DataType::Int32:
-            m_name = "i32";
+            m_identifier.setIdString("i32");
             m_sizeBytes = 4;
             break;
         case DataType::UInt32:
-            m_name = "u32";
+            m_identifier.setIdString("u32");
             m_sizeBytes = 4;
             break;
         case DataType::Int64:
-            m_name = "i64";
+            m_identifier.setIdString("i64");
             m_sizeBytes = 8;
             break;
         case DataType::UInt64:
-            m_name = "u64";
+            m_identifier.setIdString("u64");
             m_sizeBytes = 8;
             break;
         case DataType::Float:
-            m_name = "float";
+            m_identifier.setIdString("float");
             m_sizeBytes = 4;
             break;
         case DataType::Double:
-            m_name = "double";
+            m_identifier.setIdString("double");
             m_sizeBytes = 8;
             break;
         default:
@@ -76,9 +76,9 @@ namespace yal {
             break;
         }
 
-        m_identifier.setIdString(m_name);
         m_defined = 1;
         m_trivialCopy = 1;
+        m_functionTargetable = 1;
     }
 
 

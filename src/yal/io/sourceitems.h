@@ -25,7 +25,13 @@ namespace yal {
     class SourceItemFile : public SourceItem {
     public:
 
+        SourceItemFile() = default;
+        ~SourceItemFile() = default;
+
         bool open(const char* path);
+
+        bool open(FileStream& stream,
+                  const char* path);
 
         const MemoryStream &getByteStream() const override;
 

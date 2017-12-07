@@ -20,7 +20,8 @@
 #include "yal/util/prettyprint.h"
 #include "yal/io/bytestream.h"
 #include "yal/util/log.h"
-
+#include "yal/io/sourcemanager.h"
+#include "yal/io/memorystream.h"
 namespace yal {
 
     void
@@ -40,4 +41,16 @@ namespace yal {
         }
     }
 
+
+    void
+    PrettyPrint::SourceErrorPrint( Log& log,
+                                   const SourceInfo& info,
+                                   const SourceManager &manager) {
+        SourceItem* item =  manager.getItem(info.handle);
+        if (item != nullptr) {
+            SourceErrorPrint(item->getByteStream(),
+                             log,
+                             info.begin.line, info.begin.column);
+        }
+    }
 }

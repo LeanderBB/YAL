@@ -25,8 +25,6 @@
  */
 
 YAL_AST_TYPE(TypeBuiltin)
-YAL_AST_TYPE(TypeFunction)
-YAL_AST_TYPE(TypeFunctionType)
-YAL_AST_TYPE(TypeStruct)
+YAL_AST_TYPE(TypeDecl)
 YAL_AST_TYPE(TypeAliasStrong)
 YAL_AST_TYPE(TypeAliasWeak)

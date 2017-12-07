@@ -88,7 +88,7 @@
 %right NOT.
 %right DOT.
 
-%type type_builtin {yal::RefTypeResolved*}
+%type type_builtin {yal::RefType*}
 %type decl_function {yal::DeclFunction*}
 %type type_function_decl {yal::DeclTypeFunction*}
 %type decls {yal::DeclModule*}
@@ -140,7 +140,7 @@ decls(A) ::=. {
 type_specifier(A) ::= type_builtin(B). {A=B;}
 type_specifier(A) ::= type_array. {A = nullptr;}
 type_specifier(A) ::= IDENTIFIER(B). {
-        A = pParser->newAstNode<yal::RefTypeUnresolved>(B.tokenStr);
+        A = pParser->newAstNode<yal::RefType>(B.tokenStr);
         auto srcInfo = pParser->createSourceInfo(B, B);
         A->setSourceInfo(srcInfo);
  }
@@ -157,37 +157,37 @@ qualified_type(A) ::= qualifier(D) type_specifier(C). {
 }
 
 type_builtin(A) ::= TYPE_BOOL. {
-        A = pParser->newAstNode<yal::RefTypeResolved>(pParser->getModule().getTypeContext().getTypeBuiltinBool());
+        A = pParser->newAstNode<yal::RefType>(pParser->getModule().getTypeContext().getTypeBuiltinBool());
         }
 type_builtin(A) ::= TYPE_INT8. {
-        A = pParser->newAstNode<yal::RefTypeResolved>(pParser->getModule().getTypeContext().getTypeBuiltinI8());
+        A = pParser->newAstNode<yal::RefType>(pParser->getModule().getTypeContext().getTypeBuiltinI8());
         }
 type_builtin(A) ::= TYPE_UINT8. {
-        A  = pParser->newAstNode<yal::RefTypeResolved>(pParser->getModule().getTypeContext().getTypeBuiltinU8());
+        A  = pParser->newAstNode<yal::RefType>(pParser->getModule().getTypeContext().getTypeBuiltinU8());
         }
 type_builtin(A) ::= TYPE_INT16. {
-        A = pParser->newAstNode<yal::RefTypeResolved>(pParser->getModule().getTypeContext().getTypeBuiltinI16());
+        A = pParser->newAstNode<yal::RefType>(pParser->getModule().getTypeContext().getTypeBuiltinI16());
         }
 type_builtin(A) ::= TYPE_UINT16. {
-        A  = pParser->newAstNode<yal::RefTypeResolved>(pParser->getModule().getTypeContext().getTypeBuiltinU16());
+        A  = pParser->newAstNode<yal::RefType>(pParser->getModule().getTypeContext().getTypeBuiltinU16());
         }
 type_builtin(A) ::= TYPE_INT32. {
-        A = pParser->newAstNode<yal::RefTypeResolved>(pParser->getModule().getTypeContext().getTypeBuiltinI32());
+        A = pParser->newAstNode<yal::RefType>(pParser->getModule().getTypeContext().getTypeBuiltinI32());
         }
 type_builtin(A) ::= TYPE_UINT32. {
-        A = pParser->newAstNode<yal::RefTypeResolved>(pParser->getModule().getTypeContext().getTypeBuiltinU32());
+        A = pParser->newAstNode<yal::RefType>(pParser->getModule().getTypeContext().getTypeBuiltinU32());
         }
 type_builtin(A) ::= TYPE_INT64. {
-        A = pParser->newAstNode<yal::RefTypeResolved>(pParser->getModule().getTypeContext().getTypeBuiltinI64());
+        A = pParser->newAstNode<yal::RefType>(pParser->getModule().getTypeContext().getTypeBuiltinI64());
         }
 type_builtin(A) ::= TYPE_UINT64. {
-        A = pParser->newAstNode<yal::RefTypeResolved>(pParser->getModule().getTypeContext().getTypeBuiltinU64());
+        A = pParser->newAstNode<yal::RefType>(pParser->getModule().getTypeContext().getTypeBuiltinU64());
         }
 type_builtin(A) ::= TYPE_FLOAT. {
-        A = pParser->newAstNode<yal::RefTypeResolved>(pParser->getModule().getTypeContext().getTypeBuiltinFloat());
+        A = pParser->newAstNode<yal::RefType>(pParser->getModule().getTypeContext().getTypeBuiltinFloat());
         }
 type_builtin(A) ::= TYPE_DOUBLE. {
-        A = pParser->newAstNode<yal::RefTypeResolved>(pParser->getModule().getTypeContext().getTypeBuiltinDouble());
+        A = pParser->newAstNode<yal::RefType>(pParser->getModule().getTypeContext().getTypeBuiltinDouble());
         }
 
 type_array ::= type_builtin ARRAY_BEGIN ARRAY_END.
@@ -247,7 +247,7 @@ decl_function (A) ::= FUNCTION(X) IDENTIFIER(B) PAR_BEGIN function_args_decl(D) 
 type_function_decl(A)::= FUNCTION(X) type_specifier(B) COLON COLON IDENTIFIER(C)
         PAR_BEGIN type_function_args_decl(E) PAR_END(Z)
         function_return_decl(D) function_scope(F). {
-            A = pParser->newAstNode<yal::DeclTypeFunction>(C.tokenStr, E, B, D, F);
+            A = pParser->newAstNode<yal::DeclTypeFunction>(C.tokenStr, E, D, B, F);
         if (E != nullptr) {
             E->updateSourceInfo();
         }
@@ -407,7 +407,7 @@ expression (A) ::= expression(B) DOT IDENTIFIER(C). {
 }
 
 expression(A) ::= IDENTIFIER(C) PAR_BEGIN function_call_args(D) PAR_END(Z). {
-    auto fnType = pParser->newAstNode<yal::RefTypeUnresolved>(C.tokenStr);
+    auto fnType = pParser->newAstNode<yal::RefType>(C.tokenStr);
     auto fnSrcInfo = pParser->createSourceInfo(C, C);
     fnType->setSourceInfo(fnSrcInfo);
     if (D != nullptr) {
@@ -419,7 +419,7 @@ expression(A) ::= IDENTIFIER(C) PAR_BEGIN function_call_args(D) PAR_END(Z). {
 }
 
 expression(A) ::= expression(B) DOT IDENTIFIER(C) PAR_BEGIN function_call_args(D) PAR_END(Z). {
-    auto fnType = pParser->newAstNode<yal::RefTypeUnresolved>(C.tokenStr);
+    auto fnType = pParser->newAstNode<yal::RefType>(C.tokenStr);
     auto fnSrcInfo = pParser->createSourceInfo(C, C);
     fnType->setSourceInfo(fnSrcInfo);
     if (D != nullptr) {

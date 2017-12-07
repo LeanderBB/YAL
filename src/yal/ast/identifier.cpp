@@ -38,6 +38,11 @@ namespace yal {
     }
 
 
+
+    Identifier::Identifier() {
+
+    }
+
     Identifier::Identifier(StringRef idString):
         m_idString(idString.toString()) {
 
@@ -75,4 +80,15 @@ namespace yal {
                             const Module& module) {
         m_idString =BuildTypeNameWithModule(idString, module);
     }
+
+    bool
+    Identifier::operator == (const Identifier& other) const {
+        return m_idString == other.m_idString;
+    }
+
+    bool
+    Identifier::operator != (const Identifier& other) const {
+         return m_idString != other.m_idString;
+    }
+
 }

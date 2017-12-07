@@ -182,7 +182,6 @@
 typedef union {
   int yyinit;
   YALParserTOKENTYPE yy0;
-  yal::RefTypeResolved* yy8;
   yal::StmtDecl* yy13;
   yal::DeclParamVarContainer* yy24;
   uint32_t yy41;
@@ -1190,7 +1189,7 @@ static void yy_reduce(
      }
         break;
       case 4: /* type_specifier ::= type_builtin */
-{yylhsminor.yy48=yymsp[0].minor.yy8;}
+{yylhsminor.yy48=yymsp[0].minor.yy48;}
   yymsp[0].minor.yy48 = yylhsminor.yy48;
         break;
       case 5: /* type_specifier ::= type_array */
@@ -1198,7 +1197,7 @@ static void yy_reduce(
         break;
       case 6: /* type_specifier ::= IDENTIFIER */
 {
-        yylhsminor.yy48 = pParser->newAstNode<yal::RefTypeUnresolved>(yymsp[0].minor.yy0.tokenStr);
+        yylhsminor.yy48 = pParser->newAstNode<yal::RefType>(yymsp[0].minor.yy0.tokenStr);
         auto srcInfo = pParser->createSourceInfo(yymsp[0].minor.yy0, yymsp[0].minor.yy0);
         yylhsminor.yy48->setSourceInfo(srcInfo);
  }
@@ -1227,57 +1226,57 @@ static void yy_reduce(
         break;
       case 12: /* type_builtin ::= TYPE_BOOL */
 {
-        yymsp[0].minor.yy8 = pParser->newAstNode<yal::RefTypeResolved>(pParser->getModule().getTypeContext().getTypeBuiltinBool());
+        yymsp[0].minor.yy48 = pParser->newAstNode<yal::RefType>(pParser->getModule().getTypeContext().getTypeBuiltinBool());
         }
         break;
       case 13: /* type_builtin ::= TYPE_INT8 */
 {
-        yymsp[0].minor.yy8 = pParser->newAstNode<yal::RefTypeResolved>(pParser->getModule().getTypeContext().getTypeBuiltinI8());
+        yymsp[0].minor.yy48 = pParser->newAstNode<yal::RefType>(pParser->getModule().getTypeContext().getTypeBuiltinI8());
         }
         break;
       case 14: /* type_builtin ::= TYPE_UINT8 */
 {
-        yymsp[0].minor.yy8  = pParser->newAstNode<yal::RefTypeResolved>(pParser->getModule().getTypeContext().getTypeBuiltinU8());
+        yymsp[0].minor.yy48  = pParser->newAstNode<yal::RefType>(pParser->getModule().getTypeContext().getTypeBuiltinU8());
         }
         break;
       case 15: /* type_builtin ::= TYPE_INT16 */
 {
-        yymsp[0].minor.yy8 = pParser->newAstNode<yal::RefTypeResolved>(pParser->getModule().getTypeContext().getTypeBuiltinI16());
+        yymsp[0].minor.yy48 = pParser->newAstNode<yal::RefType>(pParser->getModule().getTypeContext().getTypeBuiltinI16());
         }
         break;
       case 16: /* type_builtin ::= TYPE_UINT16 */
 {
-        yymsp[0].minor.yy8  = pParser->newAstNode<yal::RefTypeResolved>(pParser->getModule().getTypeContext().getTypeBuiltinU16());
+        yymsp[0].minor.yy48  = pParser->newAstNode<yal::RefType>(pParser->getModule().getTypeContext().getTypeBuiltinU16());
         }
         break;
       case 17: /* type_builtin ::= TYPE_INT32 */
 {
-        yymsp[0].minor.yy8 = pParser->newAstNode<yal::RefTypeResolved>(pParser->getModule().getTypeContext().getTypeBuiltinI32());
+        yymsp[0].minor.yy48 = pParser->newAstNode<yal::RefType>(pParser->getModule().getTypeContext().getTypeBuiltinI32());
         }
         break;
       case 18: /* type_builtin ::= TYPE_UINT32 */
 {
-        yymsp[0].minor.yy8 = pParser->newAstNode<yal::RefTypeResolved>(pParser->getModule().getTypeContext().getTypeBuiltinU32());
+        yymsp[0].minor.yy48 = pParser->newAstNode<yal::RefType>(pParser->getModule().getTypeContext().getTypeBuiltinU32());
         }
         break;
       case 19: /* type_builtin ::= TYPE_INT64 */
 {
-        yymsp[0].minor.yy8 = pParser->newAstNode<yal::RefTypeResolved>(pParser->getModule().getTypeContext().getTypeBuiltinI64());
+        yymsp[0].minor.yy48 = pParser->newAstNode<yal::RefType>(pParser->getModule().getTypeContext().getTypeBuiltinI64());
         }
         break;
       case 20: /* type_builtin ::= TYPE_UINT64 */
 {
-        yymsp[0].minor.yy8 = pParser->newAstNode<yal::RefTypeResolved>(pParser->getModule().getTypeContext().getTypeBuiltinU64());
+        yymsp[0].minor.yy48 = pParser->newAstNode<yal::RefType>(pParser->getModule().getTypeContext().getTypeBuiltinU64());
         }
         break;
       case 21: /* type_builtin ::= TYPE_FLOAT */
 {
-        yymsp[0].minor.yy8 = pParser->newAstNode<yal::RefTypeResolved>(pParser->getModule().getTypeContext().getTypeBuiltinFloat());
+        yymsp[0].minor.yy48 = pParser->newAstNode<yal::RefType>(pParser->getModule().getTypeContext().getTypeBuiltinFloat());
         }
         break;
       case 22: /* type_builtin ::= TYPE_DOUBLE */
 {
-        yymsp[0].minor.yy8 = pParser->newAstNode<yal::RefTypeResolved>(pParser->getModule().getTypeContext().getTypeBuiltinDouble());
+        yymsp[0].minor.yy48 = pParser->newAstNode<yal::RefType>(pParser->getModule().getTypeContext().getTypeBuiltinDouble());
         }
         break;
       case 23: /* type_decl ::= TYPE IDENTIFIER COLON STRUCT SCOPE_BEGIN type_var_decls SCOPE_END */
@@ -1341,7 +1340,7 @@ static void yy_reduce(
         break;
       case 29: /* type_function_decl ::= FUNCTION type_specifier COLON COLON IDENTIFIER PAR_BEGIN type_function_args_decl PAR_END function_return_decl function_scope */
 {
-            yylhsminor.yy73 = pParser->newAstNode<yal::DeclTypeFunction>(yymsp[-5].minor.yy0.tokenStr, yymsp[-3].minor.yy24, yymsp[-8].minor.yy48, yymsp[-1].minor.yy48, yymsp[0].minor.yy50);
+            yylhsminor.yy73 = pParser->newAstNode<yal::DeclTypeFunction>(yymsp[-5].minor.yy0.tokenStr, yymsp[-3].minor.yy24, yymsp[-1].minor.yy48, yymsp[-8].minor.yy48, yymsp[0].minor.yy50);
         if (yymsp[-3].minor.yy24 != nullptr) {
             yymsp[-3].minor.yy24->updateSourceInfo();
         }
@@ -1553,7 +1552,7 @@ static void yy_reduce(
         break;
       case 61: /* expression ::= IDENTIFIER PAR_BEGIN function_call_args PAR_END */
 {
-    auto fnType = pParser->newAstNode<yal::RefTypeUnresolved>(yymsp[-3].minor.yy0.tokenStr);
+    auto fnType = pParser->newAstNode<yal::RefType>(yymsp[-3].minor.yy0.tokenStr);
     auto fnSrcInfo = pParser->createSourceInfo(yymsp[-3].minor.yy0, yymsp[-3].minor.yy0);
     fnType->setSourceInfo(fnSrcInfo);
     if (yymsp[-1].minor.yy56 != nullptr) {
@@ -1567,7 +1566,7 @@ static void yy_reduce(
         break;
       case 62: /* expression ::= expression DOT IDENTIFIER PAR_BEGIN function_call_args PAR_END */
 {
-    auto fnType = pParser->newAstNode<yal::RefTypeUnresolved>(yymsp[-3].minor.yy0.tokenStr);
+    auto fnType = pParser->newAstNode<yal::RefType>(yymsp[-3].minor.yy0.tokenStr);
     auto fnSrcInfo = pParser->createSourceInfo(yymsp[-3].minor.yy0, yymsp[-3].minor.yy0);
     fnType->setSourceInfo(fnSrcInfo);
     if (yymsp[-1].minor.yy56 != nullptr) {

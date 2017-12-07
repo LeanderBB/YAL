@@ -21,12 +21,17 @@
 namespace yal {
     class ByteStream;
     class Log;
-
+    struct SourceInfo;
+    class SourceManager;
     class PrettyPrint {
     public:
         static void SourceErrorPrint(ByteStream& stream,
                                      Log& log,
                                      const size_t lineStart,
                                      const size_t columnStart);
+
+        static void SourceErrorPrint(Log &log,
+                                     const SourceInfo& info,
+                                     const SourceManager& manager);
     };
 }

@@ -35,9 +35,11 @@ namespace yal {
     public:
 
         TypeRegistrationVisitor(Log& log,
-                                Module& module):
+                                Module& module,
+                                const SourceManager &manager):
             m_log(log),
             m_module(module),
+            m_errHandler(log, manager),
             m_errorFound(false) {
 
         }
@@ -50,15 +52,17 @@ namespace yal {
     public:
         Log& m_log;
         Module& m_module;
+        TypeContextErrorHandler m_errHandler;
         bool m_errorFound;
     };
 
 
     bool
-    CPassTypeRegistration::run(Log& log, Module& module) {
+    CPassTypeRegistration::run(Log& log, Module& module,
+                               const SourceManager &manager) {
         DeclModule* rootNode = module.getRootAstNode();
 
-        TypeRegistrationVisitor typeRegVisitor(log, module);
+        TypeRegistrationVisitor typeRegVisitor(log, module, manager);
 
         for(auto& decl : rootNode->getDeclarations()) {
             decl->acceptVisitor(typeRegVisitor);
@@ -77,27 +81,14 @@ namespace yal {
 
     void
     TypeRegistrationVisitor::visit(DeclTypeFunction& node) {
-        m_log.message("DeclTypeFunction %\n", node.getName());
+       const Type* newType = m_module.getTypeContext().addType(&node, &m_errHandler);
+       m_errorFound = newType == nullptr;
     }
 
     void
     TypeRegistrationVisitor::visit(DeclFunction& node) {
-        m_log.message("DeclFunction %\n", node.getName());
-        TypeContext& typectx = m_module.getTypeContext();
-
-        const Type* existingType = typectx.getByIdentifier(node.getIdentifier());
-
-        if (existingType == nullptr) {
-            // check function param decls
-            // see if any are undefined
-            // create new function type and
-            // add it to the context
-        } else {
-            m_log.error("Function % can not be declared, an existing type \
-already exists with the same identifier\n", node.getIdentifier().getAsString());
-            m_errorFound = true;
-        }
-
+       const Type* newType = m_module.getTypeContext().addType(&node, &m_errHandler);
+       m_errorFound = newType == nullptr;
     }
 
     void

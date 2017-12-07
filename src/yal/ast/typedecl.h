@@ -19,14 +19,28 @@
 
 #pragma once
 
+#include "yal/ast/type.h"
+
 namespace yal {
-    class Log;
-    class Module;
-    class SourceManager;
-    class CPassTypeRegistration {
+
+    class DeclBase;
+    class DeclFunction;
+    class DeclTypeFunction;
+    class DeclStruct;
+    class TypeDecl  : public Type
+    {
     public:
+        TypeDecl(DeclFunction* decl);
 
-        bool run(Log& log, Module& module, const SourceManager& manager);
+        TypeDecl(DeclTypeFunction* decl);
 
+        TypeDecl(DeclStruct* decl);
+
+        DeclBase* getDecl() const {
+            return m_decl;
+        }
+
+    private:
+        DeclBase* m_decl;
     };
 }

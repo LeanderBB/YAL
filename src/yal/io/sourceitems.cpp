@@ -27,10 +27,17 @@ namespace yal {
         FileStream fstream;
         // Read file into memory stream
         if (fstream.open(path, FileStream::kModeRead)) {
-            if (m_stream.create(fstream)) {
-                m_filePath = path;
-                return true;
-            }
+            return open(fstream, path);
+        }
+        return false;
+    }
+
+    bool
+    SourceItemFile::open(FileStream& stream,
+                         const char *path) {
+        if (m_stream.create(stream)) {
+            m_filePath = path;
+            return true;
         }
         return false;
     }

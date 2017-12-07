@@ -23,7 +23,11 @@
 #include <cinttypes>
 #include <cstdint>
 
-#if defined(YAL_DEBUG)
+#if !defined(YAL_RELEASE_DEBUG) && defined(YAL_DEBUG)
+    #define YAL_RELEASE_DEBUG
+#endif
+
+#if defined(YAL_DEBUG) || defined(YAL_RELEASE_DEBUG)
 #include <cassert>
 #define YAL_ASSERT(x) assert(x)
 #define YAL_ASSERT_MESSAGE(x,y) assert((x) && y)

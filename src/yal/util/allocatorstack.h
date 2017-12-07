@@ -46,6 +46,13 @@ namespace yal{
 
         size_t getStackCount() const;
 
+        template<typename T, typename... ARGS>
+        T* construct(ARGS&& ...args) {
+            void* mem = allocate(sizeof(T));
+            YAL_ASSERT(mem != nullptr);
+            return new (mem) T(std::forward<ARGS>(args)...);
+        }
+
     private:
 
         bool allocateNewStack();
@@ -67,5 +74,4 @@ namespace yal{
         StackList m_stackList;
         Stack* m_activeStack;
     };
-
 }

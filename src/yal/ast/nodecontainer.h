@@ -70,6 +70,10 @@ namespace yal {
             return TYPE;
         }
 
+        size_t getCount() const {
+            return m_nodes.size();
+        }
+
         typename ContainerType::reverse_iterator childBegin() {
             return m_nodes.rbegin();
         }

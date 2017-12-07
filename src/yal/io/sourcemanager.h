@@ -51,7 +51,7 @@ namespace yal {
 
         Handle add(std::unique_ptr<SourceItem>&& item);
 
-        const SourceItem* getItem(const Handle handle) const;
+        SourceItem* getItem(const Handle handle) const;
 
         inline SourceItem* getItem(const Handle handle) {
             const SourceManager* const_this = this;
@@ -65,6 +65,8 @@ namespace yal {
 
     class SourceItem {
        public:
+
+        SourceItem() = default;
 
         virtual ~SourceItem();
 

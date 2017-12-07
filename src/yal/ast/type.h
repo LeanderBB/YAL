@@ -22,15 +22,15 @@
 #include "yal/yal.h"
 #include "yal/ast/identifier.h"
 #include "yal/util/stringref.h"
-
+#include <unordered_map>
 namespace yal {
 
     class TypeRegistry;
     class Module;
     class DeclBase;
-
+    class TypeDecl;
     class Type {
-        friend class TypeRegistry;
+        friend class TypeContext;
     public:
         enum class Kind {
 #define YAL_AST_TYPE(type) type,
@@ -42,7 +42,7 @@ namespace yal {
 
         Type(const Module*,
              const Kind kind,
-             const StringRef name);
+             const Identifier& identifier);
 
         virtual ~Type();
 
@@ -60,12 +60,11 @@ namespace yal {
         bool isExternalType() const;
         bool isModuleType() const;
         bool isTriviallyCopiable() const;
+        bool isFunctionTargetable() const;
 
         uint32_t getSizeBytes() const {
             return m_sizeBytes;
         }
-
-        const StringRef getName() const;
 
         const Identifier& getIdentifier() const {
             return m_identifier;
@@ -75,23 +74,33 @@ namespace yal {
             return m_module;
         }
 
-        const DeclBase* getDeclNode() const {
-            return m_declNode;
+        const TypeDecl* getFunctionWithIdentifier(const Identifier& id) const;
+
+
+        Kind getKind() const {
+            return m_kind;
         }
 
+    protected:
+
+        void addFunction(TypeDecl* function);
 
     protected:
+        using FunctionMap = std::unordered_map<StringRef,TypeDecl*>;
         const Module* m_module;
-        const DeclBase* m_declNode;
         const Kind m_kind;
         uint32_t m_sizeBytes = 0;
-        StringRef m_name;
         Identifier m_identifier;
+        FunctionMap m_typeFunctions;
         unsigned m_moduleDependent:1;
         unsigned m_moduleExternal:1;
         unsigned m_moduleType:1;
         unsigned m_defined:1;
         unsigned m_trivialCopy:1;
+        unsigned m_functionTargetable:1;
+        unsigned m_function:1;
+        unsigned m_typefunction:1;
+        unsigned m_struct:1;
     };
 
 

@@ -76,10 +76,16 @@ namespace yal {
         printSourceInfo(node.getSourceInfo());
         printOnLine(" % static:%\n", node.getName(), node.isStatic());
 
+        scopeBegin(false);
+        node.getTargetType()->acceptVisitor(*this);
+        scopeEnd();
+
+
+
          bool hasStatmentList = node.getFunctionBody() != nullptr;
 
         if (node.getParams() != nullptr) {
-            scopeBegin(false);
+            scopeBegin(!hasStatmentList);
             DeclParamVarContainer* params = node.getParams();
             params->acceptVisitor(*this);
             scopeEnd();
@@ -203,22 +209,14 @@ namespace yal {
     }
 
     void
-    AstPrinter::visit(RefTypeResolved& node) {
-        print("RefTypeResolved  ");
+    AstPrinter::visit(RefType& node) {
+        print("RefType ");
         printSourceInfo(node.getSourceInfo());
-        printOnLine (" %", node.getResolvedType()->getName());
+        printOnLine (" %", node.getIdentitfier().getAsString());
         printQualifier(node.getQualifier());
         print();
     }
 
-    void
-    AstPrinter::visit(RefTypeUnresolved& node) {
-        print("RefTypeUnresolved ");
-        printSourceInfo(node.getSourceInfo());
-        printOnLine(" %", node.getTypeName());
-        printQualifier(node.getQualifier());
-        print();
-    }
 
     void
     AstPrinter::visit(StatementList& node) {

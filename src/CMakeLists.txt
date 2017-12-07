@@ -44,13 +44,8 @@ set(YAL_SOURCES
     yal/ast/typebuiltin.h
     yal/ast/typecontext.cpp
     yal/ast/typecontext.h
-    yal/ast/typefunction.cpp
-    yal/ast/typefunction.h
     yal/ast/declmodule.cpp
     yal/ast/declmodule.h
-    yal/ast/refbase.h
-    yal/ast/refbase.cpp
-    yal/ast/refbasetypes.def
     yal/ast/reftype.cpp
     yal/ast/reftype.h
     yal/ast/identifier.cpp
@@ -99,6 +94,8 @@ set(YAL_SOURCES
     yal/ast/exprlist.cpp
     yal/ast/exprdecimalliteral.cpp
     yal/ast/exprdecimalliteral.h
+    yal/ast/typedecl.h
+    yal/ast/typedecl.cpp
 
     yal/compiler/cpasstyperegistration.cpp
     yal/compiler/cpasstyperegistration.h
@@ -157,8 +154,6 @@ set_source_files_properties(yal/parser/astnodes.def
 set_source_files_properties(yal/parser/declbasetypes.def
     PROPERTIES HEADER_FILE_ONLY TRUE)
 set_source_files_properties(yal/parser/typelist.def
-    PROPERTIES HEADER_FILE_ONLY TRUE)
-set_source_files_properties(yal/parser/refbasetypes.def
     PROPERTIES HEADER_FILE_ONLY TRUE)
 
 

@@ -20,29 +20,31 @@
 #include "yal/ast/type.h"
 #include "yal/ast/module.h"
 #include "yal/util/stringref.h"
-
+#include "yal/ast/typedecl.h"
 namespace yal {
 
 
     Type::Type(const Kind kind):
-        Type(nullptr, kind, nullptr) {
+        Type(nullptr, kind, Identifier("unknown")) {
 
     }
 
     Type::Type(const Module* module,
                const Kind kind,
-               const StringRef name) :
+               const Identifier &identifier) :
         m_module(module),
-        m_declNode(nullptr),
         m_kind(kind),
         m_sizeBytes(0),
-        m_name(name),
-        m_identifier(name, module),
+        m_identifier(identifier),
         m_moduleDependent(0),
         m_moduleExternal(0),
         m_moduleType(0),
         m_defined(0),
-        m_trivialCopy(0) {
+        m_trivialCopy(0),
+        m_functionTargetable(0),
+        m_function(0),
+        m_typefunction(0),
+        m_struct(0){
 
         if (module != nullptr) {
             m_moduleDependent = 1;
@@ -57,12 +59,12 @@ namespace yal {
 
     bool
     Type::isFunction() const {
-        return m_kind == Kind::TypeFunction;
+        return m_kind == Kind::TypeDecl && m_function == 1;
     }
 
     bool
     Type::isTypeFunction() const {
-        return m_kind == Kind::TypeFunctionType;
+        return m_kind == Kind::TypeDecl && m_typefunction == 1;
     }
 
     bool
@@ -72,7 +74,7 @@ namespace yal {
 
     bool
     Type::isStruct() const {
-        return m_kind == Kind::TypeStruct;
+        return m_kind == Kind::TypeDecl && m_struct == 1;
     }
 
     bool
@@ -93,28 +95,45 @@ namespace yal {
 
     bool
     Type::isModuleDependent() const {
-        return m_moduleDependent;
+        return m_moduleDependent  == 1;
     }
 
     bool
     Type::isExternalType() const {
-        return m_moduleExternal;
+        return m_moduleExternal  == 1;
     }
 
     bool
     Type::isModuleType() const {
-        return m_moduleType;
+        return m_moduleType  == 1;
     }
 
     bool
     Type::isTriviallyCopiable() const {
-        return m_trivialCopy;
+        return m_trivialCopy == 1;
     }
 
-    const StringRef
-    Type::getName() const {
-        return StringRef(m_name);
+    bool
+    Type::isFunctionTargetable() const {
+        return m_functionTargetable == 1;
     }
+
+    const TypeDecl*
+    Type::getFunctionWithIdentifier(const Identifier& id) const {
+        auto it = m_typeFunctions.find(id.getAsString());
+        return it != m_typeFunctions.end() ? it->second : nullptr;
+    }
+
+    void
+    Type::addFunction(TypeDecl* function) {
+        YAL_ASSERT(function->isTypeFunction());
+        YAL_ASSERT_MESSAGE(m_typeFunctions.find(function->getIdentifier().getAsString()) == m_typeFunctions.end(),
+                           "Adding duplicate function to type");
+        m_typeFunctions.insert(std::make_pair(function->getIdentifier().getAsString(),
+                                              function));
+    }
+
+    // Qualifier ------------------------------------------------------------
 
     Qualifier:: Qualifier():
         m_mutable(0),

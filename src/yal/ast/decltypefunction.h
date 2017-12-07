@@ -31,7 +31,7 @@ namespace yal {
                          RefType* destType,
                          StatementList *body);
 
-        const RefType* getTargetType() const {
+        RefType* getTargetType() const {
             return m_targetType;
         }
 

@@ -22,11 +22,48 @@
 #include <string>
 #include "yal/ast/type.h"
 #include "yal/util/stringref.h"
+#include "yal/util/allocatorstack.h"
 namespace yal {
 
     class Type;
     class TypeBuiltin;
     class Identifier;
+
+    class DeclFunction;
+    class DeclTypeFunction;
+    class DeclStruct;
+    class DeclParamVar;
+    class RefType;
+
+    class Log;
+    class SourceManager;
+
+    class TypeContextErrorHandler {
+    public:
+        TypeContextErrorHandler(Log& log,
+                                const SourceManager &manager);
+
+        void onDuplicate(const DeclBase* newType,
+                         const Type* existingType);
+
+        void onUnresolvedReturnType(const DeclFunction* function);
+
+        void onUnresolvedParamType(const DeclFunction* newType,
+                                   const DeclParamVar* paramDecl);
+
+        void onUnresolvedReturnType(const DeclTypeFunction* function);
+
+        void onUnresolvedParamType(const DeclTypeFunction* typeFunction,
+                                   const DeclParamVar* paramDecl);
+
+        void onUnresolvedTargetType(const DeclTypeFunction* typeFunction);
+
+        void onUntargetableType(const DeclTypeFunction* typeFunction);
+    private:
+        Log& m_log;
+        const SourceManager& m_srcManager;
+    };
+
     class TypeContext {
     public:
 
@@ -34,9 +71,16 @@ namespace yal {
 
         bool hasType(const Identifier& identifier) const;
 
-        void addType(std::unique_ptr<Type>&& type);
-
         const Type* getByIdentifier(const Identifier& identifier) const;
+
+        const Type* addType(DeclFunction* decl,
+                            TypeContextErrorHandler* errHandler = nullptr);
+
+        const Type* addType(DeclTypeFunction* decl,
+                            TypeContextErrorHandler* errHandler = nullptr);
+
+        const Type* addType(DeclStruct* decl,
+                            TypeContextErrorHandler* errHandler = nullptr);
 
         const TypeBuiltin* getTypeBuiltinBool() const {
             return m_typeBool;
@@ -94,7 +138,8 @@ namespace yal {
         const TypeBuiltin* m_typeU64;
         const TypeBuiltin* m_typeFloat;
         const TypeBuiltin* m_typeDouble;
-        std::unordered_map<StringRef, std::unique_ptr<Type>> m_types;
+        AllocatorStack m_allocator;
+        std::unordered_map<StringRef, Type*> m_types;
     };
 
 }

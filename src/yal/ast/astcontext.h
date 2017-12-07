@@ -34,9 +34,13 @@ namespace yal {
 
         ASTContext();
 
+        ~ASTContext();
+
         YAL_MOVE_ONLY_CLASS(ASTContext);
 
         void* allocate(const size_t size);
+
+        void addDtor(void* ptr, void(*dtor)(void*));
 
         AllocatorStack& getAllocator() {
             return m_allocator;
@@ -63,8 +67,10 @@ namespace yal {
         }
 
     private:
+        using DtorList = std::vector<std::pair<void*,void(*)(void*)>>;
         AllocatorStack m_allocator;
         DeclBaseList m_declNodes;
         DeclModuleList m_moduleNodes;
+        DtorList m_dtors;
     };
 }

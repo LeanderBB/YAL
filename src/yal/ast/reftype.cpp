@@ -18,15 +18,65 @@
  */
 #include "yal/ast/reftype.h"
 #include "yal/ast/astvisitor.h"
-
+#include "yal/ast/astcontext.h"
+#include "yal/ast/module.h"
 namespace yal {
 
-    RefType::RefType(Module& module,
-                     const AstType astType,
-                     const Qualifier qualifier):
-        RefBase(module, astType),
-        m_qualifier(qualifier) {
 
+    void* RefType::operator new(std::size_t bytes,
+                                Module &module) {
+        ASTContext& astctx = module.getASTContext();
+        void* ptr = astctx.allocate(bytes);
+        YAL_ASSERT_MESSAGE(ptr != nullptr, "RefType: Failed to allocate memory");
+        return ptr;
+    }
+
+    RefType::RefType(Module& module,
+                     const StringRef identifier):
+        RefType(module, Qualifier(), Identifier(identifier, module)) {
+
+    }
+
+    RefType::RefType(Module& module,
+                     const Identifier& identifier):
+        RefType(module, Qualifier(), identifier) {
+
+    }
+
+    RefType::RefType(Module& module,
+                     const Type* resolvedType):
+        RefType(module, Qualifier(), resolvedType) {
+    }
+
+    RefType::RefType(Module& module,
+                     const Qualifier qualifier,
+                     const Identifier& identifier):
+        m_module(module),
+        m_sourceInfo(),
+        m_qualifier(qualifier),
+        m_identifier(identifier),
+        m_resolvedType(nullptr) {
+
+    }
+
+    RefType::RefType(Module& module,
+                     const Qualifier qualifier,
+                     const Type *resolvedType):
+        m_module(module),
+        m_sourceInfo(),
+        m_qualifier(qualifier),
+        m_identifier(),
+        m_resolvedType(resolvedType) {
+
+    }
+
+    RefType::~RefType() {
+
+    }
+
+    void
+    RefType::setSourceInfo(const SourceInfo& sourceInfo) {
+        m_sourceInfo = sourceInfo;
     }
 
     void
@@ -34,41 +84,15 @@ namespace yal {
         m_qualifier = qualifier;
     }
 
-    RefTypeUnresolved::RefTypeUnresolved(Module& module,
-                                         const Qualifier qualifier,
-                                         const StringRef& typeName):
-        RefType(module, AstType::RefTypeUnresolved, qualifier),
-        m_typeName(typeName) {
-    }
-
-
-    RefTypeUnresolved::RefTypeUnresolved(Module& module,
-                                         const StringRef& typeName):
-        RefTypeUnresolved(module, Qualifier(), typeName) {
-
+    Identifier
+    RefType::getIdentitfier() const {
+        return m_resolvedType != nullptr
+                ? m_resolvedType->getIdentifier()
+                : m_identifier;
     }
 
     void
-    RefTypeUnresolved::acceptVisitor(AstVisitor& visitor) {
-        visitor.visit(*this);
-    }
-
-    RefTypeResolved::RefTypeResolved(Module& module,
-                                     const Qualifier qualifier,
-                                     const Type* resolvedType):
-        RefType(module, AstType::RefTypeResolved, qualifier),
-        m_resolvedType(resolvedType) {
-
-    }
-
-    RefTypeResolved::RefTypeResolved(Module& module,
-                                     const Type* resolvedType):
-        RefTypeResolved(module, Qualifier(), resolvedType){
-
-    }
-
-    void
-    RefTypeResolved::acceptVisitor(AstVisitor& visitor) {
+    RefType::acceptVisitor(AstVisitor& visitor) {
         visitor.visit(*this);
     }
 }

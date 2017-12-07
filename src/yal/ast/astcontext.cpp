@@ -30,12 +30,23 @@ namespace yal{
 
     ASTContext::ASTContext() :
         m_allocator(kStackSizeBytes){
+        m_dtors.reserve(128);
+    }
 
+    ASTContext::~ASTContext() {
+        for(auto& dtor: m_dtors) {
+            dtor.second(dtor.first);
+        }
     }
 
     void*
     ASTContext::allocate(const size_t size) {
         return m_allocator.allocate(size);
+    }
+
+    void
+    ASTContext::addDtor(void* ptr, void(*dtor)(void*)) {
+        m_dtors.emplace_back(ptr, dtor);
     }
 
     void

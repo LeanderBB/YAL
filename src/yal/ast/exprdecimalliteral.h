@@ -16,14 +16,24 @@
  *  You should have received a copy of the GNU Lesser General Public
  *  License along with YAL. If not, see <http://www.gnu.org/licenses/>.
  */
+#pragma once
+#include "yal/ast/stmtexpression.h"
 
+namespace yal {
 
-/* List of Ref AST Nodes in the compiler
- *
- * Define YAL_AST_REFBASE_TYPE(type) macro to use this list
- *
- */
+    class ExprDecimalLiteral : public StmtExpression {
+    public:
 
-YAL_AST_REFBASE_TYPE(RefTypeFunction)
-YAL_AST_REFBASE_TYPE(RefTypeBuiltin)
-YAL_AST_REFBASE_TYPE(RefTypeIdentifier)
+        ExprDecimalLiteral(Module& module,
+                           const double literalValue);
+
+        double getLiteralValue() const {
+            return m_literalValue;
+        }
+
+        virtual void acceptVisitor(AstVisitor& visitor) override;
+    private:
+        double m_literalValue;
+    };
+
+}

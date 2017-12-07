@@ -17,32 +17,26 @@
  *  License along with YAL. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "yal/ast/refbase.h"
+
+#include "yal/ast/exprdecimalliteral.h"
 #include "yal/ast/module.h"
+#include "yal/ast/typebuiltin.h"
+#include "yal/ast/astvisitor.h"
+
 namespace yal {
 
-    void* RefBase::operator new(std::size_t bytes,
-                                 Module &module) {
-        ASTContext& astctx = module.getASTContext();
-        void* ptr = astctx.allocate(bytes);
-        YAL_ASSERT_MESSAGE(ptr != nullptr, "RefBase: Failed to allocate memory");
-        return ptr;
-    }
+    ExprDecimalLiteral::ExprDecimalLiteral(Module &module,
+                                           const double literalValue):
+        StmtExpression(module, AstType::ExprDecimalLiteral),
+        m_literalValue(literalValue) {
 
-    RefBase::RefBase(Module& module,
-                     const AstType astType):
-        m_module(module),
-        m_astType(astType){
-
+        Qualifier qual = Qualifier();
+        m_qualType = QualType::Create(qual,
+                                      module.getTypeContext().getTypeBuiltinDouble());
     }
 
     void
-    RefBase::setSourceInfo(const SourceInfo& sourceInfo) {
-        m_sourceInfo = sourceInfo;
-    }
-
-
-    RefBase::~RefBase() {
-
+    ExprDecimalLiteral::acceptVisitor(AstVisitor& visitor) {
+        visitor.visit(*this);
     }
 }

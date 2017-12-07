@@ -20,84 +20,186 @@
 #include "yal/ast/typecontext.h"
 #include "yal/ast/typebuiltin.h"
 #include "yal/ast/identifier.h"
+#include "yal/ast/declfunction.h"
+#include "yal/ast/decltypefunction.h"
+#include "yal/ast/declstruct.h"
+#include "yal/ast/declparamvar.h"
+#include "yal/ast/reftype.h"
+#include "yal/ast/typedecl.h"
+#include "yal/util/log.h"
+#include "yal/util/prettyprint.h"
 namespace yal{
 
-    TypeContext::TypeContext() {
+
+    TypeContextErrorHandler::TypeContextErrorHandler(Log& log,
+                                                     const SourceManager &manager):
+        m_log(log),
+        m_srcManager(manager){
+
+    }
+
+    void
+    TypeContextErrorHandler::onDuplicate(const DeclBase* newType,
+                                         const Type* existingType) {
+        PrettyPrint::SourceErrorPrint(m_log, newType->getSourceInfo(), m_srcManager);
+        m_log.error("Can not declare '%', type has already been delcared as:\n");
+        switch(existingType->getKind()) {
+        case Type::Kind::TypeDecl :{
+            const TypeDecl* declType = static_cast<const TypeDecl*>(existingType);
+            PrettyPrint::SourceErrorPrint(m_log,
+                                          declType->getDecl()->getSourceInfo(),
+                                          m_srcManager);
+            break;
+        }
+        case Type::Kind::TypeBuiltin:
+            m_log.error("builtin type '%'\n", existingType->getIdentifier().getAsString());
+            break;
+        default:
+            YAL_ASSERT_MESSAGE(false, "Should not be reached");
+        }
+    }
+
+    void
+    TypeContextErrorHandler::onUnresolvedReturnType(const DeclFunction* function){
+         PrettyPrint::SourceErrorPrint(m_log,
+                                       function->getReturnType()->getSourceInfo(),
+                                       m_srcManager);
+         m_log.error("Function % has unresovled return type '%'\n",
+                     function->getIdentifier().getAsString(),
+                     function->getReturnType()->getIdentitfier().getAsString());
+    }
+
+    void
+    TypeContextErrorHandler::onUnresolvedParamType(const DeclFunction* function,
+                                                   const DeclParamVar* paramDecl) {
+        PrettyPrint::SourceErrorPrint(m_log,
+                                      paramDecl->getSourceInfo(),
+                                      m_srcManager);
+        m_log.error("Function % has unresovled param type '%'\n",
+                    function->getIdentifier().getAsString(),
+                    paramDecl->getVarType()->getIdentitfier().getAsString());
+    }
+
+    void
+    TypeContextErrorHandler::onUnresolvedReturnType(const DeclTypeFunction* function) {
+        m_log.error("Type Function % has unresovled return type '%'\n",
+                    function->getIdentifier().getAsString(),
+                    function->getReturnType()->getIdentitfier().getAsString());
+    }
+
+    void
+    TypeContextErrorHandler::onUnresolvedParamType(const DeclTypeFunction* function,
+                                                   const DeclParamVar* paramDecl) {
+        PrettyPrint::SourceErrorPrint(m_log,
+                                      paramDecl->getSourceInfo(),
+                                      m_srcManager);
+        m_log.error("Type Function % has unresovled param type '%'\n",
+                    function->getIdentifier().getAsString(),
+                    paramDecl->getVarType()->getIdentitfier().getAsString());
+    }
+
+    void
+    TypeContextErrorHandler::onUnresolvedTargetType(const DeclTypeFunction* typeFunction) {
+        PrettyPrint::SourceErrorPrint(m_log,
+                                      typeFunction->getTargetType()->getSourceInfo(),
+                                      m_srcManager);
+        m_log.error("Type Function % has unresovled target type '%'\n",
+                    typeFunction->getIdentifier().getAsString(),
+                    typeFunction->getTargetType()->getIdentitfier().getAsString());
+    }
+
+    void
+    TypeContextErrorHandler::onUntargetableType(const DeclTypeFunction* typeFunction) {
+        PrettyPrint::SourceErrorPrint(m_log,
+                                      typeFunction->getTargetType()->getSourceInfo(),
+                                      m_srcManager);
+        m_log.error("Type '%' can not accept type functions\n",
+                    typeFunction->getTargetType()->getIdentitfier().getAsString());
+    }
+
+
+    enum {
+        kAllocatorBlockSize = 1024
+    };
+
+    TypeContext::TypeContext() :
+        m_allocator(kAllocatorBlockSize),
+        m_types(){
 
         {
-            auto type = std::make_unique<TypeBuiltin>(TypeBuiltin::DataType::Boolean);
-            m_typeBool = type.get();
+            auto type = m_allocator.construct<TypeBuiltin>(TypeBuiltin::DataType::Boolean);
+            m_typeBool = type;
             m_types.insert(std::make_pair(type->getIdentifier().getAsString(),
-                                          std::move(type)));
+                                          type));
         }
 
         {
-            auto type = std::make_unique<TypeBuiltin>(TypeBuiltin::DataType::Int8);
-            m_typeI8 = type.get();
+            auto type = m_allocator.construct<TypeBuiltin>(TypeBuiltin::DataType::Int8);
+            m_typeI8 = type;
             m_types.insert(std::make_pair(type->getIdentifier().getAsString(),
-                                          std::move(type)));
+                                          type));
         }
 
         {
-            auto type = std::make_unique<TypeBuiltin>(TypeBuiltin::DataType::UInt8);
-            m_typeU8 = type.get();
+            auto type = m_allocator.construct<TypeBuiltin>(TypeBuiltin::DataType::UInt8);
+            m_typeU8 = type;
             m_types.insert(std::make_pair(type->getIdentifier().getAsString(),
-                                          std::move(type)));
+                                          type));
         }
 
         {
-            auto type = std::make_unique<TypeBuiltin>(TypeBuiltin::DataType::Int16);
-            m_typeI16 = type.get();
+            auto type = m_allocator.construct<TypeBuiltin>(TypeBuiltin::DataType::Int16);
+            m_typeI16 = type;
             m_types.insert(std::make_pair(type->getIdentifier().getAsString(),
-                                          std::move(type)));
+                                          type));
         }
 
         {
-            auto type = std::make_unique<TypeBuiltin>(TypeBuiltin::DataType::UInt16);
-            m_typeU16 = type.get();
+            auto type = m_allocator.construct<TypeBuiltin>(TypeBuiltin::DataType::UInt16);
+            m_typeU16 = type;
             m_types.insert(std::make_pair(type->getIdentifier().getAsString(),
-                                          std::move(type)));
+                                          type));
         }
 
         {
-            auto type = std::make_unique<TypeBuiltin>(TypeBuiltin::DataType::Int32);
-            m_typeI32 = type.get();
+            auto type = m_allocator.construct<TypeBuiltin>(TypeBuiltin::DataType::Int32);
+            m_typeI32 = type;
             m_types.insert(std::make_pair(type->getIdentifier().getAsString(),
-                                          std::move(type)));
+                                          type));
         }
 
         {
-            auto type = std::make_unique<TypeBuiltin>(TypeBuiltin::DataType::UInt32);
-            m_typeU32 = type.get();
+            auto type = m_allocator.construct<TypeBuiltin>(TypeBuiltin::DataType::UInt32);
+            m_typeU32 = type;
             m_types.insert(std::make_pair(type->getIdentifier().getAsString(),
-                                          std::move(type)));
+                                          type));
         }
         {
-            auto type = std::make_unique<TypeBuiltin>(TypeBuiltin::DataType::Int64);
-            m_typeI64 = type.get();
+            auto type = m_allocator.construct<TypeBuiltin>(TypeBuiltin::DataType::Int64);
+            m_typeI64 = type;
             m_types.insert(std::make_pair(type->getIdentifier().getAsString(),
-                                          std::move(type)));
-        }
-
-        {
-            auto type = std::make_unique<TypeBuiltin>(TypeBuiltin::DataType::UInt64);
-            m_typeU64 = type.get();
-            m_types.insert(std::make_pair(type->getIdentifier().getAsString(),
-                                          std::move(type)));
+                                          type));
         }
 
         {
-            auto type = std::make_unique<TypeBuiltin>(TypeBuiltin::DataType::Float);
-            m_typeFloat = type.get();
+            auto type = m_allocator.construct<TypeBuiltin>(TypeBuiltin::DataType::UInt64);
+            m_typeU64 = type;
             m_types.insert(std::make_pair(type->getIdentifier().getAsString(),
-                                          std::move(type)));
+                                          type));
         }
 
         {
-            auto type = std::make_unique<TypeBuiltin>(TypeBuiltin::DataType::Double);
-            m_typeDouble = type.get();
+            auto type = m_allocator.construct<TypeBuiltin>(TypeBuiltin::DataType::Float);
+            m_typeFloat = type;
             m_types.insert(std::make_pair(type->getIdentifier().getAsString(),
-                                          std::move(type)));
+                                          type));
+        }
+
+        {
+            auto type = m_allocator.construct<TypeBuiltin>(TypeBuiltin::DataType::Double);
+            m_typeDouble = type;
+            m_types.insert(std::make_pair(type->getIdentifier().getAsString(),
+                                          type));
         }
 
     }
@@ -108,21 +210,122 @@ namespace yal{
         return it != m_types.end();
     }
 
-    void
-    TypeContext::addType(std::unique_ptr<Type>&& type) {
-        YAL_ASSERT(!hasType(type->getIdentifier()));
-        m_types.insert(std::make_pair(type->getIdentifier().getAsString(),
-                                      std::move(type)));
+    const Type*
+    TypeContext::getByIdentifier(const Identifier& identifier) const{
+        const auto it = m_types.find(identifier.getAsString());
+        if(it != m_types.end()) {
+            return it->second;
+        } else {
+            return nullptr;
+        }
     }
 
-     const Type*
-     TypeContext::getByIdentifier(const Identifier& identifier) const{
-         const auto it = m_types.find(identifier.getAsString());
-         if(it != m_types.end()) {
-             return it->second.get();
-         } else {
-             return nullptr;
-         }
-     }
+    const Type*
+    TypeContext::addType(DeclFunction* decl,
+                         TypeContextErrorHandler *errHandler) {
+        const Type* existingType = getByIdentifier(decl->getIdentifier());
+
+        if (existingType != nullptr ) {
+            if (errHandler != nullptr) {
+                errHandler->onDuplicate(decl, existingType);
+            }
+            return nullptr;
+        }
+
+        // check if all function params are defined
+        DeclParamVarContainer* fnParams = decl->getParams();
+        for (auto it = fnParams->childBegin(); it != fnParams->childEnd(); ++it) {
+            DeclParamVar* declparam = *it;
+            RefType* paramType = declparam->getVarType();
+            if (!paramType->isResolved()) {
+                if (errHandler != nullptr) {
+                    errHandler->onUnresolvedParamType(decl, declparam);
+                }
+                return nullptr;
+            }
+        }
+
+        // check if return type is defined
+        RefType* returnType = decl->getReturnType();
+        if (returnType != nullptr) {
+            if (!returnType->isResolved()) {
+                if (errHandler != nullptr) {
+                    errHandler->onUnresolvedReturnType(decl);
+                }
+                return nullptr;
+            }
+        }
+
+        auto type = m_allocator.construct<TypeDecl>(decl);
+        m_types.insert(std::make_pair(type->getIdentifier().getAsString(), type));
+        return type;
+    }
+
+    const Type*
+    TypeContext::addType(DeclTypeFunction* decl,
+                         TypeContextErrorHandler *errHandler) {
+        const Type* existingType = getByIdentifier(decl->getIdentifier());
+
+        if (existingType != nullptr) {
+            if (errHandler != nullptr) {
+                errHandler->onDuplicate(decl, existingType);
+            }
+            return nullptr;
+        }
+
+        // check if target type exists
+
+        RefType* targetTypeRef = decl->getTargetType();
+        if (!targetTypeRef->isResolved()) {
+            if (errHandler != nullptr) {
+                errHandler->onUnresolvedTargetType(decl);
+            }
+            return nullptr;
+        }
+
+        Type* targetType = m_types[targetTypeRef->getIdentitfier().getAsString()];
+
+        if (!targetType->isFunctionTargetable()) {
+            if (errHandler != nullptr) {
+                errHandler->onUnresolvedTargetType(decl);
+            }
+            return nullptr;
+        }
+
+        // check if all function params are defined
+        DeclParamVarContainer* fnParams = decl->getParams();
+        for (auto it = fnParams->childBegin(); it != fnParams->childEnd(); ++it) {
+            DeclParamVar* declparam = *it;
+            RefType* paramType = declparam->getVarType();
+            if (!paramType->isResolved()) {
+                if (errHandler != nullptr) {
+                    errHandler->onUnresolvedParamType(decl, declparam);
+                }
+                return nullptr;
+            }
+        }
+
+        // check if return type is defined
+        RefType* returnType = decl->getReturnType();
+        if (returnType != nullptr) {
+            if (!returnType->isResolved()) {
+                if (errHandler != nullptr) {
+                    errHandler->onUnresolvedReturnType(decl);
+                }
+                return nullptr;
+            }
+        }
+
+        auto type = m_allocator.construct<TypeDecl>(decl);
+        m_types.insert(std::make_pair(type->getIdentifier().getAsString(), type));
+        targetType->addFunction(type);
+        return type;
+    }
+
+    const Type*
+    TypeContext::addType(DeclStruct*,
+                         TypeContextErrorHandler *) {
+        return nullptr;
+    }
 
 }

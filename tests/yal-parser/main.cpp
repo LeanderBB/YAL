@@ -30,6 +30,7 @@
 #include <yal/ast/astprinter.h>
 #include <yal/ast/astcontext.h>
 #include <yal/compiler/cpasstyperegistration.h>
+#include <yal/io/sourceitems.h>
 int main(const int argc,
          const char** argv) {
 
@@ -52,19 +53,27 @@ int main(const int argc,
     yal::FileStream stdoutStream;
     stdoutStream.open(yal::FileStream::StdStream::Out);
 
-    yal::MemoryStream memStream;
-    memStream.create(stream);
+   auto sourceStream = std::make_unique<yal::SourceItemFile>();
 
+   if (!sourceStream->open(stream, (argc < 2) ? "stdin" : argv[1])) {
+       std::cerr << "Failed to create source stream" << std::endl;
+       return EXIT_FAILURE;
+   }
+
+    yal::SourceManager sourceManager;
     yal::ModuleManager moduleManager;
 
+    auto handle = sourceManager.add(std::move(sourceStream));
+
+    yal::SourceItem* sourceItem= sourceManager.getItem(handle);
     yal::Module* module = moduleManager.createNew("Test",
-                                                  yal::SourceManager::Handle());
+                                                  handle);
 
     if (!module) {
         return EXIT_FAILURE;
     }
 
-    yal::Lexer lexer(memStream);
+    yal::Lexer lexer(sourceItem->getByteStream());
     yal::Log log(stdoutStream);
     yal::Parser parser (lexer, log, *module);
 
@@ -75,7 +84,7 @@ int main(const int argc,
         astPrinter.visit(*module->getRootAstNode());
 
         yal::CPassTypeRegistration typeRegPass;
-        typeRegPass.run(log, *module);
+        typeRegPass.run(log, *module, sourceManager);
     }
 
     return result == yal::Parser::Result::Ok  ? EXIT_SUCCESS : EXIT_FAILURE;
