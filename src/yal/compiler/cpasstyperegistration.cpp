@@ -76,7 +76,8 @@ namespace yal {
 
     void
     TypeRegistrationVisitor::visit(DeclStruct& node) {
-        m_log.message("DeclSturct %\n", node.getName());
+        const Type* newType = m_module.getTypeContext().addType(&node, &m_errHandler);
+        m_errorFound = newType == nullptr;
     }
 
     void

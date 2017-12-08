@@ -43,7 +43,7 @@ namespace yal {
     class DeclParamVarSelf : public DeclParamVar {
     public:
         DeclParamVarSelf(Module& module,
-                         const Qualifier qualifier);
+                         RefType* refType);
 
         virtual void acceptVisitor(AstVisitor& visitor) override;
     };

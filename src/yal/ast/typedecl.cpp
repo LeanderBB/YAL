@@ -23,6 +23,8 @@
 #include "yal/ast/declfunction.h"
 namespace yal {
 
+
+
     TypeDecl::TypeDecl(DeclFunction* decl):
         Type(&decl->getModule(), Kind::TypeDecl, decl->getIdentifier()),
         m_decl(decl) {
@@ -39,6 +41,9 @@ namespace yal {
         Type(&decl->getModule(), Kind::TypeDecl, decl->getIdentifier()),
         m_decl(decl) {
         m_struct = 1;
+        m_functionTargetable = 1;
+
+
 
 
     }

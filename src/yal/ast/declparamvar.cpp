@@ -47,12 +47,12 @@ namespace yal {
 
 
     DeclParamVarSelf::DeclParamVarSelf(Module& module,
-                                       const Qualifier qualifier):
+                                      RefType* refType):
         DeclParamVar(module,
                      AstType::DeclParamVarSelf,
                      "self",
-                     qualifier,
-                     nullptr) {
+                     Qualifier(),
+                     refType) {
 
     }
 

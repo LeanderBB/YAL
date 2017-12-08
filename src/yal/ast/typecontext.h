@@ -32,6 +32,7 @@ namespace yal {
     class DeclFunction;
     class DeclTypeFunction;
     class DeclStruct;
+    class DeclVar;
     class DeclParamVar;
     class RefType;
 
@@ -59,6 +60,9 @@ namespace yal {
         void onUnresolvedTargetType(const DeclTypeFunction* typeFunction);
 
         void onUntargetableType(const DeclTypeFunction* typeFunction);
+
+        void onUnresolvedMemberType(const DeclStruct* decl,
+                                    const DeclVar *declVar);
     private:
         Log& m_log;
         const SourceManager& m_srcManager;
@@ -125,6 +129,10 @@ namespace yal {
         const TypeBuiltin* getTypeBuiltinDouble() const {
             return m_typeDouble;
         }
+
+    private:
+
+        const Type* resolve(RefType* typeRef) const;
 
     private:
         const TypeBuiltin* m_typeBool;

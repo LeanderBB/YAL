@@ -82,6 +82,8 @@ namespace yal {
             return m_resolvedType;
         }
 
+        void setResolvedType(const Type* type);
+
         Identifier getIdentitfier() const;
 
         void acceptVisitor(AstVisitor& visitor);

@@ -92,6 +92,12 @@ namespace yal {
     }
 
     void
+    RefType::setResolvedType(const Type* type) {
+        m_resolvedType = type;
+        m_identifier = type->getIdentifier();
+    }
+
+    void
     RefType::acceptVisitor(AstVisitor& visitor) {
         visitor.visit(*this);
     }

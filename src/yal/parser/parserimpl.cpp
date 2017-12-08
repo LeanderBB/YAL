@@ -1363,7 +1363,8 @@ static void yy_reduce(
 {
         yylhsminor.yy24 = pParser->newAstNode<yal::DeclParamVarContainer>();
         auto qualifier = yal::parser::MakeQualifierFromFlags(yymsp[-1].minor.yy41);
-        auto selfVar = pParser->newAstNode<yal::DeclParamVarSelf>(qualifier);
+        auto refType = pParser->newAstNode<yal::RefType>(qualifier, nullptr);
+        auto selfVar = pParser->newAstNode<yal::DeclParamVarSelf>(refType);
         auto srcInfo = pParser->createSourceInfo(yymsp[0].minor.yy0, yymsp[0].minor.yy0);
         selfVar->setSourceInfo(srcInfo);
         yylhsminor.yy24->addDeclParam(selfVar);
@@ -1375,7 +1376,8 @@ static void yy_reduce(
 {
     yylhsminor.yy24 = yymsp[0].minor.yy24;
     auto qualifier = yal::parser::MakeQualifierFromFlags(yymsp[-3].minor.yy41);
-    auto selfVar = pParser->newAstNode<yal::DeclParamVarSelf>(qualifier);
+    auto refType = pParser->newAstNode<yal::RefType>(qualifier, nullptr);
+    auto selfVar = pParser->newAstNode<yal::DeclParamVarSelf>(refType);
     auto srcInfo = pParser->createSourceInfo(yymsp[-2].minor.yy0, yymsp[-2].minor.yy0);
     selfVar->setSourceInfo(srcInfo);
     yylhsminor.yy24->addDeclParam(selfVar);

@@ -61,12 +61,12 @@ namespace yal{
 
     void
     TypeContextErrorHandler::onUnresolvedReturnType(const DeclFunction* function){
-         PrettyPrint::SourceErrorPrint(m_log,
-                                       function->getReturnType()->getSourceInfo(),
-                                       m_srcManager);
-         m_log.error("Function % has unresovled return type '%'\n",
-                     function->getIdentifier().getAsString(),
-                     function->getReturnType()->getIdentitfier().getAsString());
+        PrettyPrint::SourceErrorPrint(m_log,
+                                      function->getReturnType()->getSourceInfo(),
+                                      m_srcManager);
+        m_log.error("Function '%' has unresovled return type '%'\n",
+                    function->getIdentifier().getAsString(),
+                    function->getReturnType()->getIdentitfier().getAsString());
     }
 
     void
@@ -75,14 +75,14 @@ namespace yal{
         PrettyPrint::SourceErrorPrint(m_log,
                                       paramDecl->getSourceInfo(),
                                       m_srcManager);
-        m_log.error("Function % has unresovled param type '%'\n",
+        m_log.error("Function '%' has unresovled param type '%'\n",
                     function->getIdentifier().getAsString(),
                     paramDecl->getVarType()->getIdentitfier().getAsString());
     }
 
     void
     TypeContextErrorHandler::onUnresolvedReturnType(const DeclTypeFunction* function) {
-        m_log.error("Type Function % has unresovled return type '%'\n",
+        m_log.error("Type Function '%' has unresovled return type '%'\n",
                     function->getIdentifier().getAsString(),
                     function->getReturnType()->getIdentitfier().getAsString());
     }
@@ -93,7 +93,7 @@ namespace yal{
         PrettyPrint::SourceErrorPrint(m_log,
                                       paramDecl->getSourceInfo(),
                                       m_srcManager);
-        m_log.error("Type Function % has unresovled param type '%'\n",
+        m_log.error("Type Function '%' has unresovled param type '%'\n",
                     function->getIdentifier().getAsString(),
                     paramDecl->getVarType()->getIdentitfier().getAsString());
     }
@@ -103,7 +103,7 @@ namespace yal{
         PrettyPrint::SourceErrorPrint(m_log,
                                       typeFunction->getTargetType()->getSourceInfo(),
                                       m_srcManager);
-        m_log.error("Type Function % has unresovled target type '%'\n",
+        m_log.error("Type Function '%' has unresovled target type '%'\n",
                     typeFunction->getIdentifier().getAsString(),
                     typeFunction->getTargetType()->getIdentitfier().getAsString());
     }
@@ -115,6 +115,16 @@ namespace yal{
                                       m_srcManager);
         m_log.error("Type '%' can not accept type functions\n",
                     typeFunction->getTargetType()->getIdentitfier().getAsString());
+    }
+
+
+    void
+    TypeContextErrorHandler::onUnresolvedMemberType(const DeclStruct* decl,
+                                                    const DeclVar* declVar) {
+        m_log.error("Struct '%' has unresovled member type '%' for variable '%'\n",
+                    decl->getIdentifier().getAsString(),
+                    declVar->getVarType()->getIdentitfier().getAsString(),
+                    declVar->getIdentifier().getAsString());
     }
 
 
@@ -236,8 +246,8 @@ namespace yal{
         DeclParamVarContainer* fnParams = decl->getParams();
         for (auto it = fnParams->childBegin(); it != fnParams->childEnd(); ++it) {
             DeclParamVar* declparam = *it;
-            RefType* paramType = declparam->getVarType();
-            if (!paramType->isResolved()) {
+            const Type* paramType = resolve(declparam->getVarType());
+            if (paramType == nullptr) {
                 if (errHandler != nullptr) {
                     errHandler->onUnresolvedParamType(decl, declparam);
                 }
@@ -246,9 +256,10 @@ namespace yal{
         }
 
         // check if return type is defined
-        RefType* returnType = decl->getReturnType();
-        if (returnType != nullptr) {
-            if (!returnType->isResolved()) {
+        RefType* returnRefType = decl->getReturnType();
+        if (returnRefType != nullptr) {
+            const Type* returnType = resolve(returnRefType);
+            if (returnType == nullptr) {
                 if (errHandler != nullptr) {
                     errHandler->onUnresolvedReturnType(decl);
                 }
@@ -275,15 +286,13 @@ namespace yal{
 
         // check if target type exists
 
-        RefType* targetTypeRef = decl->getTargetType();
-        if (!targetTypeRef->isResolved()) {
+        const Type* targetType = resolve(decl->getTargetType());
+        if (targetType == nullptr) {
             if (errHandler != nullptr) {
                 errHandler->onUnresolvedTargetType(decl);
             }
             return nullptr;
         }
-
-        Type* targetType = m_types[targetTypeRef->getIdentitfier().getAsString()];
 
         if (!targetType->isFunctionTargetable()) {
             if (errHandler != nullptr) {
@@ -294,10 +303,22 @@ namespace yal{
 
         // check if all function params are defined
         DeclParamVarContainer* fnParams = decl->getParams();
-        for (auto it = fnParams->childBegin(); it != fnParams->childEnd(); ++it) {
+
+        auto it = fnParams->childBegin();
+
+        // Fix self type
+        if (fnParams->getCount() != 0) {
+            DeclParamVarSelf* selfParam = dyn_cast<DeclParamVarSelf>(*it);
+            if (selfParam != nullptr) {
+                selfParam->getVarType()->setResolvedType(targetType);
+            }
+            ++it;
+        }
+
+        for (; it != fnParams->childEnd(); ++it) {
             DeclParamVar* declparam = *it;
-            RefType* paramType = declparam->getVarType();
-            if (!paramType->isResolved()) {
+            const Type* paramType = resolve(declparam->getVarType());
+            if (paramType == nullptr) {
                 if (errHandler != nullptr) {
                     errHandler->onUnresolvedParamType(decl, declparam);
                 }
@@ -306,9 +327,10 @@ namespace yal{
         }
 
         // check if return type is defined
-        RefType* returnType = decl->getReturnType();
-        if (returnType != nullptr) {
-            if (!returnType->isResolved()) {
+        RefType* returnRefType = decl->getReturnType();
+        if (returnRefType != nullptr) {
+            const Type* returnType = resolve(returnRefType);
+            if (returnType == nullptr) {
                 if (errHandler != nullptr) {
                     errHandler->onUnresolvedReturnType(decl);
                 }
@@ -318,14 +340,51 @@ namespace yal{
 
         auto type = m_allocator.construct<TypeDecl>(decl);
         m_types.insert(std::make_pair(type->getIdentifier().getAsString(), type));
-        targetType->addFunction(type);
+        Type* mutTargetType = const_cast<Type*>(targetType);
+        mutTargetType->addFunction(type);
         return type;
     }
 
     const Type*
-    TypeContext::addType(DeclStruct*,
-                         TypeContextErrorHandler *) {
-        return nullptr;
+    TypeContext::addType(DeclStruct* decl,
+                         TypeContextErrorHandler *errHandler) {
+
+        const Type* existingType = getByIdentifier(decl->getIdentifier());
+
+        if (existingType != nullptr) {
+            if (errHandler != nullptr) {
+                errHandler->onDuplicate(decl, existingType);
+            }
+            return nullptr;
+        }
+
+        DeclStructMembers* members = decl->getMembers();
+
+        for (auto it = members->childBegin(); it != members->childEnd(); ++it) {
+            DeclVar*  memberDecl = *it;
+            const Type* varType = resolve(memberDecl->getVarType());
+            if (varType == nullptr) {
+                if (errHandler != nullptr) {
+                    errHandler->onUnresolvedMemberType(decl, memberDecl);
+                }
+                return nullptr;
+            }
+        }
+
+        auto type = m_allocator.construct<TypeDecl>(decl);
+        m_types.insert(std::make_pair(type->getIdentifier().getAsString(), type));
+        return type;
     }
 
+    const Type *TypeContext::resolve(RefType *typeRef) const {
+        if (!typeRef->isResolved()) {
+            const Type* resolvedType = getByIdentifier(typeRef->getIdentitfier());
+            if (resolvedType != nullptr) {
+                typeRef->setResolvedType(resolvedType);
+            }
+            return resolvedType;
+        } else {
+            return typeRef->getResolvedType();
+        }
+    }
 }

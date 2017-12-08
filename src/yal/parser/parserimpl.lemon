@@ -270,7 +270,8 @@ type_function_decl(A)::= FUNCTION(X) type_specifier(B) COLON COLON IDENTIFIER(C)
 type_function_args_decl(A) ::= qualifier(B) SELF(C). {
         A = pParser->newAstNode<yal::DeclParamVarContainer>();
         auto qualifier = yal::parser::MakeQualifierFromFlags(B);
-        auto selfVar = pParser->newAstNode<yal::DeclParamVarSelf>(qualifier);
+        auto refType = pParser->newAstNode<yal::RefType>(qualifier, nullptr);
+        auto selfVar = pParser->newAstNode<yal::DeclParamVarSelf>(refType);
         auto srcInfo = pParser->createSourceInfo(C, C);
         selfVar->setSourceInfo(srcInfo);
         A->addDeclParam(selfVar);
@@ -280,7 +281,8 @@ type_function_args_decl(A) ::= qualifier(B) SELF(C). {
 type_function_args_decl(A) ::= qualifier(C) SELF(Z) COMMA type_function_args_decl_other(B). {
     A = B;
     auto qualifier = yal::parser::MakeQualifierFromFlags(C);
-    auto selfVar = pParser->newAstNode<yal::DeclParamVarSelf>(qualifier);
+    auto refType = pParser->newAstNode<yal::RefType>(qualifier, nullptr);
+    auto selfVar = pParser->newAstNode<yal::DeclParamVarSelf>(refType);
     auto srcInfo = pParser->createSourceInfo(Z, Z);
     selfVar->setSourceInfo(srcInfo);
     A->addDeclParam(selfVar);
