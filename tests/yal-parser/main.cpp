@@ -80,11 +80,15 @@ int main(const int argc,
     auto result =  parser.run();
 
     if (result == yal::Parser::Result::Ok) {
-        yal::AstPrinter astPrinter(stdoutStream);
-        astPrinter.visit(*module->getRootAstNode());
+        bool result = false;
 
         yal::CPassTypeRegistration typeRegPass;
-        typeRegPass.run(log, *module, sourceManager);
+        result = typeRegPass.run(log, *module, sourceManager);
+
+        if (result) {
+            yal::AstPrinter astPrinter(stdoutStream);
+            astPrinter.visit(*module->getRootAstNode());
+        }
     }
 
     return result == yal::Parser::Result::Ok  ? EXIT_SUCCESS : EXIT_FAILURE;

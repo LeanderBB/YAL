@@ -22,15 +22,6 @@
 #include "yal/ast/module.h"
 namespace yal {
 
-
-    void* RefType::operator new(std::size_t bytes,
-                                Module &module) {
-        ASTContext& astctx = module.getASTContext();
-        void* ptr = astctx.allocate(bytes);
-        YAL_ASSERT_MESSAGE(ptr != nullptr, "RefType: Failed to allocate memory");
-        return ptr;
-    }
-
     RefType::RefType(Module& module,
                      const StringRef identifier):
         RefType(module, Qualifier(), Identifier(identifier, module)) {

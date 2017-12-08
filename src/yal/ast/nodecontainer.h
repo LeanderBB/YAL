@@ -40,15 +40,6 @@ namespace yal {
         using ContainerType = std::vector<NodeType>;
         using ChildType = NodeType;
 
-        static void* operator new(std::size_t bytes,
-                                  Module& module) {
-            ASTContext& astctx = module.getASTContext();
-            void* ptr = astctx.allocate(bytes);
-            YAL_ASSERT_MESSAGE(ptr != nullptr,
-                               "NodeContainer: Failed to allocate memory");
-            return ptr;
-        }
-
         NodeContainer(Module&) {
 
         }

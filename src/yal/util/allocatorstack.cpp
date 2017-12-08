@@ -45,9 +45,16 @@ namespace yal {
 
     AllocatorStack::AllocatorStack(const size_t stackSizeBytes):
         m_stackSizeBytes(stackSizeBytes),
+        m_activeStack(nullptr),
         m_stackList(),
-        m_activeStack(nullptr){
+        m_dtors() {
+        m_dtors.reserve(128);
+    }
 
+    AllocatorStack::~AllocatorStack() {
+        for(auto& dtor: m_dtors) {
+            dtor.second(dtor.first);
+        }
     }
 
     void*

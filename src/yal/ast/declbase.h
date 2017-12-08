@@ -33,9 +33,6 @@ namespace yal{
     {
     public:
 
-        static void* operator new(std::size_t bytes,
-                                  Module& ctx);
-
         DeclBase(Module& module,
                  const AstType type,
                  StringRef name);

@@ -73,11 +73,12 @@ namespace yal{
     TypeContextErrorHandler::onUnresolvedParamType(const DeclFunction* function,
                                                    const DeclParamVar* paramDecl) {
         PrettyPrint::SourceErrorPrint(m_log,
-                                      paramDecl->getSourceInfo(),
+                                      paramDecl->getVarType()->getSourceInfo(),
                                       m_srcManager);
-        m_log.error("Function '%' has unresovled param type '%'\n",
+        m_log.error("Function '%' has unresovled type '%' for param '%'\n",
                     function->getIdentifier().getAsString(),
-                    paramDecl->getVarType()->getIdentitfier().getAsString());
+                    paramDecl->getVarType()->getIdentitfier().getAsString(),
+                    paramDecl->getName());
     }
 
     void
@@ -91,11 +92,12 @@ namespace yal{
     TypeContextErrorHandler::onUnresolvedParamType(const DeclTypeFunction* function,
                                                    const DeclParamVar* paramDecl) {
         PrettyPrint::SourceErrorPrint(m_log,
-                                      paramDecl->getSourceInfo(),
+                                      paramDecl->getVarType()->getSourceInfo(),
                                       m_srcManager);
-        m_log.error("Type Function '%' has unresovled param type '%'\n",
+        m_log.error("Type Function '%' has unresovled type '%' for param '%'\n",
                     function->getIdentifier().getAsString(),
-                    paramDecl->getVarType()->getIdentitfier().getAsString());
+                    paramDecl->getVarType()->getIdentitfier().getAsString(),
+                    paramDecl->getName());
     }
 
     void

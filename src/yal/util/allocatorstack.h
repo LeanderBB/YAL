@@ -36,6 +36,8 @@ namespace yal{
         AllocatorStack(AllocatorStack&& other);
         AllocatorStack& operator=(AllocatorStack&& other);
 
+        ~AllocatorStack();
+
         void* allocate(const size_t bytes);
 
         void shutdown();
@@ -50,7 +52,12 @@ namespace yal{
         T* construct(ARGS&& ...args) {
             void* mem = allocate(sizeof(T));
             YAL_ASSERT(mem != nullptr);
-            return new (mem) T(std::forward<ARGS>(args)...);
+            T* ptr =new (mem) T(std::forward<ARGS>(args)...);
+            m_dtors.emplace_back(ptr, [](void* ptr){
+                T* typePtr = reinterpret_cast<T*>(ptr);
+                typePtr->~T();
+            });
+            return ptr;
         }
 
     private:
@@ -71,7 +78,9 @@ namespace yal{
 
         const size_t m_stackSizeBytes;
         using StackList = std::vector<Stack>;
-        StackList m_stackList;
+        using DtorList = std::vector<std::pair<void*,void(*)(void*)>>;
         Stack* m_activeStack;
+        StackList m_stackList;
+        DtorList m_dtors;
     };
 }

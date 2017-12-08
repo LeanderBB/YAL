@@ -30,8 +30,6 @@ namespace yal {
     class RefType {
     public:
 
-        static void* operator new(std::size_t bytes,
-                                  Module& ctx);
 
         RefType(Module& module,
                 const StringRef identifier);
