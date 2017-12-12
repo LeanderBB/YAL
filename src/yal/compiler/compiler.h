@@ -36,9 +36,22 @@ namespace yal {
                  SourceManager& srcManager,
                  ModuleManager& moduleManager);
 
+        Log& getLog() {
+            return m_log;
+        }
+
+        SourceManager& getSourceManager() {
+            return m_srcManager;
+        }
+
+        ModuleManager& getModuleManager() {
+            return m_moduleManager;
+        }
+
         void setFlags(const uint64_t flags);
 
         Module* compile(const SourceManager::Handle source);
+
 
     private:
         Log& m_log;

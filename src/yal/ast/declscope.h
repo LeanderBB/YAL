@@ -24,6 +24,7 @@
 namespace yal {
 
     class DeclBase;
+    class Identifier;
     class DeclScope {
     public:
 
@@ -36,7 +37,14 @@ namespace yal {
 
         DeclScope(const Kind kind);
 
-        bool hasDecl(const DeclBase* decl) const;
+        bool hasDecl(const DeclBase* decl,
+                     const bool local) const;
+
+        bool hasDecl(const Identifier& identifier,
+                     const bool local) const;
+
+        DeclBase* getDecl(const Identifier &identifier,
+                          const bool local);
 
         void addDecl(DeclBase* decl);
 

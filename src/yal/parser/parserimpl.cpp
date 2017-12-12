@@ -31,6 +31,7 @@
 #include "yal/parser/parserhelper.h"
 #include "yal/util/log.h"
 #include "yal/util/stringref.h"
+#include "yal/ast/module.h"
 #include "yal/ast/typebuiltin.h"
 #include "yal/ast/declfunction.h"
 #include "yal/ast/decltypefunction.h"
@@ -1203,8 +1204,7 @@ static void yy_reduce(
         break;
       case 3: /* decls ::= */
 {
-        yymsp[1].minor.yy184 =  pParser->newAstNode<yal::DeclModule>();
-        pParser->onAstNodeCreate(yymsp[1].minor.yy184);
+        yymsp[1].minor.yy184 =  pParser->getModule().getDeclNode();
      }
         break;
       case 4: /* type_specifier ::= type_builtin */
@@ -1216,10 +1216,15 @@ static void yy_reduce(
         break;
       case 6: /* type_specifier ::= IDENTIFIER */
 {
-        yylhsminor.yy180 = pParser->newAstNode<yal::RefType>(yymsp[0].minor.yy0.tokenStr);
+    auto type = pParser->resolveType(yymsp[0].minor.yy0);
+    if (type != nullptr) {
+        yylhsminor.yy180 = pParser->newAstNode<yal::RefType>(type);
         auto srcInfo = pParser->createSourceInfo(yymsp[0].minor.yy0, yymsp[0].minor.yy0);
         yylhsminor.yy180->setSourceInfo(srcInfo);
- }
+    } else {
+        yylhsminor.yy180 = nullptr;
+    }
+}
   yymsp[0].minor.yy180 = yylhsminor.yy180;
         break;
       case 7: /* qualifier ::= */
@@ -1238,65 +1243,65 @@ static void yy_reduce(
         break;
       case 11: /* qualified_type ::= qualifier type_specifier */
 {
-        yymsp[0].minor.yy180->setQualifier(yal::parser::MakeQualifierFromFlags(yymsp[-1].minor.yy81));
-        yylhsminor.yy180 = yymsp[0].minor.yy180;
+    yymsp[0].minor.yy180->setQualifier(yal::parser::MakeQualifierFromFlags(yymsp[-1].minor.yy81));
+    yylhsminor.yy180 = yymsp[0].minor.yy180;
 }
   yymsp[-1].minor.yy180 = yylhsminor.yy180;
         break;
       case 12: /* type_builtin ::= TYPE_BOOL */
 {
-        yymsp[0].minor.yy180 = pParser->newAstNode<yal::RefType>(pParser->getModule().getTypeContext().getTypeBuiltinBool());
-        }
+    yymsp[0].minor.yy180 = pParser->newAstNode<yal::RefType>(pParser->getModule().getTypeContext().getTypeBuiltinBool());
+    }
         break;
       case 13: /* type_builtin ::= TYPE_INT8 */
 {
-        yymsp[0].minor.yy180 = pParser->newAstNode<yal::RefType>(pParser->getModule().getTypeContext().getTypeBuiltinI8());
-        }
+    yymsp[0].minor.yy180 = pParser->newAstNode<yal::RefType>(pParser->getModule().getTypeContext().getTypeBuiltinI8());
+    }
         break;
       case 14: /* type_builtin ::= TYPE_UINT8 */
 {
-        yymsp[0].minor.yy180  = pParser->newAstNode<yal::RefType>(pParser->getModule().getTypeContext().getTypeBuiltinU8());
-        }
+    yymsp[0].minor.yy180  = pParser->newAstNode<yal::RefType>(pParser->getModule().getTypeContext().getTypeBuiltinU8());
+    }
         break;
       case 15: /* type_builtin ::= TYPE_INT16 */
 {
-        yymsp[0].minor.yy180 = pParser->newAstNode<yal::RefType>(pParser->getModule().getTypeContext().getTypeBuiltinI16());
-        }
+    yymsp[0].minor.yy180 = pParser->newAstNode<yal::RefType>(pParser->getModule().getTypeContext().getTypeBuiltinI16());
+    }
         break;
       case 16: /* type_builtin ::= TYPE_UINT16 */
 {
-        yymsp[0].minor.yy180  = pParser->newAstNode<yal::RefType>(pParser->getModule().getTypeContext().getTypeBuiltinU16());
-        }
+    yymsp[0].minor.yy180  = pParser->newAstNode<yal::RefType>(pParser->getModule().getTypeContext().getTypeBuiltinU16());
+    }
         break;
       case 17: /* type_builtin ::= TYPE_INT32 */
 {
-        yymsp[0].minor.yy180 = pParser->newAstNode<yal::RefType>(pParser->getModule().getTypeContext().getTypeBuiltinI32());
-        }
+    yymsp[0].minor.yy180 = pParser->newAstNode<yal::RefType>(pParser->getModule().getTypeContext().getTypeBuiltinI32());
+    }
         break;
       case 18: /* type_builtin ::= TYPE_UINT32 */
 {
-        yymsp[0].minor.yy180 = pParser->newAstNode<yal::RefType>(pParser->getModule().getTypeContext().getTypeBuiltinU32());
-        }
+    yymsp[0].minor.yy180 = pParser->newAstNode<yal::RefType>(pParser->getModule().getTypeContext().getTypeBuiltinU32());
+    }
         break;
       case 19: /* type_builtin ::= TYPE_INT64 */
 {
-        yymsp[0].minor.yy180 = pParser->newAstNode<yal::RefType>(pParser->getModule().getTypeContext().getTypeBuiltinI64());
-        }
+    yymsp[0].minor.yy180 = pParser->newAstNode<yal::RefType>(pParser->getModule().getTypeContext().getTypeBuiltinI64());
+    }
         break;
       case 20: /* type_builtin ::= TYPE_UINT64 */
 {
-        yymsp[0].minor.yy180 = pParser->newAstNode<yal::RefType>(pParser->getModule().getTypeContext().getTypeBuiltinU64());
-        }
+    yymsp[0].minor.yy180 = pParser->newAstNode<yal::RefType>(pParser->getModule().getTypeContext().getTypeBuiltinU64());
+    }
         break;
       case 21: /* type_builtin ::= TYPE_FLOAT */
 {
-        yymsp[0].minor.yy180 = pParser->newAstNode<yal::RefType>(pParser->getModule().getTypeContext().getTypeBuiltinFloat());
-        }
+    yymsp[0].minor.yy180 = pParser->newAstNode<yal::RefType>(pParser->getModule().getTypeContext().getTypeBuiltinFloat());
+    }
         break;
       case 22: /* type_builtin ::= TYPE_DOUBLE */
 {
-        yymsp[0].minor.yy180 = pParser->newAstNode<yal::RefType>(pParser->getModule().getTypeContext().getTypeBuiltinDouble());
-        }
+    yymsp[0].minor.yy180 = pParser->newAstNode<yal::RefType>(pParser->getModule().getTypeContext().getTypeBuiltinDouble());
+    }
         break;
       case 23: /* decl_type ::= TYPE IDENTIFIER COLON type_specifier SEMI_COLON */
 {
@@ -1311,32 +1316,38 @@ static void yy_reduce(
 {
     yylhsminor.yy78 = pParser->newAstNode<yal::DeclStruct>(yymsp[-2].minor.yy0.tokenStr);
     yylhsminor.yy78->setSourceInfo(pParser->createSourceInfo(yymsp[-3].minor.yy0, yymsp[-2].minor.yy0));
+    pParser->onDeclBegin(yylhsminor.yy78);
 }
   yymsp[-3].minor.yy78 = yylhsminor.yy78;
         break;
       case 26: /* decl_struct ::= struct_header SCOPE_BEGIN struct_decl_vars SCOPE_END */
 {
-        yylhsminor.yy78 = yymsp[-3].minor.yy78;
-        if (yymsp[-1].minor.yy149 != nullptr) {
-            yymsp[-1].minor.yy149->updateSourceInfo();
-            yylhsminor.yy78->setMembers(yymsp[-1].minor.yy149);
-        }
-        auto srcInfo = pParser->createSourceInfo(yymsp[-3].minor.yy78->getSourceInfo(), yymsp[0].minor.yy0);
-        yylhsminor.yy78->setSourceInfo(srcInfo);
+    yylhsminor.yy78 = yymsp[-3].minor.yy78;
+    if (yymsp[-1].minor.yy149 != nullptr) {
+        yymsp[-1].minor.yy149->updateSourceInfo();
+        yylhsminor.yy78->setMembers(yymsp[-1].minor.yy149);
+    }
+    auto srcInfo = pParser->createSourceInfo(yymsp[-3].minor.yy78->getSourceInfo(), yymsp[0].minor.yy0);
+    yylhsminor.yy78->setSourceInfo(srcInfo);
+    pParser->onDeclEnd();
 }
   yymsp[-3].minor.yy78 = yylhsminor.yy78;
         break;
       case 27: /* struct_decl_vars ::= struct_decl_vars struct_decl_var */
 {
     yylhsminor.yy149 = yymsp[-1].minor.yy149;
-    yylhsminor.yy149->addDeclVar(yymsp[0].minor.yy138);
+    if (pParser->onDecl(yymsp[0].minor.yy138)) {
+        yylhsminor.yy149->addDeclVar(yymsp[0].minor.yy138);
+    }
 }
   yymsp[-1].minor.yy149 = yylhsminor.yy149;
         break;
       case 28: /* struct_decl_vars ::= struct_decl_var */
 {
     yylhsminor.yy149 = pParser->newAstNode<yal::DeclStructMembers>();
-    yylhsminor.yy149->addDeclVar(yymsp[0].minor.yy138);
+    if (pParser->onDecl(yymsp[0].minor.yy138)) {
+        yylhsminor.yy149->addDeclVar(yymsp[0].minor.yy138);
+    }
 }
   yymsp[0].minor.yy149 = yylhsminor.yy149;
         break;
@@ -1350,9 +1361,10 @@ static void yy_reduce(
         break;
       case 30: /* function_header ::= function_start function_param_list function_return_decl */
 {
-        yylhsminor.yy183 = yymsp[-2].minor.yy183;
-        yylhsminor.yy183->setParams(yymsp[-1].minor.yy74);
-        yylhsminor.yy183->setReturnType(yymsp[0].minor.yy180);
+    yylhsminor.yy183 = yymsp[-2].minor.yy183;
+    yylhsminor.yy183->setParams(yymsp[-1].minor.yy74);
+    yylhsminor.yy183->setReturnType(yymsp[0].minor.yy180);
+
 }
   yymsp[-2].minor.yy183 = yylhsminor.yy183;
         break;
@@ -1360,6 +1372,7 @@ static void yy_reduce(
 {
      yylhsminor.yy183 = pParser->newAstNode<yal::DeclFunction>(yymsp[0].minor.yy0.tokenStr);
      yylhsminor.yy183->setSourceInfo(pParser->createSourceInfo(yymsp[-1].minor.yy0, yymsp[0].minor.yy0));
+     pParser->onDeclBegin(yylhsminor.yy183);
 }
   yymsp[-1].minor.yy183 = yylhsminor.yy183;
         break;
@@ -1374,6 +1387,7 @@ static void yy_reduce(
     yylhsminor.yy183 = yymsp[-3].minor.yy183;
     yylhsminor.yy183->setFunctionBody(yymsp[-1].minor.yy170);
     yylhsminor.yy183->setSourceInfo(pParser->createSourceInfo(yymsp[-3].minor.yy183->getSourceInfo(), yymsp[0].minor.yy0));
+    pParser->onDeclEnd();
 }
   yymsp[-3].minor.yy183 = yylhsminor.yy183;
         break;
@@ -1389,14 +1403,16 @@ static void yy_reduce(
 {
     yylhsminor.yy165 = pParser->newAstNode<yal::DeclTypeFunction>(yymsp[0].minor.yy0.tokenStr, yymsp[-3].minor.yy180);
     yylhsminor.yy165->setSourceInfo(pParser->createSourceInfo(yymsp[-4].minor.yy0, yymsp[0].minor.yy0));
+    pParser->onDeclBegin(yylhsminor.yy165);
 }
   yymsp[-4].minor.yy165 = yylhsminor.yy165;
         break;
       case 37: /* type_function_decl ::= type_function_header SCOPE_BEGIN statement_list_or_empty SCOPE_END */
 {
-        yylhsminor.yy165 = yymsp[-3].minor.yy165;
-        yylhsminor.yy165->setFunctionBody(yymsp[-1].minor.yy170);
-        yylhsminor.yy165->setSourceInfo(pParser->createSourceInfo(yymsp[-3].minor.yy165->getSourceInfo(), yymsp[0].minor.yy0));
+    yylhsminor.yy165 = yymsp[-3].minor.yy165;
+    yylhsminor.yy165->setFunctionBody(yymsp[-1].minor.yy170);
+    yylhsminor.yy165->setSourceInfo(pParser->createSourceInfo(yymsp[-3].minor.yy165->getSourceInfo(), yymsp[0].minor.yy0));
+    pParser->onDeclEnd();
 }
   yymsp[-3].minor.yy165 = yylhsminor.yy165;
         break;
@@ -1404,12 +1420,12 @@ static void yy_reduce(
 {
         yylhsminor.yy74 = pParser->newAstNode<yal::DeclParamVarContainer>();
         auto qualifier = yal::parser::MakeQualifierFromFlags(yymsp[-1].minor.yy81);
-        auto refType = pParser->newAstNode<yal::RefType>(qualifier, nullptr);
+        auto refType = pParser->newAstNode<yal::RefType>(qualifier, pParser->resolveSelfType());
         auto selfVar = pParser->newAstNode<yal::DeclParamVarSelf>(refType);
         auto srcInfo = pParser->createSourceInfo(yymsp[0].minor.yy0, yymsp[0].minor.yy0);
         selfVar->setSourceInfo(srcInfo);
         yylhsminor.yy74->addDeclParam(selfVar);
-
+        pParser->onDecl(selfVar);
 }
   yymsp[-1].minor.yy74 = yylhsminor.yy74;
         break;
@@ -1417,11 +1433,12 @@ static void yy_reduce(
 {
     yylhsminor.yy74 = yymsp[0].minor.yy74;
     auto qualifier = yal::parser::MakeQualifierFromFlags(yymsp[-3].minor.yy81);
-    auto refType = pParser->newAstNode<yal::RefType>(qualifier, nullptr);
+    auto refType = pParser->newAstNode<yal::RefType>(qualifier, pParser->resolveSelfType());
     auto selfVar = pParser->newAstNode<yal::DeclParamVarSelf>(refType);
     auto srcInfo = pParser->createSourceInfo(yymsp[-2].minor.yy0, yymsp[-2].minor.yy0);
     selfVar->setSourceInfo(srcInfo);
     yylhsminor.yy74->addDeclParam(selfVar);
+    pParser->onDecl(selfVar);
 }
   yymsp[-3].minor.yy74 = yylhsminor.yy74;
         break;
@@ -1439,7 +1456,6 @@ static void yy_reduce(
   yymsp[-2].minor.yy74 = yylhsminor.yy74;
         break;
       case 42: /* type_function_args_decl_other ::= function_arg_decl */
-      case 44: /* function_args_decl ::= function_arg_decl */ yytestcase(yyruleno==44);
 {
         yylhsminor.yy74 = pParser->newAstNode<yal::DeclParamVarContainer>();
         yylhsminor.yy74->addDeclParam(yymsp[0].minor.yy71);
@@ -1448,10 +1464,21 @@ static void yy_reduce(
         break;
       case 43: /* function_args_decl ::= function_args_decl COMMA function_arg_decl */
 {
+    if (pParser->onDecl(yymsp[0].minor.yy71)){
         yymsp[-2].minor.yy74->addDeclParam(yymsp[0].minor.yy71);
         yylhsminor.yy74 = yymsp[-2].minor.yy74;
+    }
 }
   yymsp[-2].minor.yy74 = yylhsminor.yy74;
+        break;
+      case 44: /* function_args_decl ::= function_arg_decl */
+{
+    if (pParser->onDecl(yymsp[0].minor.yy71)){
+        yylhsminor.yy74 = pParser->newAstNode<yal::DeclParamVarContainer>();
+        yylhsminor.yy74->addDeclParam(yymsp[0].minor.yy71);
+    }
+}
+  yymsp[0].minor.yy74 = yylhsminor.yy74;
         break;
       case 45: /* function_args_decl ::= */
 {
@@ -1532,9 +1559,11 @@ static void yy_reduce(
     auto varDecl = pParser->newAstNode<yal::DeclVar>(yymsp[-3].minor.yy0.tokenStr, yal::Qualifier(), yymsp[-2].minor.yy180, yymsp[0].minor.yy7);
     auto varSrcInfo = pParser->createSourceInfo(yymsp[-4].minor.yy0, yymsp[-3].minor.yy0);
     varDecl->setSourceInfo(varSrcInfo);
-    yylhsminor.yy93= pParser->newAstNode<yal::StmtDecl>(varDecl);
-    auto srcInfo = pParser->createSourceInfo(yymsp[-4].minor.yy0, yymsp[0].minor.yy7->getSourceInfo());
-    yylhsminor.yy93->setSourceInfo(srcInfo);
+    if (pParser->onDecl(varDecl)) {
+        yylhsminor.yy93= pParser->newAstNode<yal::StmtDecl>(varDecl);
+        auto srcInfo = pParser->createSourceInfo(yymsp[-4].minor.yy0, yymsp[0].minor.yy7->getSourceInfo());
+        yylhsminor.yy93->setSourceInfo(srcInfo);
+    }
 
 }
   yymsp[-4].minor.yy93 = yylhsminor.yy93;
@@ -1546,9 +1575,11 @@ static void yy_reduce(
     auto varDecl = pParser->newAstNode<yal::DeclVar>(yymsp[-3].minor.yy0.tokenStr, qualifier, yymsp[-2].minor.yy180, yymsp[0].minor.yy7);
     auto varSrcInfo = pParser->createSourceInfo(yymsp[-4].minor.yy0, yymsp[-3].minor.yy0);
     varDecl->setSourceInfo(varSrcInfo);
-    yylhsminor.yy93= pParser->newAstNode<yal::StmtDecl>(varDecl);
-    auto srcInfo = pParser->createSourceInfo(yymsp[-4].minor.yy0, yymsp[0].minor.yy7->getSourceInfo());
-    yylhsminor.yy93->setSourceInfo(srcInfo);
+    if (pParser->onDecl(varDecl)) {
+        yylhsminor.yy93= pParser->newAstNode<yal::StmtDecl>(varDecl);
+        auto srcInfo = pParser->createSourceInfo(yymsp[-4].minor.yy0, yymsp[0].minor.yy7->getSourceInfo());
+        yylhsminor.yy93->setSourceInfo(srcInfo);
+    }
 }
   yymsp[-4].minor.yy93 = yylhsminor.yy93;
         break;
@@ -1596,29 +1627,35 @@ static void yy_reduce(
         break;
       case 69: /* expression ::= IDENTIFIER PAR_BEGIN function_call_args PAR_END */
 {
-    auto fnType = pParser->newAstNode<yal::RefType>(yymsp[-3].minor.yy0.tokenStr);
-    auto fnSrcInfo = pParser->createSourceInfo(yymsp[-3].minor.yy0, yymsp[-3].minor.yy0);
-    fnType->setSourceInfo(fnSrcInfo);
-    if (yymsp[-1].minor.yy128 != nullptr) {
-        yymsp[-1].minor.yy128->updateSourceInfo();
+    auto type = pParser->resolveType(yymsp[-3].minor.yy0);
+    if (type != nullptr ) {
+        auto fnType = pParser->newAstNode<yal::RefType>(type);
+        auto fnSrcInfo = pParser->createSourceInfo(yymsp[-3].minor.yy0, yymsp[-3].minor.yy0);
+        fnType->setSourceInfo(fnSrcInfo);
+        if (yymsp[-1].minor.yy128 != nullptr) {
+            yymsp[-1].minor.yy128->updateSourceInfo();
+        }
+        yylhsminor.yy7 = pParser->newAstNode<yal::ExprFnCall>(fnType, yymsp[-1].minor.yy128);
+        auto srcInfo = pParser->createSourceInfo(yymsp[-3].minor.yy0, yymsp[0].minor.yy0);
+        yylhsminor.yy7->setSourceInfo(srcInfo);
     }
-    yylhsminor.yy7 = pParser->newAstNode<yal::ExprFnCall>(fnType, yymsp[-1].minor.yy128);
-    auto srcInfo = pParser->createSourceInfo(yymsp[-3].minor.yy0, yymsp[0].minor.yy0);
-    yylhsminor.yy7->setSourceInfo(srcInfo);
 }
   yymsp[-3].minor.yy7 = yylhsminor.yy7;
         break;
       case 70: /* expression ::= expression DOT IDENTIFIER PAR_BEGIN function_call_args PAR_END */
 {
-    auto fnType = pParser->newAstNode<yal::RefType>(yymsp[-3].minor.yy0.tokenStr);
-    auto fnSrcInfo = pParser->createSourceInfo(yymsp[-3].minor.yy0, yymsp[-3].minor.yy0);
-    fnType->setSourceInfo(fnSrcInfo);
-    if (yymsp[-1].minor.yy128 != nullptr) {
-        yymsp[-1].minor.yy128->updateSourceInfo();
+    auto type = pParser->resolveType(yymsp[-3].minor.yy0);
+    if (type != nullptr ) {
+        auto fnType = pParser->newAstNode<yal::RefType>(type);
+        auto fnSrcInfo = pParser->createSourceInfo(yymsp[-3].minor.yy0, yymsp[-3].minor.yy0);
+        fnType->setSourceInfo(fnSrcInfo);
+        if (yymsp[-1].minor.yy128 != nullptr) {
+            yymsp[-1].minor.yy128->updateSourceInfo();
+        }
+        yylhsminor.yy7 = pParser->newAstNode<yal::ExprStructFnCall>(yymsp[-5].minor.yy7, fnType, yymsp[-1].minor.yy128);
+        auto srcInfo = pParser->createSourceInfo(yymsp[-5].minor.yy7->getSourceInfo(), yymsp[0].minor.yy0);
+        yylhsminor.yy7->setSourceInfo(srcInfo);
     }
-    yylhsminor.yy7 = pParser->newAstNode<yal::ExprStructFnCall>(yymsp[-5].minor.yy7, fnType, yymsp[-1].minor.yy128);
-    auto srcInfo = pParser->createSourceInfo(yymsp[-5].minor.yy7->getSourceInfo(), yymsp[0].minor.yy0);
-    yylhsminor.yy7->setSourceInfo(srcInfo);
 }
   yymsp[-5].minor.yy7 = yylhsminor.yy7;
         break;

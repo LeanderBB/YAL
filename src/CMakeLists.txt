@@ -101,8 +101,8 @@ set(YAL_SOURCES
 
     yal/compiler/compiler.cpp
     yal/compiler/compiler.h
-    yal/compiler/cpassscopetyperesolve.cpp
-    yal/compiler/cpassscopetyperesolve.h
+    yal/compiler/stages/stagedecls.h
+    yal/compiler/stages/stagedecls.cpp
 
     yal/io/memorystream.cpp
     yal/io/memorystream.h

@@ -27,6 +27,7 @@
 #include "yal/parser/parserhelper.h"
 #include "yal/util/log.h"
 #include "yal/util/stringref.h"
+#include "yal/ast/module.h"
 #include "yal/ast/typebuiltin.h"
 #include "yal/ast/declfunction.h"
 #include "yal/ast/decltypefunction.h"
@@ -139,8 +140,7 @@ decls(A) ::= decls(B) type_function_decl(C). {
         A =B; B->addDecl(C);
 }
 decls(A) ::=. {
-        A =  pParser->newAstNode<yal::DeclModule>();
-        pParser->onAstNodeCreate(A);
+        A =  pParser->getModule().getDeclNode();
      }
 
 // Type References  -----------------------------------------------------------
@@ -148,10 +148,15 @@ decls(A) ::=. {
 type_specifier(A) ::= type_builtin(B). {A=B;}
 type_specifier(A) ::= type_array. {A = nullptr;}
 type_specifier(A) ::= IDENTIFIER(B). {
-        A = pParser->newAstNode<yal::RefType>(B.tokenStr);
+    auto type = pParser->resolveType(B);
+    if (type != nullptr) {
+        A = pParser->newAstNode<yal::RefType>(type);
         auto srcInfo = pParser->createSourceInfo(B, B);
         A->setSourceInfo(srcInfo);
- }
+    } else {
+        A = nullptr;
+    }
+}
 
 qualifier(A)::=. {A = 0;}
 qualifier(A)::= MUT. {A = yal::parser::kQualifierMutable;}
@@ -160,43 +165,43 @@ qualifier(A)::= MUT REFERENCE. {
         A = yal::parser::kQualifierReference | yal::parser::kQualifierMutable;
  }
 qualified_type(A) ::= qualifier(D) type_specifier(C). {
-        C->setQualifier(yal::parser::MakeQualifierFromFlags(D));
-        A = C;
+    C->setQualifier(yal::parser::MakeQualifierFromFlags(D));
+    A = C;
 }
 
 type_builtin(A) ::= TYPE_BOOL. {
-        A = pParser->newAstNode<yal::RefType>(pParser->getModule().getTypeContext().getTypeBuiltinBool());
-        }
+    A = pParser->newAstNode<yal::RefType>(pParser->getModule().getTypeContext().getTypeBuiltinBool());
+    }
 type_builtin(A) ::= TYPE_INT8. {
-        A = pParser->newAstNode<yal::RefType>(pParser->getModule().getTypeContext().getTypeBuiltinI8());
-        }
+    A = pParser->newAstNode<yal::RefType>(pParser->getModule().getTypeContext().getTypeBuiltinI8());
+    }
 type_builtin(A) ::= TYPE_UINT8. {
-        A  = pParser->newAstNode<yal::RefType>(pParser->getModule().getTypeContext().getTypeBuiltinU8());
-        }
+    A  = pParser->newAstNode<yal::RefType>(pParser->getModule().getTypeContext().getTypeBuiltinU8());
+    }
 type_builtin(A) ::= TYPE_INT16. {
-        A = pParser->newAstNode<yal::RefType>(pParser->getModule().getTypeContext().getTypeBuiltinI16());
-        }
+    A = pParser->newAstNode<yal::RefType>(pParser->getModule().getTypeContext().getTypeBuiltinI16());
+    }
 type_builtin(A) ::= TYPE_UINT16. {
-        A  = pParser->newAstNode<yal::RefType>(pParser->getModule().getTypeContext().getTypeBuiltinU16());
-        }
+    A  = pParser->newAstNode<yal::RefType>(pParser->getModule().getTypeContext().getTypeBuiltinU16());
+    }
 type_builtin(A) ::= TYPE_INT32. {
-        A = pParser->newAstNode<yal::RefType>(pParser->getModule().getTypeContext().getTypeBuiltinI32());
-        }
+    A = pParser->newAstNode<yal::RefType>(pParser->getModule().getTypeContext().getTypeBuiltinI32());
+    }
 type_builtin(A) ::= TYPE_UINT32. {
-        A = pParser->newAstNode<yal::RefType>(pParser->getModule().getTypeContext().getTypeBuiltinU32());
-        }
+    A = pParser->newAstNode<yal::RefType>(pParser->getModule().getTypeContext().getTypeBuiltinU32());
+    }
 type_builtin(A) ::= TYPE_INT64. {
-        A = pParser->newAstNode<yal::RefType>(pParser->getModule().getTypeContext().getTypeBuiltinI64());
-        }
+    A = pParser->newAstNode<yal::RefType>(pParser->getModule().getTypeContext().getTypeBuiltinI64());
+    }
 type_builtin(A) ::= TYPE_UINT64. {
-        A = pParser->newAstNode<yal::RefType>(pParser->getModule().getTypeContext().getTypeBuiltinU64());
-        }
+    A = pParser->newAstNode<yal::RefType>(pParser->getModule().getTypeContext().getTypeBuiltinU64());
+    }
 type_builtin(A) ::= TYPE_FLOAT. {
-        A = pParser->newAstNode<yal::RefType>(pParser->getModule().getTypeContext().getTypeBuiltinFloat());
-        }
+    A = pParser->newAstNode<yal::RefType>(pParser->getModule().getTypeContext().getTypeBuiltinFloat());
+    }
 type_builtin(A) ::= TYPE_DOUBLE. {
-        A = pParser->newAstNode<yal::RefType>(pParser->getModule().getTypeContext().getTypeBuiltinDouble());
-        }
+    A = pParser->newAstNode<yal::RefType>(pParser->getModule().getTypeContext().getTypeBuiltinDouble());
+    }
 
 type_array ::= type_builtin ARRAY_BEGIN ARRAY_END.
 
@@ -213,25 +218,31 @@ decl_type(A) ::= decl_struct(B). { A = B;}
 struct_header(A) ::= TYPE(B) IDENTIFIER(C) COLON STRUCT. {
     A = pParser->newAstNode<yal::DeclStruct>(C.tokenStr);
     A->setSourceInfo(pParser->createSourceInfo(B, C));
+    pParser->onDeclBegin(A);
 }
 
 decl_struct(A) ::= struct_header(B) SCOPE_BEGIN struct_decl_vars(C) SCOPE_END(Z). {
-        A = B;
-        if (C != nullptr) {
-            C->updateSourceInfo();
-            A->setMembers(C);
-        }
-        auto srcInfo = pParser->createSourceInfo(B->getSourceInfo(), Z);
-        A->setSourceInfo(srcInfo);
+    A = B;
+    if (C != nullptr) {
+        C->updateSourceInfo();
+        A->setMembers(C);
+    }
+    auto srcInfo = pParser->createSourceInfo(B->getSourceInfo(), Z);
+    A->setSourceInfo(srcInfo);
+    pParser->onDeclEnd();
 }
 
 struct_decl_vars(A) ::= struct_decl_vars(B) struct_decl_var(C). {
     A = B;
-    A->addDeclVar(C);
+    if (pParser->onDecl(C)) {
+        A->addDeclVar(C);
+    }
 }
 struct_decl_vars(A) ::= struct_decl_var(B). {
     A = pParser->newAstNode<yal::DeclStructMembers>();
-    A->addDeclVar(B);
+    if (pParser->onDecl(B)) {
+        A->addDeclVar(B);
+    }
 }
 
 struct_decl_var(A) ::= IDENTIFIER(B) COLON qualified_type(C) ASSIGN expression(D) SEMI_COLON(Z). {
@@ -244,14 +255,16 @@ struct_decl_var(A) ::= IDENTIFIER(B) COLON qualified_type(C) ASSIGN expression(D
         
         
 function_header(A)::= function_start(B) function_param_list(C) function_return_decl (D). {
-        A = B;
-        A->setParams(C);
-        A->setReturnType(D);
+    A = B;
+    A->setParams(C);
+    A->setReturnType(D);
+
 }
 
 function_start(A)::= FUNCTION(B) IDENTIFIER(C). {
      A = pParser->newAstNode<yal::DeclFunction>(C.tokenStr);
      A->setSourceInfo(pParser->createSourceInfo(B, C));
+     pParser->onDeclBegin(A);
 }
 
 function_param_list(A) ::= PAR_BEGIN function_args_decl (B) PAR_END. {
@@ -262,6 +275,7 @@ decl_function(A) ::= function_header(B) SCOPE_BEGIN statement_list_or_empty(C) S
     A = B;
     A->setFunctionBody(C);
     A->setSourceInfo(pParser->createSourceInfo(B->getSourceInfo(), D));
+    pParser->onDeclEnd();
 }
 
 // Type Function decl ---------------------------------------------------------
@@ -275,6 +289,7 @@ type_function_header (A) ::= type_function_start(B) type_function_param_list(C) 
 type_function_start(A) ::= FUNCTION(B) type_specifier(C) COLON COLON IDENTIFIER(D). {
     A = pParser->newAstNode<yal::DeclTypeFunction>(D.tokenStr, C);
     A->setSourceInfo(pParser->createSourceInfo(B, D));
+    pParser->onDeclBegin(A);
 }
 
 type_function_param_list(A) ::= PAR_BEGIN type_function_args_decl(B) PAR_END. {
@@ -282,9 +297,10 @@ type_function_param_list(A) ::= PAR_BEGIN type_function_args_decl(B) PAR_END. {
 }
 
 type_function_decl(A)::= type_function_header(B) SCOPE_BEGIN statement_list_or_empty(C) SCOPE_END(D). {
-        A = B;
-        A->setFunctionBody(C);
-        A->setSourceInfo(pParser->createSourceInfo(B->getSourceInfo(), D));
+    A = B;
+    A->setFunctionBody(C);
+    A->setSourceInfo(pParser->createSourceInfo(B->getSourceInfo(), D));
+    pParser->onDeclEnd();
 }
 
 
@@ -293,22 +309,23 @@ type_function_decl(A)::= type_function_header(B) SCOPE_BEGIN statement_list_or_e
 type_function_args_decl(A) ::= qualifier(B) SELF(C). {
         A = pParser->newAstNode<yal::DeclParamVarContainer>();
         auto qualifier = yal::parser::MakeQualifierFromFlags(B);
-        auto refType = pParser->newAstNode<yal::RefType>(qualifier, nullptr);
+        auto refType = pParser->newAstNode<yal::RefType>(qualifier, pParser->resolveSelfType());
         auto selfVar = pParser->newAstNode<yal::DeclParamVarSelf>(refType);
         auto srcInfo = pParser->createSourceInfo(C, C);
         selfVar->setSourceInfo(srcInfo);
         A->addDeclParam(selfVar);
-
+        pParser->onDecl(selfVar);
 }
 
 type_function_args_decl(A) ::= qualifier(C) SELF(Z) COMMA type_function_args_decl_other(B). {
     A = B;
     auto qualifier = yal::parser::MakeQualifierFromFlags(C);
-    auto refType = pParser->newAstNode<yal::RefType>(qualifier, nullptr);
+    auto refType = pParser->newAstNode<yal::RefType>(qualifier, pParser->resolveSelfType());
     auto selfVar = pParser->newAstNode<yal::DeclParamVarSelf>(refType);
     auto srcInfo = pParser->createSourceInfo(Z, Z);
     selfVar->setSourceInfo(srcInfo);
     A->addDeclParam(selfVar);
+    pParser->onDecl(selfVar);
 }
 
 type_function_args_decl(A) ::= function_args_decl(B). {
@@ -328,13 +345,17 @@ type_function_args_decl_other(A) ::= function_arg_decl(C). {
 // Function args decl --------------------------------------------------------
 
 function_args_decl(A) ::= function_args_decl(B) COMMA function_arg_decl(C). {
+    if (pParser->onDecl(C)){
         B->addDeclParam(C);
         A = B;
+    }
 }
 
 function_args_decl(A) ::= function_arg_decl(B). {
+    if (pParser->onDecl(B)){
         A = pParser->newAstNode<yal::DeclParamVarContainer>();
         A->addDeclParam(B);
+    }
 }
 function_args_decl(A) ::= . {
         A = nullptr;
@@ -390,9 +411,11 @@ decl_var(A) ::= VAR(Z) IDENTIFIER(B) var_type_spec(C) ASSIGN expression(D). {
     auto varDecl = pParser->newAstNode<yal::DeclVar>(B.tokenStr, yal::Qualifier(), C, D);
     auto varSrcInfo = pParser->createSourceInfo(Z, B);
     varDecl->setSourceInfo(varSrcInfo);
-    A= pParser->newAstNode<yal::StmtDecl>(varDecl);
-    auto srcInfo = pParser->createSourceInfo(Z, D->getSourceInfo());
-    A->setSourceInfo(srcInfo);
+    if (pParser->onDecl(varDecl)) {
+        A= pParser->newAstNode<yal::StmtDecl>(varDecl);
+        auto srcInfo = pParser->createSourceInfo(Z, D->getSourceInfo());
+        A->setSourceInfo(srcInfo);
+    }
 
 }
 decl_var(A) ::= LET(Z) IDENTIFIER(B) var_type_spec(C) ASSIGN expression(D). {
@@ -401,9 +424,11 @@ decl_var(A) ::= LET(Z) IDENTIFIER(B) var_type_spec(C) ASSIGN expression(D). {
     auto varDecl = pParser->newAstNode<yal::DeclVar>(B.tokenStr, qualifier, C, D);
     auto varSrcInfo = pParser->createSourceInfo(Z, B);
     varDecl->setSourceInfo(varSrcInfo);
-    A= pParser->newAstNode<yal::StmtDecl>(varDecl);
-    auto srcInfo = pParser->createSourceInfo(Z, D->getSourceInfo());
-    A->setSourceInfo(srcInfo);
+    if (pParser->onDecl(varDecl)) {
+        A= pParser->newAstNode<yal::StmtDecl>(varDecl);
+        auto srcInfo = pParser->createSourceInfo(Z, D->getSourceInfo());
+        A->setSourceInfo(srcInfo);
+    }
 }
 
 var_type_spec(A) ::= COLON qualified_type(B). {A = B;}
@@ -434,27 +459,33 @@ expression (A) ::= expression(B) DOT IDENTIFIER(C). {
 }
 
 expression(A) ::= IDENTIFIER(C) PAR_BEGIN function_call_args(D) PAR_END(Z). {
-    auto fnType = pParser->newAstNode<yal::RefType>(C.tokenStr);
-    auto fnSrcInfo = pParser->createSourceInfo(C, C);
-    fnType->setSourceInfo(fnSrcInfo);
-    if (D != nullptr) {
-        D->updateSourceInfo();
+    auto type = pParser->resolveType(C);
+    if (type != nullptr ) {
+        auto fnType = pParser->newAstNode<yal::RefType>(type);
+        auto fnSrcInfo = pParser->createSourceInfo(C, C);
+        fnType->setSourceInfo(fnSrcInfo);
+        if (D != nullptr) {
+            D->updateSourceInfo();
+        }
+        A = pParser->newAstNode<yal::ExprFnCall>(fnType, D);
+        auto srcInfo = pParser->createSourceInfo(C, Z);
+        A->setSourceInfo(srcInfo);
     }
-    A = pParser->newAstNode<yal::ExprFnCall>(fnType, D);
-    auto srcInfo = pParser->createSourceInfo(C, Z);
-    A->setSourceInfo(srcInfo);
 }
 
 expression(A) ::= expression(B) DOT IDENTIFIER(C) PAR_BEGIN function_call_args(D) PAR_END(Z). {
-    auto fnType = pParser->newAstNode<yal::RefType>(C.tokenStr);
-    auto fnSrcInfo = pParser->createSourceInfo(C, C);
-    fnType->setSourceInfo(fnSrcInfo);
-    if (D != nullptr) {
-        D->updateSourceInfo();
+    auto type = pParser->resolveType(C);
+    if (type != nullptr ) {
+        auto fnType = pParser->newAstNode<yal::RefType>(type);
+        auto fnSrcInfo = pParser->createSourceInfo(C, C);
+        fnType->setSourceInfo(fnSrcInfo);
+        if (D != nullptr) {
+            D->updateSourceInfo();
+        }
+        A = pParser->newAstNode<yal::ExprStructFnCall>(B, fnType, D);
+        auto srcInfo = pParser->createSourceInfo(B->getSourceInfo(), Z);
+        A->setSourceInfo(srcInfo);
     }
-    A = pParser->newAstNode<yal::ExprStructFnCall>(B, fnType, D);
-    auto srcInfo = pParser->createSourceInfo(B->getSourceInfo(), Z);
-    A->setSourceInfo(srcInfo);
 }
 
 // Binary operators ----------------------------------------------------------

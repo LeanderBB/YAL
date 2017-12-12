@@ -22,32 +22,12 @@
 #include "yal/ast/module.h"
 namespace yal {
 
-    RefType::RefType(Module& module,
-                     const StringRef identifier):
-        RefType(module, Qualifier(), Identifier(identifier, module)) {
 
-    }
+
 
     RefType::RefType(Module& module,
-                     const Identifier& identifier):
-        RefType(module, Qualifier(), identifier) {
-
-    }
-
-    RefType::RefType(Module& module,
-                     const Type* resolvedType):
+                     const Type *resolvedType):
         RefType(module, Qualifier(), resolvedType) {
-    }
-
-    RefType::RefType(Module& module,
-                     const Qualifier qualifier,
-                     const Identifier& identifier):
-        m_module(module),
-        m_sourceInfo(),
-        m_qualifier(qualifier),
-        m_identifier(identifier),
-        m_resolvedType(nullptr) {
-
     }
 
     RefType::RefType(Module& module,
@@ -77,15 +57,7 @@ namespace yal {
 
     Identifier
     RefType::getIdentitfier() const {
-        return m_resolvedType != nullptr
-                ? m_resolvedType->getIdentifier()
-                : m_identifier;
-    }
-
-    void
-    RefType::setResolvedType(const Type* type) {
-        m_resolvedType = type;
-        m_identifier = type->getIdentifier();
+        return m_resolvedType->getIdentifier();
     }
 
     void

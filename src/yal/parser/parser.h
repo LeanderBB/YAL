@@ -29,6 +29,8 @@ namespace yal {
 #include "yal/ast/astnodes.def"
 #undef YAL_AST_NODE_TYPE
     class StringRef;
+    class DeclScope;
+    class StageDecls;
     class Parser
     {
     public:
@@ -44,7 +46,8 @@ namespace yal {
 
         Parser(Lexer& lexer,
                Log& log,
-               Module& context);
+               Module& context,
+               StageDecls& stageDecls);
 
 
         Result run();
@@ -59,6 +62,22 @@ namespace yal {
 
         void logParseFailure();
 
+        void onDeclBegin(DeclFunction* decl);
+
+        void onDeclBegin(DeclTypeFunction* decl);
+
+        void onDeclBegin(DeclStruct* decl);
+
+        bool onDecl(DeclVar* decl);
+
+        bool onDecl(DeclParamVar* decl);
+
+        void onDeclEnd();
+
+        const Type* resolveType(const TokenInfo& ti);
+
+        const Type* resolveSelfType() const;
+
         template <typename T, typename... ARGS>
         T* newAstNode(ARGS&& ...args) {
             return m_module.newASTNode<T>(std::forward<ARGS>(args)...);
@@ -67,10 +86,6 @@ namespace yal {
         ExprIntegerLiteral* newIntegerLiteral(const TokenInfo& ti);
 
         ExprDecimalLiteral* newDecimalLiteral(const TokenInfo& ti);
-
-        void onAstNodeCreate(DeclModule* module);
-
-        void onAstNodeCreate(DeclBase* declnode);
 
         SourceInfo createSourceInfo(const TokenInfo& start,
                                     const TokenInfo& end) const;
@@ -89,7 +104,9 @@ namespace yal {
         Lexer& m_lexer;
         Log& m_log;
         Module& m_module;
+        StageDecls& m_stageDecls;
         Result m_status;
+        DeclBase* m_activeDecl;
     };
 
 }

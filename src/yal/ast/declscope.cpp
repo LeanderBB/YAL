@@ -30,20 +30,39 @@ namespace yal {
     }
 
     bool
-    DeclScope::hasDecl(const DeclBase* decl) const {
+    DeclScope::hasDecl(const DeclBase* decl,
+                       const bool local) const {
         const Identifier& identifier = decl->getIdentifier();
+        return hasDecl(identifier, local);
+    }
+
+    bool
+    DeclScope::hasDecl(const Identifier& identifier,
+                       const bool local) const {
         auto it = m_declMap.find(identifier.getAsString());
         if (it == m_declMap.end()) {
-            return (m_parentScope != nullptr)
-                    ? m_parentScope->hasDecl(decl)
+            return (m_parentScope != nullptr && !local)
+                    ? m_parentScope->hasDecl(identifier, local)
                     : false;
         }
         return true;
     }
 
+    DeclBase*
+    DeclScope::getDecl(const Identifier& identifier,
+                       const bool local) {
+        auto it = m_declMap.find(identifier.getAsString());
+        if (it == m_declMap.end()) {
+            return (m_parentScope != nullptr && !local)
+                    ? m_parentScope->getDecl(identifier, local)
+                    : nullptr;
+        }
+        return it->second;
+    }
+
     void
     DeclScope::addDecl(DeclBase* decl) {
-        YAL_ASSERT(!hasDecl(decl));
+        YAL_ASSERT(!hasDecl(decl, false));
         const Identifier& identifier = decl->getIdentifier();
         m_declMap[identifier.getAsString()] = decl;
     }

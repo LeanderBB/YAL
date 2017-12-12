@@ -29,7 +29,7 @@ namespace yal {
                                        RefType *destType,
                                        StatementList* body):
         DeclFunctionBase(module,
-                         AstType::DeclFunction,
+                         AstType::DeclTypeFunction,
                          functionName,
                          params,
                          returnType,

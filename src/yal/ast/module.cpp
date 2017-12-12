@@ -18,7 +18,7 @@
  */
 
 #include "yal/ast/module.h"
-
+#include "yal/ast/declmodule.h"
 namespace yal {
     Module::Module(const char* name,
                    ModuleManager& manager,
@@ -32,6 +32,8 @@ namespace yal {
         m_typeContext(),
         m_rootNode(nullptr){
 
+        m_rootNode = newASTNode<DeclModule>();
+        YAL_ASSERT_MESSAGE(m_rootNode != nullptr, "Failed to allocate root node");
     }
 
 }

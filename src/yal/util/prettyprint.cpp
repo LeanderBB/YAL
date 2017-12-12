@@ -25,10 +25,13 @@
 namespace yal {
 
     void
-    PrettyPrint::SourceErrorPrint(ByteStream& stream,
+    PrettyPrint::SourceErrorPrint(SourceItem& sourceItem,
                                   Log& log,
                                   const size_t lineStart,
-                                  const size_t columnStart) {
+                                  const size_t lineEnd,
+                                  const size_t columnStart,
+                                  const size_t columnEnd) {
+        ByteStream& stream = sourceItem.getByteStream();
         if (stream.isSeekable())
         {
             stream.seek(0);
@@ -36,8 +39,14 @@ namespace yal {
                 stream.skipLine();
             }
             const std::string line = stream.readLine();
-            log.error("%\n", line.c_str());
-            log.error("%", FormatIdent<const char*>(columnStart-1,' ',"^~~~\n"));
+            log.error("In %:%:%\n", sourceItem.getPath(), lineStart, columnStart);
+            log.error("    %\n", line.c_str());
+            if (lineStart != lineEnd) {
+                log.error("    %", FormatIdent<const char*>(columnStart-1,' ',"^~~~\n"));
+            } else {
+                log.error("    %%", FormatIdent<const char*>(columnStart-1,' ',"^"),
+                          FormatIdent<const char*>(columnEnd-columnStart,'~',"\n"));
+            }
         }
     }
 
@@ -48,9 +57,12 @@ namespace yal {
                                    const SourceManager &manager) {
         SourceItem* item =  manager.getItem(info.handle);
         if (item != nullptr) {
-            SourceErrorPrint(item->getByteStream(),
+            SourceErrorPrint(*item,
                              log,
-                             info.begin.line, info.begin.column);
+                             info.begin.line,
+                             info.end.line,
+                             info.begin.column,
+                             info.end.column);
         }
     }
 }

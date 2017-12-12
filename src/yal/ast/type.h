@@ -22,13 +22,16 @@
 #include "yal/yal.h"
 #include "yal/ast/identifier.h"
 #include "yal/util/stringref.h"
+#include "yal/util/cast.h"
 #include <unordered_map>
+
 namespace yal {
 
     class TypeRegistry;
     class Module;
     class DeclBase;
     class TypeDecl;
+
     class Type {
         friend class TypeContext;
     public:
@@ -103,6 +106,21 @@ namespace yal {
         unsigned m_struct:1;
     };
 
+    template <>
+    struct cast_typeid<Type> {
+        typedef Type::Kind type;
+    };
+
+    inline Type::Kind get_typeid(const Type& type) {
+        return type.getKind();
+    }
+
+#define YAL_AST_TYPE(TYPE) \
+    class TYPE;\
+    template<> struct cast_typeid< TYPE >{typedef Type::Kind type;}; \
+    template<> constexpr cast_typeid< TYPE >::type get_typeid< TYPE >() {return Type::Kind::TYPE ;}
+#include "yal/ast/typelist.def"
+#undef YAL_AST_TYPE
 
     class Qualifier {
     public:        

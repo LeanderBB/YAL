@@ -30,19 +30,8 @@ namespace yal {
     class RefType {
     public:
 
-
-        RefType(Module& module,
-                const StringRef identifier);
-
-        RefType(Module& module,
-                const Identifier& identifier);
-
         RefType(Module& module,
                 const Type* resolvedType);
-
-        RefType(Module& module,
-                const Qualifier qualifier,
-                const Identifier& identifier);
 
         RefType(Module& module,
                 const Qualifier qualifier,
@@ -72,15 +61,9 @@ namespace yal {
 
         void setQualifier(const Qualifier qualifier);
 
-        bool isResolved() const {
-            return m_resolvedType != nullptr;
-        }
-
-        const Type* getResolvedType() const {
+        const Type* getType() const {
             return m_resolvedType;
         }
-
-        void setResolvedType(const Type* type);
 
         Identifier getIdentitfier() const;
 

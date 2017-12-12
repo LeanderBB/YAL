@@ -23,12 +23,15 @@ namespace yal {
     class Log;
     struct SourceInfo;
     class SourceManager;
+    class SourceItem;
     class PrettyPrint {
     public:
-        static void SourceErrorPrint(ByteStream& stream,
+        static void SourceErrorPrint(SourceItem& sourceItem,
                                      Log& log,
                                      const size_t lineStart,
-                                     const size_t columnStart);
+                                     const size_t lineEnd,
+                                     const size_t columnStart,
+                                     const size_t columnEnd);
 
         static void SourceErrorPrint(Log &log,
                                      const SourceInfo& info,

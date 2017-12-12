@@ -73,7 +73,7 @@ int main(const int argc,
 
     if (module != nullptr) {
         yal::AstPrinter astPrinter(stdoutStream);
-        astPrinter.visit(*module->getRootAstNode());
+        astPrinter.visit(*module->getDeclNode());
     }
 
     return module != nullptr ? EXIT_SUCCESS : EXIT_FAILURE;

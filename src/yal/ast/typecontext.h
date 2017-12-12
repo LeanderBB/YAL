@@ -39,35 +39,6 @@ namespace yal {
     class Log;
     class SourceManager;
 
-    class TypeContextErrorHandler {
-    public:
-        TypeContextErrorHandler(Log& log,
-                                const SourceManager &manager);
-
-        void onDuplicate(const DeclBase* newType,
-                         const Type* existingType);
-
-        void onUnresolvedReturnType(const DeclFunction* function);
-
-        void onUnresolvedParamType(const DeclFunction* newType,
-                                   const DeclParamVar* paramDecl);
-
-        void onUnresolvedReturnType(const DeclTypeFunction* function);
-
-        void onUnresolvedParamType(const DeclTypeFunction* typeFunction,
-                                   const DeclParamVar* paramDecl);
-
-        void onUnresolvedTargetType(const DeclTypeFunction* typeFunction);
-
-        void onUntargetableType(const DeclTypeFunction* typeFunction);
-
-        void onUnresolvedMemberType(const DeclStruct* decl,
-                                    const DeclVar *declVar);
-    private:
-        Log& m_log;
-        const SourceManager& m_srcManager;
-    };
-
     class TypeContext {
     public:
 
@@ -77,14 +48,16 @@ namespace yal {
 
         const Type* getByIdentifier(const Identifier& identifier) const;
 
-        const Type* addType(DeclFunction* decl,
-                            TypeContextErrorHandler* errHandler = nullptr);
+        Type* getByIdentifier(const Identifier& identifier){
+            const TypeContext* cthis = this;
+            return const_cast<Type*>(cthis->getByIdentifier(identifier));
+        }
 
-        const Type* addType(DeclTypeFunction* decl,
-                            TypeContextErrorHandler* errHandler = nullptr);
+        Type* addType(DeclFunction* decl);
 
-        const Type* addType(DeclStruct* decl,
-                            TypeContextErrorHandler* errHandler = nullptr);
+        Type* addType(DeclTypeFunction* decl);
+
+        Type* addType(DeclStruct* decl);
 
         const TypeBuiltin* getTypeBuiltinBool() const {
             return m_typeBool;
@@ -129,10 +102,6 @@ namespace yal {
         const TypeBuiltin* getTypeBuiltinDouble() const {
             return m_typeDouble;
         }
-
-    private:
-
-        const Type* resolve(RefType* typeRef) const;
 
     private:
         const TypeBuiltin* m_typeBool;

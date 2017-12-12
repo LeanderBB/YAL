@@ -31,6 +31,10 @@
 #include "yal/ast/exprdecimalliteral.h"
 #include "yal/util/strconversions.h"
 #include "yal/ast/declmodule.h"
+#include "yal/ast/decltypefunction.h"
+#include "yal/ast/declfunction.h"
+#include "yal/ast/declstruct.h"
+#include "yal/compiler/stages/stagedecls.h"
 #include <cstdlib>
 #include <limits>
 namespace yal{
@@ -153,13 +157,14 @@ namespace yal{
 
     Parser::Parser(Lexer& lexer,
                    Log &log,
-                   Module& context):
+                   Module& context,
+                   StageDecls &stageDecls):
         m_parserImpl(nullptr, ParserDtor),
         m_lexer(lexer),
         m_log(log),
         m_module(context),
+        m_stageDecls(stageDecls),
         m_status(Result::SyntaxError) {
-
         void*(*fnAlloc)(size_t) = ::malloc;
         void* ptr = YALParserAlloc(fnAlloc);
         m_parserImpl.reset(ptr);
@@ -169,6 +174,7 @@ namespace yal{
     Parser::run() {
         m_status = Result::Ok;
         Lexer::Status status = Lexer::Status::Ok;
+        m_activeDecl = m_module.getDeclNode();
         while(m_status == Result::Ok){
             status = m_lexer.scan();
             if (status == Lexer::Status::Ok) {
@@ -191,13 +197,14 @@ namespace yal{
                           this);
                 break;
             } else {
-                MemoryStream& stream = m_lexer.getStream();
                 const TokenInfo& ti = m_lexer.getLastToken();
 
-                PrettyPrint::SourceErrorPrint(stream,
+                PrettyPrint::SourceErrorPrint(m_stageDecls.m_sourceItem,
                                               m_log,
                                               ti.lineStart,
-                                              ti.columnStart);
+                                              ti.lineEnd,
+                                              ti.columnStart,
+                                              ti.columnEnd);
                 m_log.error("Unknown token at line:%  column:%\n",
                             ti.lineStart, ti.columnStart);
                 m_status = Result::LexerError;
@@ -209,15 +216,80 @@ namespace yal{
 
     void
     Parser::logParseFailure()  {
-        ByteStream& stream = m_lexer.getStream();
         const TokenInfo& ti = m_lexer.getLastToken();
-        PrettyPrint::SourceErrorPrint(stream,
+        PrettyPrint::SourceErrorPrint(m_stageDecls.m_sourceItem,
                                       m_log,
                                       ti.lineStart,
-                                      ti.columnStart);
-        m_log.error("Syntax Error at line:% column:%\n",
-                    ti.lineStart, ti.columnStart);
+                                      ti.lineEnd,
+                                      ti.columnStart,
+                                      ti.columnEnd);
+        m_log.error("Syntax Error\n");
         m_status = Result::SyntaxError;
+    }
+
+    void
+    Parser::onDeclBegin(DeclFunction* decl) {
+        if (!m_stageDecls.onDecl(decl)) {
+            m_status = Result::TypeError;
+        }
+        m_activeDecl = decl;
+    }
+
+    void
+    Parser::onDeclBegin(DeclTypeFunction* decl) {
+        if (!m_stageDecls.onDecl(decl)) {
+            m_status = Result::TypeError;
+        }
+         m_activeDecl = decl;
+    }
+
+    void
+    Parser::onDeclBegin(DeclStruct* decl) {
+        if (!m_stageDecls.onDecl(decl)) {
+            m_status = Result::TypeError;
+        }
+        m_activeDecl = decl;
+    }
+
+    bool
+    Parser::onDecl(DeclVar* decl) {
+        if (!m_stageDecls.onDecl(decl)) {
+            m_status = Result::TypeError;
+            return false;
+        }
+        return true;
+    }
+
+    bool
+    Parser::onDecl(DeclParamVar* decl) {
+        if (!m_stageDecls.onDecl(decl)) {
+            m_status = Result::TypeError;
+            return false;
+        }
+        return true;
+    }
+
+    void
+    Parser::onDeclEnd() {
+        m_stageDecls.popDeclScope();
+        m_activeDecl = nullptr;
+    }
+
+    const Type*
+    Parser::resolveType(const TokenInfo& ti) {
+        Type* resolvedType = m_stageDecls.resolveType(ti);
+        if (resolvedType == nullptr) {
+            m_status = Result::TypeError;
+        }
+        return resolvedType;
+    }
+
+    const Type*
+    Parser::resolveSelfType() const {
+        YAL_ASSERT(m_activeDecl != nullptr);
+        DeclTypeFunction* typefn = dyn_cast<DeclTypeFunction>(m_activeDecl);
+        YAL_ASSERT(typefn != nullptr);
+        return typefn->getTargetType()->getType();
     }
 
     ExprIntegerLiteral*
@@ -262,13 +334,13 @@ namespace yal{
             return newAstNode<ExprIntegerLiteral>(intType, value);
         }
 
-        ByteStream& stream = m_lexer.getStream();
-        PrettyPrint::SourceErrorPrint(stream,
+        PrettyPrint::SourceErrorPrint(m_stageDecls.m_sourceItem,
                                       m_log,
                                       ti.lineStart,
-                                      ti.columnStart);
-        m_log.error("Integer Literal error at line:% column:%\n",
-                    ti.lineStart, ti.columnStart);
+                                      ti.lineEnd,
+                                      ti.columnStart,
+                                      ti.columnEnd);
+        m_log.error("Integer Literal conversion error, ");
         m_log.error("%", "Value is not a valid integer literal.\n");
         m_status = Result::TypeError;
         return nullptr;
@@ -286,26 +358,16 @@ namespace yal{
             return newAstNode<ExprDecimalLiteral>(value);
         }
 
-        ByteStream& stream = m_lexer.getStream();
-        PrettyPrint::SourceErrorPrint(stream,
+        PrettyPrint::SourceErrorPrint(m_stageDecls.m_sourceItem,
                                       m_log,
                                       ti.lineStart,
-                                      ti.columnStart);
-        m_log.error("Decimal Literal error at line:% column:%\n",
-                    ti.lineStart, ti.columnStart);
+                                      ti.lineEnd,
+                                      ti.columnStart,
+                                      ti.columnEnd);
+        m_log.error("Decimal Literal conversion error, ");
         m_log.error("%", "Value is not a valid decimal literal.\n");
         m_status = Result::TypeError;
         return nullptr;
-    }
-
-    void
-    Parser::onAstNodeCreate(DeclModule* module) {
-        m_module.setRootNode(module);
-    }
-
-    void
-    Parser::onAstNodeCreate(DeclBase* declnode) {
-        m_module.getRootAstNode()->addDecl(declnode);
     }
 
     SourceInfo

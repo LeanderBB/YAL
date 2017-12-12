@@ -22,7 +22,7 @@
 #include "yal/lexer/lexer.h"
 #include "yal/parser/parser.h"
 #include "yal/ast/astprinter.h"
-#include "yal/compiler/cpassscopetyperesolve.h"
+#include "yal/compiler/stages/stagedecls.h"
 
 namespace yal {
     Compiler::Compiler(Log& log,
@@ -56,26 +56,14 @@ namespace yal {
             return nullptr;
         }
 
-        // Run Parsers
+        // Run Decl / Type Resolve
         {
-            yal::Lexer lexer (sourceItem->getByteStream());
-            yal::Parser parser(lexer, m_log, *module);
-
-            yal::Parser::Result parseResult = parser.run();
-
-            if (parseResult != yal::Parser::Result::Ok) {
+            StageDecls stageDecls(*this, *sourceItem, *module);
+            if (!stageDecls.execute()) {
                 return nullptr;
             }
         }
 
-        // type regestriation pass
-        {
-            yal::CPassScopeTypeResolve typeRegPass;
-            const bool result = typeRegPass.run(m_log, *module, m_srcManager);
-            if (!result) {
-                return nullptr;
-            }
-        }
 
         return module;
     }
