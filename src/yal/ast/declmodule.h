@@ -19,10 +19,9 @@
 #pragma once
 
 #include <vector>
-#include "declbase.h"
-
+#include "yal/ast/declscope.h"
+#include "yal/ast/declbase.h"
 namespace yal {
-    class DeclBase;
     class Module;
     class AstVisitor;
     class DeclModule : public DeclBase{
@@ -41,19 +40,20 @@ namespace yal {
             return m_declartions;
         }
 
-        Module& getModule() {
-            return m_module;
-        }
-
-        const Module& getModule() const {
-            return m_module;
-        }
-
         void addDecl(DeclBase* node);
+
+        DeclScope* getDeclScope() {
+            return &m_declScope;
+        }
+
+        const DeclScope* getDeclScope() const {
+            return &m_declScope;
+        }
 
         virtual void acceptVisitor(AstVisitor& visitor) override;
 
     private:
         std::vector<DeclBase*> m_declartions;
+        DeclScope m_declScope;
     };
 }

@@ -1,5 +1,4 @@
 /*
- *  Copyright 2017 by Leander Beernaert (leanderbb@gmail.com)
  *
  *  This file is part of YAL.
  *
@@ -19,14 +18,33 @@
 
 #pragma once
 
+#include "yal/io/sourcemanager.h"
 namespace yal {
     class Log;
+    class ModuleManager;
+    class MemoryStream;
+    class ByteStream;
     class Module;
-    class SourceManager;
-    class CPassTypeRegistration {
+    class Compiler {
     public:
 
-        bool run(Log& log, Module& module, const SourceManager& manager);
+        enum Flags {
 
+        };
+
+        Compiler(Log& log,
+                 SourceManager& srcManager,
+                 ModuleManager& moduleManager);
+
+        void setFlags(const uint64_t flags);
+
+        Module* compile(const SourceManager::Handle source);
+
+    private:
+        Log& m_log;
+        SourceManager& m_srcManager;
+        ModuleManager& m_moduleManager;
+        uint64_t m_flags;
     };
+
 }

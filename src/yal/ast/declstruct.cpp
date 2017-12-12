@@ -47,7 +47,8 @@ namespace yal {
                            StringRef typeName,
                            DeclStructMembers *members):
         DeclBase(module, AstType::DeclStruct, typeName),
-        m_members(members){
+        m_members(members),
+        m_declScope(DeclScope::Kind::Struct){
 
     }
 

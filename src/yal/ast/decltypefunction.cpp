@@ -34,7 +34,8 @@ namespace yal {
                          params,
                          returnType,
                          body),
-        m_targetType(destType){
+        m_targetType(destType),
+        m_declScope(DeclScope::Kind::TypeFunction){
 
     }
 

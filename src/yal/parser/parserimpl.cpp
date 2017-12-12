@@ -546,7 +546,7 @@ static const char *const yyTokenName[] = {
   "error",         "type_builtin",  "decl_function",  "type_function_decl",
   "decls",         "module",        "function_return_decl",  "type_specifier",
   "var_type_spec",  "named_decl",    "function_args_decl",  "type_function_args_decl",
-  "type_function_args_decl_other",  "function_arg_decl",  "statement_list",  "function_scope",
+  "type_function_args_decl_other",  "function_arg_decl",  "statement_list",  "function_body",
   "statement",     "expression",    "unaryexp",      "binaryexp",   
   "literal",       "var_decl",      "type_decl",     "type_var_decl",
   "type_var_decls",  "function_call_args",  "qualifier",     "qualified_type",
@@ -586,8 +586,8 @@ static const char *const yyRuleName[] = {
  /*  25 */ "type_var_decls ::= type_var_decls type_var_decl",
  /*  26 */ "type_var_decls ::= type_var_decl",
  /*  27 */ "type_var_decl ::= IDENTIFIER COLON qualified_type ASSIGN expression SEMI_COLON",
- /*  28 */ "decl_function ::= FUNCTION IDENTIFIER PAR_BEGIN function_args_decl PAR_END function_return_decl function_scope",
- /*  29 */ "type_function_decl ::= FUNCTION type_specifier COLON COLON IDENTIFIER PAR_BEGIN type_function_args_decl PAR_END function_return_decl function_scope",
+ /*  28 */ "decl_function ::= FUNCTION IDENTIFIER PAR_BEGIN function_args_decl PAR_END function_return_decl function_body",
+ /*  29 */ "type_function_decl ::= FUNCTION type_specifier COLON COLON IDENTIFIER PAR_BEGIN type_function_args_decl PAR_END function_return_decl function_body",
  /*  30 */ "type_function_args_decl ::= qualifier SELF",
  /*  31 */ "type_function_args_decl ::= qualifier SELF COMMA type_function_args_decl_other",
  /*  32 */ "type_function_args_decl ::= function_args_decl",
@@ -599,8 +599,8 @@ static const char *const yyRuleName[] = {
  /*  38 */ "function_arg_decl ::= IDENTIFIER COLON qualified_type",
  /*  39 */ "function_return_decl ::= COLON qualified_type",
  /*  40 */ "function_return_decl ::=",
- /*  41 */ "function_scope ::= SCOPE_BEGIN SCOPE_END",
- /*  42 */ "function_scope ::= SCOPE_BEGIN statement_list SCOPE_END",
+ /*  41 */ "function_body ::= SCOPE_BEGIN SCOPE_END",
+ /*  42 */ "function_body ::= SCOPE_BEGIN statement_list SCOPE_END",
  /*  43 */ "statement_list ::= statement_list statement",
  /*  44 */ "statement_list ::= statement",
  /*  45 */ "statement ::= expression ASSIGN expression SEMI_COLON",
@@ -1317,7 +1317,7 @@ static void yy_reduce(
 }
   yymsp[-5].minor.yy96 = yylhsminor.yy96;
         break;
-      case 28: /* decl_function ::= FUNCTION IDENTIFIER PAR_BEGIN function_args_decl PAR_END function_return_decl function_scope */
+      case 28: /* decl_function ::= FUNCTION IDENTIFIER PAR_BEGIN function_args_decl PAR_END function_return_decl function_body */
 {
         yylhsminor.yy69 = pParser->newAstNode<yal::DeclFunction>(yymsp[-5].minor.yy0.tokenStr, yymsp[-3].minor.yy24, yymsp[-1].minor.yy48, yymsp[0].minor.yy50);
         if (yymsp[-3].minor.yy24 != nullptr) {
@@ -1338,7 +1338,7 @@ static void yy_reduce(
 }
   yymsp[-6].minor.yy69 = yylhsminor.yy69;
         break;
-      case 29: /* type_function_decl ::= FUNCTION type_specifier COLON COLON IDENTIFIER PAR_BEGIN type_function_args_decl PAR_END function_return_decl function_scope */
+      case 29: /* type_function_decl ::= FUNCTION type_specifier COLON COLON IDENTIFIER PAR_BEGIN type_function_args_decl PAR_END function_return_decl function_body */
 {
             yylhsminor.yy73 = pParser->newAstNode<yal::DeclTypeFunction>(yymsp[-5].minor.yy0.tokenStr, yymsp[-3].minor.yy24, yymsp[-1].minor.yy48, yymsp[-8].minor.yy48, yymsp[0].minor.yy50);
         if (yymsp[-3].minor.yy24 != nullptr) {
@@ -1433,10 +1433,10 @@ static void yy_reduce(
       case 53: /* var_type_spec ::= */ yytestcase(yyruleno==53);
 {yymsp[1].minor.yy48 = nullptr;}
         break;
-      case 41: /* function_scope ::= SCOPE_BEGIN SCOPE_END */
+      case 41: /* function_body ::= SCOPE_BEGIN SCOPE_END */
 { yymsp[-1].minor.yy50 = nullptr;}
         break;
-      case 42: /* function_scope ::= SCOPE_BEGIN statement_list SCOPE_END */
+      case 42: /* function_body ::= SCOPE_BEGIN statement_list SCOPE_END */
 {yymsp[-2].minor.yy50 = yymsp[-1].minor.yy50;}
         break;
       case 43: /* statement_list ::= statement_list statement */

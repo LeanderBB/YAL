@@ -20,17 +20,20 @@
 #include "yal/ast/module.h"
 #include "yal/ast/astcontext.h"
 #include "yal/ast/astvisitor.h"
+
 namespace yal {
 
-     DeclModule::DeclModule(Module& module):
-        DeclBase(module, AstType::DeclModule, ""){
+    DeclModule::DeclModule(Module& module):
+        DeclBase(module, AstType::DeclModule, ""),
+        m_declScope(DeclScope::Kind::Module){
 
     }
 
     DeclModule::DeclModule(Module& module,
                            std::vector<DeclBase*>&& declarations) :
         DeclBase(module, AstType::DeclModule, ""),
-        m_declartions(std::move(declarations)) {
+        m_declartions(std::move(declarations)),
+        m_declScope(DeclScope::Kind::Module){
 
     }
 

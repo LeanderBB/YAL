@@ -19,7 +19,7 @@
 
 #pragma once
 #include "yal/ast/declfunctionbase.h"
-
+#include "yal/ast/declscope.h"
 namespace yal {
 
     class DeclTypeFunction : public DeclFunctionBase {
@@ -37,9 +37,18 @@ namespace yal {
 
         bool isStatic() const;
 
+        DeclScope* getDeclScope() {
+            return &m_declScope;
+        }
+
+        const DeclScope* getDeclScope() const {
+            return &m_declScope;
+        }
+
         virtual void acceptVisitor(AstVisitor& visitor) override;
 
     protected:
         RefType* m_targetType;
+        DeclScope m_declScope;
     };
 }

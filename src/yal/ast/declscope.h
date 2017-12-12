@@ -16,30 +16,44 @@
  *  You should have received a copy of the GNU Lesser General Public
  *  License along with YAL. If not, see <http://www.gnu.org/licenses/>.
  */
-#include "yal/ast/declfunction.h"
-#include "yal/ast/module.h"
-#include "yal/ast/astvisitor.h"
+
+#pragma once
+#include "yal/util/stringref.h"
+#include <unordered_map>
 
 namespace yal {
 
-    DeclFunction::DeclFunction(Module& module,
-                               const StringRef functionName,
-                               DeclParamVarContainer *params,
-                               RefType *returnType,
-                               StatementList *body):
-        DeclFunctionBase(module,
-                         AstType::DeclFunction,
-                         functionName,
-                         params,
-                         returnType,
-                         body),
-        m_declScope(DeclScope::Kind::Function){
+    class DeclBase;
+    class DeclScope {
+    public:
 
-    }
+        enum class Kind {
+            Module,
+            Function,
+            TypeFunction,
+            Struct
+        };
 
-    void
-    DeclFunction::acceptVisitor(AstVisitor& visitor) {
-        visitor.visit(*this);
-    }
+        DeclScope(const Kind kind);
 
+        bool hasDecl(const DeclBase* decl) const;
+
+        void addDecl(DeclBase* decl);
+
+        void setParentScope(DeclScope* scope);
+
+        DeclScope* getParentScope() const {
+            return m_parentScope;
+        }
+
+        Kind getKind() const {
+            return m_scopeKind;
+        }
+    private:
+        using DeclMap = std::unordered_map<StringRef, DeclBase*>;
+        DeclScope* m_parentScope;
+        DeclMap m_declMap;
+        Kind m_scopeKind;
+    };
 }
+

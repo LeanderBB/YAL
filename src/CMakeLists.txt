@@ -96,9 +96,13 @@ set(YAL_SOURCES
     yal/ast/exprdecimalliteral.h
     yal/ast/typedecl.h
     yal/ast/typedecl.cpp
+    yal/ast/declscope.cpp
+    yal/ast/declscope.h
 
-    yal/compiler/cpasstyperegistration.cpp
-    yal/compiler/cpasstyperegistration.h
+    yal/compiler/compiler.cpp
+    yal/compiler/compiler.h
+    yal/compiler/cpassscopetyperesolve.cpp
+    yal/compiler/cpassscopetyperesolve.h
 
     yal/io/memorystream.cpp
     yal/io/memorystream.h

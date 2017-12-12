@@ -16,35 +16,17 @@
  *  You should have received a copy of the GNU Lesser General Public
  *  License along with YAL. If not, see <http://www.gnu.org/licenses/>.
  */
+
 #pragma once
 
-#include "yal/ast/declfunctionbase.h"
-#include "yal/util/stringref.h"
-#include "yal/ast/declscope.h"
 namespace yal {
-
-    class DeclFunction : public DeclFunctionBase {
+    class Log;
+    class Module;
+    class SourceManager;
+    class CPassScopeTypeResolve {
     public:
 
-        DeclFunction(Module& module,
-                     const StringRef functionName,
-                     DeclParamVarContainer* params,
-                     RefType* returnType,
-                     StatementList* body);
+        bool run(Log& log, Module& module, const SourceManager& manager);
 
-
-        virtual void acceptVisitor(AstVisitor& visitor) override;
-
-        DeclScope* getDeclScope() {
-            return &m_declScope;
-        }
-
-        const DeclScope* getDeclScope() const {
-            return &m_declScope;
-        }
-
-    private:
-        DeclScope m_declScope;
     };
-
 }

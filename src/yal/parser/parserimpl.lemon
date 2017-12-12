@@ -102,7 +102,7 @@
 %type type_function_args_decl_other {yal::DeclParamVarContainer*}
 %type function_arg_decl {yal::DeclParamVar*}
 %type statement_list {yal::StatementList*}
-%type function_scope {yal::StatementList*}
+%type function_body {yal::StatementList*}
 %type statement {yal::Statement*}
 %type expression {yal::StmtExpression*}
 %type unaryexp {yal::ExprUnaryOperator*}
@@ -222,9 +222,18 @@ type_var_decl(A) ::= IDENTIFIER(B) COLON qualified_type(C) ASSIGN expression(D) 
 }
 
 // Function decl --------------------------------------------------------------
+        
+        
+//function_header ::= function_start function_param_list function_return_decl.
+
+//function_start ::= FUNCTION IDENTIFIER.
+
+//function_param_list ::= PAR_BEGIN function_args_decl PAR_END.
+
+//decl_function ::= function_header SCOPE_BEGIN function_body SCOPE_END.
 
 decl_function (A) ::= FUNCTION(X) IDENTIFIER(B) PAR_BEGIN function_args_decl(D) PAR_END(Z)
-        function_return_decl(C) function_scope(E). {
+        function_return_decl(C) function_body(E). {
         A = pParser->newAstNode<yal::DeclFunction>(B.tokenStr, D, C, E);
         if (D != nullptr) {
             D->updateSourceInfo();
@@ -246,7 +255,7 @@ decl_function (A) ::= FUNCTION(X) IDENTIFIER(B) PAR_BEGIN function_args_decl(D) 
 
 type_function_decl(A)::= FUNCTION(X) type_specifier(B) COLON COLON IDENTIFIER(C)
         PAR_BEGIN type_function_args_decl(E) PAR_END(Z)
-        function_return_decl(D) function_scope(F). {
+        function_return_decl(D) function_body(F). {
             A = pParser->newAstNode<yal::DeclTypeFunction>(C.tokenStr, E, D, B, F);
         if (E != nullptr) {
             E->updateSourceInfo();
@@ -327,8 +336,8 @@ function_return_decl(A) ::= COLON qualified_type(B). { A = B;
 }
 function_return_decl(A)::=. {A = nullptr;}
 
-function_scope(A)::= SCOPE_BEGIN SCOPE_END. { A = nullptr;}
-function_scope(A)::= SCOPE_BEGIN statement_list(B) SCOPE_END. {A = B;}
+function_body(A)::= SCOPE_BEGIN SCOPE_END. { A = nullptr;}
+function_body(A)::= SCOPE_BEGIN statement_list(B) SCOPE_END. {A = B;}
 
 // Statments -----------------------------------------------------------------
 statement_list(A) ::= statement_list(B) statement(C).{

@@ -21,6 +21,7 @@
 
 #include "yal/ast/declbase.h"
 #include "yal/ast/nodecontainer.h"
+#include "yal/ast/declscope.h"
 
 namespace yal {
 
@@ -57,10 +58,20 @@ namespace yal {
             return m_members;
         }
 
+        DeclScope* getDeclScope() {
+            return &m_declScope;
+        }
+
+        const DeclScope* getDeclScope() const {
+            return &m_declScope;
+        }
+
         virtual void acceptVisitor(AstVisitor& visitor) override;
 
     private:
         DeclStructMembers* m_members;
+        DeclScope m_declScope;
+
     };
 
 }
