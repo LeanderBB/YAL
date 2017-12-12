@@ -53,10 +53,15 @@ namespace yal {
                    StringRef typeName,
                    DeclStructMembers* members);
 
+        DeclStruct(Module& module,
+                   StringRef typeName);
+
 
         DeclStructMembers* getMembers() const {
             return m_members;
         }
+
+        void setMembers(DeclStructMembers* members);
 
         DeclScope* getDeclScope() {
             return &m_declScope;

@@ -39,6 +39,13 @@ namespace yal {
 
     }
 
+    DeclTypeFunction::DeclTypeFunction(Module& module,
+                                       const StringRef functionName,
+                                       RefType* destType):
+        DeclTypeFunction(module, functionName, nullptr, nullptr, destType, nullptr) {
+
+    }
+
 
     bool
     DeclTypeFunction::isStatic() const{

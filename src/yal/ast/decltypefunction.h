@@ -31,6 +31,10 @@ namespace yal {
                          RefType* destType,
                          StatementList *body);
 
+        DeclTypeFunction(Module& module,
+                         const StringRef functionName,
+                         RefType* destType);
+
         RefType* getTargetType() const {
             return m_targetType;
         }

@@ -101,17 +101,25 @@
 %type type_function_args_decl {yal::DeclParamVarContainer*}
 %type type_function_args_decl_other {yal::DeclParamVarContainer*}
 %type function_arg_decl {yal::DeclParamVar*}
+%type function_header {yal::DeclFunction*}
+%type function_start {yal::DeclFunction*}
+%type function_param_list {yal::DeclParamVarContainer*}
+%type type_function_header {yal::DeclTypeFunction*}
+%type type_function_start {yal::DeclTypeFunction*}
+%type type_function_param_list {yal::DeclParamVarContainer*}
 %type statement_list {yal::StatementList*}
-%type function_body {yal::StatementList*}
+%type statement_list_or_empty {yal::StatementList*}
 %type statement {yal::Statement*}
 %type expression {yal::StmtExpression*}
 %type unaryexp {yal::ExprUnaryOperator*}
 %type binaryexp {yal::ExprBinaryOperator*}
 %type literal {yal::StmtExpression*}
-%type var_decl {yal::StmtDecl*}
-%type type_decl {yal::DeclStruct*}
-%type type_var_decl {yal::DeclVar*}
-%type type_var_decls {yal::DeclStructMembers*}
+%type decl_var {yal::StmtDecl*}
+%type decl_type {yal::DeclBase*}
+%type decl_struct {yal::DeclStruct*}
+%type struct_header {yal::DeclStruct*}
+%type struct_decl_var {yal::DeclVar*}
+%type struct_decl_vars {yal::DeclStructMembers*}
 %type function_call_args{yal::ExprList*}
 %type qualifier {uint32_t}
 %type qualified_type {yal::RefType*}
@@ -121,7 +129,7 @@
 
 module ::= decls END.
 
-decls (A)::= decls(B) type_decl(C). {
+decls (A)::= decls(B) decl_type(C). {
     A =B; B->addDecl(C);
 }
 decls(A) ::= decls(B) decl_function(C). {
@@ -194,85 +202,91 @@ type_array ::= type_builtin ARRAY_BEGIN ARRAY_END.
 
 // Type Decl -----------------------------------------------------------------
 
-type_decl(A) ::= TYPE(X) IDENTIFIER(B) COLON STRUCT SCOPE_BEGIN type_var_decls(C) SCOPE_END(Z). {
-    A = pParser->newAstNode<yal::DeclStruct>(B.tokenStr, C);
-        if (C != nullptr) {
-        C->updateSourceInfo();
-        }
-    auto srcInfo = pParser->createSourceInfo(X, Z);
-    A->setSourceInfo(srcInfo);
-}
-type_decl(A) ::= TYPE IDENTIFIER COLON type_specifier SEMI_COLON. {
+decl_type(A) ::= TYPE IDENTIFIER COLON type_specifier SEMI_COLON. {
     A = nullptr;
 }
 
-type_var_decls(A) ::= type_var_decls(B) type_var_decl(C). {
+decl_type(A) ::= decl_struct(B). { A = B;}
+
+
+// Decl Struct ---------------------------------------------------------------
+struct_header(A) ::= TYPE(B) IDENTIFIER(C) COLON STRUCT. {
+    A = pParser->newAstNode<yal::DeclStruct>(C.tokenStr);
+    A->setSourceInfo(pParser->createSourceInfo(B, C));
+}
+
+decl_struct(A) ::= struct_header(B) SCOPE_BEGIN struct_decl_vars(C) SCOPE_END(Z). {
+        A = B;
+        if (C != nullptr) {
+            C->updateSourceInfo();
+            A->setMembers(C);
+        }
+        auto srcInfo = pParser->createSourceInfo(B->getSourceInfo(), Z);
+        A->setSourceInfo(srcInfo);
+}
+
+struct_decl_vars(A) ::= struct_decl_vars(B) struct_decl_var(C). {
     A = B;
     A->addDeclVar(C);
 }
-type_var_decls(A) ::= type_var_decl(B). {
+struct_decl_vars(A) ::= struct_decl_var(B). {
     A = pParser->newAstNode<yal::DeclStructMembers>();
     A->addDeclVar(B);
 }
 
-type_var_decl(A) ::= IDENTIFIER(B) COLON qualified_type(C) ASSIGN expression(D) SEMI_COLON(Z). {
+struct_decl_var(A) ::= IDENTIFIER(B) COLON qualified_type(C) ASSIGN expression(D) SEMI_COLON(Z). {
     A = pParser->newAstNode<yal::DeclVar>(B.tokenStr, yal::Qualifier(), C, D);
-        auto srcInfo = pParser->createSourceInfo(B, Z);
-        A->setSourceInfo(srcInfo);
+    auto srcInfo = pParser->createSourceInfo(B, Z);
+    A->setSourceInfo(srcInfo);
 }
 
 // Function decl --------------------------------------------------------------
         
         
-//function_header ::= function_start function_param_list function_return_decl.
-
-//function_start ::= FUNCTION IDENTIFIER.
-
-//function_param_list ::= PAR_BEGIN function_args_decl PAR_END.
-
-//decl_function ::= function_header SCOPE_BEGIN function_body SCOPE_END.
-
-decl_function (A) ::= FUNCTION(X) IDENTIFIER(B) PAR_BEGIN function_args_decl(D) PAR_END(Z)
-        function_return_decl(C) function_body(E). {
-        A = pParser->newAstNode<yal::DeclFunction>(B.tokenStr, D, C, E);
-        if (D != nullptr) {
-            D->updateSourceInfo();
-        }
-        if (E != nullptr) {
-            E->updateSourceInfo();
-        }
-        yal::SourceInfo srcInfo;
-        if (E != nullptr) {
-            srcInfo = pParser->createSourceInfo(X, E->getSourceInfo());
-        } else if (C != nullptr) {
-            srcInfo = pParser->createSourceInfo(X, C->getSourceInfo());
-        } else {
-            srcInfo = pParser->createSourceInfo(X, Z);
-        }
-        A->setSourceInfo(srcInfo);
+function_header(A)::= function_start(B) function_param_list(C) function_return_decl (D). {
+        A = B;
+        A->setParams(C);
+        A->setReturnType(D);
 }
 
-
-type_function_decl(A)::= FUNCTION(X) type_specifier(B) COLON COLON IDENTIFIER(C)
-        PAR_BEGIN type_function_args_decl(E) PAR_END(Z)
-        function_return_decl(D) function_body(F). {
-            A = pParser->newAstNode<yal::DeclTypeFunction>(C.tokenStr, E, D, B, F);
-        if (E != nullptr) {
-            E->updateSourceInfo();
-        }
-        if (F != nullptr) {
-            F->updateSourceInfo();
-        }
-        yal::SourceInfo srcInfo;
-        if (F!= nullptr) {
-            srcInfo = pParser->createSourceInfo(X, F->getSourceInfo());
-        } else if (D != nullptr) {
-            srcInfo = pParser->createSourceInfo(X, D->getSourceInfo());
-        } else {
-            srcInfo = pParser->createSourceInfo(X, Z);
-        }
-        A->setSourceInfo(srcInfo);
+function_start(A)::= FUNCTION(B) IDENTIFIER(C). {
+     A = pParser->newAstNode<yal::DeclFunction>(C.tokenStr);
+     A->setSourceInfo(pParser->createSourceInfo(B, C));
 }
+
+function_param_list(A) ::= PAR_BEGIN function_args_decl (B) PAR_END. {
+    A = B;
+}
+
+decl_function(A) ::= function_header(B) SCOPE_BEGIN statement_list_or_empty(C) SCOPE_END(D). {
+    A = B;
+    A->setFunctionBody(C);
+    A->setSourceInfo(pParser->createSourceInfo(B->getSourceInfo(), D));
+}
+
+// Type Function decl ---------------------------------------------------------
+
+type_function_header (A) ::= type_function_start(B) type_function_param_list(C) function_return_decl (D). {
+    A = B;
+    A->setParams(C);
+    A->setReturnType(D);
+}
+
+type_function_start(A) ::= FUNCTION(B) type_specifier(C) COLON COLON IDENTIFIER(D). {
+    A = pParser->newAstNode<yal::DeclTypeFunction>(D.tokenStr, C);
+    A->setSourceInfo(pParser->createSourceInfo(B, D));
+}
+
+type_function_param_list(A) ::= PAR_BEGIN type_function_args_decl(B) PAR_END. {
+    A = B;
+}
+
+type_function_decl(A)::= type_function_header(B) SCOPE_BEGIN statement_list_or_empty(C) SCOPE_END(D). {
+        A = B;
+        A->setFunctionBody(C);
+        A->setSourceInfo(pParser->createSourceInfo(B->getSourceInfo(), D));
+}
+
 
 // Type function args decl ---------------------------------------------------
 
@@ -336,10 +350,12 @@ function_return_decl(A) ::= COLON qualified_type(B). { A = B;
 }
 function_return_decl(A)::=. {A = nullptr;}
 
-function_body(A)::= SCOPE_BEGIN SCOPE_END. { A = nullptr;}
-function_body(A)::= SCOPE_BEGIN statement_list(B) SCOPE_END. {A = B;}
-
 // Statments -----------------------------------------------------------------
+
+statement_list_or_empty(A) ::=. {A = nullptr;}
+statement_list_or_empty(A) ::= statement_list(B). {A = B;}
+
+
 statement_list(A) ::= statement_list(B) statement(C).{
     B->addStatement(C);
     A=B;
@@ -353,7 +369,7 @@ statement_list(A) ::= statement(B). {
 statement(A) ::= expression(B) ASSIGN expression(C) SEMI_COLON. {
    A = pParser->newAstNode<yal::StmtAssign>(B,C);
 }
-statement(A)::= var_decl(B) SEMI_COLON. {
+statement(A)::= decl_var(B) SEMI_COLON. {
     A = B;
 }
 statement(A) ::= expression(B) SEMI_COLON. {A = B;}
@@ -370,7 +386,7 @@ statement(A) ::= RETURN(Z) SEMI_COLON. {
 
 // Var Decls -----------------------------------------------------------------
 
-var_decl(A) ::= VAR(Z) IDENTIFIER(B) var_type_spec(C) ASSIGN expression(D). {
+decl_var(A) ::= VAR(Z) IDENTIFIER(B) var_type_spec(C) ASSIGN expression(D). {
     auto varDecl = pParser->newAstNode<yal::DeclVar>(B.tokenStr, yal::Qualifier(), C, D);
     auto varSrcInfo = pParser->createSourceInfo(Z, B);
     varDecl->setSourceInfo(varSrcInfo);
@@ -379,7 +395,7 @@ var_decl(A) ::= VAR(Z) IDENTIFIER(B) var_type_spec(C) ASSIGN expression(D). {
     A->setSourceInfo(srcInfo);
 
 }
-var_decl(A) ::= LET(Z) IDENTIFIER(B) var_type_spec(C) ASSIGN expression(D). {
+decl_var(A) ::= LET(Z) IDENTIFIER(B) var_type_spec(C) ASSIGN expression(D). {
     yal::Qualifier qualifier;
     qualifier.setImmutable();
     auto varDecl = pParser->newAstNode<yal::DeclVar>(B.tokenStr, qualifier, C, D);

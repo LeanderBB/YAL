@@ -38,4 +38,19 @@ namespace yal {
 
     }
 
+    void
+    DeclFunctionBase::setReturnType(RefType* returnType) {
+        m_returnType = returnType;
+    }
+
+
+    void
+    DeclFunctionBase::setParams(DeclParamVarContainer* params) {
+        m_params = params;
+    }
+
+    void
+    DeclFunctionBase::setFunctionBody(StatementList* body) {
+        m_functionBody = body;
+    }
 }

@@ -32,6 +32,9 @@ namespace yal {
                      RefType* returnType,
                      StatementList* body);
 
+        DeclFunction(Module& module,
+                     const StringRef FunctionName);
+
 
         virtual void acceptVisitor(AstVisitor& visitor) override;
 

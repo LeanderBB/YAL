@@ -48,13 +48,19 @@ namespace yal {
             return m_returnType;
         }
 
+        void setReturnType(RefType* returnType);
+
         DeclParamVarContainer* getParams() const {
             return m_params;
         }
 
+        void setParams(DeclParamVarContainer* params);
+
         StatementList* getFunctionBody() const {
             return m_functionBody;
         }
+
+        void setFunctionBody(StatementList* body);
 
     protected:
         DeclParamVarContainer* m_params;

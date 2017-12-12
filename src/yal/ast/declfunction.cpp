@@ -37,6 +37,13 @@ namespace yal {
 
     }
 
+    DeclFunction::DeclFunction(Module& module,
+                               const StringRef FunctionName):
+        DeclFunction(module, FunctionName, nullptr, nullptr, nullptr) {
+
+    }
+
+
     void
     DeclFunction::acceptVisitor(AstVisitor& visitor) {
         visitor.visit(*this);

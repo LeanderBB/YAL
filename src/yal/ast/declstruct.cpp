@@ -52,6 +52,17 @@ namespace yal {
 
     }
 
+    DeclStruct::DeclStruct(Module& module,
+                           StringRef typeName):
+        DeclStruct(module, typeName, nullptr) {
+
+    }
+
+    void
+    DeclStruct::setMembers(DeclStructMembers* members) {
+        m_members = members;
+    }
+
     void
     DeclStruct::acceptVisitor(AstVisitor& visitor) {
         visitor.visit(*this);
