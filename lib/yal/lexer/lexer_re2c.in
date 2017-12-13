@@ -1,0 +1,307 @@
+/*
+ *  Copyright 2017 by Leander Beernaert (leanderbb@gmail.com)
+ *
+ *  This file is part of YAL.
+ *
+ *  YAL is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU Lesser General Public License as
+ *  published by the Free Software Foundation, either version 3
+ *  of the License, or (at your option) any later version.
+ *
+ *  YAL is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ *  GNU Lesser General Public License for more details.
+ *
+ *  You should have received a copy of the GNU Lesser General Public
+ *  License along with YAL. If not, see <http://www.gnu.org/licenses/>.
+ */
+#include "yal/yal.h"
+#include "yal/io/memorystream.h"
+#include "yal/lexer/tokens.h"
+#include "yal/lexer/lexer.h"
+#include <iostream>
+/*!max:re2c*/
+
+namespace yal {
+
+    enum {
+        kMaxBufferSize = 4096
+    };
+
+    struct Lexer::LexerState {
+        uint8_t buffer[kMaxBufferSize + YYMAXFILL];
+        uint8_t* limit = nullptr;
+        uint8_t* current = nullptr;
+        uint8_t* marker = nullptr;
+        uint8_t* token = nullptr;
+        size_t lineNum = 1;
+        size_t streamReadOffset = std::numeric_limits<size_t>::max();
+        size_t lineStartOffset = 0;
+        size_t tokenLineStart =0;
+        size_t tokenColumnStart = 0;
+        bool eof = false;
+
+        bool fill(const size_t size,
+                  ByteStream& stream) {
+
+            if (eof) {
+                return false;
+            }
+            const size_t free = token - buffer;
+            if (free < size) {
+                return false;
+            }
+            streamReadOffset = static_cast<uintptr_t>(limit - token) + stream.getPosition();
+            ::memmove(buffer, token, limit - token);
+            limit -= free;
+            current -= free;
+            marker -= free;
+            token -= free;
+            limit += stream.read(limit, free);
+            if (limit < buffer + kMaxBufferSize) {
+                eof = true;
+                memset(limit, 0, YYMAXFILL);
+                limit += YYMAXFILL;
+            }
+            return true;
+        }
+
+
+        size_t getColumnOffsetStart() const {
+            if ( streamReadOffset== std::numeric_limits<size_t>::max()) {
+                return 1;
+            }
+
+            const size_t bufferOffset  = getBufferOffsetTokBegin();
+            return streamReadOffset + bufferOffset - lineStartOffset + 1;
+        }
+
+        size_t getColumnOffsetEnd() const {
+
+            const size_t bufferOffset  =getBufferOffsetTokEnd();
+
+            return streamReadOffset  + bufferOffset - lineStartOffset;
+        }
+
+        size_t getStreamOffset() const {
+            const size_t bufferOffset  = getBufferOffsetTokBegin();
+            return streamReadOffset + bufferOffset;
+        }
+
+        size_t getBufferOffsetTokBegin() const {
+            const size_t bufferOffset =
+                    static_cast<size_t>(reinterpret_cast<uintptr_t>(token)
+                                        - reinterpret_cast<uintptr_t>(buffer));
+            return bufferOffset;
+        }
+
+        size_t getBufferOffsetTokEnd() const {
+            const size_t bufferOffset =
+                    static_cast<size_t>(reinterpret_cast<uintptr_t>(current)
+                                        - reinterpret_cast<uintptr_t>(buffer));
+            return bufferOffset;
+        }
+
+
+        void updateLineStartOffset() {
+            lineNum++;
+            const size_t bufferOffset  = getBufferOffsetTokEnd();
+            lineStartOffset = streamReadOffset + bufferOffset;
+        }
+
+        void markScanBegin() {
+            token = current;
+            tokenLineStart = lineNum;
+            tokenColumnStart = getColumnOffsetStart();
+        }
+
+        size_t getTokenLength() const {
+            return  static_cast<size_t>(reinterpret_cast<uintptr_t>(current)
+                                        - reinterpret_cast<uintptr_t>(token));
+        }
+
+    };
+
+    Lexer::Lexer(MemoryStream &stream):
+        m_stream(stream),
+        m_lexerState(createLexerState()),
+        m_curToken()
+    {
+        m_lexerState->limit = m_lexerState->buffer + kMaxBufferSize;
+        m_lexerState->current = m_lexerState->limit;
+        m_lexerState->token =m_lexerState->limit;
+        m_lexerState->marker = m_lexerState->limit;
+        m_curToken.token = Token::TokenCount;
+    }
+
+    Lexer::~Lexer(){
+
+    }
+
+    void
+    Lexer::setToken(const Token token,
+                    const LexerState& state) {
+        m_curToken.token = token;
+        m_curToken.lineStart = state.tokenLineStart;
+        m_curToken.lineEnd = state.lineNum;
+        m_curToken.columnStart = state.tokenColumnStart;
+        m_curToken.columnEnd =state.getColumnOffsetEnd();
+        m_curToken.tokenOffsetInStream = state.getStreamOffset();
+        const char* streamStr =
+                static_cast<const char*>(m_stream.getPtrAt(m_curToken.tokenOffsetInStream));
+        m_curToken.tokenStr = StringRefPod{streamStr, state.getTokenLength()};
+    }
+
+    void
+    Lexer::setLexerError(const LexerState& state) {
+        m_curToken.token = Token::TokenCount;
+        m_curToken.lineStart = state.tokenLineStart;
+        m_curToken.lineEnd = m_curToken.lineEnd;
+        m_curToken.columnStart = state.tokenColumnStart;
+        m_curToken.columnEnd = m_curToken.columnStart;
+        m_curToken.tokenOffsetInStream = state.getStreamOffset();
+    }
+
+    std::unique_ptr<Lexer::LexerState>
+    Lexer::createLexerState(){
+        return std::make_unique<Lexer::LexerState>();
+    }
+
+    Lexer::Status
+    Lexer::re2cExecute() {
+        for (;;) {
+            m_lexerState->markScanBegin();
+            /*!re2c
+        re2c:define:YYCTYPE = "unsigned char";
+        re2c:define:YYCURSOR = m_lexerState->current;
+        re2c:define:YYMARKER = m_lexerState->marker;
+        re2c:define:YYLIMIT = m_lexerState->limit;
+        re2c:yyfill:enable = 1;
+        re2c:define:YYFILL = "if (!m_lexerState->fill(@@, m_stream)) return Status::EOS;";
+        re2c:define:YYFILL:naked = 1;
+
+        end = "\x00";
+        end { if (m_lexerState->limit - m_lexerState->token == YYMAXFILL) {return Status::EOS;} }
+        /* common character classes */
+
+            /* basic tokens */
+            MUT="mut";
+            VAR = "var";
+            LET = "let";
+            TRUE = "true";
+            FALSE= "false";
+            RETURN= "return";
+            SELF ="self";
+            AND = "and";
+            OR = "or";
+            NOT = "not";
+            THIS = "this";
+            FN = "fn";
+            NEWLINE="\n";
+            COLON = ":";
+            DOT = ".";
+            COMMA = ",";
+            SEMICOLON = ";";
+            TYPE = "type";
+            BEGIN_PAR ="(";
+            END_PAR = ")";
+            BEGIN_ARRAY = "[";
+            END_ARRAY = "]";
+            BEGIN_SCOPE = "{";
+            END_SCOPE = "}";
+            TYPE_BOOL = "bool";
+            TYPE_INT8 = "i8";
+            TYPE_UINT8 = "u8";
+            TYPE_INT16 = "i16";
+            TYPE_UINT16 = "u16";
+            TYPE_INT32 = "i32";
+            TYPE_UINT32 = "u32";
+            TYPE_INT64 = "i32";
+            TYPE_UINT64 = "u32";
+            TYPE_FLOAT = "float";
+            TYPE_DOUBLE= "double";
+            STRUCT = "struct";
+            REFERENCE="&";
+            PLUS = "+";
+            MINUS ="-";
+            DIV = "/";
+            MOD = "mod";
+            MULT = "*";
+            ASSIGN= "=";
+            GE =">=";
+            GT =">";
+            LE ="<=";
+            LT ="<";
+            EQ ="==";
+            NE ="!=";
+
+            INTEGER = [0-9][0-9]*;
+            DECIMAL = [0-9]+ "." [0-9]+;
+            IDENTIFIER = [a-zA-Z][a-zA-Z0-9_]*;
+
+            /* final rules */
+            VAR  { setToken(Token::Var, *m_lexerState); return Status::Ok; }
+            LET  { setToken(Token::Let, *m_lexerState);return Status::Ok; }
+            MUT { setToken(Token::Mutable, *m_lexerState); return Status::Ok;}
+            REFERENCE { setToken(Token::Reference, *m_lexerState); return Status::Ok;}
+            RETURN { setToken(Token::Return, *m_lexerState);return Status::Ok; }
+            TYPE { setToken(Token::Type, *m_lexerState); return Status::Ok;}
+            TRUE  { setToken(Token::True, *m_lexerState); return Status::Ok; }
+            FALSE  { setToken(Token::False, *m_lexerState); return Status::Ok; }
+            AND  { setToken(Token::And, *m_lexerState); return Status::Ok; }
+            OR  { setToken(Token::Or, *m_lexerState); return Status::Ok; }
+            NOT  { setToken(Token::Not, *m_lexerState); return Status::Ok; }
+            THIS  { setToken(Token::This, *m_lexerState);return Status::Ok; }
+            FN  { setToken(Token::Function, *m_lexerState);return Status::Ok; }
+            SELF  { setToken(Token::Self, *m_lexerState);return Status::Ok; }
+            NEWLINE {m_lexerState->updateLineStartOffset(); continue;}
+            TYPE_BOOL { setToken(Token::TypeBool, *m_lexerState); return Status::Ok;}
+            TYPE_INT8 { setToken(Token::TypeInt8, *m_lexerState); return Status::Ok;}
+            TYPE_UINT8 { setToken(Token::TypeUInt8, *m_lexerState); return Status::Ok;}
+            TYPE_INT16 { setToken(Token::TypeInt16, *m_lexerState); return Status::Ok;}
+            TYPE_UINT16 { setToken(Token::TypeUInt16, *m_lexerState); return Status::Ok;}
+            TYPE_INT32 { setToken(Token::TypeInt32, *m_lexerState); return Status::Ok;}
+            TYPE_UINT32 { setToken(Token::TypeUInt32, *m_lexerState); return Status::Ok;}
+            TYPE_INT64 { setToken(Token::TypeInt64, *m_lexerState); return Status::Ok;}
+            TYPE_UINT64 { setToken(Token::TypeUInt64, *m_lexerState); return Status::Ok;}
+            TYPE_FLOAT { setToken(Token::TypeFloat, *m_lexerState); return Status::Ok;}
+            TYPE_DOUBLE { setToken(Token::TypeDouble, *m_lexerState); return Status::Ok;}
+            PLUS { setToken(Token::Plus, *m_lexerState); return Status::Ok;}
+            MINUS { setToken(Token::Minus, *m_lexerState); return Status::Ok;}
+            DIV { setToken(Token::Div, *m_lexerState); return Status::Ok;}
+            MULT { setToken(Token::Mult, *m_lexerState); return Status::Ok;}
+            MOD { setToken(Token::Mod, *m_lexerState); return Status::Ok;}
+            ASSIGN { setToken(Token::Assign, *m_lexerState); return Status::Ok;}
+            STRUCT { setToken(Token::Struct, *m_lexerState); return Status::Ok;}
+
+            INTEGER { setToken(Token::IntegerLiteral, *m_lexerState); return Status::Ok;}
+            DECIMAL { setToken(Token::DecimalLiteral, *m_lexerState); return Status::Ok;}
+
+            COLON { setToken(Token::Colon, *m_lexerState); return Status::Ok;}
+            COMMA { setToken(Token::Comma, *m_lexerState); return Status::Ok;}
+            SEMICOLON { setToken(Token::SemiColon, *m_lexerState); return Status::Ok;}
+            BEGIN_SCOPE { setToken(Token::BeginScope, *m_lexerState); return Status::Ok;}
+            END_SCOPE { setToken(Token::EndScope, *m_lexerState); return Status::Ok;}
+            BEGIN_ARRAY { setToken(Token::BeginArray, *m_lexerState); return Status::Ok;}
+            END_ARRAY { setToken(Token::EndArray, *m_lexerState); return Status::Ok;}
+            BEGIN_PAR { setToken(Token::BeginPar, *m_lexerState); return Status::Ok;}
+            END_PAR { setToken(Token::EndPar, *m_lexerState); return Status::Ok;}
+            IDENTIFIER { setToken(Token::Identifier, *m_lexerState); return Status::Ok;}
+            DOT { setToken(Token::Dot, *m_lexerState); return Status::Ok;}
+
+
+            GE { setToken(Token::CompareGe, *m_lexerState); return Status::Ok;}
+            GT { setToken(Token::CompareGt, *m_lexerState); return Status::Ok;}
+            LE { setToken(Token::CompareLe, *m_lexerState); return Status::Ok;}
+            LT { setToken(Token::CompareLt, *m_lexerState); return Status::Ok;}
+            EQ { setToken(Token::CompareEq, *m_lexerState); return Status::Ok;}
+            NE { setToken(Token::CompareNe, *m_lexerState); return Status::Ok;}
+
+            [ \t]* {continue;}
+            * { setToken(Token::TokenCount, *m_lexerState); return Status::Error;}
+            */
+        }
+
+    }
+}

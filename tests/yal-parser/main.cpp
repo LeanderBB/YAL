@@ -16,65 +16,245 @@
  *  You should have received a copy of the GNU Lesser General Public
  *  License along with YAL. If not, see <http://www.gnu.org/licenses/>.
  */
-#include <yal/yal.h>
-#include <yal/lexer/lexer.h>
-#include <yal/lexer/tokens.h>
-#include <string>
-#include <iostream>
-#include <yal/parser/parser.h>
-#include <yal/io/filestream.h>
-#include <yal/io/memorystream.h>
-#include <yal/util/log.h>
-#include <yal/ast/modulemanager.h>
-#include <yal/io/sourcemanager.h>
-#include <yal/ast/astprinter.h>
-#include <yal/ast/astcontext.h>
-#include <yal/io/sourcemanager.h>
-#include <yal/io/sourceitems.h>
-#include <yal/compiler/compiler.h>
-int main(const int argc,
-         const char** argv) {
 
-    /*
-    if (argc < 2)  {
-        std::cerr << "Usage: " << argv[0] << " <file> " << std::endl;
-        return EXIT_FAILURE;
-    }*/
 
-    yal::FileStream stream;
-    if (argc < 2)  {
-        stream.open(yal::FileStream::StdStream::In);
-    } else {
-        if (!stream.open(argv[1], yal::FileStream::kModeRead)) {
-            std::cerr << "Failed to open: " << argv[1] << std::endl;
-            return EXIT_FAILURE;
-        }
-    }
+#include "fixture.h"
 
-    yal::FileStream stdoutStream;
-    stdoutStream.open(yal::FileStream::StdStream::Out);
-    yal::Log log(stdoutStream);
 
-   auto sourceStream = std::make_unique<yal::SourceItemFile>();
+TEST_F(CompileFixture, function_no_params_no_return) {
+    const char* str = R"R(
+ fn Foo() {
 
-   if (!sourceStream->open(stream, (argc < 2) ? "stdin" : argv[1])) {
-       std::cerr << "Failed to create source stream" << std::endl;
-       return EXIT_FAILURE;
-   }
+}
+)R";
 
-    yal::SourceManager sourceManager;
-    yal::ModuleManager moduleManager;
-
-    auto handle = sourceManager.add(std::move(sourceStream));
-
-    yal::Compiler compiler(log, sourceManager, moduleManager);
-
+    auto handle = createSourceHanlde(str);
+    yal::Compiler compiler(*m_log, m_sourceManager, m_moduleManager);
     yal::Module* module = compiler.compile(handle);
+    EXPECT_NE(module, nullptr);
+}
 
-    if (module != nullptr) {
-        yal::AstPrinter astPrinter(stdoutStream);
-        astPrinter.visit(*module->getDeclNode());
+
+TEST_F(CompileFixture, function_no_params_return) {
+    const char* str = R"R(
+ fn Foo() : bool {
+    return true;
+}
+)R";
+
+    auto handle = createSourceHanlde(str);
+    yal::Compiler compiler(*m_log, m_sourceManager, m_moduleManager);
+    yal::Module* module = compiler.compile(handle);
+    EXPECT_NE(module, nullptr);
+}
+
+
+TEST_F(CompileFixture, function_params_no_return) {
+    const char* str = R"R(
+ fn Foo(a:bool, b:mut& i32) {
+}
+)R";
+
+    auto handle = createSourceHanlde(str);
+    yal::Compiler compiler(*m_log, m_sourceManager, m_moduleManager);
+    yal::Module* module = compiler.compile(handle);
+    EXPECT_NE(module, nullptr);
+}
+
+TEST_F(CompileFixture, function_params_return) {
+    const char* str = R"R(
+ fn Foo(a:bool, b:mut& i32) : bool {
+    return (b + 1 > 20) and a == true;
+}
+)R";
+
+    auto handle = createSourceHanlde(str);
+    yal::Compiler compiler(*m_log, m_sourceManager, m_moduleManager);
+    yal::Module* module = compiler.compile(handle);
+    EXPECT_NE(module, nullptr);
+}
+
+
+TEST_F(CompileFixture, type_function_unknown_type) {
+    const char* str = R"R(
+ fn Foo::Bar() : bool {
+}
+)R";
+
+    auto handle = createSourceHanlde(str);
+    yal::Compiler compiler(*m_log, m_sourceManager, m_moduleManager);
+    yal::Module* module = compiler.compile(handle);
+    EXPECT_EQ(module, nullptr);
+}
+
+
+TEST_F(CompileFixture, function_unknown_type) {
+    const char* str = R"R(
+ fn Bar(a:Foo) : bool {
+}
+)R";
+
+    auto handle = createSourceHanlde(str);
+    yal::Compiler compiler(*m_log, m_sourceManager, m_moduleManager);
+    yal::Module* module = compiler.compile(handle);
+    EXPECT_EQ(module, nullptr);
+}
+
+TEST_F(CompileFixture, function_self_use) {
+    const char* str = R"R(
+ fn Bar(a:float) : bool {
+            return self.b == a;
+}
+)R";
+
+    auto handle = createSourceHanlde(str);
+    yal::Compiler compiler(*m_log, m_sourceManager, m_moduleManager);
+    yal::Module* module = compiler.compile(handle);
+    EXPECT_EQ(module, nullptr);
+}
+
+TEST_F(CompileFixture, struct) {
+    const char* str = R"R(
+     type Foo : struct {
+        bar: i32 = 0;
+        other: bool = false;
+     }
+)R";
+
+    auto handle = createSourceHanlde(str);
+    yal::Compiler compiler(*m_log, m_sourceManager, m_moduleManager);
+    yal::Module* module = compiler.compile(handle);
+    EXPECT_NE(module, nullptr);
+}
+
+TEST_F(CompileFixture, struct_unknown_member_type) {
+    const char* str = R"R(
+     type Foo : struct {
+        bar: i32 = 0;
+        other: Bar = Bar();
+     }
+)R";
+
+    auto handle = createSourceHanlde(str);
+    yal::Compiler compiler(*m_log, m_sourceManager, m_moduleManager);
+    yal::Module* module = compiler.compile(handle);
+    EXPECT_EQ(module, nullptr);
+}
+
+TEST_F(CompileFixture, type_function_static) {
+    const char* str = R"R(
+     type Foo : struct {
+        bar: i32 = 0;
+        other: bool = false;
+     }
+
+     fn Foo::static(instance:&Foo) : bool{
+        return instance.bar;
+    }
+)R";
+
+    auto handle = createSourceHanlde(str);
+    yal::Compiler compiler(*m_log, m_sourceManager, m_moduleManager);
+    yal::Module* module = compiler.compile(handle);
+    EXPECT_NE(module, nullptr);
+}
+
+
+TEST_F(CompileFixture, type_function_instance) {
+    const char* str = R"R(
+     type Foo : struct {
+        bar: i32 = 0;
+        other: bool = false;
+     }
+
+     fn Foo::static(&self) : bool{
+        return self.bar;
+    }
+)R";
+
+    auto handle = createSourceHanlde(str);
+    yal::Compiler compiler(*m_log, m_sourceManager, m_moduleManager);
+    yal::Module* module = compiler.compile(handle);
+    EXPECT_NE(module, nullptr);
+}
+
+
+
+TEST_F(CompileFixture, function_local_vars) {
+    const char* str = R"R(
+     fn static(b:i32, c:double) : double{
+        var local:i32 = 20;
+        local = local + b;
+        return c * local;
+    }
+)R";
+
+    auto handle = createSourceHanlde(str);
+    yal::Compiler compiler(*m_log, m_sourceManager, m_moduleManager);
+    yal::Module* module = compiler.compile(handle);
+    EXPECT_NE(module, nullptr);
+}
+
+
+TEST_F(CompileFixture, function_local_vars_undefined) {
+    const char* str = R"R(
+     fn static(b:i32, c:double) : double{
+        var local:i32 = 20;
+        local = local + something_else;
+        return c * local;
+    }
+)R";
+
+    auto handle = createSourceHanlde(str);
+    yal::Compiler compiler(*m_log, m_sourceManager, m_moduleManager);
+    yal::Module* module = compiler.compile(handle);
+    EXPECT_EQ(module, nullptr);
+}
+
+TEST_F(CompileFixture, function_duplicate) {
+    const char* str = R"R(
+     fn static(b:i32, c:double) : double{
+        var local:i32 = 20;
+        local = local + b;
+        return c * local;
     }
 
-    return module != nullptr ? EXIT_SUCCESS : EXIT_FAILURE;
+    fn static() {
+
+    }
+)R";
+
+    auto handle = createSourceHanlde(str);
+    yal::Compiler compiler(*m_log, m_sourceManager, m_moduleManager);
+    yal::Module* module = compiler.compile(handle);
+    EXPECT_EQ(module, nullptr);
+}
+
+TEST_F(CompileFixture, type_function_duplicate) {
+    const char* str = R"R(
+
+     type Foo:struct {
+            bar:i32 = 0;
+     }
+
+     fn Foo::static(c:double) : double{
+        return c;
+    }
+
+    fn Foo::static() {
+
+    }
+)R";
+
+    auto handle = createSourceHanlde(str);
+    yal::Compiler compiler(*m_log, m_sourceManager, m_moduleManager);
+    yal::Module* module = compiler.compile(handle);
+    EXPECT_EQ(module, nullptr);
+}
+
+
+
+int main(int argc, char** argv) {
+    ::testing::InitGoogleTest(&argc, argv);
+    return RUN_ALL_TESTS();
 }

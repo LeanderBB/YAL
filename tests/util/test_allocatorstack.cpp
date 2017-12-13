@@ -39,7 +39,7 @@ TEST(AllocatorStack, BasicAlloc) {
     EXPECT_EQ(allocator.getMemorySizeBytes(), size_t(kStackSize));
     EXPECT_EQ(allocator.getStackCount(), size_t(1));
 
-    allocator.shutdown();
+    allocator.reset();
 }
 
 TEST(AllocatorStack, MultiStackAlloc) {

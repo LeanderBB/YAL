@@ -1,10 +1,11 @@
 #
 # Simple Parser test
 #
-add_executable(test_yal_parser main.cpp)
+add_executable(test_yal_parser
+    fixture.h
+    main.cpp)
 
 target_link_libraries(test_yal_parser
-        PRIVATE yal
+        PRIVATE GTest::GTest yal
     )
-
 YAL_APPLY_COMPILER_FLAGS_WERROR(test_yal_parser)
