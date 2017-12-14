@@ -19,7 +19,35 @@
 
 #include "yal/ast/module.h"
 #include "yal/ast/declmodule.h"
+#include <cstring>
 namespace yal {
+
+    std::string
+    Module::ModuleNameFromPath(const StringRef str) {
+        // search for last '.'
+        size_t posDot = str.size()+1;
+        for (size_t i = 0; i< str.size();++i) {
+            const size_t pos = str.size() - i - 1;
+            if (str[pos] == '.') {
+                posDot = pos;
+                break;
+            }
+        }
+         // search for '/' or '\\'
+        const size_t secondSearchStart = (posDot == str.size() + 1)
+                ? str.size() - 1
+                : posDot - 1;
+        size_t posSlash = 0;
+        for (size_t i = secondSearchStart; i >0 ; --i) {
+            if (str[i] == '\\' || str[i] == '/') {
+                posSlash = i + 1;
+                break;
+            }
+        }
+        std::string name(str.data() + posSlash, (posDot - posSlash));
+        return name;
+    }
+
     Module::Module(const StringRef name,
                    ModuleManager& manager,
                    const SourceManager::Handle handle,
@@ -27,12 +55,12 @@ namespace yal {
         m_id(id),
         m_sourceHandle(handle),
         m_manager(manager),
-        m_name(name.toString()),
+        m_name(ModuleNameFromPath(name)),
         m_astContext(),
         m_typeContext(),
         m_rootNode(nullptr){
 
-        m_rootNode = newASTNode<DeclModule>(name);
+        m_rootNode = newASTNode<DeclModule>(m_name);
         YAL_ASSERT_MESSAGE(m_rootNode != nullptr, "Failed to allocate root node");
     }
 

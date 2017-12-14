@@ -26,12 +26,11 @@ namespace yal{
         StmtExpression(module, AstType::ExprUnaryOperator),
         m_opType(opType),
         m_expr(expr) {
-        // TODO: set qual type ?
+        m_qualType = expr->getQualType();
     }
 
     void ExprUnaryOperator::setExpression(StmtExpression* expr) {
         m_expr = expr;
-        // TODO: Verify!
         m_qualType = expr->getQualType();
     }
 

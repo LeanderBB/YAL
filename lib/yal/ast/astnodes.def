@@ -44,7 +44,6 @@ YAL_AST_NODE_TYPE(ExprDecimalLiteral)
 YAL_AST_NODE_TYPE(ExprStructVarRef)
 YAL_AST_NODE_TYPE(ExprFnCall)
 YAL_AST_NODE_TYPE(ExprStructFnCall)
-YAL_AST_NODE_TYPE(ExprList)
 YAL_AST_NODE_TYPE(DeclParamVarSelf)
 YAL_AST_NODE_TYPE(ExprVarRefSelf)
 
@@ -53,4 +52,5 @@ YAL_AST_NODE_TYPE(DeclModule)
 YAL_AST_NODE_TYPE(StatementList)
 YAL_AST_NODE_TYPE(DeclParamVarContainer)
 YAL_AST_NODE_TYPE(DeclStructMembers)
+YAL_AST_NODE_TYPE(ExprList)
 #endif

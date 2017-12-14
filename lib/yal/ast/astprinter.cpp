@@ -141,7 +141,8 @@ namespace yal {
         print("DeclModule %\n", node.getName());
         auto& decls = node.getDeclarations();
         for (auto it = decls.begin(); it != decls.end(); ++it) {
-            scopeBegin(it + 1 == decls.end());
+            auto nextIt = it;
+            scopeBegin(++nextIt == decls.end());
             (*it)->acceptVisitor(*this);
             scopeEnd();
         }

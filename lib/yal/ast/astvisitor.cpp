@@ -23,6 +23,9 @@
 #include "yal/ast/declparamvar.h"
 #include "yal/ast/declmodule.h"
 #include "yal/ast/statement.h"
+#include "yal/ast/declstruct.h"
+#include "yal/ast/exprlist.h"
+#include "yal/ast/stmtexpression.h"
 namespace yal {
 
 
@@ -41,7 +44,22 @@ namespace yal {
     }
 
 
-    void RecursiveAstVisitor::visit(DeclParamVarContainer& node) {
+    void
+    RecursiveAstVisitor::visit(DeclParamVarContainer& node) {
+        for (auto it = node.childBegin(); it != node.childEnd(); ++it) {
+            (*it)->acceptVisitor(*this);
+        }
+    }
+
+    void
+    RecursiveAstVisitor::visit(DeclStructMembers& node) {
+        for (auto it = node.childBegin(); it != node.childEnd(); ++it) {
+            (*it)->acceptVisitor(*this);
+        }
+    }
+
+    void
+    RecursiveAstVisitor::visit(ExprList& node) {
         for (auto it = node.childBegin(); it != node.childEnd(); ++it) {
             (*it)->acceptVisitor(*this);
         }

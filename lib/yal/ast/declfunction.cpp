@@ -33,7 +33,7 @@ namespace yal {
                          params,
                          returnType,
                          body),
-        m_declScope(DeclScope::Kind::Function){
+        m_declScope(this){
 
     }
 

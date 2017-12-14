@@ -16,27 +16,24 @@
  *  You should have received a copy of the GNU Lesser General Public
  *  License along with YAL. If not, see <http://www.gnu.org/licenses/>.
  */
-#include "yal/ast/declmodule.h"
-#include "yal/ast/module.h"
-#include "yal/ast/astcontext.h"
-#include "yal/ast/astvisitor.h"
+
+
+#include <csetjmp>
 
 namespace yal {
 
-    DeclModule::DeclModule(Module& module,
-                           StringRef name):
-        DeclBase(module, AstType::DeclModule, name),
-        m_declScope(this){
+    class StackJump {
+    public:
 
-    }
+        void mark() {
+            setjmp(m_env);
+        }
 
-    void
-    DeclModule::addDecl(DeclBase* node) {
-        m_declartions.push_back(node);
-    }
+        void trigger() {
+            longjmp(m_env, 101);
+        }
 
-    void
-    DeclModule::acceptVisitor(AstVisitor &visitor) {
-        visitor.visit(*this);
-    }
+    private:
+        jmp_buf m_env;
+    };
 }

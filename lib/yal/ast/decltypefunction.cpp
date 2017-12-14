@@ -39,7 +39,7 @@ namespace yal {
                        + "::"
                        + functionName.toString()),
         m_targetType(destType),
-        m_declScope(DeclScope::Kind::TypeFunction){
+        m_declScope(this){
         m_identifier.setIdString(m_functionName);
     }
 

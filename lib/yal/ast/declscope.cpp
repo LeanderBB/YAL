@@ -20,12 +20,49 @@
 #include "yal/ast/declscope.h"
 #include "yal/ast/declbase.h"
 #include "yal/ast/identifier.h"
+#include "yal/ast/declfunction.h"
+#include "yal/ast/declstruct.h"
+#include "yal/ast/declmodule.h"
+#include "yal/ast/decltypefunction.h"
 namespace yal {
 
-    DeclScope::DeclScope(const Kind kind):
+    DeclScope::DeclScope():
         m_parentScope(nullptr),
         m_declMap(),
-        m_scopeKind(kind){
+        m_scopeDecl(nullptr),
+        m_scopeKind(Kind::Scope) {
+
+    }
+
+    DeclScope::DeclScope(DeclFunction* decl):
+        m_parentScope(nullptr),
+        m_declMap(),
+        m_scopeDecl(decl),
+        m_scopeKind(Kind::Function){
+
+    }
+
+    DeclScope::DeclScope(DeclTypeFunction* decl):
+        m_parentScope(nullptr),
+        m_declMap(),
+        m_scopeDecl(decl),
+        m_scopeKind(Kind::TypeFunction) {
+
+    }
+
+    DeclScope::DeclScope(DeclStruct* decl):
+        m_parentScope(nullptr),
+        m_declMap(),
+        m_scopeDecl(decl),
+        m_scopeKind(Kind::Struct) {
+
+    }
+
+    DeclScope::DeclScope(DeclModule* decl):
+        m_parentScope(nullptr),
+        m_declMap(),
+        m_scopeDecl(decl),
+        m_scopeKind(Kind::Module){
 
     }
 
@@ -72,4 +109,33 @@ namespace yal {
         m_parentScope = scope;
     }
 
+    bool
+    DeclScope::isModuleScope() const {
+        return m_scopeKind == Kind::Module;
+    }
+
+    bool
+    DeclScope::isFunctionTypeScope() const {
+        return isFunctionScope() || isTypeFunctionScope();
+    }
+
+    bool
+    DeclScope::isFunctionScope() const {
+        return m_scopeKind == Kind::Function;
+    }
+
+    bool
+    DeclScope::isTypeFunctionScope() const {
+         return m_scopeKind == Kind::TypeFunction;
+    }
+
+    bool
+    DeclScope::isScopedScope() const {
+        return m_scopeKind == Kind::Scope;
+    }
+
+    bool
+    DeclScope::isStructScope() const {
+        return m_scopeKind == Kind::Struct;
+    }
 }

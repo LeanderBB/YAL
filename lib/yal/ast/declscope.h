@@ -20,27 +20,39 @@
 #pragma once
 #include "yal/util/stringref.h"
 #include <unordered_map>
-
+#include "yal/util/iteratorrange.h"
 namespace yal {
 
     class DeclBase;
     class Identifier;
+    class DeclFunction;
+    class DeclTypeFunction;
+    class DeclStruct;
+    class DeclModule;
     class DeclScope {
+    private:
+        using DeclMap = std::unordered_map<StringRef, DeclBase*>;
     public:
+        using DeclRange= IteratorRange<DeclMap::iterator>;
 
         enum class Kind {
             Module,
             Function,
             TypeFunction,
-            Struct
+            Struct,
+            Scope
         };
 
-        DeclScope(const Kind kind);
+        DeclScope();
+        DeclScope(DeclFunction* decl);
+        DeclScope(DeclTypeFunction* decl);
+        DeclScope(DeclStruct* decl);
+        DeclScope(DeclModule* decl);
 
         bool hasDecl(const DeclBase* decl,
                      const bool local) const;
 
-        bool hasDecl(const Identifier& identifier,
+        bool hasDecl(const Identifier& identIteratorRangeifier,
                      const bool local) const;
 
         DeclBase* getDecl(const Identifier &identifier,
@@ -54,13 +66,32 @@ namespace yal {
             return m_parentScope;
         }
 
+        DeclRange getDecls() {
+            return DeclRange(m_declMap.begin(), m_declMap.end());
+        }
+
         Kind getKind() const {
             return m_scopeKind;
         }
-    private:
-        using DeclMap = std::unordered_map<StringRef, DeclBase*>;
+
+        bool isScopePartOfDecl() const {
+            return m_scopeDecl != nullptr;
+        }
+
+        DeclBase* getScopeDecl() const {
+            return m_scopeDecl;
+        }
+
+        bool isModuleScope() const;
+        bool isFunctionTypeScope() const;
+        bool isFunctionScope() const;
+        bool isTypeFunctionScope() const;
+        bool isScopedScope() const;
+        bool isStructScope() const;
+private:
         DeclScope* m_parentScope;
         DeclMap m_declMap;
+        DeclBase* m_scopeDecl;
         Kind m_scopeKind;
     };
 }

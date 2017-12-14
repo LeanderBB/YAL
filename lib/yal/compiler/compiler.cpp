@@ -23,6 +23,9 @@
 #include "yal/parser/parser.h"
 #include "yal/ast/astprinter.h"
 #include "yal/compiler/stages/stagedecls.h"
+#include "yal/compiler/stages/stageexprtype.h"
+#include "yal/compiler/stages/stagefnreturn.h"
+#include "yal/ast/declmodule.h"
 
 namespace yal {
     Compiler::Compiler(Log& log,
@@ -64,6 +67,23 @@ namespace yal {
             }
         }
 
+        // Resolve expression types
+
+        StageFnReturn stageFnRet(*this);
+        StageExprType stageExpr(*this);
+
+        auto& decls = module->getDeclNode()->getDeclarations();
+
+        for (auto& decl : decls) {
+
+            if (!stageFnRet.execute(decl)) {
+                return nullptr;
+            }
+
+            if (!stageExpr.execute(decl)) {
+                return nullptr;
+            }
+        }
 
         return module;
     }

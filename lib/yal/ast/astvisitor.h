@@ -26,6 +26,8 @@ namespace yal {
     class DeclModule;
     class StatementList;
     class DeclParamVarContainer;
+    class DeclStructMembers;
+    class ExprList;
     class AstVisitor {
     public:
 
@@ -45,6 +47,16 @@ namespace yal {
         virtual void visit(StatementList& node) override;
 
         virtual void visit(DeclParamVarContainer& node) override;
+
+        virtual void visit(DeclStructMembers& node) override;
+
+        virtual void visit(ExprList& node) override;
+
+#define YAL_AST_SKIP_NODE_CONTAINERS
+#define YAL_AST_NODE_TYPE(type) virtual void visit(type&) override{}
+#include "yal/ast/astnodes.def"
+#undef YAL_AST_NODE_TYPE
+#undef YAL_AST_SKIP_NODE_CONTAINERS
     };
 }
 

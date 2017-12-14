@@ -16,27 +16,22 @@
  *  You should have received a copy of the GNU Lesser General Public
  *  License along with YAL. If not, see <http://www.gnu.org/licenses/>.
  */
-#include "yal/ast/declmodule.h"
-#include "yal/ast/module.h"
-#include "yal/ast/astcontext.h"
-#include "yal/ast/astvisitor.h"
+
+#pragma once
 
 namespace yal {
 
-    DeclModule::DeclModule(Module& module,
-                           StringRef name):
-        DeclBase(module, AstType::DeclModule, name),
-        m_declScope(this){
+    class Module;
+    class Compiler;
+    class SourceItem;
+    class DeclBase;
+    class StageExprType {
+    public:
+        StageExprType(Compiler& compiler);
 
-    }
+        bool execute(DeclBase* decl);
 
-    void
-    DeclModule::addDecl(DeclBase* node) {
-        m_declartions.push_back(node);
-    }
-
-    void
-    DeclModule::acceptVisitor(AstVisitor &visitor) {
-        visitor.visit(*this);
-    }
+    private:
+        Compiler& m_compiler;
+    };
 }

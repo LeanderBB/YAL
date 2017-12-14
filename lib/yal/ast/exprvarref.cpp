@@ -20,6 +20,7 @@
 #include "yal/ast/exprvarref.h"
 #include "yal/ast/astvisitor.h"
 #include "yal/ast/declparamvar.h"
+#include "yal/ast/reftype.h"
 namespace yal {
 
     ExprVarRef::ExprVarRef(Module& module,
@@ -27,7 +28,9 @@ namespace yal {
                            const DeclVar* decl):
         StmtExpression(module, astType),
         m_declVar(decl){
-
+        RefType* varType = decl->getVarType();
+        m_qualType = QualType::Create(varType->getQualifier(),
+                                      varType->getType());
     }
 
     ExprVarRef::ExprVarRef(Module &module,

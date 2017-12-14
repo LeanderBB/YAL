@@ -16,27 +16,29 @@
  *  You should have received a copy of the GNU Lesser General Public
  *  License along with YAL. If not, see <http://www.gnu.org/licenses/>.
  */
-#include "yal/ast/declmodule.h"
-#include "yal/ast/module.h"
-#include "yal/ast/astcontext.h"
-#include "yal/ast/astvisitor.h"
+
+#pragma once
+
 
 namespace yal {
 
-    DeclModule::DeclModule(Module& module,
-                           StringRef name):
-        DeclBase(module, AstType::DeclModule, name),
-        m_declScope(this){
+    template <typename IteratorType>
+    class IteratorRange {
+    public:
+        IteratorRange(IteratorType begin, IteratorType end):
+            m_begin(begin),
+            m_end(end) {
+        }
 
-    }
+        IteratorType begin() {
+            return m_begin();
+        }
 
-    void
-    DeclModule::addDecl(DeclBase* node) {
-        m_declartions.push_back(node);
-    }
-
-    void
-    DeclModule::acceptVisitor(AstVisitor &visitor) {
-        visitor.visit(*this);
-    }
+        IteratorType end() {
+            return m_end();
+        }
+    private:
+        IteratorType m_begin;
+        IteratorType m_end;
+    };
 }

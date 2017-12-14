@@ -48,7 +48,7 @@ namespace yal {
                            DeclStructMembers *members):
         DeclBase(module, AstType::DeclStruct, Identifier(typeName, module)),
         m_members(members),
-        m_declScope(DeclScope::Kind::Struct){
+        m_declScope(this){
 
     }
 

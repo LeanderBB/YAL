@@ -31,6 +31,8 @@ namespace yal {
     public:
         typedef uint32_t Id;
 
+        static std::string ModuleNameFromPath(const StringRef str);
+
         Module(const StringRef name,
                ModuleManager &manager,
                const SourceManager::Handle handle,

@@ -23,6 +23,7 @@
 #include "yal/ast/astcontext.h"
 #include "yal/ast/module.h"
 #include "yal/io/sourcemanager.h"
+#include "yal/util/iteratorrange.h"
 #include <vector>
 #include <type_traits>
 
@@ -39,6 +40,7 @@ namespace yal {
     public:
         using ContainerType = std::vector<NodeType>;
         using ChildType = NodeType;
+        using NodeRange = IteratorRange<typename ContainerType::reverse_iterator>;
 
         NodeContainer(Module&) {
 
@@ -84,6 +86,11 @@ namespace yal {
 
         void setSourceInfo(const SourceInfo& sourceInfo) {
             m_sourceInfo = sourceInfo;
+        }
+
+
+        NodeRange getChildRange() {
+            return NodeRange(std::rbegin(m_nodes), std::rend(m_nodes));
         }
 
         void updateSourceInfo() {

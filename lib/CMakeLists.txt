@@ -103,6 +103,10 @@ set(YAL_SOURCES
     yal/compiler/compiler.h
     yal/compiler/stages/stagedecls.h
     yal/compiler/stages/stagedecls.cpp
+    yal/compiler/stages/stageexprtype.cpp
+    yal/compiler/stages/stageexprtype.h
+    yal/compiler/stages/stagefnreturn.cpp
+    yal/compiler/stages/stagefnreturn.h
 
     yal/io/memorystream.cpp
     yal/io/memorystream.h
@@ -144,6 +148,8 @@ set(YAL_SOURCES
     yal/util/formattypes.h
     yal/util/strconversions.h
     yal/util/strconversions.cpp
+    yal/util/iteratorrange.h
+    yal/util/stackjump.h
     )
 
 # include parser / lexer DSL's
