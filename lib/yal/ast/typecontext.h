@@ -117,6 +117,7 @@ namespace yal {
         const TypeBuiltin* m_typeDouble;
         AllocatorStack m_allocator;
         std::unordered_map<StringRef, Type*> m_types;
+        uint64_t m_typeIdCounter;
     };
 
 }

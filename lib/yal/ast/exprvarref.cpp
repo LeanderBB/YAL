@@ -29,8 +29,7 @@ namespace yal {
         StmtExpression(module, astType),
         m_declVar(decl){
         RefType* varType = decl->getVarType();
-        m_qualType = QualType::Create(varType->getQualifier(),
-                                      varType->getType());
+        m_qualType = varType->getQualType();
     }
 
     ExprVarRef::ExprVarRef(Module &module,

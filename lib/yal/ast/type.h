@@ -23,6 +23,7 @@
 #include "yal/ast/identifier.h"
 #include "yal/util/stringref.h"
 #include "yal/util/cast.h"
+#include "yal/util/formattypes.h"
 #include <unordered_map>
 
 namespace yal {
@@ -79,9 +80,21 @@ namespace yal {
 
         const TypeDecl* getFunctionWithIdentifier(const Identifier& id) const;
 
+        const TypeDecl* getFunctionWithName(const StringRef name) const;
 
         Kind getKind() const {
             return m_kind;
+        }
+
+        uint64_t getTypeId() const {
+            return m_typeId;
+        }
+
+        bool isCastableTo(const Type* other) const;
+
+   protected:
+        virtual bool isCastableToDetail(const Type*) const {
+            return false;
         }
 
     protected:
@@ -90,6 +103,7 @@ namespace yal {
 
     protected:
         using FunctionMap = std::unordered_map<StringRef,TypeDecl*>;
+        uint64_t m_typeId;
         const Module* m_module;
         const Kind m_kind;
         uint32_t m_sizeBytes = 0;
@@ -122,6 +136,12 @@ namespace yal {
 #include "yal/ast/typelist.def"
 #undef YAL_AST_TYPE
 
+    inline size_t FormatType(FormatTypeArgs& loc,
+                             const Type& value) {
+       return FormatType(loc, value.getIdentifier());
+    }
+
+
     class Qualifier {
     public:        
         Qualifier();
@@ -142,6 +162,21 @@ namespace yal {
         unsigned m_pointer:1;
     };
 
+    inline size_t FormatType(FormatTypeArgs& loc,
+                             const Qualifier& value) {
+        size_t bytesWritten = 0;
+        FormatTypeArgs localArg = loc;
+        if (value.isMutable()) {
+            bytesWritten += FormatType(localArg, "mut");
+            localArg = FormatTypeArgsAdvance(localArg, bytesWritten);
+        }
+
+        if (value.isReference()) {
+            bytesWritten += FormatType(localArg, "&");
+            localArg = FormatTypeArgsAdvance(localArg, bytesWritten);
+        }
+        return bytesWritten;
+    }
 
     class QualType {
     public:
@@ -165,4 +200,11 @@ namespace yal {
         const Type* m_type = nullptr;
     };
 
+    inline size_t FormatType(FormatTypeArgs& loc,
+                             const QualType& value) {
+        const size_t bytesWritten = FormatType(loc, value.getQualifier());
+        loc.ptr += bytesWritten;
+        loc.length -= bytesWritten;
+        return bytesWritten + FormatType(loc, *value.getType());
+    }
 }

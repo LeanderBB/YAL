@@ -20,6 +20,7 @@
 #pragma once
 #include <string>
 #include "yal/util/stringref.h"
+#include "yal/util/formattypes.h"
 namespace yal {
 
     class Module;
@@ -56,4 +57,10 @@ namespace yal {
         StringRef m_name;
         std::string m_idString;
     };
+
+
+    inline size_t FormatType(FormatTypeArgs& loc,
+                             const Identifier& value) {
+       return FormatType(loc, value.getAsString());
+    }
 }

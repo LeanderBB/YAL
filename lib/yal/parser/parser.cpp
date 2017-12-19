@@ -369,7 +369,7 @@ namespace yal{
     ExprDecimalLiteral*
     Parser::newDecimalLiteral(const TokenInfo& ti) {
         const StringRef& str = ti.tokenStr;
-        YAL_ASSERT(ti.token == Token::IntegerLiteral);
+        YAL_ASSERT(ti.token == Token::DecimalLiteral);
 
         double value = 0;
 

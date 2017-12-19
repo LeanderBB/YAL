@@ -119,6 +119,15 @@ namespace yal {
     }
 
     const TypeDecl*
+    Type::getFunctionWithName(const StringRef name) const {
+        std::string functionName = m_identifier.getAsString().toString();
+        functionName +="::";
+        functionName += name.toString();
+        auto it = m_typeFunctions.find(StringRef(functionName));
+        return it != m_typeFunctions.end() ? it->second : nullptr;
+    }
+
+    const TypeDecl*
     Type::getFunctionWithIdentifier(const Identifier& id) const {
         auto it = m_typeFunctions.find(id.getAsString());
         return it != m_typeFunctions.end() ? it->second : nullptr;
@@ -131,6 +140,15 @@ namespace yal {
                            "Adding duplicate function to type");
         m_typeFunctions.insert(std::make_pair(function->getIdentifier().getAsString(),
                                               function));
+    }
+
+    bool
+    Type::isCastableTo(const Type* other) const {
+        if (m_typeId == other->getTypeId()) {
+            return true;
+        } else {
+            return isCastableToDetail(other);
+        }
     }
 
     // Qualifier ------------------------------------------------------------

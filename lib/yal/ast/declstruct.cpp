@@ -19,6 +19,7 @@
 
 #include "yal/ast/declstruct.h"
 #include "yal/ast/astvisitor.h"
+#include "yal/ast/declvar.h"
 namespace yal {
 
     DeclStructMembers::DeclStructMembers(Module& module):
@@ -61,6 +62,21 @@ namespace yal {
     void
     DeclStruct::setMembers(DeclStructMembers* members) {
         m_members = members;
+    }
+
+    const DeclVar*
+    DeclStruct::getMemberByName(const StringRef name) const {
+        if (m_members == nullptr) {
+            return nullptr;
+        }
+
+        for(auto& decl : m_members->getChildRangeConst()) {
+            if (decl->getName() == name) {
+                return decl;
+            }
+        }
+
+        return nullptr;
     }
 
     void

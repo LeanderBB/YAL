@@ -31,11 +31,11 @@ namespace yal {
         }
 
         IteratorType begin() {
-            return m_begin();
+            return m_begin;
         }
 
         IteratorType end() {
-            return m_end();
+            return m_end;
         }
     private:
         IteratorType m_begin;

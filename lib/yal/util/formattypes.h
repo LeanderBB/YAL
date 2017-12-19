@@ -18,6 +18,7 @@
  */
 
 #pragma once
+#include "yal/yal.h"
 #include "yal/util/stringref.h"
 #include <algorithm>
 #include <cstring>
@@ -26,9 +27,16 @@
 namespace yal {
 
     struct FormatTypeArgs {
-        const size_t length;
+        size_t length;
         char* ptr;
     };
+
+    inline FormatTypeArgs
+    FormatTypeArgsAdvance(FormatTypeArgs& args,
+                          const size_t bytes) {
+        YAL_ASSERT(bytes <= args.length);
+        return FormatTypeArgs {args.length - bytes, args.ptr + bytes};
+    }
 
 
     template <typename T>

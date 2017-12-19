@@ -65,6 +65,10 @@ namespace yal {
             return m_resolvedType;
         }
 
+        QualType getQualType() const {
+            return QualType::Create(m_qualifier, m_resolvedType);
+        }
+
         Identifier getIdentitfier() const;
 
         void acceptVisitor(AstVisitor& visitor);

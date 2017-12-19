@@ -43,7 +43,7 @@ YAL_AST_NODE_TYPE(ExprIntegerLiteral)
 YAL_AST_NODE_TYPE(ExprDecimalLiteral)
 YAL_AST_NODE_TYPE(ExprStructVarRef)
 YAL_AST_NODE_TYPE(ExprFnCall)
-YAL_AST_NODE_TYPE(ExprStructFnCall)
+YAL_AST_NODE_TYPE(ExprTypeFnCall)
 YAL_AST_NODE_TYPE(DeclParamVarSelf)
 YAL_AST_NODE_TYPE(ExprVarRefSelf)
 

@@ -71,6 +71,8 @@ namespace yal {
             return &m_declScope;
         }
 
+        const DeclVar* getMemberByName(const StringRef name) const;
+
         virtual void acceptVisitor(AstVisitor& visitor) override;
 
     private:

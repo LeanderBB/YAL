@@ -59,6 +59,16 @@ namespace yal {
         return true;
     }
 
+    bool DeclTypeFunction::isImmutable() const {
+        if (m_params != nullptr) {
+            const DeclParamVarSelf* selfVar =dyn_cast<DeclParamVarSelf>(*m_params->childBegin());
+            if (selfVar != nullptr) {
+                return selfVar->getVarType()->getQualifier().isImmutable();
+            }
+        }
+        return true;
+    }
+
     void
     DeclTypeFunction::acceptVisitor(AstVisitor &visitor) {
         visitor.visit(*this);

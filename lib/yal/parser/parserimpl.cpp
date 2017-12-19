@@ -54,7 +54,7 @@
 #include "yal/ast/exprvarref.h"
 #include "yal/ast/declstruct.h"
 #include "yal/ast/exprstructvarref.h"
-#include "yal/ast/exprstructfncall.h"
+#include "yal/ast/exprtypefncall.h"
 #include "yal/ast/exprlist.h"
 #include "yal/ast/exprdecimalliteral.h"
 #define YYMALLOCARGTYPE size_t
@@ -1656,18 +1656,13 @@ static void yy_reduce(
         break;
       case 70: /* expression ::= expression DOT IDENTIFIER PAR_BEGIN function_call_args PAR_END */
 {
-    auto type = pParser->resolveType(yymsp[-3].minor.yy0);
-    if (type != nullptr ) {
-        auto fnType = pParser->newAstNode<yal::RefType>(type);
-        auto fnSrcInfo = pParser->createSourceInfo(yymsp[-3].minor.yy0, yymsp[-3].minor.yy0);
-        fnType->setSourceInfo(fnSrcInfo);
-        if (yymsp[-1].minor.yy128 != nullptr) {
-            yymsp[-1].minor.yy128->updateSourceInfo();
-        }
-        yylhsminor.yy7 = pParser->newAstNode<yal::ExprStructFnCall>(yymsp[-5].minor.yy7, fnType, yymsp[-1].minor.yy128);
-        auto srcInfo = pParser->createSourceInfo(yymsp[-5].minor.yy7->getSourceInfo(), yymsp[0].minor.yy0);
-        yylhsminor.yy7->setSourceInfo(srcInfo);
+    if (yymsp[-1].minor.yy128 != nullptr) {
+        yymsp[-1].minor.yy128->updateSourceInfo();
     }
+    yylhsminor.yy7 = pParser->newAstNode<yal::ExprTypeFnCall>(yymsp[-5].minor.yy7, yymsp[-3].minor.yy0.tokenStr, yymsp[-1].minor.yy128);
+    auto srcInfo = pParser->createSourceInfo(yymsp[-5].minor.yy7->getSourceInfo(), yymsp[0].minor.yy0);
+    yylhsminor.yy7->setSourceInfo(srcInfo);
+
 }
   yymsp[-5].minor.yy7 = yylhsminor.yy7;
         break;

@@ -24,22 +24,29 @@
 namespace yal {
 
 
-    class ExprStructFnCall : public ExprFnCall {
+    class ExprTypeFnCall : public ExprFnCall {
     public:
 
-        ExprStructFnCall(Module& module,
+        ExprTypeFnCall(Module& module,
                          StmtExpression* expression,
-                         RefType* functionType,
+                         const StringRef functioName,
                          ExprList* functionArgs);
 
         StmtExpression* getExpression() const {
             return m_expression;
         }
 
+        StringRef getFunctionName() const {
+            return m_functionName;
+        }
+
+        void setFunctionType(RefType *functionType);
+
         virtual void acceptVisitor(AstVisitor& visitor) override;
 
     private:
         StmtExpression* m_expression;
+        StringRef m_functionName;
 
     };
 

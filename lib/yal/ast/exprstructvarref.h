@@ -35,7 +35,7 @@ namespace yal {
             return m_expression;
         }
 
-        StringRef getVariableName() const {
+        StringRef getMemberName() const {
             return m_variableName;
         }
 

@@ -149,7 +149,7 @@ TEST_F(CompileFixture, type_function_static) {
      }
 
      fn Foo::static(instance:&Foo) : bool{
-        return instance.bar;
+        return instance.bar != 0;
     }
 )R";
 
@@ -168,7 +168,7 @@ TEST_F(CompileFixture, type_function_instance) {
      }
 
      fn Foo::static(&self) : bool{
-        return self.bar;
+        return self.bar >= 0;
     }
 )R";
 
@@ -185,7 +185,7 @@ TEST_F(CompileFixture, function_local_vars) {
      fn static(b:i32, c:double) : double{
         var local:i32 = 20;
         local = local + b;
-        return c * local;
+        return c * 2.0;
     }
 )R";
 

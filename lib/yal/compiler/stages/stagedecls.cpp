@@ -147,6 +147,23 @@ namespace yal {
             return false;
         }
 
+
+        const TypeDecl* existingFn
+                = targetType->getFunctionWithIdentifier(decl->getIdentifier());
+        if (existingFn != nullptr) {
+            Log& log = m_compiler.getLog();
+            PrettyPrint::SourceErrorPrint(log,
+                                          reftype->getSourceInfo(),
+                                          m_compiler.getSourceManager());
+            log.error("Type '%' already has a target function declaration with \
+the same identifier declared here:\n",
+                      targetType->getIdentifier().getAsString());
+            PrettyPrint::SourceErrorPrint(log,
+                                          existingFn->getDecl()->getSourceInfo(),
+                                          m_compiler.getSourceManager());
+            return false;
+        }
+
         m_activeScope->addDecl(decl);
         pushDeclScope(decl->getDeclScope());
         m_module.getTypeContext().addType(decl);

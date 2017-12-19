@@ -35,7 +35,7 @@
 #include "yal/ast/declmodule.h"
 #include "yal/ast/declstruct.h"
 #include "yal/ast/exprstructvarref.h"
-#include "yal/ast/exprstructfncall.h"
+#include "yal/ast/exprtypefncall.h"
 #include "yal/ast/exprlist.h"
 #include "yal/ast/exprdecimalliteral.h"
 
@@ -292,7 +292,7 @@ namespace yal {
     AstPrinter::visit(ExprStructVarRef& node) {
         print("ExprStructVarRef ");
         printSourceInfo(node.getSourceInfo());
-        printOnLine (" %\n", node.getVariableName());
+        printOnLine (" %\n", node.getMemberName());
         scopeBegin();
         {
             node.getExpression()->acceptVisitor(*this);
@@ -365,7 +365,7 @@ namespace yal {
     }
 
     void
-    AstPrinter::visit(ExprStructFnCall& node) {
+    AstPrinter::visit(ExprTypeFnCall& node) {
         print("ExprStructFnCall ");
         printSourceInfo(node.getSourceInfo());
         print();

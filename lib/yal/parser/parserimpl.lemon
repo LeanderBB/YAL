@@ -50,7 +50,7 @@
 #include "yal/ast/exprvarref.h"
 #include "yal/ast/declstruct.h"
 #include "yal/ast/exprstructvarref.h"
-#include "yal/ast/exprstructfncall.h"
+#include "yal/ast/exprtypefncall.h"
 #include "yal/ast/exprlist.h"
 #include "yal/ast/exprdecimalliteral.h"
 #define YYMALLOCARGTYPE size_t
@@ -486,18 +486,13 @@ expression(A) ::= IDENTIFIER(C) PAR_BEGIN function_call_args(D) PAR_END(Z). {
 }
 
 expression(A) ::= expression(B) DOT IDENTIFIER(C) PAR_BEGIN function_call_args(D) PAR_END(Z). {
-    auto type = pParser->resolveType(C);
-    if (type != nullptr ) {
-        auto fnType = pParser->newAstNode<yal::RefType>(type);
-        auto fnSrcInfo = pParser->createSourceInfo(C, C);
-        fnType->setSourceInfo(fnSrcInfo);
-        if (D != nullptr) {
-            D->updateSourceInfo();
-        }
-        A = pParser->newAstNode<yal::ExprStructFnCall>(B, fnType, D);
-        auto srcInfo = pParser->createSourceInfo(B->getSourceInfo(), Z);
-        A->setSourceInfo(srcInfo);
+    if (D != nullptr) {
+        D->updateSourceInfo();
     }
+    A = pParser->newAstNode<yal::ExprTypeFnCall>(B, C.tokenStr, D);
+    auto srcInfo = pParser->createSourceInfo(B->getSourceInfo(), Z);
+    A->setSourceInfo(srcInfo);
+
 }
 
 // Binary operators ----------------------------------------------------------

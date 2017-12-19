@@ -88,8 +88,8 @@ set(YAL_SOURCES
     yal/ast/exprstructvarref.h
     yal/ast/exprfncall.h
     yal/ast/exprfncall.cpp
-    yal/ast/exprstructfncall.h
-    yal/ast/exprstructfncall.cpp
+    yal/ast/exprtypefncall.h
+    yal/ast/exprtypefncall.cpp
     yal/ast/exprlist.h
     yal/ast/exprlist.cpp
     yal/ast/exprdecimalliteral.cpp

@@ -61,6 +61,9 @@ namespace yal {
             return m_builtinType;
         }
 
+    protected:
+        virtual bool isCastableToDetail(const Type* other) const override;
+
     private:
         const DataType m_builtinType;
     };

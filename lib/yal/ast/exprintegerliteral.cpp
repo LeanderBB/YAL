@@ -61,6 +61,7 @@ namespace yal{
             YAL_ASSERT_MESSAGE(false, "Unknown integer type");
             break;
         }
+        YAL_ASSERT(type != nullptr);
         Qualifier qual = Qualifier();
         m_qualType = QualType::Create(qual,type);
     }

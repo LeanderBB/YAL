@@ -41,6 +41,8 @@ namespace yal {
 
         bool isStatic() const;
 
+        bool isImmutable() const;
+
         DeclScope* getDeclScope() {
             return &m_declScope;
         }

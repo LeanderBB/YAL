@@ -50,7 +50,7 @@ namespace yal {
 
         virtual void acceptVisitor(AstVisitor& visitor) override;
 
-    private:
+    protected:
         RefType* m_functionType;
         ExprList* m_functionArgs;
 

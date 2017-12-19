@@ -70,7 +70,7 @@ namespace yal {
         // Resolve expression types
 
         StageFnReturn stageFnRet(*this);
-        StageExprType stageExpr(*this);
+        StageExprType stageExpr(*this, *module);
 
         auto& decls = module->getDeclNode()->getDeclarations();
 

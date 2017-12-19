@@ -27,11 +27,13 @@ namespace yal {
     class DeclBase;
     class StageExprType {
     public:
-        StageExprType(Compiler& compiler);
+        StageExprType(Compiler& compiler,
+                      Module& module);
 
         bool execute(DeclBase* decl);
 
     private:
         Compiler& m_compiler;
+        Module& m_module;
     };
 }

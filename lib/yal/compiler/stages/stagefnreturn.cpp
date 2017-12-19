@@ -30,7 +30,7 @@
 #include "yal/ast/exprvarref.h"
 #include "yal/ast/declparamvar.h"
 #include "yal/ast/exprfncall.h"
-#include "yal/ast/exprstructfncall.h"
+#include "yal/ast/exprtypefncall.h"
 #include "yal/ast/exprstructvarref.h"
 #include "yal/ast/stmtdecl.h"
 #include "yal/ast/stmtreturn.h"
@@ -221,7 +221,7 @@ namespace yal {
     }
 
     void
-    ReturnCheckVisitor::visit(ExprStructFnCall&) {
+    ReturnCheckVisitor::visit(ExprTypeFnCall&) {
     }
 
 
