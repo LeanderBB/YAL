@@ -489,7 +489,7 @@ expression(A) ::= expression(B) DOT IDENTIFIER(C) PAR_BEGIN function_call_args(D
     if (D != nullptr) {
         D->updateSourceInfo();
     }
-    A = pParser->newAstNode<yal::ExprTypeFnCall>(B, C.tokenStr, D);
+    A = pParser->newAstNode<yal::ExprTypeFnCall>(B, C, D);
     auto srcInfo = pParser->createSourceInfo(B->getSourceInfo(), Z);
     A->setSourceInfo(srcInfo);
 

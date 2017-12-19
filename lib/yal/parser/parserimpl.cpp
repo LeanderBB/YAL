@@ -1659,7 +1659,7 @@ static void yy_reduce(
     if (yymsp[-1].minor.yy128 != nullptr) {
         yymsp[-1].minor.yy128->updateSourceInfo();
     }
-    yylhsminor.yy7 = pParser->newAstNode<yal::ExprTypeFnCall>(yymsp[-5].minor.yy7, yymsp[-3].minor.yy0.tokenStr, yymsp[-1].minor.yy128);
+    yylhsminor.yy7 = pParser->newAstNode<yal::ExprTypeFnCall>(yymsp[-5].minor.yy7, yymsp[-3].minor.yy0, yymsp[-1].minor.yy128);
     auto srcInfo = pParser->createSourceInfo(yymsp[-5].minor.yy7->getSourceInfo(), yymsp[0].minor.yy0);
     yylhsminor.yy7->setSourceInfo(srcInfo);
 

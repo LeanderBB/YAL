@@ -19,23 +19,35 @@
 
 #include "yal/ast/exprtypefncall.h"
 #include "yal/ast/astvisitor.h"
-
+#include "yal/ast/reftype.h"
+#include "yal/ast/typedecl.h"
 namespace yal {
 
     ExprTypeFnCall::ExprTypeFnCall(Module& module,
                                        StmtExpression* expression,
-                                       const StringRef functionName,
+                                       const TokenInfo& functionName,
                                        ExprList *functionArgs):
         ExprFnCall(module, AstType::ExprTypeFnCall,
                    nullptr, functionArgs),
         m_expression(expression),
-        m_functionName(functionName){
+        m_functionNameToken(functionName){
 
     }
 
     void
-    ExprTypeFnCall::setFunctionType(RefType *functionType){
-        m_functionType = functionType;
+    ExprTypeFnCall::setFunctionType(const TypeDecl *functionType){
+        YAL_ASSERT(functionType->isTypeFunction());
+        m_functionType = m_module.newASTNode<RefType>(functionType);
+        SourceInfo srcinfo;
+        srcinfo.handle = m_module.getSourceHandle();
+        srcinfo.begin.line = m_functionNameToken.lineStart;
+        srcinfo.begin.column = m_functionNameToken.columnStart;
+        srcinfo.begin.streamOffset = m_functionNameToken.tokenOffsetInStream;
+        srcinfo.end.line = m_functionNameToken.lineEnd;
+        srcinfo.end.column = m_functionNameToken.columnEnd;
+        srcinfo.end.streamOffset = m_functionNameToken.tokenOffsetInStream
+                + m_functionNameToken.tokenStr.size;
+        m_functionType->setSourceInfo(srcinfo);
     }
 
     void

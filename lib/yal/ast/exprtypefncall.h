@@ -20,7 +20,7 @@
 #pragma once
 
 #include "yal/ast/exprfncall.h"
-
+#include "yal/lexer/lexer.h"
 namespace yal {
 
 
@@ -29,7 +29,7 @@ namespace yal {
 
         ExprTypeFnCall(Module& module,
                          StmtExpression* expression,
-                         const StringRef functioName,
+                         const TokenInfo& functioName,
                          ExprList* functionArgs);
 
         StmtExpression* getExpression() const {
@@ -37,16 +37,16 @@ namespace yal {
         }
 
         StringRef getFunctionName() const {
-            return m_functionName;
+            return m_functionNameToken.tokenStr;
         }
 
-        void setFunctionType(RefType *functionType);
+        void setFunctionType(const TypeDecl *functionType);
 
         virtual void acceptVisitor(AstVisitor& visitor) override;
 
     private:
         StmtExpression* m_expression;
-        StringRef m_functionName;
+        TokenInfo m_functionNameToken;
 
     };
 

@@ -702,7 +702,7 @@ namespace yal {
         }
 
         // update function type
-        node.setFunctionType(m_module.newASTNode<RefType>(fnType));
+        node.setFunctionType(fnType);
         // Update expression type
         node.setQualType(fndecl->getReturnType()->getQualType());
     }
