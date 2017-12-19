@@ -57,6 +57,7 @@
 #include "yal/ast/exprtypefncall.h"
 #include "yal/ast/exprlist.h"
 #include "yal/ast/exprdecimalliteral.h"
+#include "yal/ast/exprrangecast.h"
 #define YYMALLOCARGTYPE size_t
 #include "parserimpl.h"
 /**************** End of %include directives **********************************/
@@ -117,9 +118,10 @@
 #define YAL_TOKEN_RETURN                         50
 #define YAL_TOKEN_VAR                            51
 #define YAL_TOKEN_LET                            52
-#define YAL_TOKEN_INTEGER_LITERAL                53
-#define YAL_TOKEN_DECIMAL_LITERAL                54
-#define YAL_TOKEN_BOOL_LITERAL                   55
+#define YAL_TOKEN_RANGE_CAST                     53
+#define YAL_TOKEN_INTEGER_LITERAL                54
+#define YAL_TOKEN_DECIMAL_LITERAL                55
+#define YAL_TOKEN_BOOL_LITERAL                   56
 #endif
 /**************** End makeheaders token definitions ***************************/
 
@@ -175,7 +177,7 @@
 #endif
 /************* Begin control #defines *****************************************/
 #define YYCODETYPE unsigned char
-#define YYNOCODE 94
+#define YYNOCODE 95
 #define YYACTIONTYPE unsigned short int
 #if INTERFACE
 #define YALParserTOKENTYPE yal::TokenInfo
@@ -183,25 +185,25 @@
 typedef union {
   int yyinit;
   YALParserTOKENTYPE yy0;
-  yal::StmtExpression* yy7;
-  yal::DeclParamVar* yy71;
-  yal::DeclParamVarContainer* yy74;
-  yal::DeclStruct* yy78;
-  uint32_t yy81;
-  yal::ExprUnaryOperator* yy85;
-  yal::StmtDecl* yy93;
-  yal::StringRefPod yy94;
-  yal::Statement* yy104;
-  yal::ExprList* yy128;
-  yal::DeclVar* yy138;
-  yal::DeclStructMembers* yy149;
-  yal::ExprBinaryOperator* yy153;
-  yal::DeclTypeFunction* yy165;
-  yal::StatementList* yy170;
-  yal::DeclBase* yy174;
-  yal::RefType* yy180;
-  yal::DeclFunction* yy183;
-  yal::DeclModule* yy184;
+  yal::DeclStruct* yy2;
+  yal::DeclTypeFunction* yy21;
+  uint32_t yy29;
+  yal::DeclFunction* yy55;
+  yal::DeclBase* yy56;
+  yal::DeclParamVar* yy63;
+  yal::StringRefPod yy70;
+  yal::DeclVar* yy82;
+  yal::DeclStructMembers* yy89;
+  yal::StatementList* yy90;
+  yal::ExprList* yy92;
+  yal::ExprBinaryOperator* yy93;
+  yal::StmtDecl* yy97;
+  yal::DeclParamVarContainer* yy142;
+  yal::RefType* yy144;
+  yal::StmtExpression* yy145;
+  yal::Statement* yy146;
+  yal::ExprUnaryOperator* yy163;
+  yal::DeclModule* yy179;
 } YYMINORTYPE;
 #ifndef YYSTACKDEPTH
 #define YYSTACKDEPTH 100
@@ -212,16 +214,16 @@ typedef union {
 #define YALParserARG_FETCH  yal::Parser *pParser  = yypParser->pParser 
 #define YALParserARG_STORE yypParser->pParser  = pParser 
 #endif
-#define YYNSTATE             110
-#define YYNRULE              95
-#define YY_MAX_SHIFT         109
-#define YY_MIN_SHIFTREDUCE   168
-#define YY_MAX_SHIFTREDUCE   262
-#define YY_MIN_REDUCE        263
-#define YY_MAX_REDUCE        357
-#define YY_ERROR_ACTION      358
-#define YY_ACCEPT_ACTION     359
-#define YY_NO_ACTION         360
+#define YYNSTATE             116
+#define YYNRULE              96
+#define YY_MAX_SHIFT         115
+#define YY_MIN_SHIFTREDUCE   175
+#define YY_MAX_SHIFTREDUCE   270
+#define YY_MIN_REDUCE        271
+#define YY_MAX_REDUCE        366
+#define YY_ERROR_ACTION      367
+#define YY_ACCEPT_ACTION     368
+#define YY_NO_ACTION         369
 /************* End control #defines *******************************************/
 
 /* Define the yytestcase() macro to be a no-op if is not already defined
@@ -293,139 +295,152 @@ typedef union {
 **  yy_default[]       Default action for each state.
 **
 *********** Begin parsing tables **********************************************/
-#define YY_ACTTAB_COUNT (433)
+#define YY_ACTTAB_COUNT (483)
 static const YYACTIONTYPE yy_action[] = {
- /*     0 */    10,   26,   27,    1,  359,   90,   20,   19,   15,   17,
- /*    10 */    16,   18,   25,   24,   23,   22,   21,   26,   27,  200,
- /*    20 */    99,   47,   20,   19,   15,   17,   16,   18,   25,   24,
- /*    30 */    23,   22,   21,  101,  177,  102,   99,   33,  323,  174,
- /*    40 */   223,  290,  180,  181,  182,  183,  184,  185,  186,  187,
- /*    50 */   188,  189,  190,   33,  309,  304,  224,  106,  193,   26,
- /*    60 */    27,   33,  310,  104,   20,   19,   15,   17,   16,   18,
- /*    70 */    25,   24,   23,   22,   21,   26,   27,  238,   99,   11,
+ /*     0 */    10,   26,   28,    1,  368,   93,   20,   19,   15,   17,
+ /*    10 */    16,   18,   25,   24,   23,   22,   21,   26,   28,  207,
+ /*    20 */   105,   49,   20,   19,   15,   17,   16,   18,   25,   24,
+ /*    30 */    23,   22,   21,  107,  184,  108,  105,   34,  331,  181,
+ /*    40 */   230,  298,  187,  188,  189,  190,  191,  192,  193,  194,
+ /*    50 */   195,  196,  197,   34,  317,  246,  231,   11,  200,   26,
+ /*    60 */    28,   34,  318,  312,   20,   19,   15,   17,   16,   18,
+ /*    70 */    25,   24,   23,   22,   21,   26,   28,  245,  105,   11,
  /*    80 */    20,   19,   15,   17,   16,   18,   25,   24,   23,   22,
- /*    90 */    21,  237,  268,   11,   99,   33,  100,   89,  221,   36,
- /*   100 */   180,  181,  182,  183,  184,  185,  186,  187,  188,  189,
- /*   110 */   190,  314,   50,  327,  328,  326,   83,   75,  305,   69,
- /*   120 */   230,  106,  307,   26,   27,  291,   41,   88,   20,   19,
+ /*    90 */    21,   34,  102,   37,  105,   34,  106,   92,  228,  305,
+ /*   100 */   187,  188,  189,  190,  191,  192,  193,  194,  195,  196,
+ /*   110 */   197,  322,   52,  335,  336,  334,   86,   78,  313,   72,
+ /*   120 */   241,   31,  315,   26,   28,  299,   43,   45,   20,   19,
  /*   130 */    15,   17,   16,   18,   25,   24,   23,   22,   21,   26,
- /*   140 */    27,  297,   99,   30,   20,   19,   15,   17,   16,   18,
- /*   150 */    25,   24,   23,   22,   21,   12,  268,   43,   99,   34,
- /*   160 */    13,   14,  197,  106,   97,  109,   27,   79,   81,  274,
- /*   170 */    20,   19,   15,   17,   16,   18,   25,   24,   23,   22,
- /*   180 */    21,  306,  108,   48,   99,  293,   39,   28,   32,  235,
- /*   190 */   205,    7,   82,   80,  258,  259,  260,  174,  268,    2,
- /*   200 */   180,  181,  182,  183,  184,  185,  186,  187,  188,  189,
- /*   210 */   190,   20,   19,   15,   17,   16,   18,   25,   24,   23,
- /*   220 */    22,   21,   47,   76,  102,   99,  358,  358,  358,  358,
- /*   230 */   358,  358,   25,   24,   23,   22,   21,   90,  101,  177,
- /*   240 */    99,   12,   42,  264,  265,  194,   13,   14,   38,  204,
- /*   250 */    97,   58,  327,  328,  326,   85,   49,    8,   73,   44,
- /*   260 */    45,   71,  270,    9,   46,  222,  201,  203,  225,  263,
- /*   270 */   287,  103,    3,   28,   86,  235,   58,  327,  328,  326,
- /*   280 */   258,  259,  260,   12,  294,   87,   70,   99,   13,   14,
- /*   290 */    35,   29,   97,    4,   72,  315,   50,  327,  328,  326,
- /*   300 */    83,  178,    4,   84,  315,   50,  327,  328,  326,   83,
- /*   310 */    51,  327,  328,  326,    5,   28,   40,  235,   74,   78,
- /*   320 */    37,  307,  258,  259,  260,    6,   55,  327,  328,  326,
- /*   330 */    56,  327,  328,  326,   52,  327,  328,  326,   57,  327,
- /*   340 */   328,  326,   77,   98,  191,  262,   31,  105,  107,   91,
- /*   350 */   327,  328,  326,   92,  327,  328,  326,   93,  327,  328,
- /*   360 */   326,   61,  327,  328,  326,  356,   62,  327,  328,  326,
- /*   370 */   265,  265,   63,  327,  328,  326,   64,  327,  328,  326,
- /*   380 */    65,  327,  328,  326,   66,  327,  328,  326,   94,  327,
- /*   390 */   328,  326,   95,  327,  328,  326,  265,   96,  327,  328,
- /*   400 */   326,  265,   67,  327,  328,  326,   68,  327,  328,  326,
- /*   410 */    59,  327,  328,  326,   60,  327,  328,  326,   53,  327,
- /*   420 */   328,  326,   23,   22,   21,  265,  265,  265,   99,   54,
- /*   430 */   327,  328,  326,
+ /*   140 */    28,   35,  105,  108,   20,   19,   15,   17,   16,   18,
+ /*   150 */    25,   24,   23,   22,   21,   93,  107,  184,  105,   61,
+ /*   160 */   335,  336,  334,   82,  201,   12,  314,   84,  237,   74,
+ /*   170 */    13,   14,  301,   41,  100,  212,   50,    2,  204,   49,
+ /*   180 */   278,   26,   28,    8,   44,   40,   20,   19,   15,   17,
+ /*   190 */    16,   18,   25,   24,   23,   22,   21,   29,   79,  243,
+ /*   200 */   105,    7,   85,   83,  103,  266,  267,  268,   28,  211,
+ /*   210 */    47,    9,   20,   19,   15,   17,   16,   18,   25,   24,
+ /*   220 */    23,   22,   21,   48,  181,  229,  105,  187,  188,  189,
+ /*   230 */   190,  191,  192,  193,  194,  195,  196,  197,   20,   19,
+ /*   240 */    15,   17,   16,   18,   25,   24,   23,   22,   21,  210,
+ /*   250 */   208,    3,  105,  367,  367,  367,  367,  367,  367,   25,
+ /*   260 */    24,   23,   22,   21,   89,   90,  302,  105,   12,   61,
+ /*   270 */   335,  336,  334,   13,   14,   36,  105,  100,    5,   73,
+ /*   280 */    27,  101,   12,   53,  335,  336,  334,   13,   14,   77,
+ /*   290 */    81,  100,  315,    6,   38,  232,   58,  335,  336,  334,
+ /*   300 */    29,  185,  243,   59,  335,  336,  334,  103,  266,  267,
+ /*   310 */   268,  104,   30,   80,   29,   39,  243,  272,  273,  270,
+ /*   320 */    42,  103,  266,  267,  268,   54,  335,  336,  334,   88,
+ /*   330 */    51,  198,   76,   46,    4,   75,  323,   52,  335,  336,
+ /*   340 */   334,   86,  111,  271,  295,  109,    4,   87,  323,   52,
+ /*   350 */   335,  336,  334,   86,   60,  335,  336,  334,   94,  335,
+ /*   360 */   336,  334,   32,   95,  335,  336,  334,   96,  335,  336,
+ /*   370 */   334,  365,   64,  335,  336,  334,   65,  335,  336,  334,
+ /*   380 */    66,  335,  336,  334,   67,  335,  336,  334,   68,  335,
+ /*   390 */   336,  334,  113,  273,  273,   69,  335,  336,  334,   97,
+ /*   400 */   335,  336,  334,   98,  335,  336,  334,   99,  335,  336,
+ /*   410 */   334,   70,  335,  336,  334,   71,  335,  336,  334,   62,
+ /*   420 */   335,  336,  334,  273,   55,  335,  336,  334,   63,  335,
+ /*   430 */   336,  334,   56,  335,  336,  334,   57,  335,  336,  334,
+ /*   440 */    23,   22,   21,  115,  112,  112,  105,  112,  273,  273,
+ /*   450 */   110,   91,  273,  282,  273,  273,  273,  273,  273,  273,
+ /*   460 */   114,  273,  273,  273,  273,  273,   33,  273,  273,  273,
+ /*   470 */   273,  273,  273,  273,  273,  273,  273,  273,  273,  276,
+ /*   480 */   276,  273,  276,
 };
 static const YYCODETYPE yy_lookahead[] = {
- /*     0 */     1,    2,    3,   60,   61,   23,    7,    8,    9,   10,
+ /*     0 */     1,    2,    3,   61,   62,   23,    7,    8,    9,   10,
  /*    10 */    11,   12,   13,   14,   15,   16,   17,    2,    3,   47,
  /*    20 */    21,   49,    7,    8,    9,   10,   11,   12,   13,   14,
- /*    30 */    15,   16,   17,   24,   25,   23,   21,   90,   91,   23,
- /*    40 */    41,   87,   26,   27,   28,   29,   30,   31,   32,   33,
- /*    50 */    34,   35,   36,   90,   91,   69,   41,   57,   42,    2,
- /*    60 */     3,   90,   91,   63,    7,    8,    9,   10,   11,   12,
+ /*    30 */    15,   16,   17,   24,   25,   23,   21,   91,   92,   23,
+ /*    40 */    41,   88,   26,   27,   28,   29,   30,   31,   32,   33,
+ /*    50 */    34,   35,   36,   91,   92,   47,   41,   49,   42,    2,
+ /*    60 */     3,   91,   92,   70,    7,    8,    9,   10,   11,   12,
  /*    70 */    13,   14,   15,   16,   17,    2,    3,   47,   21,   49,
  /*    80 */     7,    8,    9,   10,   11,   12,   13,   14,   15,   16,
- /*    90 */    17,   47,   92,   49,   21,   90,   91,   23,   41,   40,
+ /*    90 */    17,   91,   92,   40,   21,   91,   92,   23,   41,   63,
  /*   100 */    26,   27,   28,   29,   30,   31,   32,   33,   34,   35,
- /*   110 */    36,   78,   79,   80,   81,   82,   83,   68,   69,   66,
- /*   120 */    47,   57,   69,    2,    3,   87,   88,   63,    7,    8,
+ /*   110 */    36,   79,   80,   81,   82,   83,   84,   69,   70,   67,
+ /*   120 */    47,   46,   70,    2,    3,   88,   89,   76,    7,    8,
  /*   130 */     9,   10,   11,   12,   13,   14,   15,   16,   17,    2,
- /*   140 */     3,   62,   21,   46,    7,    8,    9,   10,   11,   12,
- /*   150 */    13,   14,   15,   16,   17,   14,   92,   75,   21,   40,
- /*   160 */    19,   20,   41,   57,   23,   22,    3,   64,   64,   63,
- /*   170 */     7,    8,    9,   10,   11,   12,   13,   14,   15,   16,
- /*   180 */    17,   69,   39,   72,   21,   62,   46,   46,   45,   48,
- /*   190 */    44,   50,   51,   52,   53,   54,   55,   23,   92,   43,
- /*   200 */    26,   27,   28,   29,   30,   31,   32,   33,   34,   35,
- /*   210 */    36,    7,    8,    9,   10,   11,   12,   13,   14,   15,
- /*   220 */    16,   17,   49,   48,   23,   21,    7,    8,    9,   10,
- /*   230 */    11,   12,   13,   14,   15,   16,   17,   23,   24,   25,
- /*   240 */    21,   14,   49,   58,   59,   44,   19,   20,   49,   47,
- /*   250 */    23,   79,   80,   81,   82,   70,   71,    1,   73,   74,
- /*   260 */    23,   89,   48,    1,   23,   41,   44,   23,   41,   84,
- /*   270 */    85,   86,   43,   46,   40,   48,   79,   80,   81,   82,
- /*   280 */    53,   54,   55,   14,   46,   40,   89,   21,   19,   20,
- /*   290 */    40,    1,   23,   76,   77,   78,   79,   80,   81,   82,
- /*   300 */    83,   25,   76,   77,   78,   79,   80,   81,   82,   83,
- /*   310 */    79,   80,   81,   82,   46,   46,   43,   48,   66,   67,
- /*   320 */    40,   69,   53,   54,   55,   46,   79,   80,   81,   82,
- /*   330 */    79,   80,   81,   82,   79,   80,   81,   82,   79,   80,
- /*   340 */    81,   82,   90,   23,   41,   38,   40,   37,   23,   79,
- /*   350 */    80,   81,   82,   79,   80,   81,   82,   79,   80,   81,
- /*   360 */    82,   79,   80,   81,   82,    0,   79,   80,   81,   82,
- /*   370 */    93,   93,   79,   80,   81,   82,   79,   80,   81,   82,
- /*   380 */    79,   80,   81,   82,   79,   80,   81,   82,   79,   80,
- /*   390 */    81,   82,   79,   80,   81,   82,   93,   79,   80,   81,
- /*   400 */    82,   93,   79,   80,   81,   82,   79,   80,   81,   82,
- /*   410 */    79,   80,   81,   82,   79,   80,   81,   82,   79,   80,
- /*   420 */    81,   82,   15,   16,   17,   93,   93,   93,   21,   79,
- /*   430 */    80,   81,   82,
+ /*   140 */     3,   40,   21,   23,    7,    8,    9,   10,   11,   12,
+ /*   150 */    13,   14,   15,   16,   17,   23,   24,   25,   21,   80,
+ /*   160 */    81,   82,   83,   65,   44,   14,   70,   65,   47,   90,
+ /*   170 */    19,   20,   63,   46,   23,   44,   73,   43,   41,   49,
+ /*   180 */    48,    2,    3,    1,   49,   49,    7,    8,    9,   10,
+ /*   190 */    11,   12,   13,   14,   15,   16,   17,   46,   48,   48,
+ /*   200 */    21,   50,   51,   52,   53,   54,   55,   56,    3,   47,
+ /*   210 */    23,    1,    7,    8,    9,   10,   11,   12,   13,   14,
+ /*   220 */    15,   16,   17,   23,   23,   41,   21,   26,   27,   28,
+ /*   230 */    29,   30,   31,   32,   33,   34,   35,   36,    7,    8,
+ /*   240 */     9,   10,   11,   12,   13,   14,   15,   16,   17,   23,
+ /*   250 */    44,   43,   21,    7,    8,    9,   10,   11,   12,   13,
+ /*   260 */    14,   15,   16,   17,   40,   40,   46,   21,   14,   80,
+ /*   270 */    81,   82,   83,   19,   20,   40,   21,   23,   46,   90,
+ /*   280 */    46,    9,   14,   80,   81,   82,   83,   19,   20,   67,
+ /*   290 */    68,   23,   70,   46,   10,   41,   80,   81,   82,   83,
+ /*   300 */    46,   25,   48,   80,   81,   82,   83,   53,   54,   55,
+ /*   310 */    56,   23,    1,   91,   46,   40,   48,   59,   60,   38,
+ /*   320 */    43,   53,   54,   55,   56,   80,   81,   82,   83,   71,
+ /*   330 */    72,   41,   74,   75,   77,   78,   79,   80,   81,   82,
+ /*   340 */    83,   84,   37,   85,   86,   87,   77,   78,   79,   80,
+ /*   350 */    81,   82,   83,   84,   80,   81,   82,   83,   80,   81,
+ /*   360 */    82,   83,   40,   80,   81,   82,   83,   80,   81,   82,
+ /*   370 */    83,    0,   80,   81,   82,   83,   80,   81,   82,   83,
+ /*   380 */    80,   81,   82,   83,   80,   81,   82,   83,   80,   81,
+ /*   390 */    82,   83,   23,   94,   94,   80,   81,   82,   83,   80,
+ /*   400 */    81,   82,   83,   80,   81,   82,   83,   80,   81,   82,
+ /*   410 */    83,   80,   81,   82,   83,   80,   81,   82,   83,   80,
+ /*   420 */    81,   82,   83,   94,   80,   81,   82,   83,   80,   81,
+ /*   430 */    82,   83,   80,   81,   82,   83,   80,   81,   82,   83,
+ /*   440 */    15,   16,   17,   22,   58,   58,   21,   58,   94,   94,
+ /*   450 */    64,   64,   94,   64,   94,   94,   94,   94,   94,   94,
+ /*   460 */    39,   94,   94,   94,   94,   94,   45,   94,   94,   94,
+ /*   470 */    94,   94,   94,   94,   94,   94,   94,   94,   94,   93,
+ /*   480 */    93,   94,   93,
 };
-#define YY_SHIFT_USE_DFLT (433)
-#define YY_SHIFT_COUNT    (109)
+#define YY_SHIFT_USE_DFLT (483)
+#define YY_SHIFT_COUNT    (115)
 #define YY_SHIFT_MIN      (-28)
-#define YY_SHIFT_MAX      (407)
+#define YY_SHIFT_MAX      (425)
 static const short yy_shift_ofst[] = {
- /*     0 */   433,  143,  141,  141,  141,  269,  269,  227,  269,  269,
- /*    10 */   269,  269,  269,  269,  269,  269,  269,  269,  269,  269,
- /*    20 */   269,  269,  269,  269,  269,  269,  269,  269,  269,  269,
- /*    30 */   214,   16,   74,  174,    9,    9,    9,    9,  -18,  -18,
- /*    40 */    12,  201,  -18,   59,   97,  119,  119,  -18,   59,  140,
- /*    50 */    -1,   15,   57,   73,  121,  137,  137,  137,  137,  163,
- /*    60 */   204,  219,  219,  219,  219,  219,  219,  407,  407,  -28,
- /*    70 */    30,   44,  146,  156,  173,  193,  199,  175,  202,  256,
- /*    80 */   237,  262,  241,  224,  222,  229,  244,  234,  245,  238,
- /*    90 */   250,  266,  266,  266,  266,  266,  266,  268,  279,  320,
- /*   100 */   290,  276,  280,  273,  303,  307,  310,  306,  325,  365,
+ /*     0 */   483,  421,  151,  151,  151,  268,  268,  254,  268,  268,
+ /*    10 */   268,  268,  268,  268,  268,  268,  268,  268,  268,  268,
+ /*    20 */   268,  268,  268,  268,  268,  268,  268,  268,  268,  268,
+ /*    30 */   268,  132,   16,   74,  201,    9,    9,    9,    9,    9,
+ /*    40 */   -18,  -18,   12,  120,  -18,   53,   75,  101,  101,  -18,
+ /*    50 */    53,  127,   -1,   15,   57,   73,  121,  137,  179,  179,
+ /*    60 */   179,  179,  205,  231,  246,  246,  246,  246,  246,  246,
+ /*    70 */   425,  425,  -28,    8,   30,  131,  134,  130,  135,  136,
+ /*    80 */   150,  162,  182,  187,  210,  200,  184,  206,  208,  226,
+ /*    90 */   224,  225,  220,  235,  255,  255,  255,  255,  255,  255,
+ /*   100 */   232,  234,  272,  284,  247,  288,  311,  276,  275,  277,
+ /*   110 */   290,  281,  305,  322,  369,  371,
 };
-#define YY_REDUCE_USE_DFLT (-58)
-#define YY_REDUCE_COUNT (49)
-#define YY_REDUCE_MIN   (-57)
-#define YY_REDUCE_MAX   (350)
+#define YY_REDUCE_USE_DFLT (-59)
+#define YY_REDUCE_COUNT (51)
+#define YY_REDUCE_MIN   (-58)
+#define YY_REDUCE_MAX   (389)
 static const short yy_reduce_ofst[] = {
- /*     0 */   -57,  185,  217,  226,   33,  172,  197,  231,  247,  251,
- /*    10 */   255,  259,  270,  274,  278,  282,  287,  293,  297,  301,
- /*    20 */   305,  309,  313,  318,  323,  327,  331,  335,  339,  350,
- /*    30 */   252,    0,   64,  106,  -53,  -37,  -29,    5,   49,   53,
- /*    40 */    38,  -46,  -14,   79,   82,  103,  104,  112,  123,  111,
+ /*     0 */   -58,  258,  257,  269,   32,   79,  189,  203,  216,  223,
+ /*    10 */   245,  274,  278,  283,  287,  292,  296,  300,  304,  308,
+ /*    20 */   315,  319,  323,  327,  331,  335,  339,  344,  348,  352,
+ /*    30 */   356,  222,  386,  387,  389,  -54,  -38,  -30,    0,    4,
+ /*    40 */    48,   52,   37,  -47,   -7,   36,   51,   98,  102,   96,
+ /*    50 */   109,  103,
 };
 static const YYACTIONTYPE yy_default[] = {
- /*     0 */   266,  358,  312,  312,  313,  352,  352,  358,  358,  358,
- /*    10 */   358,  358,  358,  358,  358,  358,  358,  358,  358,  358,
- /*    20 */   358,  358,  358,  358,  358,  358,  358,  358,  358,  358,
- /*    30 */   308,  358,  358,  358,  270,  270,  270,  270,  358,  308,
- /*    40 */   358,  358,  358,  311,  358,  324,  324,  358,  311,  358,
- /*    50 */   358,  358,  358,  358,  358,  322,  321,  350,  351,  335,
- /*    60 */   334,  346,  345,  344,  343,  342,  341,  337,  336,  358,
- /*    70 */   358,  358,  358,  358,  303,  302,  301,  358,  358,  358,
- /*    80 */   358,  358,  358,  358,  358,  358,  358,  358,  358,  269,
- /*    90 */   358,  349,  348,  347,  340,  339,  338,  329,  331,  358,
- /*   100 */   358,  271,  358,  358,  358,  358,  267,  358,  358,  358,
+ /*     0 */   274,  367,  320,  320,  321,  361,  361,  367,  367,  367,
+ /*    10 */   367,  367,  367,  367,  367,  367,  367,  367,  367,  367,
+ /*    20 */   367,  367,  367,  367,  367,  367,  367,  367,  367,  367,
+ /*    30 */   367,  316,  367,  367,  367,  278,  278,  278,  278,  278,
+ /*    40 */   367,  316,  367,  367,  367,  319,  367,  332,  332,  367,
+ /*    50 */   319,  367,  367,  367,  367,  367,  367,  367,  330,  329,
+ /*    60 */   359,  360,  344,  343,  355,  354,  353,  352,  351,  350,
+ /*    70 */   346,  345,  367,  367,  367,  367,  367,  311,  310,  309,
+ /*    80 */   367,  367,  367,  367,  367,  367,  367,  367,  367,  367,
+ /*    90 */   367,  367,  277,  367,  358,  357,  356,  349,  348,  347,
+ /*   100 */   338,  367,  367,  367,  340,  367,  367,  279,  367,  367,
+ /*   110 */   367,  367,  275,  367,  367,  367,
 };
 /********** End of lemon-generated parsing tables *****************************/
 
@@ -544,17 +559,17 @@ static const char *const yyTokenName[] = {
   "COLON",         "SEMI_COLON",    "STRUCT",        "SCOPE_BEGIN", 
   "SCOPE_END",     "FUNCTION",      "PAR_BEGIN",     "PAR_END",     
   "SELF",          "COMMA",         "RETURN",        "VAR",         
-  "LET",           "INTEGER_LITERAL",  "DECIMAL_LITERAL",  "BOOL_LITERAL",
-  "error",         "type_builtin",  "decl_function",  "type_function_decl",
-  "decls",         "module",        "function_return_decl",  "type_specifier",
-  "var_type_spec",  "named_decl",    "function_args_decl",  "type_function_args_decl",
-  "type_function_args_decl_other",  "function_arg_decl",  "function_header",  "function_start",
-  "function_param_list",  "type_function_header",  "type_function_start",  "type_function_param_list",
-  "statement_list",  "statement_list_or_empty",  "statement",     "expression",  
-  "unaryexp",      "binaryexp",     "literal",       "decl_var",    
-  "decl_type",     "decl_struct",   "struct_header",  "struct_decl_var",
-  "struct_decl_vars",  "function_call_args",  "qualifier",     "qualified_type",
-  "type_array",  
+  "LET",           "RANGE_CAST",    "INTEGER_LITERAL",  "DECIMAL_LITERAL",
+  "BOOL_LITERAL",  "error",         "type_builtin",  "decl_function",
+  "type_function_decl",  "decls",         "module",        "function_return_decl",
+  "type_specifier",  "var_type_spec",  "named_decl",    "function_args_decl",
+  "type_function_args_decl",  "type_function_args_decl_other",  "function_arg_decl",  "function_header",
+  "function_start",  "function_param_list",  "type_function_header",  "type_function_start",
+  "type_function_param_list",  "statement_list",  "statement_list_or_empty",  "statement",   
+  "expression",    "unaryexp",      "binaryexp",     "literal",     
+  "decl_var",      "decl_type",     "decl_struct",   "struct_header",
+  "struct_decl_var",  "struct_decl_vars",  "function_call_args",  "qualifier",   
+  "qualified_type",  "type_array",  
 };
 #endif /* NDEBUG */
 
@@ -628,35 +643,36 @@ static const char *const yyRuleName[] = {
  /*  63 */ "expression ::= literal",
  /*  64 */ "expression ::= unaryexp",
  /*  65 */ "expression ::= binaryexp",
- /*  66 */ "expression ::= IDENTIFIER",
- /*  67 */ "expression ::= SELF",
- /*  68 */ "expression ::= expression DOT IDENTIFIER",
- /*  69 */ "expression ::= IDENTIFIER PAR_BEGIN function_call_args PAR_END",
- /*  70 */ "expression ::= expression DOT IDENTIFIER PAR_BEGIN function_call_args PAR_END",
- /*  71 */ "binaryexp ::= expression AND expression",
- /*  72 */ "binaryexp ::= expression OR expression",
- /*  73 */ "binaryexp ::= expression PLUS expression",
- /*  74 */ "binaryexp ::= expression MINUS expression",
- /*  75 */ "binaryexp ::= expression MULT expression",
- /*  76 */ "binaryexp ::= expression DIV expression",
- /*  77 */ "binaryexp ::= expression MOD expression",
- /*  78 */ "binaryexp ::= expression EQ expression",
- /*  79 */ "binaryexp ::= expression NE expression",
- /*  80 */ "binaryexp ::= expression LE expression",
- /*  81 */ "binaryexp ::= expression LT expression",
- /*  82 */ "binaryexp ::= expression GE expression",
- /*  83 */ "binaryexp ::= expression GT expression",
- /*  84 */ "unaryexp ::= NOT expression",
- /*  85 */ "unaryexp ::= BIT_NOT expression",
- /*  86 */ "unaryexp ::= MINUS expression",
- /*  87 */ "function_call_args ::= function_call_args COMMA expression",
- /*  88 */ "function_call_args ::= expression",
- /*  89 */ "function_call_args ::=",
- /*  90 */ "literal ::= INTEGER_LITERAL",
- /*  91 */ "literal ::= DECIMAL_LITERAL",
- /*  92 */ "literal ::= BOOL_LITERAL",
- /*  93 */ "module ::= decls END",
- /*  94 */ "type_array ::= type_builtin ARRAY_BEGIN ARRAY_END",
+ /*  66 */ "expression ::= RANGE_CAST LT qualified_type GT PAR_BEGIN expression PAR_END",
+ /*  67 */ "expression ::= IDENTIFIER",
+ /*  68 */ "expression ::= SELF",
+ /*  69 */ "expression ::= expression DOT IDENTIFIER",
+ /*  70 */ "expression ::= IDENTIFIER PAR_BEGIN function_call_args PAR_END",
+ /*  71 */ "expression ::= expression DOT IDENTIFIER PAR_BEGIN function_call_args PAR_END",
+ /*  72 */ "binaryexp ::= expression AND expression",
+ /*  73 */ "binaryexp ::= expression OR expression",
+ /*  74 */ "binaryexp ::= expression PLUS expression",
+ /*  75 */ "binaryexp ::= expression MINUS expression",
+ /*  76 */ "binaryexp ::= expression MULT expression",
+ /*  77 */ "binaryexp ::= expression DIV expression",
+ /*  78 */ "binaryexp ::= expression MOD expression",
+ /*  79 */ "binaryexp ::= expression EQ expression",
+ /*  80 */ "binaryexp ::= expression NE expression",
+ /*  81 */ "binaryexp ::= expression LE expression",
+ /*  82 */ "binaryexp ::= expression LT expression",
+ /*  83 */ "binaryexp ::= expression GE expression",
+ /*  84 */ "binaryexp ::= expression GT expression",
+ /*  85 */ "unaryexp ::= NOT expression",
+ /*  86 */ "unaryexp ::= BIT_NOT expression",
+ /*  87 */ "unaryexp ::= MINUS expression",
+ /*  88 */ "function_call_args ::= function_call_args COMMA expression",
+ /*  89 */ "function_call_args ::= expression",
+ /*  90 */ "function_call_args ::=",
+ /*  91 */ "literal ::= INTEGER_LITERAL",
+ /*  92 */ "literal ::= DECIMAL_LITERAL",
+ /*  93 */ "literal ::= BOOL_LITERAL",
+ /*  94 */ "module ::= decls END",
+ /*  95 */ "type_array ::= type_builtin ARRAY_BEGIN ARRAY_END",
 };
 #endif /* NDEBUG */
 
@@ -1026,101 +1042,102 @@ static const struct {
   YYCODETYPE lhs;       /* Symbol on the left-hand side of the rule */
   signed char nrhs;     /* Negative of the number of RHS symbols in the rule */
 } yyRuleInfo[] = {
-  { 60, -2 },
-  { 60, -2 },
-  { 60, -2 },
-  { 60, 0 },
-  { 63, -1 },
-  { 63, -1 },
-  { 63, -1 },
-  { 90, 0 },
-  { 90, -1 },
-  { 90, -1 },
-  { 90, -2 },
-  { 91, -2 },
-  { 57, -1 },
-  { 57, -1 },
-  { 57, -1 },
-  { 57, -1 },
-  { 57, -1 },
-  { 57, -1 },
-  { 57, -1 },
-  { 57, -1 },
-  { 57, -1 },
-  { 57, -1 },
-  { 57, -1 },
-  { 84, -5 },
-  { 84, -1 },
-  { 86, -4 },
-  { 85, -4 },
-  { 88, -2 },
-  { 88, -1 },
-  { 87, -6 },
-  { 70, -3 },
-  { 71, -2 },
-  { 72, -3 },
-  { 58, -4 },
-  { 73, -3 },
-  { 74, -5 },
-  { 75, -3 },
-  { 59, -4 },
-  { 67, -2 },
-  { 67, -4 },
-  { 67, -1 },
-  { 68, -3 },
-  { 68, -1 },
-  { 66, -3 },
-  { 66, -1 },
-  { 66, 0 },
-  { 69, -3 },
-  { 62, -2 },
-  { 62, 0 },
-  { 77, 0 },
-  { 77, -1 },
-  { 76, -2 },
-  { 76, -1 },
-  { 78, -4 },
-  { 78, -2 },
-  { 78, -2 },
-  { 78, -3 },
-  { 78, -2 },
-  { 83, -5 },
-  { 83, -5 },
-  { 64, -2 },
-  { 64, 0 },
-  { 79, -3 },
-  { 79, -1 },
-  { 79, -1 },
-  { 79, -1 },
-  { 79, -1 },
-  { 79, -1 },
-  { 79, -3 },
-  { 79, -4 },
-  { 79, -6 },
-  { 81, -3 },
-  { 81, -3 },
-  { 81, -3 },
-  { 81, -3 },
-  { 81, -3 },
-  { 81, -3 },
-  { 81, -3 },
-  { 81, -3 },
-  { 81, -3 },
-  { 81, -3 },
-  { 81, -3 },
-  { 81, -3 },
-  { 81, -3 },
-  { 80, -2 },
-  { 80, -2 },
-  { 80, -2 },
-  { 89, -3 },
-  { 89, -1 },
-  { 89, 0 },
-  { 82, -1 },
-  { 82, -1 },
-  { 82, -1 },
   { 61, -2 },
-  { 92, -3 },
+  { 61, -2 },
+  { 61, -2 },
+  { 61, 0 },
+  { 64, -1 },
+  { 64, -1 },
+  { 64, -1 },
+  { 91, 0 },
+  { 91, -1 },
+  { 91, -1 },
+  { 91, -2 },
+  { 92, -2 },
+  { 58, -1 },
+  { 58, -1 },
+  { 58, -1 },
+  { 58, -1 },
+  { 58, -1 },
+  { 58, -1 },
+  { 58, -1 },
+  { 58, -1 },
+  { 58, -1 },
+  { 58, -1 },
+  { 58, -1 },
+  { 85, -5 },
+  { 85, -1 },
+  { 87, -4 },
+  { 86, -4 },
+  { 89, -2 },
+  { 89, -1 },
+  { 88, -6 },
+  { 71, -3 },
+  { 72, -2 },
+  { 73, -3 },
+  { 59, -4 },
+  { 74, -3 },
+  { 75, -5 },
+  { 76, -3 },
+  { 60, -4 },
+  { 68, -2 },
+  { 68, -4 },
+  { 68, -1 },
+  { 69, -3 },
+  { 69, -1 },
+  { 67, -3 },
+  { 67, -1 },
+  { 67, 0 },
+  { 70, -3 },
+  { 63, -2 },
+  { 63, 0 },
+  { 78, 0 },
+  { 78, -1 },
+  { 77, -2 },
+  { 77, -1 },
+  { 79, -4 },
+  { 79, -2 },
+  { 79, -2 },
+  { 79, -3 },
+  { 79, -2 },
+  { 84, -5 },
+  { 84, -5 },
+  { 65, -2 },
+  { 65, 0 },
+  { 80, -3 },
+  { 80, -1 },
+  { 80, -1 },
+  { 80, -1 },
+  { 80, -7 },
+  { 80, -1 },
+  { 80, -1 },
+  { 80, -3 },
+  { 80, -4 },
+  { 80, -6 },
+  { 82, -3 },
+  { 82, -3 },
+  { 82, -3 },
+  { 82, -3 },
+  { 82, -3 },
+  { 82, -3 },
+  { 82, -3 },
+  { 82, -3 },
+  { 82, -3 },
+  { 82, -3 },
+  { 82, -3 },
+  { 82, -3 },
+  { 82, -3 },
+  { 81, -2 },
+  { 81, -2 },
+  { 81, -2 },
+  { 90, -3 },
+  { 90, -1 },
+  { 90, 0 },
+  { 83, -1 },
+  { 83, -1 },
+  { 83, -1 },
+  { 62, -2 },
+  { 93, -3 },
 };
 
 static void yy_accept(yyParser*);  /* Forward Declaration */
@@ -1186,674 +1203,717 @@ static void yy_reduce(
         YYMINORTYPE yylhsminor;
       case 0: /* decls ::= decls decl_type */
 {
-    yylhsminor.yy184 =yymsp[-1].minor.yy184; yymsp[-1].minor.yy184->addDecl(yymsp[0].minor.yy174);
+    yylhsminor.yy179 =yymsp[-1].minor.yy179; yymsp[-1].minor.yy179->addDecl(yymsp[0].minor.yy56);
 }
-  yymsp[-1].minor.yy184 = yylhsminor.yy184;
+  yymsp[-1].minor.yy179 = yylhsminor.yy179;
         break;
       case 1: /* decls ::= decls decl_function */
 {
-        yylhsminor.yy184 =yymsp[-1].minor.yy184; yymsp[-1].minor.yy184->addDecl(yymsp[0].minor.yy183);
+        yylhsminor.yy179 =yymsp[-1].minor.yy179; yymsp[-1].minor.yy179->addDecl(yymsp[0].minor.yy55);
 }
-  yymsp[-1].minor.yy184 = yylhsminor.yy184;
+  yymsp[-1].minor.yy179 = yylhsminor.yy179;
         break;
       case 2: /* decls ::= decls type_function_decl */
 {
-        yylhsminor.yy184 =yymsp[-1].minor.yy184; yymsp[-1].minor.yy184->addDecl(yymsp[0].minor.yy165);
+        yylhsminor.yy179 =yymsp[-1].minor.yy179; yymsp[-1].minor.yy179->addDecl(yymsp[0].minor.yy21);
 }
-  yymsp[-1].minor.yy184 = yylhsminor.yy184;
+  yymsp[-1].minor.yy179 = yylhsminor.yy179;
         break;
       case 3: /* decls ::= */
 {
-        yymsp[1].minor.yy184 =  pParser->getModule().getDeclNode();
+        yymsp[1].minor.yy179 =  pParser->getModule().getDeclNode();
      }
         break;
       case 4: /* type_specifier ::= type_builtin */
-{yylhsminor.yy180=yymsp[0].minor.yy180;}
-  yymsp[0].minor.yy180 = yylhsminor.yy180;
+{
+        yylhsminor.yy144=yymsp[0].minor.yy144;
+}
+  yymsp[0].minor.yy144 = yylhsminor.yy144;
         break;
       case 5: /* type_specifier ::= type_array */
-{yymsp[0].minor.yy180 = nullptr;}
+{yymsp[0].minor.yy144 = nullptr;}
         break;
       case 6: /* type_specifier ::= IDENTIFIER */
 {
     auto type = pParser->resolveType(yymsp[0].minor.yy0);
     if (type != nullptr) {
-        yylhsminor.yy180 = pParser->newAstNode<yal::RefType>(type);
+        yylhsminor.yy144 = pParser->newAstNode<yal::RefType>(type);
         auto srcInfo = pParser->createSourceInfo(yymsp[0].minor.yy0, yymsp[0].minor.yy0);
-        yylhsminor.yy180->setSourceInfo(srcInfo);
+        yylhsminor.yy144->setSourceInfo(srcInfo);
     } else {
-        yylhsminor.yy180 = nullptr;
+        yylhsminor.yy144 = nullptr;
     }
 }
-  yymsp[0].minor.yy180 = yylhsminor.yy180;
+  yymsp[0].minor.yy144 = yylhsminor.yy144;
         break;
       case 7: /* qualifier ::= */
-{yymsp[1].minor.yy81 = 0;}
+{yymsp[1].minor.yy29 = 0;}
         break;
       case 8: /* qualifier ::= MUT */
-{yymsp[0].minor.yy81 = yal::parser::kQualifierMutable;}
+{yymsp[0].minor.yy29 = yal::parser::kQualifierMutable;}
         break;
       case 9: /* qualifier ::= REFERENCE */
-{yymsp[0].minor.yy81 = yal::parser::kQualifierReference;}
+{yymsp[0].minor.yy29 = yal::parser::kQualifierReference;}
         break;
       case 10: /* qualifier ::= MUT REFERENCE */
 {
-        yymsp[-1].minor.yy81 = yal::parser::kQualifierReference | yal::parser::kQualifierMutable;
+        yymsp[-1].minor.yy29 = yal::parser::kQualifierReference | yal::parser::kQualifierMutable;
  }
         break;
       case 11: /* qualified_type ::= qualifier type_specifier */
 {
-    if(yymsp[0].minor.yy180) {
-        yymsp[0].minor.yy180->setQualifier(yal::parser::MakeQualifierFromFlags(yymsp[-1].minor.yy81));
+    if(yymsp[0].minor.yy144) {
+        yymsp[0].minor.yy144->setQualifier(yal::parser::MakeQualifierFromFlags(yymsp[-1].minor.yy29));
     }
-    yylhsminor.yy180 = yymsp[0].minor.yy180;
+    yylhsminor.yy144 = yymsp[0].minor.yy144;
 }
-  yymsp[-1].minor.yy180 = yylhsminor.yy180;
+  yymsp[-1].minor.yy144 = yylhsminor.yy144;
         break;
       case 12: /* type_builtin ::= TYPE_BOOL */
 {
-    yymsp[0].minor.yy180 = pParser->newAstNode<yal::RefType>(pParser->getModule().getTypeContext().getTypeBuiltinBool());
+    yylhsminor.yy144 = pParser->newAstNode<yal::RefType>(pParser->getModule().getTypeContext().getTypeBuiltinBool());
+    auto srcInfo = pParser->createSourceInfo(yymsp[0].minor.yy0, yymsp[0].minor.yy0);
+    yylhsminor.yy144->setSourceInfo(srcInfo);
     }
+  yymsp[0].minor.yy144 = yylhsminor.yy144;
         break;
       case 13: /* type_builtin ::= TYPE_INT8 */
 {
-    yymsp[0].minor.yy180 = pParser->newAstNode<yal::RefType>(pParser->getModule().getTypeContext().getTypeBuiltinI8());
+    yylhsminor.yy144 = pParser->newAstNode<yal::RefType>(pParser->getModule().getTypeContext().getTypeBuiltinI8());
+        auto srcInfo = pParser->createSourceInfo(yymsp[0].minor.yy0, yymsp[0].minor.yy0);
+        yylhsminor.yy144->setSourceInfo(srcInfo);
     }
+  yymsp[0].minor.yy144 = yylhsminor.yy144;
         break;
       case 14: /* type_builtin ::= TYPE_UINT8 */
 {
-    yymsp[0].minor.yy180  = pParser->newAstNode<yal::RefType>(pParser->getModule().getTypeContext().getTypeBuiltinU8());
+    yylhsminor.yy144  = pParser->newAstNode<yal::RefType>(pParser->getModule().getTypeContext().getTypeBuiltinU8());
+        auto srcInfo = pParser->createSourceInfo(yymsp[0].minor.yy0, yymsp[0].minor.yy0);
+        yylhsminor.yy144->setSourceInfo(srcInfo);
     }
+  yymsp[0].minor.yy144 = yylhsminor.yy144;
         break;
       case 15: /* type_builtin ::= TYPE_INT16 */
 {
-    yymsp[0].minor.yy180 = pParser->newAstNode<yal::RefType>(pParser->getModule().getTypeContext().getTypeBuiltinI16());
+    yylhsminor.yy144 = pParser->newAstNode<yal::RefType>(pParser->getModule().getTypeContext().getTypeBuiltinI16());
+        auto srcInfo = pParser->createSourceInfo(yymsp[0].minor.yy0, yymsp[0].minor.yy0);
+        yylhsminor.yy144->setSourceInfo(srcInfo);
     }
+  yymsp[0].minor.yy144 = yylhsminor.yy144;
         break;
       case 16: /* type_builtin ::= TYPE_UINT16 */
 {
-    yymsp[0].minor.yy180  = pParser->newAstNode<yal::RefType>(pParser->getModule().getTypeContext().getTypeBuiltinU16());
+    yylhsminor.yy144  = pParser->newAstNode<yal::RefType>(pParser->getModule().getTypeContext().getTypeBuiltinU16());
+        auto srcInfo = pParser->createSourceInfo(yymsp[0].minor.yy0, yymsp[0].minor.yy0);
+        yylhsminor.yy144->setSourceInfo(srcInfo);
     }
+  yymsp[0].minor.yy144 = yylhsminor.yy144;
         break;
       case 17: /* type_builtin ::= TYPE_INT32 */
 {
-    yymsp[0].minor.yy180 = pParser->newAstNode<yal::RefType>(pParser->getModule().getTypeContext().getTypeBuiltinI32());
+    yylhsminor.yy144 = pParser->newAstNode<yal::RefType>(pParser->getModule().getTypeContext().getTypeBuiltinI32());
+        auto srcInfo = pParser->createSourceInfo(yymsp[0].minor.yy0, yymsp[0].minor.yy0);
+        yylhsminor.yy144->setSourceInfo(srcInfo);
     }
+  yymsp[0].minor.yy144 = yylhsminor.yy144;
         break;
       case 18: /* type_builtin ::= TYPE_UINT32 */
 {
-    yymsp[0].minor.yy180 = pParser->newAstNode<yal::RefType>(pParser->getModule().getTypeContext().getTypeBuiltinU32());
+    yylhsminor.yy144 = pParser->newAstNode<yal::RefType>(pParser->getModule().getTypeContext().getTypeBuiltinU32());
+        auto srcInfo = pParser->createSourceInfo(yymsp[0].minor.yy0, yymsp[0].minor.yy0);
+        yylhsminor.yy144->setSourceInfo(srcInfo);
     }
+  yymsp[0].minor.yy144 = yylhsminor.yy144;
         break;
       case 19: /* type_builtin ::= TYPE_INT64 */
 {
-    yymsp[0].minor.yy180 = pParser->newAstNode<yal::RefType>(pParser->getModule().getTypeContext().getTypeBuiltinI64());
+    yylhsminor.yy144 = pParser->newAstNode<yal::RefType>(pParser->getModule().getTypeContext().getTypeBuiltinI64());
+        auto srcInfo = pParser->createSourceInfo(yymsp[0].minor.yy0, yymsp[0].minor.yy0);
+        yylhsminor.yy144->setSourceInfo(srcInfo);
     }
+  yymsp[0].minor.yy144 = yylhsminor.yy144;
         break;
       case 20: /* type_builtin ::= TYPE_UINT64 */
 {
-    yymsp[0].minor.yy180 = pParser->newAstNode<yal::RefType>(pParser->getModule().getTypeContext().getTypeBuiltinU64());
+    yylhsminor.yy144 = pParser->newAstNode<yal::RefType>(pParser->getModule().getTypeContext().getTypeBuiltinU64());
+        auto srcInfo = pParser->createSourceInfo(yymsp[0].minor.yy0, yymsp[0].minor.yy0);
+        yylhsminor.yy144->setSourceInfo(srcInfo);
     }
+  yymsp[0].minor.yy144 = yylhsminor.yy144;
         break;
       case 21: /* type_builtin ::= TYPE_FLOAT */
 {
-    yymsp[0].minor.yy180 = pParser->newAstNode<yal::RefType>(pParser->getModule().getTypeContext().getTypeBuiltinFloat());
+    yylhsminor.yy144 = pParser->newAstNode<yal::RefType>(pParser->getModule().getTypeContext().getTypeBuiltinFloat());
+        auto srcInfo = pParser->createSourceInfo(yymsp[0].minor.yy0, yymsp[0].minor.yy0);
+        yylhsminor.yy144->setSourceInfo(srcInfo);
     }
+  yymsp[0].minor.yy144 = yylhsminor.yy144;
         break;
       case 22: /* type_builtin ::= TYPE_DOUBLE */
 {
-    yymsp[0].minor.yy180 = pParser->newAstNode<yal::RefType>(pParser->getModule().getTypeContext().getTypeBuiltinDouble());
+    yylhsminor.yy144 = pParser->newAstNode<yal::RefType>(pParser->getModule().getTypeContext().getTypeBuiltinDouble());
+        auto srcInfo = pParser->createSourceInfo(yymsp[0].minor.yy0, yymsp[0].minor.yy0);
+        yylhsminor.yy144->setSourceInfo(srcInfo);
     }
+  yymsp[0].minor.yy144 = yylhsminor.yy144;
         break;
       case 23: /* decl_type ::= TYPE IDENTIFIER COLON type_specifier SEMI_COLON */
 {
-    yymsp[-4].minor.yy174 = nullptr;
+    yymsp[-4].minor.yy56 = nullptr;
 }
         break;
       case 24: /* decl_type ::= decl_struct */
-{ yylhsminor.yy174 = yymsp[0].minor.yy78;}
-  yymsp[0].minor.yy174 = yylhsminor.yy174;
+{ yylhsminor.yy56 = yymsp[0].minor.yy2;}
+  yymsp[0].minor.yy56 = yylhsminor.yy56;
         break;
       case 25: /* struct_header ::= TYPE IDENTIFIER COLON STRUCT */
 {
-    yylhsminor.yy78 = pParser->newAstNode<yal::DeclStruct>(yymsp[-2].minor.yy0.tokenStr);
-    yylhsminor.yy78->setSourceInfo(pParser->createSourceInfo(yymsp[-3].minor.yy0, yymsp[-2].minor.yy0));
-    pParser->onDeclBegin(yylhsminor.yy78);
+    yylhsminor.yy2 = pParser->newAstNode<yal::DeclStruct>(yymsp[-2].minor.yy0.tokenStr);
+    yylhsminor.yy2->setSourceInfo(pParser->createSourceInfo(yymsp[-3].minor.yy0, yymsp[-2].minor.yy0));
+    pParser->onDeclBegin(yylhsminor.yy2);
 }
-  yymsp[-3].minor.yy78 = yylhsminor.yy78;
+  yymsp[-3].minor.yy2 = yylhsminor.yy2;
         break;
       case 26: /* decl_struct ::= struct_header SCOPE_BEGIN struct_decl_vars SCOPE_END */
 {
-    yylhsminor.yy78 = yymsp[-3].minor.yy78;
-    if (yymsp[-1].minor.yy149 != nullptr) {
-        yymsp[-1].minor.yy149->updateSourceInfo();
-        yylhsminor.yy78->setMembers(yymsp[-1].minor.yy149);
+    yylhsminor.yy2 = yymsp[-3].minor.yy2;
+    if (yymsp[-1].minor.yy89 != nullptr) {
+        yymsp[-1].minor.yy89->updateSourceInfo();
+        yylhsminor.yy2->setMembers(yymsp[-1].minor.yy89);
     }
-    auto srcInfo = pParser->createSourceInfo(yymsp[-3].minor.yy78->getSourceInfo(), yymsp[0].minor.yy0);
-    yylhsminor.yy78->setSourceInfo(srcInfo);
+    auto srcInfo = pParser->createSourceInfo(yymsp[-3].minor.yy2->getSourceInfo(), yymsp[0].minor.yy0);
+    yylhsminor.yy2->setSourceInfo(srcInfo);
     pParser->onDeclEnd();
 }
-  yymsp[-3].minor.yy78 = yylhsminor.yy78;
+  yymsp[-3].minor.yy2 = yylhsminor.yy2;
         break;
       case 27: /* struct_decl_vars ::= struct_decl_vars struct_decl_var */
 {
-    yylhsminor.yy149 = yymsp[-1].minor.yy149;
-    if (pParser->onDecl(yymsp[0].minor.yy138)) {
-        yylhsminor.yy149->addDeclVar(yymsp[0].minor.yy138);
+    yylhsminor.yy89 = yymsp[-1].minor.yy89;
+    if (pParser->onDecl(yymsp[0].minor.yy82)) {
+        yylhsminor.yy89->addDeclVar(yymsp[0].minor.yy82);
     }
 }
-  yymsp[-1].minor.yy149 = yylhsminor.yy149;
+  yymsp[-1].minor.yy89 = yylhsminor.yy89;
         break;
       case 28: /* struct_decl_vars ::= struct_decl_var */
 {
-    yylhsminor.yy149 = pParser->newAstNode<yal::DeclStructMembers>();
-    if (pParser->onDecl(yymsp[0].minor.yy138)) {
-        yylhsminor.yy149->addDeclVar(yymsp[0].minor.yy138);
+    yylhsminor.yy89 = pParser->newAstNode<yal::DeclStructMembers>();
+    if (pParser->onDecl(yymsp[0].minor.yy82)) {
+        yylhsminor.yy89->addDeclVar(yymsp[0].minor.yy82);
     }
 }
-  yymsp[0].minor.yy149 = yylhsminor.yy149;
+  yymsp[0].minor.yy89 = yylhsminor.yy89;
         break;
       case 29: /* struct_decl_var ::= IDENTIFIER COLON qualified_type ASSIGN expression SEMI_COLON */
 {
-    yylhsminor.yy138 = pParser->newAstNode<yal::DeclVar>(yymsp[-5].minor.yy0.tokenStr, yal::Qualifier(), yymsp[-3].minor.yy180, yymsp[-1].minor.yy7);
+    yylhsminor.yy82 = pParser->newAstNode<yal::DeclVar>(yymsp[-5].minor.yy0.tokenStr, yal::Qualifier(), yymsp[-3].minor.yy144, yymsp[-1].minor.yy145);
     auto srcInfo = pParser->createSourceInfo(yymsp[-5].minor.yy0, yymsp[0].minor.yy0);
-    yylhsminor.yy138->setSourceInfo(srcInfo);
+    yylhsminor.yy82->setSourceInfo(srcInfo);
 }
-  yymsp[-5].minor.yy138 = yylhsminor.yy138;
+  yymsp[-5].minor.yy82 = yylhsminor.yy82;
         break;
       case 30: /* function_header ::= function_start function_param_list function_return_decl */
 {
-    yylhsminor.yy183 = yymsp[-2].minor.yy183;
-    yylhsminor.yy183->setParams(yymsp[-1].minor.yy74);
-    yylhsminor.yy183->setReturnType(yymsp[0].minor.yy180);
+    yylhsminor.yy55 = yymsp[-2].minor.yy55;
+    yylhsminor.yy55->setParams(yymsp[-1].minor.yy142);
+    yylhsminor.yy55->setReturnType(yymsp[0].minor.yy144);
 
 }
-  yymsp[-2].minor.yy183 = yylhsminor.yy183;
+  yymsp[-2].minor.yy55 = yylhsminor.yy55;
         break;
       case 31: /* function_start ::= FUNCTION IDENTIFIER */
 {
-     yylhsminor.yy183 = pParser->newAstNode<yal::DeclFunction>(yymsp[0].minor.yy0.tokenStr);
-     yylhsminor.yy183->setSourceInfo(pParser->createSourceInfo(yymsp[-1].minor.yy0, yymsp[0].minor.yy0));
-     pParser->onDeclBegin(yylhsminor.yy183);
+     yylhsminor.yy55 = pParser->newAstNode<yal::DeclFunction>(yymsp[0].minor.yy0.tokenStr);
+     yylhsminor.yy55->setSourceInfo(pParser->createSourceInfo(yymsp[-1].minor.yy0, yymsp[0].minor.yy0));
+     pParser->onDeclBegin(yylhsminor.yy55);
 }
-  yymsp[-1].minor.yy183 = yylhsminor.yy183;
+  yymsp[-1].minor.yy55 = yylhsminor.yy55;
         break;
       case 32: /* function_param_list ::= PAR_BEGIN function_args_decl PAR_END */
       case 36: /* type_function_param_list ::= PAR_BEGIN type_function_args_decl PAR_END */ yytestcase(yyruleno==36);
 {
-    yymsp[-2].minor.yy74 = yymsp[-1].minor.yy74;
+    yymsp[-2].minor.yy142 = yymsp[-1].minor.yy142;
 }
         break;
       case 33: /* decl_function ::= function_header SCOPE_BEGIN statement_list_or_empty SCOPE_END */
 {
-    yylhsminor.yy183 = yymsp[-3].minor.yy183;
-    yylhsminor.yy183->setFunctionBody(yymsp[-1].minor.yy170);
-    yylhsminor.yy183->setSourceInfo(pParser->createSourceInfo(yymsp[-3].minor.yy183->getSourceInfo(), yymsp[0].minor.yy0));
+    yylhsminor.yy55 = yymsp[-3].minor.yy55;
+    yylhsminor.yy55->setFunctionBody(yymsp[-1].minor.yy90);
+    yylhsminor.yy55->setSourceInfo(pParser->createSourceInfo(yymsp[-3].minor.yy55->getSourceInfo(), yymsp[0].minor.yy0));
     pParser->onDeclEnd();
 }
-  yymsp[-3].minor.yy183 = yylhsminor.yy183;
+  yymsp[-3].minor.yy55 = yylhsminor.yy55;
         break;
       case 34: /* type_function_header ::= type_function_start type_function_param_list function_return_decl */
 {
-    yylhsminor.yy165 = yymsp[-2].minor.yy165;
-    yylhsminor.yy165->setParams(yymsp[-1].minor.yy74);
-    yylhsminor.yy165->setReturnType(yymsp[0].minor.yy180);
+    yylhsminor.yy21 = yymsp[-2].minor.yy21;
+    yylhsminor.yy21->setParams(yymsp[-1].minor.yy142);
+    yylhsminor.yy21->setReturnType(yymsp[0].minor.yy144);
 }
-  yymsp[-2].minor.yy165 = yylhsminor.yy165;
+  yymsp[-2].minor.yy21 = yylhsminor.yy21;
         break;
       case 35: /* type_function_start ::= FUNCTION type_specifier COLON COLON IDENTIFIER */
 {
-    yylhsminor.yy165 = pParser->newAstNode<yal::DeclTypeFunction>(yymsp[0].minor.yy0.tokenStr, yymsp[-3].minor.yy180);
-    yylhsminor.yy165->setSourceInfo(pParser->createSourceInfo(yymsp[-4].minor.yy0, yymsp[0].minor.yy0));
-    pParser->onDeclBegin(yylhsminor.yy165);
+    yylhsminor.yy21 = pParser->newAstNode<yal::DeclTypeFunction>(yymsp[0].minor.yy0.tokenStr, yymsp[-3].minor.yy144);
+    yylhsminor.yy21->setSourceInfo(pParser->createSourceInfo(yymsp[-4].minor.yy0, yymsp[0].minor.yy0));
+    pParser->onDeclBegin(yylhsminor.yy21);
 }
-  yymsp[-4].minor.yy165 = yylhsminor.yy165;
+  yymsp[-4].minor.yy21 = yylhsminor.yy21;
         break;
       case 37: /* type_function_decl ::= type_function_header SCOPE_BEGIN statement_list_or_empty SCOPE_END */
 {
-    yylhsminor.yy165 = yymsp[-3].minor.yy165;
-    yylhsminor.yy165->setFunctionBody(yymsp[-1].minor.yy170);
-    yylhsminor.yy165->setSourceInfo(pParser->createSourceInfo(yymsp[-3].minor.yy165->getSourceInfo(), yymsp[0].minor.yy0));
+    yylhsminor.yy21 = yymsp[-3].minor.yy21;
+    yylhsminor.yy21->setFunctionBody(yymsp[-1].minor.yy90);
+    yylhsminor.yy21->setSourceInfo(pParser->createSourceInfo(yymsp[-3].minor.yy21->getSourceInfo(), yymsp[0].minor.yy0));
     pParser->onDeclEnd();
 }
-  yymsp[-3].minor.yy165 = yylhsminor.yy165;
+  yymsp[-3].minor.yy21 = yylhsminor.yy21;
         break;
       case 38: /* type_function_args_decl ::= qualifier SELF */
 {
-        yylhsminor.yy74 = pParser->newAstNode<yal::DeclParamVarContainer>();
-        auto qualifier = yal::parser::MakeQualifierFromFlags(yymsp[-1].minor.yy81);
+        yylhsminor.yy142 = pParser->newAstNode<yal::DeclParamVarContainer>();
+        auto qualifier = yal::parser::MakeQualifierFromFlags(yymsp[-1].minor.yy29);
         auto refType = pParser->newAstNode<yal::RefType>(qualifier, pParser->resolveSelfType());
         auto selfVar = pParser->newAstNode<yal::DeclParamVarSelf>(refType);
         auto srcInfo = pParser->createSourceInfo(yymsp[0].minor.yy0, yymsp[0].minor.yy0);
         selfVar->setSourceInfo(srcInfo);
-        yylhsminor.yy74->addDeclParam(selfVar);
+        yylhsminor.yy142->addDeclParam(selfVar);
         pParser->onDecl(selfVar);
 }
-  yymsp[-1].minor.yy74 = yylhsminor.yy74;
+  yymsp[-1].minor.yy142 = yylhsminor.yy142;
         break;
       case 39: /* type_function_args_decl ::= qualifier SELF COMMA type_function_args_decl_other */
 {
-    yylhsminor.yy74 = yymsp[0].minor.yy74;
-    auto qualifier = yal::parser::MakeQualifierFromFlags(yymsp[-3].minor.yy81);
+    yylhsminor.yy142 = yymsp[0].minor.yy142;
+    auto qualifier = yal::parser::MakeQualifierFromFlags(yymsp[-3].minor.yy29);
     auto refType = pParser->newAstNode<yal::RefType>(qualifier, pParser->resolveSelfType());
     auto selfVar = pParser->newAstNode<yal::DeclParamVarSelf>(refType);
     auto srcInfo = pParser->createSourceInfo(yymsp[-2].minor.yy0, yymsp[-2].minor.yy0);
     selfVar->setSourceInfo(srcInfo);
-    yylhsminor.yy74->addDeclParam(selfVar);
+    yylhsminor.yy142->addDeclParam(selfVar);
     pParser->onDecl(selfVar);
 }
-  yymsp[-3].minor.yy74 = yylhsminor.yy74;
+  yymsp[-3].minor.yy142 = yylhsminor.yy142;
         break;
       case 40: /* type_function_args_decl ::= function_args_decl */
 {
-        yylhsminor.yy74 = yymsp[0].minor.yy74;
+        yylhsminor.yy142 = yymsp[0].minor.yy142;
 }
-  yymsp[0].minor.yy74 = yylhsminor.yy74;
+  yymsp[0].minor.yy142 = yylhsminor.yy142;
         break;
       case 41: /* type_function_args_decl_other ::= type_function_args_decl_other COMMA function_arg_decl */
 {
-    yylhsminor.yy74 = yymsp[-2].minor.yy74;
-    yylhsminor.yy74->addDeclParam(yymsp[0].minor.yy71);
+    yylhsminor.yy142 = yymsp[-2].minor.yy142;
+    yylhsminor.yy142->addDeclParam(yymsp[0].minor.yy63);
 }
-  yymsp[-2].minor.yy74 = yylhsminor.yy74;
+  yymsp[-2].minor.yy142 = yylhsminor.yy142;
         break;
       case 42: /* type_function_args_decl_other ::= function_arg_decl */
 {
-        yylhsminor.yy74 = pParser->newAstNode<yal::DeclParamVarContainer>();
-        yylhsminor.yy74->addDeclParam(yymsp[0].minor.yy71);
+        yylhsminor.yy142 = pParser->newAstNode<yal::DeclParamVarContainer>();
+        yylhsminor.yy142->addDeclParam(yymsp[0].minor.yy63);
 }
-  yymsp[0].minor.yy74 = yylhsminor.yy74;
+  yymsp[0].minor.yy142 = yylhsminor.yy142;
         break;
       case 43: /* function_args_decl ::= function_args_decl COMMA function_arg_decl */
 {
-    if (yymsp[0].minor.yy71 != nullptr && pParser->onDecl(yymsp[0].minor.yy71)){
-        yymsp[-2].minor.yy74->addDeclParam(yymsp[0].minor.yy71);
-        yylhsminor.yy74 = yymsp[-2].minor.yy74;
+    if (yymsp[0].minor.yy63 != nullptr && pParser->onDecl(yymsp[0].minor.yy63)){
+        yymsp[-2].minor.yy142->addDeclParam(yymsp[0].minor.yy63);
+        yylhsminor.yy142 = yymsp[-2].minor.yy142;
     }
 }
-  yymsp[-2].minor.yy74 = yylhsminor.yy74;
+  yymsp[-2].minor.yy142 = yylhsminor.yy142;
         break;
       case 44: /* function_args_decl ::= function_arg_decl */
 {
-    if (yymsp[0].minor.yy71 != nullptr && pParser->onDecl(yymsp[0].minor.yy71)){
-        yylhsminor.yy74 = pParser->newAstNode<yal::DeclParamVarContainer>();
-        yylhsminor.yy74->addDeclParam(yymsp[0].minor.yy71);
+    if (yymsp[0].minor.yy63 != nullptr && pParser->onDecl(yymsp[0].minor.yy63)){
+        yylhsminor.yy142 = pParser->newAstNode<yal::DeclParamVarContainer>();
+        yylhsminor.yy142->addDeclParam(yymsp[0].minor.yy63);
     }
 }
-  yymsp[0].minor.yy74 = yylhsminor.yy74;
+  yymsp[0].minor.yy142 = yylhsminor.yy142;
         break;
       case 45: /* function_args_decl ::= */
 {
-        yymsp[1].minor.yy74 = nullptr;
+        yymsp[1].minor.yy142 = nullptr;
 }
         break;
       case 46: /* function_arg_decl ::= IDENTIFIER COLON qualified_type */
 {
-    if (yymsp[0].minor.yy180) {
-        yylhsminor.yy71 = pParser->newAstNode<yal::DeclParamVar>(yymsp[-2].minor.yy0.tokenStr, yal::Qualifier(),yymsp[0].minor.yy180);
-        auto srcInfo = pParser->createSourceInfo(yymsp[-2].minor.yy0, yymsp[0].minor.yy180->getSourceInfo());
-        yylhsminor.yy71->setSourceInfo(srcInfo);
+    if (yymsp[0].minor.yy144) {
+        yylhsminor.yy63 = pParser->newAstNode<yal::DeclParamVar>(yymsp[-2].minor.yy0.tokenStr, yal::Qualifier(),yymsp[0].minor.yy144);
+        auto srcInfo = pParser->createSourceInfo(yymsp[-2].minor.yy0, yymsp[0].minor.yy144->getSourceInfo());
+        yylhsminor.yy63->setSourceInfo(srcInfo);
     } else {
-        yylhsminor.yy71 = nullptr;
+        yylhsminor.yy63 = nullptr;
     }
 }
-  yymsp[-2].minor.yy71 = yylhsminor.yy71;
+  yymsp[-2].minor.yy63 = yylhsminor.yy63;
         break;
       case 47: /* function_return_decl ::= COLON qualified_type */
-{ yymsp[-1].minor.yy180 = yymsp[0].minor.yy180;
+{ yymsp[-1].minor.yy144 = yymsp[0].minor.yy144;
 }
         break;
       case 48: /* function_return_decl ::= */
       case 61: /* var_type_spec ::= */ yytestcase(yyruleno==61);
-{yymsp[1].minor.yy180 = nullptr;}
+{yymsp[1].minor.yy144 = nullptr;}
         break;
       case 49: /* statement_list_or_empty ::= */
-{yymsp[1].minor.yy170 = nullptr;}
+{yymsp[1].minor.yy90 = nullptr;}
         break;
       case 50: /* statement_list_or_empty ::= statement_list */
-{yylhsminor.yy170 = yymsp[0].minor.yy170;}
-  yymsp[0].minor.yy170 = yylhsminor.yy170;
+{yylhsminor.yy90 = yymsp[0].minor.yy90;}
+  yymsp[0].minor.yy90 = yylhsminor.yy90;
         break;
       case 51: /* statement_list ::= statement_list statement */
 {
-    yymsp[-1].minor.yy170->addStatement(yymsp[0].minor.yy104);
-    yylhsminor.yy170=yymsp[-1].minor.yy170;
+    yymsp[-1].minor.yy90->addStatement(yymsp[0].minor.yy146);
+    yylhsminor.yy90=yymsp[-1].minor.yy90;
 }
-  yymsp[-1].minor.yy170 = yylhsminor.yy170;
+  yymsp[-1].minor.yy90 = yylhsminor.yy90;
         break;
       case 52: /* statement_list ::= statement */
 {
-    yylhsminor.yy170 = pParser->newAstNode<yal::StatementList>();
-    yylhsminor.yy170->addStatement(yymsp[0].minor.yy104);
+    yylhsminor.yy90 = pParser->newAstNode<yal::StatementList>();
+    yylhsminor.yy90->addStatement(yymsp[0].minor.yy146);
 }
-  yymsp[0].minor.yy170 = yylhsminor.yy170;
+  yymsp[0].minor.yy90 = yylhsminor.yy90;
         break;
       case 53: /* statement ::= expression ASSIGN expression SEMI_COLON */
 {
-   yylhsminor.yy104 = pParser->newAstNode<yal::StmtAssign>(yymsp[-3].minor.yy7,yymsp[-1].minor.yy7);
+   yylhsminor.yy146 = pParser->newAstNode<yal::StmtAssign>(yymsp[-3].minor.yy145,yymsp[-1].minor.yy145);
 }
-  yymsp[-3].minor.yy104 = yylhsminor.yy104;
+  yymsp[-3].minor.yy146 = yylhsminor.yy146;
         break;
       case 54: /* statement ::= decl_var SEMI_COLON */
 {
-    yylhsminor.yy104 = yymsp[-1].minor.yy93;
+    yylhsminor.yy146 = yymsp[-1].minor.yy97;
 }
-  yymsp[-1].minor.yy104 = yylhsminor.yy104;
+  yymsp[-1].minor.yy146 = yylhsminor.yy146;
         break;
       case 55: /* statement ::= expression SEMI_COLON */
-{yylhsminor.yy104 = yymsp[-1].minor.yy7;}
-  yymsp[-1].minor.yy104 = yylhsminor.yy104;
+{yylhsminor.yy146 = yymsp[-1].minor.yy145;}
+  yymsp[-1].minor.yy146 = yylhsminor.yy146;
         break;
       case 56: /* statement ::= RETURN expression SEMI_COLON */
 {
-    yylhsminor.yy104 = pParser->newAstNode<yal::StmtReturn>(yymsp[-1].minor.yy7);
-    auto srcInfo = pParser->createSourceInfo(yymsp[-2].minor.yy0, yymsp[-1].minor.yy7->getSourceInfo());
-    yylhsminor.yy104->setSourceInfo(srcInfo);
+    yylhsminor.yy146 = pParser->newAstNode<yal::StmtReturn>(yymsp[-1].minor.yy145);
+    auto srcInfo = pParser->createSourceInfo(yymsp[-2].minor.yy0, yymsp[-1].minor.yy145->getSourceInfo());
+    yylhsminor.yy146->setSourceInfo(srcInfo);
 }
-  yymsp[-2].minor.yy104 = yylhsminor.yy104;
+  yymsp[-2].minor.yy146 = yylhsminor.yy146;
         break;
       case 57: /* statement ::= RETURN SEMI_COLON */
 {
-    yylhsminor.yy104 = pParser->newAstNode<yal::StmtReturn>();
+    yylhsminor.yy146 = pParser->newAstNode<yal::StmtReturn>();
     auto srcInfo = pParser->createSourceInfo(yymsp[-1].minor.yy0,yymsp[-1].minor.yy0);
-    yylhsminor.yy104->setSourceInfo(srcInfo);
+    yylhsminor.yy146->setSourceInfo(srcInfo);
 }
-  yymsp[-1].minor.yy104 = yylhsminor.yy104;
+  yymsp[-1].minor.yy146 = yylhsminor.yy146;
         break;
       case 58: /* decl_var ::= VAR IDENTIFIER var_type_spec ASSIGN expression */
 {
-    auto varDecl = pParser->newAstNode<yal::DeclVar>(yymsp[-3].minor.yy0.tokenStr, yal::Qualifier(), yymsp[-2].minor.yy180, yymsp[0].minor.yy7);
+    auto varDecl = pParser->newAstNode<yal::DeclVar>(yymsp[-3].minor.yy0.tokenStr, yal::Qualifier(), yymsp[-2].minor.yy144, yymsp[0].minor.yy145);
     auto varSrcInfo = pParser->createSourceInfo(yymsp[-4].minor.yy0, yymsp[-3].minor.yy0);
     varDecl->setSourceInfo(varSrcInfo);
     if (pParser->onDecl(varDecl)) {
-        yylhsminor.yy93= pParser->newAstNode<yal::StmtDecl>(varDecl);
-        auto srcInfo = pParser->createSourceInfo(yymsp[-4].minor.yy0, yymsp[0].minor.yy7->getSourceInfo());
-        yylhsminor.yy93->setSourceInfo(srcInfo);
+        yylhsminor.yy97= pParser->newAstNode<yal::StmtDecl>(varDecl);
+        auto srcInfo = pParser->createSourceInfo(yymsp[-4].minor.yy0, yymsp[0].minor.yy145->getSourceInfo());
+        yylhsminor.yy97->setSourceInfo(srcInfo);
     }
 
 }
-  yymsp[-4].minor.yy93 = yylhsminor.yy93;
+  yymsp[-4].minor.yy97 = yylhsminor.yy97;
         break;
       case 59: /* decl_var ::= LET IDENTIFIER var_type_spec ASSIGN expression */
 {
     yal::Qualifier qualifier;
     qualifier.setImmutable();
-    auto varDecl = pParser->newAstNode<yal::DeclVar>(yymsp[-3].minor.yy0.tokenStr, qualifier, yymsp[-2].minor.yy180, yymsp[0].minor.yy7);
+    auto varDecl = pParser->newAstNode<yal::DeclVar>(yymsp[-3].minor.yy0.tokenStr, qualifier, yymsp[-2].minor.yy144, yymsp[0].minor.yy145);
     auto varSrcInfo = pParser->createSourceInfo(yymsp[-4].minor.yy0, yymsp[-3].minor.yy0);
     varDecl->setSourceInfo(varSrcInfo);
     if (pParser->onDecl(varDecl)) {
-        yylhsminor.yy93= pParser->newAstNode<yal::StmtDecl>(varDecl);
-        auto srcInfo = pParser->createSourceInfo(yymsp[-4].minor.yy0, yymsp[0].minor.yy7->getSourceInfo());
-        yylhsminor.yy93->setSourceInfo(srcInfo);
+        yylhsminor.yy97= pParser->newAstNode<yal::StmtDecl>(varDecl);
+        auto srcInfo = pParser->createSourceInfo(yymsp[-4].minor.yy0, yymsp[0].minor.yy145->getSourceInfo());
+        yylhsminor.yy97->setSourceInfo(srcInfo);
     }
 }
-  yymsp[-4].minor.yy93 = yylhsminor.yy93;
+  yymsp[-4].minor.yy97 = yylhsminor.yy97;
         break;
       case 60: /* var_type_spec ::= COLON qualified_type */
-{yymsp[-1].minor.yy180 = yymsp[0].minor.yy180;}
+{yymsp[-1].minor.yy144 = yymsp[0].minor.yy144;}
         break;
       case 62: /* expression ::= PAR_BEGIN expression PAR_END */
-{yymsp[-2].minor.yy7 = yymsp[-1].minor.yy7;}
+{yymsp[-2].minor.yy145 = yymsp[-1].minor.yy145;}
         break;
       case 63: /* expression ::= literal */
-{yylhsminor.yy7 = yymsp[0].minor.yy7;}
-  yymsp[0].minor.yy7 = yylhsminor.yy7;
+{yylhsminor.yy145 = yymsp[0].minor.yy145;}
+  yymsp[0].minor.yy145 = yylhsminor.yy145;
         break;
       case 64: /* expression ::= unaryexp */
-{yylhsminor.yy7 = yymsp[0].minor.yy85;}
-  yymsp[0].minor.yy7 = yylhsminor.yy7;
+{yylhsminor.yy145 = yymsp[0].minor.yy163;}
+  yymsp[0].minor.yy145 = yylhsminor.yy145;
         break;
       case 65: /* expression ::= binaryexp */
-{yylhsminor.yy7 = yymsp[0].minor.yy153;}
-  yymsp[0].minor.yy7 = yylhsminor.yy7;
+{yylhsminor.yy145 = yymsp[0].minor.yy93;}
+  yymsp[0].minor.yy145 = yylhsminor.yy145;
         break;
-      case 66: /* expression ::= IDENTIFIER */
+      case 66: /* expression ::= RANGE_CAST LT qualified_type GT PAR_BEGIN expression PAR_END */
+{
+    yylhsminor.yy145 = pParser->newAstNode<yal::ExprRangeCast>(yymsp[-4].minor.yy144, yymsp[-1].minor.yy145);
+    auto srcInfo = pParser->createSourceInfo(yymsp[-6].minor.yy0, yymsp[0].minor.yy0);
+    yylhsminor.yy145->setSourceInfo(srcInfo);
+}
+  yymsp[-6].minor.yy145 = yylhsminor.yy145;
+        break;
+      case 67: /* expression ::= IDENTIFIER */
 {
     auto decl = pParser->resolveVarRef(yymsp[0].minor.yy0);
     if (decl != nullptr) {
-        yylhsminor.yy7 = pParser->newAstNode<yal::ExprVarRef>(decl);
+        yylhsminor.yy145 = pParser->newAstNode<yal::ExprVarRef>(decl);
         auto srcInfo = pParser->createSourceInfo(yymsp[0].minor.yy0, yymsp[0].minor.yy0);
-        yylhsminor.yy7->setSourceInfo(srcInfo);
+        yylhsminor.yy145->setSourceInfo(srcInfo);
     }
 }
-  yymsp[0].minor.yy7 = yylhsminor.yy7;
+  yymsp[0].minor.yy145 = yylhsminor.yy145;
         break;
-      case 67: /* expression ::= SELF */
+      case 68: /* expression ::= SELF */
 {
     auto decl = pParser->resolveVarRefSelf(yymsp[0].minor.yy0);
     if (decl != nullptr) {
-        yylhsminor.yy7  = pParser->newAstNode<yal::ExprVarRefSelf>(decl);
+        yylhsminor.yy145  = pParser->newAstNode<yal::ExprVarRefSelf>(decl);
         auto srcInfo = pParser->createSourceInfo(yymsp[0].minor.yy0, yymsp[0].minor.yy0);
-        yylhsminor.yy7->setSourceInfo(srcInfo);
+        yylhsminor.yy145->setSourceInfo(srcInfo);
     }
 }
-  yymsp[0].minor.yy7 = yylhsminor.yy7;
+  yymsp[0].minor.yy145 = yylhsminor.yy145;
         break;
-      case 68: /* expression ::= expression DOT IDENTIFIER */
+      case 69: /* expression ::= expression DOT IDENTIFIER */
 {
-    yylhsminor.yy7 = pParser->newAstNode<yal::ExprStructVarRef>(yymsp[-2].minor.yy7, yymsp[0].minor.yy0.tokenStr);
-    auto srcInfo = pParser->createSourceInfo(yymsp[-2].minor.yy7->getSourceInfo(), yymsp[0].minor.yy0);
-    yylhsminor.yy7->setSourceInfo(srcInfo);
+    yylhsminor.yy145 = pParser->newAstNode<yal::ExprStructVarRef>(yymsp[-2].minor.yy145, yymsp[0].minor.yy0.tokenStr);
+    auto srcInfo = pParser->createSourceInfo(yymsp[-2].minor.yy145->getSourceInfo(), yymsp[0].minor.yy0);
+    yylhsminor.yy145->setSourceInfo(srcInfo);
 }
-  yymsp[-2].minor.yy7 = yylhsminor.yy7;
+  yymsp[-2].minor.yy145 = yylhsminor.yy145;
         break;
-      case 69: /* expression ::= IDENTIFIER PAR_BEGIN function_call_args PAR_END */
+      case 70: /* expression ::= IDENTIFIER PAR_BEGIN function_call_args PAR_END */
 {
     auto type = pParser->resolveType(yymsp[-3].minor.yy0);
     if (type != nullptr ) {
         auto fnType = pParser->newAstNode<yal::RefType>(type);
         auto fnSrcInfo = pParser->createSourceInfo(yymsp[-3].minor.yy0, yymsp[-3].minor.yy0);
         fnType->setSourceInfo(fnSrcInfo);
-        if (yymsp[-1].minor.yy128 != nullptr) {
-            yymsp[-1].minor.yy128->updateSourceInfo();
+        if (yymsp[-1].minor.yy92 != nullptr) {
+            yymsp[-1].minor.yy92->updateSourceInfo();
         }
-        yylhsminor.yy7 = pParser->newAstNode<yal::ExprFnCall>(fnType, yymsp[-1].minor.yy128);
+        yylhsminor.yy145 = pParser->newAstNode<yal::ExprFnCall>(fnType, yymsp[-1].minor.yy92);
         auto srcInfo = pParser->createSourceInfo(yymsp[-3].minor.yy0, yymsp[0].minor.yy0);
-        yylhsminor.yy7->setSourceInfo(srcInfo);
+        yylhsminor.yy145->setSourceInfo(srcInfo);
     }
 }
-  yymsp[-3].minor.yy7 = yylhsminor.yy7;
+  yymsp[-3].minor.yy145 = yylhsminor.yy145;
         break;
-      case 70: /* expression ::= expression DOT IDENTIFIER PAR_BEGIN function_call_args PAR_END */
+      case 71: /* expression ::= expression DOT IDENTIFIER PAR_BEGIN function_call_args PAR_END */
 {
-    if (yymsp[-1].minor.yy128 != nullptr) {
-        yymsp[-1].minor.yy128->updateSourceInfo();
+    if (yymsp[-1].minor.yy92 != nullptr) {
+        yymsp[-1].minor.yy92->updateSourceInfo();
     }
-    yylhsminor.yy7 = pParser->newAstNode<yal::ExprTypeFnCall>(yymsp[-5].minor.yy7, yymsp[-3].minor.yy0, yymsp[-1].minor.yy128);
-    auto srcInfo = pParser->createSourceInfo(yymsp[-5].minor.yy7->getSourceInfo(), yymsp[0].minor.yy0);
-    yylhsminor.yy7->setSourceInfo(srcInfo);
+    yylhsminor.yy145 = pParser->newAstNode<yal::ExprTypeFnCall>(yymsp[-5].minor.yy145, yymsp[-3].minor.yy0, yymsp[-1].minor.yy92);
+    auto srcInfo = pParser->createSourceInfo(yymsp[-5].minor.yy145->getSourceInfo(), yymsp[0].minor.yy0);
+    yylhsminor.yy145->setSourceInfo(srcInfo);
 
 }
-  yymsp[-5].minor.yy7 = yylhsminor.yy7;
+  yymsp[-5].minor.yy145 = yylhsminor.yy145;
         break;
-      case 71: /* binaryexp ::= expression AND expression */
+      case 72: /* binaryexp ::= expression AND expression */
 {
-        yylhsminor.yy153 = pParser->newAstNode<yal::ExprBinaryOperator>(yal::BinaryOperatorType::And,
-                                                        yymsp[-2].minor.yy7, yymsp[0].minor.yy7);
-        auto srcInfo = pParser->createSourceInfo(yymsp[-2].minor.yy7->getSourceInfo(), yymsp[0].minor.yy7->getSourceInfo());
-        yylhsminor.yy153->setSourceInfo(srcInfo);
+        yylhsminor.yy93 = pParser->newAstNode<yal::ExprBinaryOperator>(yal::BinaryOperatorType::And,
+                                                        yymsp[-2].minor.yy145, yymsp[0].minor.yy145);
+        auto srcInfo = pParser->createSourceInfo(yymsp[-2].minor.yy145->getSourceInfo(), yymsp[0].minor.yy145->getSourceInfo());
+        yylhsminor.yy93->setSourceInfo(srcInfo);
 }
-  yymsp[-2].minor.yy153 = yylhsminor.yy153;
+  yymsp[-2].minor.yy93 = yylhsminor.yy93;
         break;
-      case 72: /* binaryexp ::= expression OR expression */
+      case 73: /* binaryexp ::= expression OR expression */
 {
-        yylhsminor.yy153 = pParser->newAstNode<yal::ExprBinaryOperator>(yal::BinaryOperatorType::Or,
-                                                        yymsp[-2].minor.yy7, yymsp[0].minor.yy7);
-        auto srcInfo = pParser->createSourceInfo(yymsp[-2].minor.yy7->getSourceInfo(), yymsp[0].minor.yy7->getSourceInfo());
-        yylhsminor.yy153->setSourceInfo(srcInfo);
+        yylhsminor.yy93 = pParser->newAstNode<yal::ExprBinaryOperator>(yal::BinaryOperatorType::Or,
+                                                        yymsp[-2].minor.yy145, yymsp[0].minor.yy145);
+        auto srcInfo = pParser->createSourceInfo(yymsp[-2].minor.yy145->getSourceInfo(), yymsp[0].minor.yy145->getSourceInfo());
+        yylhsminor.yy93->setSourceInfo(srcInfo);
 }
-  yymsp[-2].minor.yy153 = yylhsminor.yy153;
+  yymsp[-2].minor.yy93 = yylhsminor.yy93;
         break;
-      case 73: /* binaryexp ::= expression PLUS expression */
+      case 74: /* binaryexp ::= expression PLUS expression */
 {
-        yylhsminor.yy153 = pParser->newAstNode<yal::ExprBinaryOperator>(yal::BinaryOperatorType::Plus,
-                                                        yymsp[-2].minor.yy7, yymsp[0].minor.yy7);
-        auto srcInfo = pParser->createSourceInfo(yymsp[-2].minor.yy7->getSourceInfo(), yymsp[0].minor.yy7->getSourceInfo());
-        yylhsminor.yy153->setSourceInfo(srcInfo);
+        yylhsminor.yy93 = pParser->newAstNode<yal::ExprBinaryOperator>(yal::BinaryOperatorType::Plus,
+                                                        yymsp[-2].minor.yy145, yymsp[0].minor.yy145);
+        auto srcInfo = pParser->createSourceInfo(yymsp[-2].minor.yy145->getSourceInfo(), yymsp[0].minor.yy145->getSourceInfo());
+        yylhsminor.yy93->setSourceInfo(srcInfo);
 }
-  yymsp[-2].minor.yy153 = yylhsminor.yy153;
+  yymsp[-2].minor.yy93 = yylhsminor.yy93;
         break;
-      case 74: /* binaryexp ::= expression MINUS expression */
+      case 75: /* binaryexp ::= expression MINUS expression */
 {
-        yylhsminor.yy153 = pParser->newAstNode<yal::ExprBinaryOperator>(yal::BinaryOperatorType::Minus,
-                                                        yymsp[-2].minor.yy7, yymsp[0].minor.yy7);
-        auto srcInfo = pParser->createSourceInfo(yymsp[-2].minor.yy7->getSourceInfo(), yymsp[0].minor.yy7->getSourceInfo());
-        yylhsminor.yy153->setSourceInfo(srcInfo);
+        yylhsminor.yy93 = pParser->newAstNode<yal::ExprBinaryOperator>(yal::BinaryOperatorType::Minus,
+                                                        yymsp[-2].minor.yy145, yymsp[0].minor.yy145);
+        auto srcInfo = pParser->createSourceInfo(yymsp[-2].minor.yy145->getSourceInfo(), yymsp[0].minor.yy145->getSourceInfo());
+        yylhsminor.yy93->setSourceInfo(srcInfo);
 }
-  yymsp[-2].minor.yy153 = yylhsminor.yy153;
+  yymsp[-2].minor.yy93 = yylhsminor.yy93;
         break;
-      case 75: /* binaryexp ::= expression MULT expression */
+      case 76: /* binaryexp ::= expression MULT expression */
 {
-        yylhsminor.yy153 = pParser->newAstNode<yal::ExprBinaryOperator>(yal::BinaryOperatorType::Mult,
-                                                        yymsp[-2].minor.yy7, yymsp[0].minor.yy7);
-        auto srcInfo = pParser->createSourceInfo(yymsp[-2].minor.yy7->getSourceInfo(), yymsp[0].minor.yy7->getSourceInfo());
-        yylhsminor.yy153->setSourceInfo(srcInfo);
+        yylhsminor.yy93 = pParser->newAstNode<yal::ExprBinaryOperator>(yal::BinaryOperatorType::Mult,
+                                                        yymsp[-2].minor.yy145, yymsp[0].minor.yy145);
+        auto srcInfo = pParser->createSourceInfo(yymsp[-2].minor.yy145->getSourceInfo(), yymsp[0].minor.yy145->getSourceInfo());
+        yylhsminor.yy93->setSourceInfo(srcInfo);
 }
-  yymsp[-2].minor.yy153 = yylhsminor.yy153;
+  yymsp[-2].minor.yy93 = yylhsminor.yy93;
         break;
-      case 76: /* binaryexp ::= expression DIV expression */
+      case 77: /* binaryexp ::= expression DIV expression */
 {
-        yylhsminor.yy153 = pParser->newAstNode<yal::ExprBinaryOperator>(yal::BinaryOperatorType::Div,
-                                                        yymsp[-2].minor.yy7, yymsp[0].minor.yy7);
+        yylhsminor.yy93 = pParser->newAstNode<yal::ExprBinaryOperator>(yal::BinaryOperatorType::Div,
+                                                        yymsp[-2].minor.yy145, yymsp[0].minor.yy145);
 }
-  yymsp[-2].minor.yy153 = yylhsminor.yy153;
+  yymsp[-2].minor.yy93 = yylhsminor.yy93;
         break;
-      case 77: /* binaryexp ::= expression MOD expression */
+      case 78: /* binaryexp ::= expression MOD expression */
 {
-        yylhsminor.yy153 = pParser->newAstNode<yal::ExprBinaryOperator>(yal::BinaryOperatorType::Mod,
-                                                        yymsp[-2].minor.yy7, yymsp[0].minor.yy7);
-        auto srcInfo = pParser->createSourceInfo(yymsp[-2].minor.yy7->getSourceInfo(), yymsp[0].minor.yy7->getSourceInfo());
-        yylhsminor.yy153->setSourceInfo(srcInfo);
+        yylhsminor.yy93 = pParser->newAstNode<yal::ExprBinaryOperator>(yal::BinaryOperatorType::Mod,
+                                                        yymsp[-2].minor.yy145, yymsp[0].minor.yy145);
+        auto srcInfo = pParser->createSourceInfo(yymsp[-2].minor.yy145->getSourceInfo(), yymsp[0].minor.yy145->getSourceInfo());
+        yylhsminor.yy93->setSourceInfo(srcInfo);
 }
-  yymsp[-2].minor.yy153 = yylhsminor.yy153;
+  yymsp[-2].minor.yy93 = yylhsminor.yy93;
         break;
-      case 78: /* binaryexp ::= expression EQ expression */
+      case 79: /* binaryexp ::= expression EQ expression */
 {
-        yylhsminor.yy153 = pParser->newAstNode<yal::ExprBinaryOperator>(yal::BinaryOperatorType::Eq,
-                                                        yymsp[-2].minor.yy7, yymsp[0].minor.yy7);
-        auto srcInfo = pParser->createSourceInfo(yymsp[-2].minor.yy7->getSourceInfo(), yymsp[0].minor.yy7->getSourceInfo());
-        yylhsminor.yy153->setSourceInfo(srcInfo);
+        yylhsminor.yy93 = pParser->newAstNode<yal::ExprBinaryOperator>(yal::BinaryOperatorType::Eq,
+                                                        yymsp[-2].minor.yy145, yymsp[0].minor.yy145);
+        auto srcInfo = pParser->createSourceInfo(yymsp[-2].minor.yy145->getSourceInfo(), yymsp[0].minor.yy145->getSourceInfo());
+        yylhsminor.yy93->setSourceInfo(srcInfo);
 }
-  yymsp[-2].minor.yy153 = yylhsminor.yy153;
+  yymsp[-2].minor.yy93 = yylhsminor.yy93;
         break;
-      case 79: /* binaryexp ::= expression NE expression */
+      case 80: /* binaryexp ::= expression NE expression */
 {
-        yylhsminor.yy153 = pParser->newAstNode<yal::ExprBinaryOperator>(yal::BinaryOperatorType::Ne,
-                                                        yymsp[-2].minor.yy7, yymsp[0].minor.yy7);
-        auto srcInfo = pParser->createSourceInfo(yymsp[-2].minor.yy7->getSourceInfo(), yymsp[0].minor.yy7->getSourceInfo());
-        yylhsminor.yy153->setSourceInfo(srcInfo);
+        yylhsminor.yy93 = pParser->newAstNode<yal::ExprBinaryOperator>(yal::BinaryOperatorType::Ne,
+                                                        yymsp[-2].minor.yy145, yymsp[0].minor.yy145);
+        auto srcInfo = pParser->createSourceInfo(yymsp[-2].minor.yy145->getSourceInfo(), yymsp[0].minor.yy145->getSourceInfo());
+        yylhsminor.yy93->setSourceInfo(srcInfo);
 }
-  yymsp[-2].minor.yy153 = yylhsminor.yy153;
+  yymsp[-2].minor.yy93 = yylhsminor.yy93;
         break;
-      case 80: /* binaryexp ::= expression LE expression */
+      case 81: /* binaryexp ::= expression LE expression */
 {
-        yylhsminor.yy153 = pParser->newAstNode<yal::ExprBinaryOperator>(yal::BinaryOperatorType::Le,
-                                                        yymsp[-2].minor.yy7, yymsp[0].minor.yy7);
-        auto srcInfo = pParser->createSourceInfo(yymsp[-2].minor.yy7->getSourceInfo(), yymsp[0].minor.yy7->getSourceInfo());
-        yylhsminor.yy153->setSourceInfo(srcInfo);
+        yylhsminor.yy93 = pParser->newAstNode<yal::ExprBinaryOperator>(yal::BinaryOperatorType::Le,
+                                                        yymsp[-2].minor.yy145, yymsp[0].minor.yy145);
+        auto srcInfo = pParser->createSourceInfo(yymsp[-2].minor.yy145->getSourceInfo(), yymsp[0].minor.yy145->getSourceInfo());
+        yylhsminor.yy93->setSourceInfo(srcInfo);
 }
-  yymsp[-2].minor.yy153 = yylhsminor.yy153;
+  yymsp[-2].minor.yy93 = yylhsminor.yy93;
         break;
-      case 81: /* binaryexp ::= expression LT expression */
+      case 82: /* binaryexp ::= expression LT expression */
 {
-        yylhsminor.yy153 = pParser->newAstNode<yal::ExprBinaryOperator>(yal::BinaryOperatorType::Lt,
-                                                        yymsp[-2].minor.yy7, yymsp[0].minor.yy7);
-        auto srcInfo = pParser->createSourceInfo(yymsp[-2].minor.yy7->getSourceInfo(), yymsp[0].minor.yy7->getSourceInfo());
-        yylhsminor.yy153->setSourceInfo(srcInfo);
+        yylhsminor.yy93 = pParser->newAstNode<yal::ExprBinaryOperator>(yal::BinaryOperatorType::Lt,
+                                                        yymsp[-2].minor.yy145, yymsp[0].minor.yy145);
+        auto srcInfo = pParser->createSourceInfo(yymsp[-2].minor.yy145->getSourceInfo(), yymsp[0].minor.yy145->getSourceInfo());
+        yylhsminor.yy93->setSourceInfo(srcInfo);
 }
-  yymsp[-2].minor.yy153 = yylhsminor.yy153;
+  yymsp[-2].minor.yy93 = yylhsminor.yy93;
         break;
-      case 82: /* binaryexp ::= expression GE expression */
+      case 83: /* binaryexp ::= expression GE expression */
 {
-        yylhsminor.yy153 = pParser->newAstNode<yal::ExprBinaryOperator>(yal::BinaryOperatorType::Ge,
-                                                        yymsp[-2].minor.yy7, yymsp[0].minor.yy7);
-        auto srcInfo = pParser->createSourceInfo(yymsp[-2].minor.yy7->getSourceInfo(), yymsp[0].minor.yy7->getSourceInfo());
-        yylhsminor.yy153->setSourceInfo(srcInfo);
+        yylhsminor.yy93 = pParser->newAstNode<yal::ExprBinaryOperator>(yal::BinaryOperatorType::Ge,
+                                                        yymsp[-2].minor.yy145, yymsp[0].minor.yy145);
+        auto srcInfo = pParser->createSourceInfo(yymsp[-2].minor.yy145->getSourceInfo(), yymsp[0].minor.yy145->getSourceInfo());
+        yylhsminor.yy93->setSourceInfo(srcInfo);
 }
-  yymsp[-2].minor.yy153 = yylhsminor.yy153;
+  yymsp[-2].minor.yy93 = yylhsminor.yy93;
         break;
-      case 83: /* binaryexp ::= expression GT expression */
+      case 84: /* binaryexp ::= expression GT expression */
 {
-        yylhsminor.yy153 = pParser->newAstNode<yal::ExprBinaryOperator>(yal::BinaryOperatorType::Gt,
-                                                        yymsp[-2].minor.yy7, yymsp[0].minor.yy7);
-        auto srcInfo = pParser->createSourceInfo(yymsp[-2].minor.yy7->getSourceInfo(), yymsp[0].minor.yy7->getSourceInfo());
-        yylhsminor.yy153->setSourceInfo(srcInfo);
+        yylhsminor.yy93 = pParser->newAstNode<yal::ExprBinaryOperator>(yal::BinaryOperatorType::Gt,
+                                                        yymsp[-2].minor.yy145, yymsp[0].minor.yy145);
+        auto srcInfo = pParser->createSourceInfo(yymsp[-2].minor.yy145->getSourceInfo(), yymsp[0].minor.yy145->getSourceInfo());
+        yylhsminor.yy93->setSourceInfo(srcInfo);
 }
-  yymsp[-2].minor.yy153 = yylhsminor.yy153;
+  yymsp[-2].minor.yy93 = yylhsminor.yy93;
         break;
-      case 84: /* unaryexp ::= NOT expression */
+      case 85: /* unaryexp ::= NOT expression */
 {
-    yylhsminor.yy85 = pParser->newAstNode<yal::ExprUnaryOperator>(yal::UnaryOperatorType::Not,
-                                               yymsp[0].minor.yy7);
-    auto srcInfo = pParser->createSourceInfo(yymsp[-1].minor.yy0, yymsp[0].minor.yy7->getSourceInfo());
-    yylhsminor.yy85->setSourceInfo(srcInfo);
+    yylhsminor.yy163 = pParser->newAstNode<yal::ExprUnaryOperator>(yal::UnaryOperatorType::Not,
+                                               yymsp[0].minor.yy145);
+    auto srcInfo = pParser->createSourceInfo(yymsp[-1].minor.yy0, yymsp[0].minor.yy145->getSourceInfo());
+    yylhsminor.yy163->setSourceInfo(srcInfo);
 }
-  yymsp[-1].minor.yy85 = yylhsminor.yy85;
+  yymsp[-1].minor.yy163 = yylhsminor.yy163;
         break;
-      case 85: /* unaryexp ::= BIT_NOT expression */
+      case 86: /* unaryexp ::= BIT_NOT expression */
 {
-    yylhsminor.yy85 = pParser->newAstNode<yal::ExprUnaryOperator>(yal::UnaryOperatorType::BitNot,
-                                               yymsp[0].minor.yy7);
-    auto srcInfo = pParser->createSourceInfo(yymsp[-1].minor.yy0, yymsp[0].minor.yy7->getSourceInfo());
-    yylhsminor.yy85->setSourceInfo(srcInfo);
+    yylhsminor.yy163 = pParser->newAstNode<yal::ExprUnaryOperator>(yal::UnaryOperatorType::BitNot,
+                                               yymsp[0].minor.yy145);
+    auto srcInfo = pParser->createSourceInfo(yymsp[-1].minor.yy0, yymsp[0].minor.yy145->getSourceInfo());
+    yylhsminor.yy163->setSourceInfo(srcInfo);
 }
-  yymsp[-1].minor.yy85 = yylhsminor.yy85;
+  yymsp[-1].minor.yy163 = yylhsminor.yy163;
         break;
-      case 86: /* unaryexp ::= MINUS expression */
+      case 87: /* unaryexp ::= MINUS expression */
 {
-    yylhsminor.yy85 = pParser->newAstNode<yal::ExprUnaryOperator>(yal::UnaryOperatorType::Negate,
-                                               yymsp[0].minor.yy7);
-    auto srcInfo = pParser->createSourceInfo(yymsp[-1].minor.yy0, yymsp[0].minor.yy7->getSourceInfo());
-    yylhsminor.yy85->setSourceInfo(srcInfo);
+    yylhsminor.yy163 = pParser->newAstNode<yal::ExprUnaryOperator>(yal::UnaryOperatorType::Negate,
+                                               yymsp[0].minor.yy145);
+    auto srcInfo = pParser->createSourceInfo(yymsp[-1].minor.yy0, yymsp[0].minor.yy145->getSourceInfo());
+    yylhsminor.yy163->setSourceInfo(srcInfo);
 }
-  yymsp[-1].minor.yy85 = yylhsminor.yy85;
+  yymsp[-1].minor.yy163 = yylhsminor.yy163;
         break;
-      case 87: /* function_call_args ::= function_call_args COMMA expression */
+      case 88: /* function_call_args ::= function_call_args COMMA expression */
 {
-    yylhsminor.yy128 = yymsp[-2].minor.yy128;
-    yylhsminor.yy128->addExpression(yymsp[0].minor.yy7);
+    yylhsminor.yy92 = yymsp[-2].minor.yy92;
+    yylhsminor.yy92->addExpression(yymsp[0].minor.yy145);
 }
-  yymsp[-2].minor.yy128 = yylhsminor.yy128;
+  yymsp[-2].minor.yy92 = yylhsminor.yy92;
         break;
-      case 88: /* function_call_args ::= expression */
+      case 89: /* function_call_args ::= expression */
 {
-    yylhsminor.yy128 = pParser->newAstNode<yal::ExprList>();
-    yylhsminor.yy128->addExpression(yymsp[0].minor.yy7);
+    yylhsminor.yy92 = pParser->newAstNode<yal::ExprList>();
+    yylhsminor.yy92->addExpression(yymsp[0].minor.yy145);
 }
-  yymsp[0].minor.yy128 = yylhsminor.yy128;
+  yymsp[0].minor.yy92 = yylhsminor.yy92;
         break;
-      case 89: /* function_call_args ::= */
+      case 90: /* function_call_args ::= */
 {
-    yymsp[1].minor.yy128= nullptr;
+    yymsp[1].minor.yy92= nullptr;
 }
         break;
-      case 90: /* literal ::= INTEGER_LITERAL */
+      case 91: /* literal ::= INTEGER_LITERAL */
 {
-        yylhsminor.yy7 = pParser->newIntegerLiteral(yymsp[0].minor.yy0);
+        yylhsminor.yy145 = pParser->newIntegerLiteral(yymsp[0].minor.yy0);
         auto srcInfo = pParser->createSourceInfo(yymsp[0].minor.yy0, yymsp[0].minor.yy0);
-        yylhsminor.yy7->setSourceInfo(srcInfo);
+        yylhsminor.yy145->setSourceInfo(srcInfo);
    }
-  yymsp[0].minor.yy7 = yylhsminor.yy7;
+  yymsp[0].minor.yy145 = yylhsminor.yy145;
         break;
-      case 91: /* literal ::= DECIMAL_LITERAL */
+      case 92: /* literal ::= DECIMAL_LITERAL */
 {
-        yylhsminor.yy7 = pParser->newDecimalLiteral(yymsp[0].minor.yy0);
+        yylhsminor.yy145 = pParser->newDecimalLiteral(yymsp[0].minor.yy0);
         auto srcInfo = pParser->createSourceInfo(yymsp[0].minor.yy0, yymsp[0].minor.yy0);
-        yylhsminor.yy7->setSourceInfo(srcInfo);
+        yylhsminor.yy145->setSourceInfo(srcInfo);
 }
-  yymsp[0].minor.yy7 = yylhsminor.yy7;
+  yymsp[0].minor.yy145 = yylhsminor.yy145;
         break;
-      case 92: /* literal ::= BOOL_LITERAL */
+      case 93: /* literal ::= BOOL_LITERAL */
 {
-        yylhsminor.yy7 = pParser->newAstNode<yal::ExprBoolLiteral>(yymsp[0].minor.yy0.tokenStr);
+        yylhsminor.yy145 = pParser->newAstNode<yal::ExprBoolLiteral>(yymsp[0].minor.yy0.tokenStr);
         auto srcInfo = pParser->createSourceInfo(yymsp[0].minor.yy0, yymsp[0].minor.yy0);
-        yylhsminor.yy7->setSourceInfo(srcInfo);
+        yylhsminor.yy145->setSourceInfo(srcInfo);
 }
-  yymsp[0].minor.yy7 = yylhsminor.yy7;
+  yymsp[0].minor.yy145 = yylhsminor.yy145;
         break;
       default:
-      /* (93) module ::= decls END */ yytestcase(yyruleno==93);
-      /* (94) type_array ::= type_builtin ARRAY_BEGIN ARRAY_END */ yytestcase(yyruleno==94);
+      /* (94) module ::= decls END */ yytestcase(yyruleno==94);
+      /* (95) type_array ::= type_builtin ARRAY_BEGIN ARRAY_END */ yytestcase(yyruleno==95);
         break;
 /********** End reduce actions ************************************************/
   };

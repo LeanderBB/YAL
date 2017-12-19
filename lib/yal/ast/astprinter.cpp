@@ -38,6 +38,7 @@
 #include "yal/ast/exprtypefncall.h"
 #include "yal/ast/exprlist.h"
 #include "yal/ast/exprdecimalliteral.h"
+#include "yal/ast/exprrangecast.h"
 
 namespace yal {
 
@@ -369,7 +370,7 @@ namespace yal {
         print("ExprStructFnCall ");
         printSourceInfo(node.getSourceInfo());
         print();
-        scopeBegin();
+        scopeBegin(false);
         node.getExpression()->acceptVisitor(*this);
         scopeEnd();
         const bool hasFunctionArgs = node.getFunctionArgs() != nullptr;
@@ -381,6 +382,19 @@ namespace yal {
             node.getFunctionArgs()->acceptVisitor(*this);
             scopeEnd();
         }
+    }
+
+    void
+    AstPrinter::visit(ExprRangeCast& node) {
+        print("ExprRangeCast ");
+        printSourceInfo(node.getSourceInfo());
+        print();
+        scopeBegin(false);
+        node.getDestType()->acceptVisitor(*this);
+        scopeEnd();
+        scopeBegin();
+        node.getExpression()->acceptVisitor(*this);
+        scopeEnd();
     }
 
     void

@@ -235,6 +235,10 @@ namespace yal {
     ReturnCheckVisitor::visit(ExprVarRefSelf&) {
     }
 
+    void
+    ReturnCheckVisitor::visit(ExprRangeCast&) {
+
+    }
 
     StageFnReturn::StageFnReturn(Compiler& compiler):
         m_compiler(compiler) {

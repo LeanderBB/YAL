@@ -98,6 +98,8 @@ set(YAL_SOURCES
     yal/ast/typedecl.cpp
     yal/ast/declscope.cpp
     yal/ast/declscope.h
+    yal/ast/exprrangecast.h
+    yal/ast/exprrangecast.cpp
 
     yal/compiler/compiler.cpp
     yal/compiler/compiler.h

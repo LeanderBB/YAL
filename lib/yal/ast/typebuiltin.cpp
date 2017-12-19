@@ -194,6 +194,25 @@ namespace yal {
     }
 
     bool
+    TypeBuiltin::isNumeric() const {
+        switch(m_builtinType) {
+        case DataType::Int8:
+        case DataType::Int16:
+        case DataType::Int32:
+        case DataType::Int64:
+        case DataType::UInt8:
+        case DataType::UInt16:
+        case DataType::UInt32:
+        case DataType::UInt64:
+        case DataType::Float:
+        case DataType::Double:
+            return true;
+        default:
+            return false;
+        }
+    }
+
+    bool
     TypeBuiltin::isCastableToDetail(const Type* other) const {
         if (other->getKind() != Kind::TypeBuiltin) {
             return false;

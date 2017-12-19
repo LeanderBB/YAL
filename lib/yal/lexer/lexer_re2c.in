@@ -222,6 +222,8 @@ namespace yal {
             TYPE_FLOAT = "float";
             TYPE_DOUBLE= "double";
             STRUCT = "struct";
+            RANGE_CAST ="range_cast";
+            CAST = "cast";
             REFERENCE="&";
             PLUS = "+";
             MINUS ="-";
@@ -241,8 +243,10 @@ namespace yal {
             IDENTIFIER = [a-zA-Z][a-zA-Z0-9_]*;
 
             /* final rules */
-            VAR  { setToken(Token::Var, *m_lexerState); return Status::Ok; }
-            LET  { setToken(Token::Let, *m_lexerState);return Status::Ok; }
+            VAR { setToken(Token::Var, *m_lexerState); return Status::Ok; }
+            LET { setToken(Token::Let, *m_lexerState);return Status::Ok; }
+            RANGE_CAST { setToken(Token::RangeCast, *m_lexerState);return Status::Ok; }
+            CAST { setToken(Token::Cast, *m_lexerState);return Status::Ok; }
             MUT { setToken(Token::Mutable, *m_lexerState); return Status::Ok;}
             REFERENCE { setToken(Token::Reference, *m_lexerState); return Status::Ok;}
             RETURN { setToken(Token::Return, *m_lexerState);return Status::Ok; }

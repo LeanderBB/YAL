@@ -95,6 +95,8 @@ namespace yal
         Mutable,
         Reference,
         Self,
+        RangeCast,
+        Cast,
         TokenCount
     };
 

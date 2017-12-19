@@ -56,6 +56,7 @@ namespace yal {
         bool isUnsigned() const;
         bool isInteger() const;
         bool isDecimal() const;
+        bool isNumeric() const;
 
         DataType getDataType() const {
             return m_builtinType;

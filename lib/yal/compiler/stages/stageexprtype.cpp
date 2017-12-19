@@ -43,6 +43,7 @@
 #include "yal/ast/typebuiltin.h"
 #include "yal/ast/typedecl.h"
 #include "yal/ast/module.h"
+#include "yal/ast/exprrangecast.h"
 namespace yal {
 
 
@@ -74,6 +75,9 @@ namespace yal {
         const Qualifier qualTo = to.getQualifier();
 
         if (qualFrom.isImmutable() && !qualTo.isImmutable()) {
+            PrettyPrint::SourceErrorPrint(log,
+                                          siFrom,
+                                          compiler.getSourceManager());
             log.error("Cannot convert from '%' to '%', can't convert immutable to mutable.\n",
                       from,to);
             return false;
@@ -81,6 +85,9 @@ namespace yal {
 
 
         if (qualFrom.isReference() && !qualTo.isReference()) {
+            PrettyPrint::SourceErrorPrint(log,
+                                          siFrom,
+                                          compiler.getSourceManager());
             //TODO: insert copy trait
             if (!typeTo->isTriviallyCopiable() || !typeFrom->isTriviallyCopiable()) {
                 log.error("Cannot convert from '%' to '%', types are not \
@@ -717,6 +724,66 @@ namespace yal {
     void
     ExprTypeAstVisitor::visit(ExprVarRefSelf& node) {
         YAL_ASSERT(node.getQualType().getType() != nullptr);
+    }
+
+    void
+    ExprTypeAstVisitor::visit(ExprRangeCast& node) {
+        Log& log = m_compiler.getLog();
+        const QualType dstType = node.getDestType()->getQualType();
+        const TypeBuiltin* dstBuiltinType = dyn_cast<TypeBuiltin>(dstType.getType());
+        if (dstBuiltinType == nullptr || !dstBuiltinType->isNumeric()) {
+
+            PrettyPrint::SourceErrorPrint(log,
+                                          node.getDestType()->getSourceInfo(),
+                                          m_compiler.getSourceManager());
+            log.error("range_cast<> can only be used to cast to builtin \
+numeric types.\n");
+                      onError();
+        }
+
+        StmtExpression* expr = node.getExpression();
+        expr->acceptVisitor(*this);
+
+        const QualType exprType = expr->getQualType();
+        const TypeBuiltin* exprBuiltinType = dyn_cast<TypeBuiltin>(exprType.getType());
+
+
+        if (exprBuiltinType == nullptr || !exprBuiltinType->isNumeric()) {
+
+            PrettyPrint::SourceErrorPrint(log,
+                                          expr->getSourceInfo(),
+                                          m_compiler.getSourceManager());
+            log.error("range_cast<> can only be used with builtin \
+numeric types.\n");
+                      onError();
+        }
+
+        const Qualifier qualFrom = exprType.getQualifier();
+        const Qualifier qualTo = dstType.getQualifier();
+
+        if (qualFrom.isImmutable() && !qualTo.isImmutable()) {
+            PrettyPrint::SourceErrorPrint(log,
+                                          expr->getSourceInfo(),
+                                          m_compiler.getSourceManager());
+            log.error("Cannot convert from '%' to '%', can't convert immutable to mutable.\n",
+                      exprType,dstType);
+            onError();
+        }
+
+        if (qualFrom.isReference() && !qualTo.isReference()) {
+            PrettyPrint::SourceErrorPrint(log,
+                                          expr->getSourceInfo(),
+                                          m_compiler.getSourceManager());
+            if (!dstBuiltinType->isTriviallyCopiable()
+                    || !exprBuiltinType->isTriviallyCopiable()) {
+                log.error("Cannot convert from '%' to '%', types are not \
+trivially copiable. Use copy trait.\n",
+                          exprType,dstType);
+                onError();
+            }
+        }
+
+
     }
 
     StageExprType::StageExprType(Compiler& compiler,

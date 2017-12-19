@@ -143,6 +143,8 @@ namespace yal{
             return YAL_TOKEN_REFERENCE;
         case Token::Self:
             return YAL_TOKEN_SELF;
+        case Token::RangeCast:
+            return YAL_TOKEN_RANGE_CAST;
         default:
             YAL_ASSERT_MESSAGE(false, "Shouldn't be reached!");
             return -1;

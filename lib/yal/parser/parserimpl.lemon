@@ -53,6 +53,7 @@
 #include "yal/ast/exprtypefncall.h"
 #include "yal/ast/exprlist.h"
 #include "yal/ast/exprdecimalliteral.h"
+#include "yal/ast/exprrangecast.h"
 #define YYMALLOCARGTYPE size_t
 }
 
@@ -145,7 +146,9 @@ decls(A) ::=. {
 
 // Type References  -----------------------------------------------------------
 
-type_specifier(A) ::= type_builtin(B). {A=B;}
+type_specifier(A) ::= type_builtin(B). {
+        A=B;
+}
 type_specifier(A) ::= type_array. {A = nullptr;}
 type_specifier(A) ::= IDENTIFIER(B). {
     auto type = pParser->resolveType(B);
@@ -171,38 +174,60 @@ qualified_type(A) ::= qualifier(D) type_specifier(C). {
     A = C;
 }
 
-type_builtin(A) ::= TYPE_BOOL. {
+type_builtin(A) ::= TYPE_BOOL(B). {
     A = pParser->newAstNode<yal::RefType>(pParser->getModule().getTypeContext().getTypeBuiltinBool());
+    auto srcInfo = pParser->createSourceInfo(B, B);
+    A->setSourceInfo(srcInfo);
     }
-type_builtin(A) ::= TYPE_INT8. {
+type_builtin(A) ::= TYPE_INT8(B). {
     A = pParser->newAstNode<yal::RefType>(pParser->getModule().getTypeContext().getTypeBuiltinI8());
+        auto srcInfo = pParser->createSourceInfo(B, B);
+        A->setSourceInfo(srcInfo);
     }
-type_builtin(A) ::= TYPE_UINT8. {
+type_builtin(A) ::= TYPE_UINT8(B). {
     A  = pParser->newAstNode<yal::RefType>(pParser->getModule().getTypeContext().getTypeBuiltinU8());
+        auto srcInfo = pParser->createSourceInfo(B, B);
+        A->setSourceInfo(srcInfo);
     }
-type_builtin(A) ::= TYPE_INT16. {
+type_builtin(A) ::= TYPE_INT16(B). {
     A = pParser->newAstNode<yal::RefType>(pParser->getModule().getTypeContext().getTypeBuiltinI16());
+        auto srcInfo = pParser->createSourceInfo(B, B);
+        A->setSourceInfo(srcInfo);
     }
-type_builtin(A) ::= TYPE_UINT16. {
+type_builtin(A) ::= TYPE_UINT16(B). {
     A  = pParser->newAstNode<yal::RefType>(pParser->getModule().getTypeContext().getTypeBuiltinU16());
+        auto srcInfo = pParser->createSourceInfo(B, B);
+        A->setSourceInfo(srcInfo);
     }
-type_builtin(A) ::= TYPE_INT32. {
+type_builtin(A) ::= TYPE_INT32(B). {
     A = pParser->newAstNode<yal::RefType>(pParser->getModule().getTypeContext().getTypeBuiltinI32());
+        auto srcInfo = pParser->createSourceInfo(B, B);
+        A->setSourceInfo(srcInfo);
     }
-type_builtin(A) ::= TYPE_UINT32. {
+type_builtin(A) ::= TYPE_UINT32(B). {
     A = pParser->newAstNode<yal::RefType>(pParser->getModule().getTypeContext().getTypeBuiltinU32());
+        auto srcInfo = pParser->createSourceInfo(B, B);
+        A->setSourceInfo(srcInfo);
     }
-type_builtin(A) ::= TYPE_INT64. {
+type_builtin(A) ::= TYPE_INT64(B). {
     A = pParser->newAstNode<yal::RefType>(pParser->getModule().getTypeContext().getTypeBuiltinI64());
+        auto srcInfo = pParser->createSourceInfo(B, B);
+        A->setSourceInfo(srcInfo);
     }
-type_builtin(A) ::= TYPE_UINT64. {
+type_builtin(A) ::= TYPE_UINT64(B). {
     A = pParser->newAstNode<yal::RefType>(pParser->getModule().getTypeContext().getTypeBuiltinU64());
+        auto srcInfo = pParser->createSourceInfo(B, B);
+        A->setSourceInfo(srcInfo);
     }
-type_builtin(A) ::= TYPE_FLOAT. {
+type_builtin(A) ::= TYPE_FLOAT(B). {
     A = pParser->newAstNode<yal::RefType>(pParser->getModule().getTypeContext().getTypeBuiltinFloat());
+        auto srcInfo = pParser->createSourceInfo(B, B);
+        A->setSourceInfo(srcInfo);
     }
-type_builtin(A) ::= TYPE_DOUBLE. {
+type_builtin(A) ::= TYPE_DOUBLE(B). {
     A = pParser->newAstNode<yal::RefType>(pParser->getModule().getTypeContext().getTypeBuiltinDouble());
+        auto srcInfo = pParser->createSourceInfo(B, B);
+        A->setSourceInfo(srcInfo);
     }
 
 type_array ::= type_builtin ARRAY_BEGIN ARRAY_END.
@@ -447,6 +472,13 @@ expression(A) ::= PAR_BEGIN expression(B) PAR_END. {A = B;}
 expression(A) ::= literal(B). {A = B;}
 expression (A) ::= unaryexp(B). {A = B;}
 expression (A) ::= binaryexp(B). {A = B;}
+
+expression (A) ::= RANGE_CAST(B) LT qualified_type(C) GT PAR_BEGIN expression(D) PAR_END(E). {
+    A = pParser->newAstNode<yal::ExprRangeCast>(C, D);
+    auto srcInfo = pParser->createSourceInfo(B, E);
+    A->setSourceInfo(srcInfo);
+}
+
 expression (A) ::= IDENTIFIER(B). {
     auto decl = pParser->resolveVarRef(B);
     if (decl != nullptr) {

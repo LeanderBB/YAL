@@ -93,7 +93,9 @@ namespace yal
             "Struct",
             "Mutable",
             "Self",
-            "Reference"
+            "Reference",
+            "RangeCast",
+            "Cast"
         };
 
         static_assert(sizeof(sLookupTable)/sizeof(sLookupTable[0]) ==
