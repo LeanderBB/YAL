@@ -28,7 +28,8 @@ namespace yal{
 
     class Module;
     class AstVisitor;
-
+    class Type;
+    class TypeContext;
     class DeclBase
     {
     public:
@@ -92,5 +93,20 @@ namespace yal{
     inline AstType get_typeid(const DeclBase& decl) {
         return decl.getAstType();
     }
+
+    class DeclTyped {
+    public:
+        const Type* getDeclType() const {
+            return m_declType;
+        }
+
+    private:
+        friend class TypeContext;
+        void setDeclType(const Type* type) {
+            m_declType = type;
+        }
+    private:
+        const Type* m_declType = nullptr;
+    };
 
 }

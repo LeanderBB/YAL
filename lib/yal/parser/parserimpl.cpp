@@ -215,15 +215,15 @@ typedef union {
 #define YALParserARG_STORE yypParser->pParser  = pParser 
 #endif
 #define YYNSTATE             116
-#define YYNRULE              96
+#define YYNRULE              97
 #define YY_MAX_SHIFT         115
-#define YY_MIN_SHIFTREDUCE   175
-#define YY_MAX_SHIFTREDUCE   270
-#define YY_MIN_REDUCE        271
-#define YY_MAX_REDUCE        366
-#define YY_ERROR_ACTION      367
-#define YY_ACCEPT_ACTION     368
-#define YY_NO_ACTION         369
+#define YY_MIN_SHIFTREDUCE   176
+#define YY_MAX_SHIFTREDUCE   272
+#define YY_MIN_REDUCE        273
+#define YY_MAX_REDUCE        369
+#define YY_ERROR_ACTION      370
+#define YY_ACCEPT_ACTION     371
+#define YY_NO_ACTION         372
 /************* End control #defines *******************************************/
 
 /* Define the yytestcase() macro to be a no-op if is not already defined
@@ -297,55 +297,55 @@ typedef union {
 *********** Begin parsing tables **********************************************/
 #define YY_ACTTAB_COUNT (483)
 static const YYACTIONTYPE yy_action[] = {
- /*     0 */    10,   26,   28,    1,  368,   93,   20,   19,   15,   17,
- /*    10 */    16,   18,   25,   24,   23,   22,   21,   26,   28,  207,
- /*    20 */   105,   49,   20,   19,   15,   17,   16,   18,   25,   24,
- /*    30 */    23,   22,   21,  107,  184,  108,  105,   34,  331,  181,
- /*    40 */   230,  298,  187,  188,  189,  190,  191,  192,  193,  194,
- /*    50 */   195,  196,  197,   34,  317,  246,  231,   11,  200,   26,
- /*    60 */    28,   34,  318,  312,   20,   19,   15,   17,   16,   18,
- /*    70 */    25,   24,   23,   22,   21,   26,   28,  245,  105,   11,
+ /*     0 */    10,   26,   28,    1,  371,   94,   20,   19,   15,   17,
+ /*    10 */    16,   18,   25,   24,   23,   22,   21,   26,   28,  209,
+ /*    20 */   106,   49,   20,   19,   15,   17,   16,   18,   25,   24,
+ /*    30 */    23,   22,   21,  107,  185,  108,  106,   34,  334,  182,
+ /*    40 */   232,  300,  188,  189,  190,  191,  192,  193,  194,  195,
+ /*    50 */   196,  197,  198,   34,  320,  248,  233,   11,  201,   26,
+ /*    60 */    28,   34,  321,  315,   20,   19,   15,   17,   16,   18,
+ /*    70 */    25,   24,   23,   22,   21,   26,   28,  247,  106,   11,
  /*    80 */    20,   19,   15,   17,   16,   18,   25,   24,   23,   22,
- /*    90 */    21,   34,  102,   37,  105,   34,  106,   92,  228,  305,
- /*   100 */   187,  188,  189,  190,  191,  192,  193,  194,  195,  196,
- /*   110 */   197,  322,   52,  335,  336,  334,   86,   78,  313,   72,
- /*   120 */   241,   31,  315,   26,   28,  299,   43,   45,   20,   19,
+ /*    90 */    21,   34,  103,   37,  106,   34,   75,   93,  230,  308,
+ /*   100 */   188,  189,  190,  191,  192,  193,  194,  195,  196,  197,
+ /*   110 */   198,  325,   52,  338,  339,  337,   87,   79,  316,   72,
+ /*   120 */   243,   31,  318,   26,   28,  301,   43,   30,   20,   19,
  /*   130 */    15,   17,   16,   18,   25,   24,   23,   22,   21,   26,
- /*   140 */    28,   35,  105,  108,   20,   19,   15,   17,   16,   18,
- /*   150 */    25,   24,   23,   22,   21,   93,  107,  184,  105,   61,
- /*   160 */   335,  336,  334,   82,  201,   12,  314,   84,  237,   74,
- /*   170 */    13,   14,  301,   41,  100,  212,   50,    2,  204,   49,
- /*   180 */   278,   26,   28,    8,   44,   40,   20,   19,   15,   17,
- /*   190 */    16,   18,   25,   24,   23,   22,   21,   29,   79,  243,
- /*   200 */   105,    7,   85,   83,  103,  266,  267,  268,   28,  211,
- /*   210 */    47,    9,   20,   19,   15,   17,   16,   18,   25,   24,
- /*   220 */    23,   22,   21,   48,  181,  229,  105,  187,  188,  189,
- /*   230 */   190,  191,  192,  193,  194,  195,  196,  197,   20,   19,
- /*   240 */    15,   17,   16,   18,   25,   24,   23,   22,   21,  210,
- /*   250 */   208,    3,  105,  367,  367,  367,  367,  367,  367,   25,
- /*   260 */    24,   23,   22,   21,   89,   90,  302,  105,   12,   61,
- /*   270 */   335,  336,  334,   13,   14,   36,  105,  100,    5,   73,
- /*   280 */    27,  101,   12,   53,  335,  336,  334,   13,   14,   77,
- /*   290 */    81,  100,  315,    6,   38,  232,   58,  335,  336,  334,
- /*   300 */    29,  185,  243,   59,  335,  336,  334,  103,  266,  267,
- /*   310 */   268,  104,   30,   80,   29,   39,  243,  272,  273,  270,
- /*   320 */    42,  103,  266,  267,  268,   54,  335,  336,  334,   88,
- /*   330 */    51,  198,   76,   46,    4,   75,  323,   52,  335,  336,
- /*   340 */   334,   86,  111,  271,  295,  109,    4,   87,  323,   52,
- /*   350 */   335,  336,  334,   86,   60,  335,  336,  334,   94,  335,
- /*   360 */   336,  334,   32,   95,  335,  336,  334,   96,  335,  336,
- /*   370 */   334,  365,   64,  335,  336,  334,   65,  335,  336,  334,
- /*   380 */    66,  335,  336,  334,   67,  335,  336,  334,   68,  335,
- /*   390 */   336,  334,  113,  273,  273,   69,  335,  336,  334,   97,
- /*   400 */   335,  336,  334,   98,  335,  336,  334,   99,  335,  336,
- /*   410 */   334,   70,  335,  336,  334,   71,  335,  336,  334,   62,
- /*   420 */   335,  336,  334,  273,   55,  335,  336,  334,   63,  335,
- /*   430 */   336,  334,   56,  335,  336,  334,   57,  335,  336,  334,
- /*   440 */    23,   22,   21,  115,  112,  112,  105,  112,  273,  273,
- /*   450 */   110,   91,  273,  282,  273,  273,  273,  273,  273,  273,
- /*   460 */   114,  273,  273,  273,  273,  273,   33,  273,  273,  273,
- /*   470 */   273,  273,  273,  273,  273,  273,  273,  273,  273,  276,
- /*   480 */   276,  273,  276,
+ /*   140 */    28,   45,  106,  108,   20,   19,   15,   17,   16,   18,
+ /*   150 */    25,   24,   23,   22,   21,   94,  107,  185,  106,   61,
+ /*   160 */   338,  339,  337,   35,  202,   12,   83,  206,  239,   74,
+ /*   170 */    13,   14,   85,  317,  101,  304,   41,   50,  205,  214,
+ /*   180 */   280,   26,   28,    2,    8,   49,   20,   19,   15,   17,
+ /*   190 */    16,   18,   25,   24,   23,   22,   21,   29,   44,  245,
+ /*   200 */   106,    7,   86,   84,  104,  268,  269,  270,   28,   40,
+ /*   210 */    80,  213,   20,   19,   15,   17,   16,   18,   25,   24,
+ /*   220 */    23,   22,   21,   47,  182,    9,  106,  188,  189,  190,
+ /*   230 */   191,  192,  193,  194,  195,  196,  197,  198,   20,   19,
+ /*   240 */    15,   17,   16,   18,   25,   24,   23,   22,   21,   48,
+ /*   250 */   231,  210,  106,  370,  370,  370,  370,  370,  370,   25,
+ /*   260 */    24,   23,   22,   21,    3,  212,  305,  106,   12,   61,
+ /*   270 */   338,  339,  337,   13,   14,   90,   91,  101,   36,   73,
+ /*   280 */   106,  102,   12,   53,  338,  339,  337,   13,   14,   78,
+ /*   290 */    82,  101,  318,    5,   27,  234,   58,  338,  339,  337,
+ /*   300 */    29,   38,  245,   59,  338,  339,  337,  104,  268,  269,
+ /*   310 */   270,    6,  105,   81,   29,  186,  245,  274,  275,   39,
+ /*   320 */    42,  104,  268,  269,  270,   54,  338,  339,  337,   89,
+ /*   330 */    51,  272,   77,   46,    4,   76,  326,   52,  338,  339,
+ /*   340 */   337,   87,  199,  273,  297,  109,    4,   88,  326,   52,
+ /*   350 */   338,  339,  337,   87,   60,  338,  339,  337,   95,  338,
+ /*   360 */   339,  337,  111,   96,  338,  339,  337,   97,  338,  339,
+ /*   370 */   337,  368,   64,  338,  339,  337,   65,  338,  339,  337,
+ /*   380 */    66,  338,  339,  337,   67,  338,  339,  337,   68,  338,
+ /*   390 */   339,  337,  113,   32,  275,   69,  338,  339,  337,   98,
+ /*   400 */   338,  339,  337,   99,  338,  339,  337,  100,  338,  339,
+ /*   410 */   337,   70,  338,  339,  337,   71,  338,  339,  337,   62,
+ /*   420 */   338,  339,  337,  275,   55,  338,  339,  337,   63,  338,
+ /*   430 */   339,  337,   56,  338,  339,  337,   57,  338,  339,  337,
+ /*   440 */    23,   22,   21,  115,  112,  112,  106,  112,  275,  275,
+ /*   450 */   110,   92,  275,  284,  275,  275,  275,  275,  275,  275,
+ /*   460 */   114,  275,  275,  275,  275,  275,   33,  275,  275,  275,
+ /*   470 */   275,  275,  275,  275,  275,  275,  275,  275,  275,  278,
+ /*   480 */   278,  275,  278,
 };
 static const YYCODETYPE yy_lookahead[] = {
  /*     0 */     1,    2,    3,   61,   62,   23,    7,    8,    9,   10,
@@ -360,34 +360,34 @@ static const YYCODETYPE yy_lookahead[] = {
  /*    90 */    17,   91,   92,   40,   21,   91,   92,   23,   41,   63,
  /*   100 */    26,   27,   28,   29,   30,   31,   32,   33,   34,   35,
  /*   110 */    36,   79,   80,   81,   82,   83,   84,   69,   70,   67,
- /*   120 */    47,   46,   70,    2,    3,   88,   89,   76,    7,    8,
+ /*   120 */    47,   46,   70,    2,    3,   88,   89,    1,    7,    8,
  /*   130 */     9,   10,   11,   12,   13,   14,   15,   16,   17,    2,
- /*   140 */     3,   40,   21,   23,    7,    8,    9,   10,   11,   12,
+ /*   140 */     3,   76,   21,   23,    7,    8,    9,   10,   11,   12,
  /*   150 */    13,   14,   15,   16,   17,   23,   24,   25,   21,   80,
- /*   160 */    81,   82,   83,   65,   44,   14,   70,   65,   47,   90,
- /*   170 */    19,   20,   63,   46,   23,   44,   73,   43,   41,   49,
- /*   180 */    48,    2,    3,    1,   49,   49,    7,    8,    9,   10,
- /*   190 */    11,   12,   13,   14,   15,   16,   17,   46,   48,   48,
- /*   200 */    21,   50,   51,   52,   53,   54,   55,   56,    3,   47,
- /*   210 */    23,    1,    7,    8,    9,   10,   11,   12,   13,   14,
- /*   220 */    15,   16,   17,   23,   23,   41,   21,   26,   27,   28,
+ /*   160 */    81,   82,   83,   40,   44,   14,   65,   41,   47,   90,
+ /*   170 */    19,   20,   65,   70,   23,   63,   46,   73,   41,   44,
+ /*   180 */    48,    2,    3,   43,    1,   49,    7,    8,    9,   10,
+ /*   190 */    11,   12,   13,   14,   15,   16,   17,   46,   49,   48,
+ /*   200 */    21,   50,   51,   52,   53,   54,   55,   56,    3,   49,
+ /*   210 */    48,   47,    7,    8,    9,   10,   11,   12,   13,   14,
+ /*   220 */    15,   16,   17,   23,   23,    1,   21,   26,   27,   28,
  /*   230 */    29,   30,   31,   32,   33,   34,   35,   36,    7,    8,
  /*   240 */     9,   10,   11,   12,   13,   14,   15,   16,   17,   23,
- /*   250 */    44,   43,   21,    7,    8,    9,   10,   11,   12,   13,
- /*   260 */    14,   15,   16,   17,   40,   40,   46,   21,   14,   80,
- /*   270 */    81,   82,   83,   19,   20,   40,   21,   23,   46,   90,
- /*   280 */    46,    9,   14,   80,   81,   82,   83,   19,   20,   67,
- /*   290 */    68,   23,   70,   46,   10,   41,   80,   81,   82,   83,
- /*   300 */    46,   25,   48,   80,   81,   82,   83,   53,   54,   55,
- /*   310 */    56,   23,    1,   91,   46,   40,   48,   59,   60,   38,
+ /*   250 */    41,   44,   21,    7,    8,    9,   10,   11,   12,   13,
+ /*   260 */    14,   15,   16,   17,   43,   23,   46,   21,   14,   80,
+ /*   270 */    81,   82,   83,   19,   20,   40,   40,   23,   40,   90,
+ /*   280 */    21,    9,   14,   80,   81,   82,   83,   19,   20,   67,
+ /*   290 */    68,   23,   70,   46,   46,   41,   80,   81,   82,   83,
+ /*   300 */    46,   10,   48,   80,   81,   82,   83,   53,   54,   55,
+ /*   310 */    56,   46,   23,   91,   46,   25,   48,   59,   60,   40,
  /*   320 */    43,   53,   54,   55,   56,   80,   81,   82,   83,   71,
- /*   330 */    72,   41,   74,   75,   77,   78,   79,   80,   81,   82,
- /*   340 */    83,   84,   37,   85,   86,   87,   77,   78,   79,   80,
+ /*   330 */    72,   38,   74,   75,   77,   78,   79,   80,   81,   82,
+ /*   340 */    83,   84,   41,   85,   86,   87,   77,   78,   79,   80,
  /*   350 */    81,   82,   83,   84,   80,   81,   82,   83,   80,   81,
- /*   360 */    82,   83,   40,   80,   81,   82,   83,   80,   81,   82,
+ /*   360 */    82,   83,   37,   80,   81,   82,   83,   80,   81,   82,
  /*   370 */    83,    0,   80,   81,   82,   83,   80,   81,   82,   83,
  /*   380 */    80,   81,   82,   83,   80,   81,   82,   83,   80,   81,
- /*   390 */    82,   83,   23,   94,   94,   80,   81,   82,   83,   80,
+ /*   390 */    82,   83,   23,   40,   94,   80,   81,   82,   83,   80,
  /*   400 */    81,   82,   83,   80,   81,   82,   83,   80,   81,   82,
  /*   410 */    83,   80,   81,   82,   83,   80,   81,   82,   83,   80,
  /*   420 */    81,   82,   83,   94,   80,   81,   82,   83,   80,   81,
@@ -407,14 +407,14 @@ static const short yy_shift_ofst[] = {
  /*    10 */   268,  268,  268,  268,  268,  268,  268,  268,  268,  268,
  /*    20 */   268,  268,  268,  268,  268,  268,  268,  268,  268,  268,
  /*    30 */   268,  132,   16,   74,  201,    9,    9,    9,    9,    9,
- /*    40 */   -18,  -18,   12,  120,  -18,   53,   75,  101,  101,  -18,
- /*    50 */    53,  127,   -1,   15,   57,   73,  121,  137,  179,  179,
+ /*    40 */   -18,  -18,   12,  120,  -18,   53,   75,  123,  123,  -18,
+ /*    50 */    53,  130,   -1,   15,   57,   73,  121,  137,  179,  179,
  /*    60 */   179,  179,  205,  231,  246,  246,  246,  246,  246,  246,
- /*    70 */   425,  425,  -28,    8,   30,  131,  134,  130,  135,  136,
- /*    80 */   150,  162,  182,  187,  210,  200,  184,  206,  208,  226,
- /*    90 */   224,  225,  220,  235,  255,  255,  255,  255,  255,  255,
- /*   100 */   232,  234,  272,  284,  247,  288,  311,  276,  275,  277,
- /*   110 */   290,  281,  305,  322,  369,  371,
+ /*    70 */   425,  425,  -28,    8,   30,  126,  135,  140,  136,  149,
+ /*    80 */   160,  162,  164,  183,  200,  224,  226,  209,  207,  221,
+ /*    90 */   242,  235,  236,  220,  238,  259,  259,  259,  259,  259,
+ /*   100 */   259,  247,  248,  272,  291,  265,  289,  290,  279,  277,
+ /*   110 */   301,  293,  325,  353,  369,  371,
 };
 #define YY_REDUCE_USE_DFLT (-59)
 #define YY_REDUCE_COUNT (51)
@@ -425,22 +425,22 @@ static const short yy_reduce_ofst[] = {
  /*    10 */   245,  274,  278,  283,  287,  292,  296,  300,  304,  308,
  /*    20 */   315,  319,  323,  327,  331,  335,  339,  344,  348,  352,
  /*    30 */   356,  222,  386,  387,  389,  -54,  -38,  -30,    0,    4,
- /*    40 */    48,   52,   37,  -47,   -7,   36,   51,   98,  102,   96,
- /*    50 */   109,  103,
+ /*    40 */    48,   52,   37,  -47,   -7,   36,   65,  101,  107,  103,
+ /*    50 */   112,  104,
 };
 static const YYACTIONTYPE yy_default[] = {
- /*     0 */   274,  367,  320,  320,  321,  361,  361,  367,  367,  367,
- /*    10 */   367,  367,  367,  367,  367,  367,  367,  367,  367,  367,
- /*    20 */   367,  367,  367,  367,  367,  367,  367,  367,  367,  367,
- /*    30 */   367,  316,  367,  367,  367,  278,  278,  278,  278,  278,
- /*    40 */   367,  316,  367,  367,  367,  319,  367,  332,  332,  367,
- /*    50 */   319,  367,  367,  367,  367,  367,  367,  367,  330,  329,
- /*    60 */   359,  360,  344,  343,  355,  354,  353,  352,  351,  350,
- /*    70 */   346,  345,  367,  367,  367,  367,  367,  311,  310,  309,
- /*    80 */   367,  367,  367,  367,  367,  367,  367,  367,  367,  367,
- /*    90 */   367,  367,  277,  367,  358,  357,  356,  349,  348,  347,
- /*   100 */   338,  367,  367,  367,  340,  367,  367,  279,  367,  367,
- /*   110 */   367,  367,  275,  367,  367,  367,
+ /*     0 */   276,  370,  323,  323,  324,  364,  364,  370,  370,  370,
+ /*    10 */   370,  370,  370,  370,  370,  370,  370,  370,  370,  370,
+ /*    20 */   370,  370,  370,  370,  370,  370,  370,  370,  370,  370,
+ /*    30 */   370,  319,  370,  370,  370,  280,  280,  280,  280,  280,
+ /*    40 */   370,  319,  370,  370,  370,  322,  370,  335,  335,  370,
+ /*    50 */   322,  370,  370,  370,  370,  370,  370,  370,  333,  332,
+ /*    60 */   362,  363,  347,  346,  358,  357,  356,  355,  354,  353,
+ /*    70 */   349,  348,  370,  370,  370,  370,  370,  370,  314,  313,
+ /*    80 */   312,  370,  370,  370,  370,  370,  370,  370,  370,  370,
+ /*    90 */   370,  370,  370,  279,  370,  361,  360,  359,  352,  351,
+ /*   100 */   350,  341,  370,  370,  370,  343,  370,  281,  370,  370,
+ /*   110 */   370,  370,  277,  370,  370,  370,
 };
 /********** End of lemon-generated parsing tables *****************************/
 
@@ -607,72 +607,73 @@ static const char *const yyRuleName[] = {
  /*  27 */ "struct_decl_vars ::= struct_decl_vars struct_decl_var",
  /*  28 */ "struct_decl_vars ::= struct_decl_var",
  /*  29 */ "struct_decl_var ::= IDENTIFIER COLON qualified_type ASSIGN expression SEMI_COLON",
- /*  30 */ "function_header ::= function_start function_param_list function_return_decl",
- /*  31 */ "function_start ::= FUNCTION IDENTIFIER",
- /*  32 */ "function_param_list ::= PAR_BEGIN function_args_decl PAR_END",
- /*  33 */ "decl_function ::= function_header SCOPE_BEGIN statement_list_or_empty SCOPE_END",
- /*  34 */ "type_function_header ::= type_function_start type_function_param_list function_return_decl",
- /*  35 */ "type_function_start ::= FUNCTION type_specifier COLON COLON IDENTIFIER",
- /*  36 */ "type_function_param_list ::= PAR_BEGIN type_function_args_decl PAR_END",
- /*  37 */ "type_function_decl ::= type_function_header SCOPE_BEGIN statement_list_or_empty SCOPE_END",
- /*  38 */ "type_function_args_decl ::= qualifier SELF",
- /*  39 */ "type_function_args_decl ::= qualifier SELF COMMA type_function_args_decl_other",
- /*  40 */ "type_function_args_decl ::= function_args_decl",
- /*  41 */ "type_function_args_decl_other ::= type_function_args_decl_other COMMA function_arg_decl",
- /*  42 */ "type_function_args_decl_other ::= function_arg_decl",
- /*  43 */ "function_args_decl ::= function_args_decl COMMA function_arg_decl",
- /*  44 */ "function_args_decl ::= function_arg_decl",
- /*  45 */ "function_args_decl ::=",
- /*  46 */ "function_arg_decl ::= IDENTIFIER COLON qualified_type",
- /*  47 */ "function_return_decl ::= COLON qualified_type",
- /*  48 */ "function_return_decl ::=",
- /*  49 */ "statement_list_or_empty ::=",
- /*  50 */ "statement_list_or_empty ::= statement_list",
- /*  51 */ "statement_list ::= statement_list statement",
- /*  52 */ "statement_list ::= statement",
- /*  53 */ "statement ::= expression ASSIGN expression SEMI_COLON",
- /*  54 */ "statement ::= decl_var SEMI_COLON",
- /*  55 */ "statement ::= expression SEMI_COLON",
- /*  56 */ "statement ::= RETURN expression SEMI_COLON",
- /*  57 */ "statement ::= RETURN SEMI_COLON",
- /*  58 */ "decl_var ::= VAR IDENTIFIER var_type_spec ASSIGN expression",
- /*  59 */ "decl_var ::= LET IDENTIFIER var_type_spec ASSIGN expression",
- /*  60 */ "var_type_spec ::= COLON qualified_type",
- /*  61 */ "var_type_spec ::=",
- /*  62 */ "expression ::= PAR_BEGIN expression PAR_END",
- /*  63 */ "expression ::= literal",
- /*  64 */ "expression ::= unaryexp",
- /*  65 */ "expression ::= binaryexp",
- /*  66 */ "expression ::= RANGE_CAST LT qualified_type GT PAR_BEGIN expression PAR_END",
- /*  67 */ "expression ::= IDENTIFIER",
- /*  68 */ "expression ::= SELF",
- /*  69 */ "expression ::= expression DOT IDENTIFIER",
- /*  70 */ "expression ::= IDENTIFIER PAR_BEGIN function_call_args PAR_END",
- /*  71 */ "expression ::= expression DOT IDENTIFIER PAR_BEGIN function_call_args PAR_END",
- /*  72 */ "binaryexp ::= expression AND expression",
- /*  73 */ "binaryexp ::= expression OR expression",
- /*  74 */ "binaryexp ::= expression PLUS expression",
- /*  75 */ "binaryexp ::= expression MINUS expression",
- /*  76 */ "binaryexp ::= expression MULT expression",
- /*  77 */ "binaryexp ::= expression DIV expression",
- /*  78 */ "binaryexp ::= expression MOD expression",
- /*  79 */ "binaryexp ::= expression EQ expression",
- /*  80 */ "binaryexp ::= expression NE expression",
- /*  81 */ "binaryexp ::= expression LE expression",
- /*  82 */ "binaryexp ::= expression LT expression",
- /*  83 */ "binaryexp ::= expression GE expression",
- /*  84 */ "binaryexp ::= expression GT expression",
- /*  85 */ "unaryexp ::= NOT expression",
- /*  86 */ "unaryexp ::= BIT_NOT expression",
- /*  87 */ "unaryexp ::= MINUS expression",
- /*  88 */ "function_call_args ::= function_call_args COMMA expression",
- /*  89 */ "function_call_args ::= expression",
- /*  90 */ "function_call_args ::=",
- /*  91 */ "literal ::= INTEGER_LITERAL",
- /*  92 */ "literal ::= DECIMAL_LITERAL",
- /*  93 */ "literal ::= BOOL_LITERAL",
- /*  94 */ "module ::= decls END",
- /*  95 */ "type_array ::= type_builtin ARRAY_BEGIN ARRAY_END",
+ /*  30 */ "struct_decl_var ::= IDENTIFIER COLON qualified_type SEMI_COLON",
+ /*  31 */ "function_header ::= function_start function_param_list function_return_decl",
+ /*  32 */ "function_start ::= FUNCTION IDENTIFIER",
+ /*  33 */ "function_param_list ::= PAR_BEGIN function_args_decl PAR_END",
+ /*  34 */ "decl_function ::= function_header SCOPE_BEGIN statement_list_or_empty SCOPE_END",
+ /*  35 */ "type_function_header ::= type_function_start type_function_param_list function_return_decl",
+ /*  36 */ "type_function_start ::= FUNCTION type_specifier COLON COLON IDENTIFIER",
+ /*  37 */ "type_function_param_list ::= PAR_BEGIN type_function_args_decl PAR_END",
+ /*  38 */ "type_function_decl ::= type_function_header SCOPE_BEGIN statement_list_or_empty SCOPE_END",
+ /*  39 */ "type_function_args_decl ::= qualifier SELF",
+ /*  40 */ "type_function_args_decl ::= qualifier SELF COMMA type_function_args_decl_other",
+ /*  41 */ "type_function_args_decl ::= function_args_decl",
+ /*  42 */ "type_function_args_decl_other ::= type_function_args_decl_other COMMA function_arg_decl",
+ /*  43 */ "type_function_args_decl_other ::= function_arg_decl",
+ /*  44 */ "function_args_decl ::= function_args_decl COMMA function_arg_decl",
+ /*  45 */ "function_args_decl ::= function_arg_decl",
+ /*  46 */ "function_args_decl ::=",
+ /*  47 */ "function_arg_decl ::= IDENTIFIER COLON qualified_type",
+ /*  48 */ "function_return_decl ::= COLON qualified_type",
+ /*  49 */ "function_return_decl ::=",
+ /*  50 */ "statement_list_or_empty ::=",
+ /*  51 */ "statement_list_or_empty ::= statement_list",
+ /*  52 */ "statement_list ::= statement_list statement",
+ /*  53 */ "statement_list ::= statement",
+ /*  54 */ "statement ::= expression ASSIGN expression SEMI_COLON",
+ /*  55 */ "statement ::= decl_var SEMI_COLON",
+ /*  56 */ "statement ::= expression SEMI_COLON",
+ /*  57 */ "statement ::= RETURN expression SEMI_COLON",
+ /*  58 */ "statement ::= RETURN SEMI_COLON",
+ /*  59 */ "decl_var ::= VAR IDENTIFIER var_type_spec ASSIGN expression",
+ /*  60 */ "decl_var ::= LET IDENTIFIER var_type_spec ASSIGN expression",
+ /*  61 */ "var_type_spec ::= COLON qualified_type",
+ /*  62 */ "var_type_spec ::=",
+ /*  63 */ "expression ::= PAR_BEGIN expression PAR_END",
+ /*  64 */ "expression ::= literal",
+ /*  65 */ "expression ::= unaryexp",
+ /*  66 */ "expression ::= binaryexp",
+ /*  67 */ "expression ::= RANGE_CAST LT qualified_type GT PAR_BEGIN expression PAR_END",
+ /*  68 */ "expression ::= IDENTIFIER",
+ /*  69 */ "expression ::= SELF",
+ /*  70 */ "expression ::= expression DOT IDENTIFIER",
+ /*  71 */ "expression ::= IDENTIFIER PAR_BEGIN function_call_args PAR_END",
+ /*  72 */ "expression ::= expression DOT IDENTIFIER PAR_BEGIN function_call_args PAR_END",
+ /*  73 */ "binaryexp ::= expression AND expression",
+ /*  74 */ "binaryexp ::= expression OR expression",
+ /*  75 */ "binaryexp ::= expression PLUS expression",
+ /*  76 */ "binaryexp ::= expression MINUS expression",
+ /*  77 */ "binaryexp ::= expression MULT expression",
+ /*  78 */ "binaryexp ::= expression DIV expression",
+ /*  79 */ "binaryexp ::= expression MOD expression",
+ /*  80 */ "binaryexp ::= expression EQ expression",
+ /*  81 */ "binaryexp ::= expression NE expression",
+ /*  82 */ "binaryexp ::= expression LE expression",
+ /*  83 */ "binaryexp ::= expression LT expression",
+ /*  84 */ "binaryexp ::= expression GE expression",
+ /*  85 */ "binaryexp ::= expression GT expression",
+ /*  86 */ "unaryexp ::= NOT expression",
+ /*  87 */ "unaryexp ::= BIT_NOT expression",
+ /*  88 */ "unaryexp ::= MINUS expression",
+ /*  89 */ "function_call_args ::= function_call_args COMMA expression",
+ /*  90 */ "function_call_args ::= expression",
+ /*  91 */ "function_call_args ::=",
+ /*  92 */ "literal ::= INTEGER_LITERAL",
+ /*  93 */ "literal ::= DECIMAL_LITERAL",
+ /*  94 */ "literal ::= BOOL_LITERAL",
+ /*  95 */ "module ::= decls END",
+ /*  96 */ "type_array ::= type_builtin ARRAY_BEGIN ARRAY_END",
 };
 #endif /* NDEBUG */
 
@@ -1072,6 +1073,7 @@ static const struct {
   { 89, -2 },
   { 89, -1 },
   { 88, -6 },
+  { 88, -4 },
   { 71, -3 },
   { 72, -2 },
   { 73, -3 },
@@ -1413,7 +1415,15 @@ static void yy_reduce(
 }
   yymsp[-5].minor.yy82 = yylhsminor.yy82;
         break;
-      case 30: /* function_header ::= function_start function_param_list function_return_decl */
+      case 30: /* struct_decl_var ::= IDENTIFIER COLON qualified_type SEMI_COLON */
+{
+    yylhsminor.yy82 = pParser->newAstNode<yal::DeclVar>(yymsp[-3].minor.yy0.tokenStr, yal::Qualifier(), yymsp[-1].minor.yy144, nullptr);
+    auto srcInfo = pParser->createSourceInfo(yymsp[-3].minor.yy0, yymsp[0].minor.yy0);
+    yylhsminor.yy82->setSourceInfo(srcInfo);
+}
+  yymsp[-3].minor.yy82 = yylhsminor.yy82;
+        break;
+      case 31: /* function_header ::= function_start function_param_list function_return_decl */
 {
     yylhsminor.yy55 = yymsp[-2].minor.yy55;
     yylhsminor.yy55->setParams(yymsp[-1].minor.yy142);
@@ -1422,7 +1432,7 @@ static void yy_reduce(
 }
   yymsp[-2].minor.yy55 = yylhsminor.yy55;
         break;
-      case 31: /* function_start ::= FUNCTION IDENTIFIER */
+      case 32: /* function_start ::= FUNCTION IDENTIFIER */
 {
      yylhsminor.yy55 = pParser->newAstNode<yal::DeclFunction>(yymsp[0].minor.yy0.tokenStr);
      yylhsminor.yy55->setSourceInfo(pParser->createSourceInfo(yymsp[-1].minor.yy0, yymsp[0].minor.yy0));
@@ -1430,13 +1440,13 @@ static void yy_reduce(
 }
   yymsp[-1].minor.yy55 = yylhsminor.yy55;
         break;
-      case 32: /* function_param_list ::= PAR_BEGIN function_args_decl PAR_END */
-      case 36: /* type_function_param_list ::= PAR_BEGIN type_function_args_decl PAR_END */ yytestcase(yyruleno==36);
+      case 33: /* function_param_list ::= PAR_BEGIN function_args_decl PAR_END */
+      case 37: /* type_function_param_list ::= PAR_BEGIN type_function_args_decl PAR_END */ yytestcase(yyruleno==37);
 {
     yymsp[-2].minor.yy142 = yymsp[-1].minor.yy142;
 }
         break;
-      case 33: /* decl_function ::= function_header SCOPE_BEGIN statement_list_or_empty SCOPE_END */
+      case 34: /* decl_function ::= function_header SCOPE_BEGIN statement_list_or_empty SCOPE_END */
 {
     yylhsminor.yy55 = yymsp[-3].minor.yy55;
     yylhsminor.yy55->setFunctionBody(yymsp[-1].minor.yy90);
@@ -1445,7 +1455,7 @@ static void yy_reduce(
 }
   yymsp[-3].minor.yy55 = yylhsminor.yy55;
         break;
-      case 34: /* type_function_header ::= type_function_start type_function_param_list function_return_decl */
+      case 35: /* type_function_header ::= type_function_start type_function_param_list function_return_decl */
 {
     yylhsminor.yy21 = yymsp[-2].minor.yy21;
     yylhsminor.yy21->setParams(yymsp[-1].minor.yy142);
@@ -1453,7 +1463,7 @@ static void yy_reduce(
 }
   yymsp[-2].minor.yy21 = yylhsminor.yy21;
         break;
-      case 35: /* type_function_start ::= FUNCTION type_specifier COLON COLON IDENTIFIER */
+      case 36: /* type_function_start ::= FUNCTION type_specifier COLON COLON IDENTIFIER */
 {
     yylhsminor.yy21 = pParser->newAstNode<yal::DeclTypeFunction>(yymsp[0].minor.yy0.tokenStr, yymsp[-3].minor.yy144);
     yylhsminor.yy21->setSourceInfo(pParser->createSourceInfo(yymsp[-4].minor.yy0, yymsp[0].minor.yy0));
@@ -1461,7 +1471,7 @@ static void yy_reduce(
 }
   yymsp[-4].minor.yy21 = yylhsminor.yy21;
         break;
-      case 37: /* type_function_decl ::= type_function_header SCOPE_BEGIN statement_list_or_empty SCOPE_END */
+      case 38: /* type_function_decl ::= type_function_header SCOPE_BEGIN statement_list_or_empty SCOPE_END */
 {
     yylhsminor.yy21 = yymsp[-3].minor.yy21;
     yylhsminor.yy21->setFunctionBody(yymsp[-1].minor.yy90);
@@ -1470,7 +1480,7 @@ static void yy_reduce(
 }
   yymsp[-3].minor.yy21 = yylhsminor.yy21;
         break;
-      case 38: /* type_function_args_decl ::= qualifier SELF */
+      case 39: /* type_function_args_decl ::= qualifier SELF */
 {
         yylhsminor.yy142 = pParser->newAstNode<yal::DeclParamVarContainer>();
         auto qualifier = yal::parser::MakeQualifierFromFlags(yymsp[-1].minor.yy29);
@@ -1483,7 +1493,7 @@ static void yy_reduce(
 }
   yymsp[-1].minor.yy142 = yylhsminor.yy142;
         break;
-      case 39: /* type_function_args_decl ::= qualifier SELF COMMA type_function_args_decl_other */
+      case 40: /* type_function_args_decl ::= qualifier SELF COMMA type_function_args_decl_other */
 {
     yylhsminor.yy142 = yymsp[0].minor.yy142;
     auto qualifier = yal::parser::MakeQualifierFromFlags(yymsp[-3].minor.yy29);
@@ -1496,27 +1506,27 @@ static void yy_reduce(
 }
   yymsp[-3].minor.yy142 = yylhsminor.yy142;
         break;
-      case 40: /* type_function_args_decl ::= function_args_decl */
+      case 41: /* type_function_args_decl ::= function_args_decl */
 {
         yylhsminor.yy142 = yymsp[0].minor.yy142;
 }
   yymsp[0].minor.yy142 = yylhsminor.yy142;
         break;
-      case 41: /* type_function_args_decl_other ::= type_function_args_decl_other COMMA function_arg_decl */
+      case 42: /* type_function_args_decl_other ::= type_function_args_decl_other COMMA function_arg_decl */
 {
     yylhsminor.yy142 = yymsp[-2].minor.yy142;
     yylhsminor.yy142->addDeclParam(yymsp[0].minor.yy63);
 }
   yymsp[-2].minor.yy142 = yylhsminor.yy142;
         break;
-      case 42: /* type_function_args_decl_other ::= function_arg_decl */
+      case 43: /* type_function_args_decl_other ::= function_arg_decl */
 {
         yylhsminor.yy142 = pParser->newAstNode<yal::DeclParamVarContainer>();
         yylhsminor.yy142->addDeclParam(yymsp[0].minor.yy63);
 }
   yymsp[0].minor.yy142 = yylhsminor.yy142;
         break;
-      case 43: /* function_args_decl ::= function_args_decl COMMA function_arg_decl */
+      case 44: /* function_args_decl ::= function_args_decl COMMA function_arg_decl */
 {
     if (yymsp[0].minor.yy63 != nullptr && pParser->onDecl(yymsp[0].minor.yy63)){
         yymsp[-2].minor.yy142->addDeclParam(yymsp[0].minor.yy63);
@@ -1525,7 +1535,7 @@ static void yy_reduce(
 }
   yymsp[-2].minor.yy142 = yylhsminor.yy142;
         break;
-      case 44: /* function_args_decl ::= function_arg_decl */
+      case 45: /* function_args_decl ::= function_arg_decl */
 {
     if (yymsp[0].minor.yy63 != nullptr && pParser->onDecl(yymsp[0].minor.yy63)){
         yylhsminor.yy142 = pParser->newAstNode<yal::DeclParamVarContainer>();
@@ -1534,12 +1544,12 @@ static void yy_reduce(
 }
   yymsp[0].minor.yy142 = yylhsminor.yy142;
         break;
-      case 45: /* function_args_decl ::= */
+      case 46: /* function_args_decl ::= */
 {
         yymsp[1].minor.yy142 = nullptr;
 }
         break;
-      case 46: /* function_arg_decl ::= IDENTIFIER COLON qualified_type */
+      case 47: /* function_arg_decl ::= IDENTIFIER COLON qualified_type */
 {
     if (yymsp[0].minor.yy144) {
         yylhsminor.yy63 = pParser->newAstNode<yal::DeclParamVar>(yymsp[-2].minor.yy0.tokenStr, yal::Qualifier(),yymsp[0].minor.yy144);
@@ -1551,52 +1561,52 @@ static void yy_reduce(
 }
   yymsp[-2].minor.yy63 = yylhsminor.yy63;
         break;
-      case 47: /* function_return_decl ::= COLON qualified_type */
+      case 48: /* function_return_decl ::= COLON qualified_type */
 { yymsp[-1].minor.yy144 = yymsp[0].minor.yy144;
 }
         break;
-      case 48: /* function_return_decl ::= */
-      case 61: /* var_type_spec ::= */ yytestcase(yyruleno==61);
+      case 49: /* function_return_decl ::= */
+      case 62: /* var_type_spec ::= */ yytestcase(yyruleno==62);
 {yymsp[1].minor.yy144 = nullptr;}
         break;
-      case 49: /* statement_list_or_empty ::= */
+      case 50: /* statement_list_or_empty ::= */
 {yymsp[1].minor.yy90 = nullptr;}
         break;
-      case 50: /* statement_list_or_empty ::= statement_list */
+      case 51: /* statement_list_or_empty ::= statement_list */
 {yylhsminor.yy90 = yymsp[0].minor.yy90;}
   yymsp[0].minor.yy90 = yylhsminor.yy90;
         break;
-      case 51: /* statement_list ::= statement_list statement */
+      case 52: /* statement_list ::= statement_list statement */
 {
     yymsp[-1].minor.yy90->addStatement(yymsp[0].minor.yy146);
     yylhsminor.yy90=yymsp[-1].minor.yy90;
 }
   yymsp[-1].minor.yy90 = yylhsminor.yy90;
         break;
-      case 52: /* statement_list ::= statement */
+      case 53: /* statement_list ::= statement */
 {
     yylhsminor.yy90 = pParser->newAstNode<yal::StatementList>();
     yylhsminor.yy90->addStatement(yymsp[0].minor.yy146);
 }
   yymsp[0].minor.yy90 = yylhsminor.yy90;
         break;
-      case 53: /* statement ::= expression ASSIGN expression SEMI_COLON */
+      case 54: /* statement ::= expression ASSIGN expression SEMI_COLON */
 {
    yylhsminor.yy146 = pParser->newAstNode<yal::StmtAssign>(yymsp[-3].minor.yy145,yymsp[-1].minor.yy145);
 }
   yymsp[-3].minor.yy146 = yylhsminor.yy146;
         break;
-      case 54: /* statement ::= decl_var SEMI_COLON */
+      case 55: /* statement ::= decl_var SEMI_COLON */
 {
     yylhsminor.yy146 = yymsp[-1].minor.yy97;
 }
   yymsp[-1].minor.yy146 = yylhsminor.yy146;
         break;
-      case 55: /* statement ::= expression SEMI_COLON */
+      case 56: /* statement ::= expression SEMI_COLON */
 {yylhsminor.yy146 = yymsp[-1].minor.yy145;}
   yymsp[-1].minor.yy146 = yylhsminor.yy146;
         break;
-      case 56: /* statement ::= RETURN expression SEMI_COLON */
+      case 57: /* statement ::= RETURN expression SEMI_COLON */
 {
     yylhsminor.yy146 = pParser->newAstNode<yal::StmtReturn>(yymsp[-1].minor.yy145);
     auto srcInfo = pParser->createSourceInfo(yymsp[-2].minor.yy0, yymsp[-1].minor.yy145->getSourceInfo());
@@ -1604,7 +1614,7 @@ static void yy_reduce(
 }
   yymsp[-2].minor.yy146 = yylhsminor.yy146;
         break;
-      case 57: /* statement ::= RETURN SEMI_COLON */
+      case 58: /* statement ::= RETURN SEMI_COLON */
 {
     yylhsminor.yy146 = pParser->newAstNode<yal::StmtReturn>();
     auto srcInfo = pParser->createSourceInfo(yymsp[-1].minor.yy0,yymsp[-1].minor.yy0);
@@ -1612,7 +1622,7 @@ static void yy_reduce(
 }
   yymsp[-1].minor.yy146 = yylhsminor.yy146;
         break;
-      case 58: /* decl_var ::= VAR IDENTIFIER var_type_spec ASSIGN expression */
+      case 59: /* decl_var ::= VAR IDENTIFIER var_type_spec ASSIGN expression */
 {
     auto varDecl = pParser->newAstNode<yal::DeclVar>(yymsp[-3].minor.yy0.tokenStr, yal::Qualifier(), yymsp[-2].minor.yy144, yymsp[0].minor.yy145);
     auto varSrcInfo = pParser->createSourceInfo(yymsp[-4].minor.yy0, yymsp[-3].minor.yy0);
@@ -1626,7 +1636,7 @@ static void yy_reduce(
 }
   yymsp[-4].minor.yy97 = yylhsminor.yy97;
         break;
-      case 59: /* decl_var ::= LET IDENTIFIER var_type_spec ASSIGN expression */
+      case 60: /* decl_var ::= LET IDENTIFIER var_type_spec ASSIGN expression */
 {
     yal::Qualifier qualifier;
     qualifier.setImmutable();
@@ -1641,25 +1651,25 @@ static void yy_reduce(
 }
   yymsp[-4].minor.yy97 = yylhsminor.yy97;
         break;
-      case 60: /* var_type_spec ::= COLON qualified_type */
+      case 61: /* var_type_spec ::= COLON qualified_type */
 {yymsp[-1].minor.yy144 = yymsp[0].minor.yy144;}
         break;
-      case 62: /* expression ::= PAR_BEGIN expression PAR_END */
+      case 63: /* expression ::= PAR_BEGIN expression PAR_END */
 {yymsp[-2].minor.yy145 = yymsp[-1].minor.yy145;}
         break;
-      case 63: /* expression ::= literal */
+      case 64: /* expression ::= literal */
 {yylhsminor.yy145 = yymsp[0].minor.yy145;}
   yymsp[0].minor.yy145 = yylhsminor.yy145;
         break;
-      case 64: /* expression ::= unaryexp */
+      case 65: /* expression ::= unaryexp */
 {yylhsminor.yy145 = yymsp[0].minor.yy163;}
   yymsp[0].minor.yy145 = yylhsminor.yy145;
         break;
-      case 65: /* expression ::= binaryexp */
+      case 66: /* expression ::= binaryexp */
 {yylhsminor.yy145 = yymsp[0].minor.yy93;}
   yymsp[0].minor.yy145 = yylhsminor.yy145;
         break;
-      case 66: /* expression ::= RANGE_CAST LT qualified_type GT PAR_BEGIN expression PAR_END */
+      case 67: /* expression ::= RANGE_CAST LT qualified_type GT PAR_BEGIN expression PAR_END */
 {
     yylhsminor.yy145 = pParser->newAstNode<yal::ExprRangeCast>(yymsp[-4].minor.yy144, yymsp[-1].minor.yy145);
     auto srcInfo = pParser->createSourceInfo(yymsp[-6].minor.yy0, yymsp[0].minor.yy0);
@@ -1667,7 +1677,7 @@ static void yy_reduce(
 }
   yymsp[-6].minor.yy145 = yylhsminor.yy145;
         break;
-      case 67: /* expression ::= IDENTIFIER */
+      case 68: /* expression ::= IDENTIFIER */
 {
     auto decl = pParser->resolveVarRef(yymsp[0].minor.yy0);
     if (decl != nullptr) {
@@ -1678,7 +1688,7 @@ static void yy_reduce(
 }
   yymsp[0].minor.yy145 = yylhsminor.yy145;
         break;
-      case 68: /* expression ::= SELF */
+      case 69: /* expression ::= SELF */
 {
     auto decl = pParser->resolveVarRefSelf(yymsp[0].minor.yy0);
     if (decl != nullptr) {
@@ -1689,7 +1699,7 @@ static void yy_reduce(
 }
   yymsp[0].minor.yy145 = yylhsminor.yy145;
         break;
-      case 69: /* expression ::= expression DOT IDENTIFIER */
+      case 70: /* expression ::= expression DOT IDENTIFIER */
 {
     yylhsminor.yy145 = pParser->newAstNode<yal::ExprStructVarRef>(yymsp[-2].minor.yy145, yymsp[0].minor.yy0.tokenStr);
     auto srcInfo = pParser->createSourceInfo(yymsp[-2].minor.yy145->getSourceInfo(), yymsp[0].minor.yy0);
@@ -1697,7 +1707,7 @@ static void yy_reduce(
 }
   yymsp[-2].minor.yy145 = yylhsminor.yy145;
         break;
-      case 70: /* expression ::= IDENTIFIER PAR_BEGIN function_call_args PAR_END */
+      case 71: /* expression ::= IDENTIFIER PAR_BEGIN function_call_args PAR_END */
 {
     auto type = pParser->resolveType(yymsp[-3].minor.yy0);
     if (type != nullptr ) {
@@ -1714,7 +1724,7 @@ static void yy_reduce(
 }
   yymsp[-3].minor.yy145 = yylhsminor.yy145;
         break;
-      case 71: /* expression ::= expression DOT IDENTIFIER PAR_BEGIN function_call_args PAR_END */
+      case 72: /* expression ::= expression DOT IDENTIFIER PAR_BEGIN function_call_args PAR_END */
 {
     if (yymsp[-1].minor.yy92 != nullptr) {
         yymsp[-1].minor.yy92->updateSourceInfo();
@@ -1726,7 +1736,7 @@ static void yy_reduce(
 }
   yymsp[-5].minor.yy145 = yylhsminor.yy145;
         break;
-      case 72: /* binaryexp ::= expression AND expression */
+      case 73: /* binaryexp ::= expression AND expression */
 {
         yylhsminor.yy93 = pParser->newAstNode<yal::ExprBinaryOperator>(yal::BinaryOperatorType::And,
                                                         yymsp[-2].minor.yy145, yymsp[0].minor.yy145);
@@ -1735,7 +1745,7 @@ static void yy_reduce(
 }
   yymsp[-2].minor.yy93 = yylhsminor.yy93;
         break;
-      case 73: /* binaryexp ::= expression OR expression */
+      case 74: /* binaryexp ::= expression OR expression */
 {
         yylhsminor.yy93 = pParser->newAstNode<yal::ExprBinaryOperator>(yal::BinaryOperatorType::Or,
                                                         yymsp[-2].minor.yy145, yymsp[0].minor.yy145);
@@ -1744,7 +1754,7 @@ static void yy_reduce(
 }
   yymsp[-2].minor.yy93 = yylhsminor.yy93;
         break;
-      case 74: /* binaryexp ::= expression PLUS expression */
+      case 75: /* binaryexp ::= expression PLUS expression */
 {
         yylhsminor.yy93 = pParser->newAstNode<yal::ExprBinaryOperator>(yal::BinaryOperatorType::Plus,
                                                         yymsp[-2].minor.yy145, yymsp[0].minor.yy145);
@@ -1753,7 +1763,7 @@ static void yy_reduce(
 }
   yymsp[-2].minor.yy93 = yylhsminor.yy93;
         break;
-      case 75: /* binaryexp ::= expression MINUS expression */
+      case 76: /* binaryexp ::= expression MINUS expression */
 {
         yylhsminor.yy93 = pParser->newAstNode<yal::ExprBinaryOperator>(yal::BinaryOperatorType::Minus,
                                                         yymsp[-2].minor.yy145, yymsp[0].minor.yy145);
@@ -1762,7 +1772,7 @@ static void yy_reduce(
 }
   yymsp[-2].minor.yy93 = yylhsminor.yy93;
         break;
-      case 76: /* binaryexp ::= expression MULT expression */
+      case 77: /* binaryexp ::= expression MULT expression */
 {
         yylhsminor.yy93 = pParser->newAstNode<yal::ExprBinaryOperator>(yal::BinaryOperatorType::Mult,
                                                         yymsp[-2].minor.yy145, yymsp[0].minor.yy145);
@@ -1771,14 +1781,14 @@ static void yy_reduce(
 }
   yymsp[-2].minor.yy93 = yylhsminor.yy93;
         break;
-      case 77: /* binaryexp ::= expression DIV expression */
+      case 78: /* binaryexp ::= expression DIV expression */
 {
         yylhsminor.yy93 = pParser->newAstNode<yal::ExprBinaryOperator>(yal::BinaryOperatorType::Div,
                                                         yymsp[-2].minor.yy145, yymsp[0].minor.yy145);
 }
   yymsp[-2].minor.yy93 = yylhsminor.yy93;
         break;
-      case 78: /* binaryexp ::= expression MOD expression */
+      case 79: /* binaryexp ::= expression MOD expression */
 {
         yylhsminor.yy93 = pParser->newAstNode<yal::ExprBinaryOperator>(yal::BinaryOperatorType::Mod,
                                                         yymsp[-2].minor.yy145, yymsp[0].minor.yy145);
@@ -1787,7 +1797,7 @@ static void yy_reduce(
 }
   yymsp[-2].minor.yy93 = yylhsminor.yy93;
         break;
-      case 79: /* binaryexp ::= expression EQ expression */
+      case 80: /* binaryexp ::= expression EQ expression */
 {
         yylhsminor.yy93 = pParser->newAstNode<yal::ExprBinaryOperator>(yal::BinaryOperatorType::Eq,
                                                         yymsp[-2].minor.yy145, yymsp[0].minor.yy145);
@@ -1796,7 +1806,7 @@ static void yy_reduce(
 }
   yymsp[-2].minor.yy93 = yylhsminor.yy93;
         break;
-      case 80: /* binaryexp ::= expression NE expression */
+      case 81: /* binaryexp ::= expression NE expression */
 {
         yylhsminor.yy93 = pParser->newAstNode<yal::ExprBinaryOperator>(yal::BinaryOperatorType::Ne,
                                                         yymsp[-2].minor.yy145, yymsp[0].minor.yy145);
@@ -1805,7 +1815,7 @@ static void yy_reduce(
 }
   yymsp[-2].minor.yy93 = yylhsminor.yy93;
         break;
-      case 81: /* binaryexp ::= expression LE expression */
+      case 82: /* binaryexp ::= expression LE expression */
 {
         yylhsminor.yy93 = pParser->newAstNode<yal::ExprBinaryOperator>(yal::BinaryOperatorType::Le,
                                                         yymsp[-2].minor.yy145, yymsp[0].minor.yy145);
@@ -1814,7 +1824,7 @@ static void yy_reduce(
 }
   yymsp[-2].minor.yy93 = yylhsminor.yy93;
         break;
-      case 82: /* binaryexp ::= expression LT expression */
+      case 83: /* binaryexp ::= expression LT expression */
 {
         yylhsminor.yy93 = pParser->newAstNode<yal::ExprBinaryOperator>(yal::BinaryOperatorType::Lt,
                                                         yymsp[-2].minor.yy145, yymsp[0].minor.yy145);
@@ -1823,7 +1833,7 @@ static void yy_reduce(
 }
   yymsp[-2].minor.yy93 = yylhsminor.yy93;
         break;
-      case 83: /* binaryexp ::= expression GE expression */
+      case 84: /* binaryexp ::= expression GE expression */
 {
         yylhsminor.yy93 = pParser->newAstNode<yal::ExprBinaryOperator>(yal::BinaryOperatorType::Ge,
                                                         yymsp[-2].minor.yy145, yymsp[0].minor.yy145);
@@ -1832,7 +1842,7 @@ static void yy_reduce(
 }
   yymsp[-2].minor.yy93 = yylhsminor.yy93;
         break;
-      case 84: /* binaryexp ::= expression GT expression */
+      case 85: /* binaryexp ::= expression GT expression */
 {
         yylhsminor.yy93 = pParser->newAstNode<yal::ExprBinaryOperator>(yal::BinaryOperatorType::Gt,
                                                         yymsp[-2].minor.yy145, yymsp[0].minor.yy145);
@@ -1841,7 +1851,7 @@ static void yy_reduce(
 }
   yymsp[-2].minor.yy93 = yylhsminor.yy93;
         break;
-      case 85: /* unaryexp ::= NOT expression */
+      case 86: /* unaryexp ::= NOT expression */
 {
     yylhsminor.yy163 = pParser->newAstNode<yal::ExprUnaryOperator>(yal::UnaryOperatorType::Not,
                                                yymsp[0].minor.yy145);
@@ -1850,7 +1860,7 @@ static void yy_reduce(
 }
   yymsp[-1].minor.yy163 = yylhsminor.yy163;
         break;
-      case 86: /* unaryexp ::= BIT_NOT expression */
+      case 87: /* unaryexp ::= BIT_NOT expression */
 {
     yylhsminor.yy163 = pParser->newAstNode<yal::ExprUnaryOperator>(yal::UnaryOperatorType::BitNot,
                                                yymsp[0].minor.yy145);
@@ -1859,7 +1869,7 @@ static void yy_reduce(
 }
   yymsp[-1].minor.yy163 = yylhsminor.yy163;
         break;
-      case 87: /* unaryexp ::= MINUS expression */
+      case 88: /* unaryexp ::= MINUS expression */
 {
     yylhsminor.yy163 = pParser->newAstNode<yal::ExprUnaryOperator>(yal::UnaryOperatorType::Negate,
                                                yymsp[0].minor.yy145);
@@ -1868,26 +1878,26 @@ static void yy_reduce(
 }
   yymsp[-1].minor.yy163 = yylhsminor.yy163;
         break;
-      case 88: /* function_call_args ::= function_call_args COMMA expression */
+      case 89: /* function_call_args ::= function_call_args COMMA expression */
 {
     yylhsminor.yy92 = yymsp[-2].minor.yy92;
     yylhsminor.yy92->addExpression(yymsp[0].minor.yy145);
 }
   yymsp[-2].minor.yy92 = yylhsminor.yy92;
         break;
-      case 89: /* function_call_args ::= expression */
+      case 90: /* function_call_args ::= expression */
 {
     yylhsminor.yy92 = pParser->newAstNode<yal::ExprList>();
     yylhsminor.yy92->addExpression(yymsp[0].minor.yy145);
 }
   yymsp[0].minor.yy92 = yylhsminor.yy92;
         break;
-      case 90: /* function_call_args ::= */
+      case 91: /* function_call_args ::= */
 {
     yymsp[1].minor.yy92= nullptr;
 }
         break;
-      case 91: /* literal ::= INTEGER_LITERAL */
+      case 92: /* literal ::= INTEGER_LITERAL */
 {
         yylhsminor.yy145 = pParser->newIntegerLiteral(yymsp[0].minor.yy0);
         auto srcInfo = pParser->createSourceInfo(yymsp[0].minor.yy0, yymsp[0].minor.yy0);
@@ -1895,7 +1905,7 @@ static void yy_reduce(
    }
   yymsp[0].minor.yy145 = yylhsminor.yy145;
         break;
-      case 92: /* literal ::= DECIMAL_LITERAL */
+      case 93: /* literal ::= DECIMAL_LITERAL */
 {
         yylhsminor.yy145 = pParser->newDecimalLiteral(yymsp[0].minor.yy0);
         auto srcInfo = pParser->createSourceInfo(yymsp[0].minor.yy0, yymsp[0].minor.yy0);
@@ -1903,7 +1913,7 @@ static void yy_reduce(
 }
   yymsp[0].minor.yy145 = yylhsminor.yy145;
         break;
-      case 93: /* literal ::= BOOL_LITERAL */
+      case 94: /* literal ::= BOOL_LITERAL */
 {
         yylhsminor.yy145 = pParser->newAstNode<yal::ExprBoolLiteral>(yymsp[0].minor.yy0.tokenStr);
         auto srcInfo = pParser->createSourceInfo(yymsp[0].minor.yy0, yymsp[0].minor.yy0);
@@ -1912,8 +1922,8 @@ static void yy_reduce(
   yymsp[0].minor.yy145 = yylhsminor.yy145;
         break;
       default:
-      /* (94) module ::= decls END */ yytestcase(yyruleno==94);
-      /* (95) type_array ::= type_builtin ARRAY_BEGIN ARRAY_END */ yytestcase(yyruleno==95);
+      /* (95) module ::= decls END */ yytestcase(yyruleno==95);
+      /* (96) type_array ::= type_builtin ARRAY_BEGIN ARRAY_END */ yytestcase(yyruleno==96);
         break;
 /********** End reduce actions ************************************************/
   };

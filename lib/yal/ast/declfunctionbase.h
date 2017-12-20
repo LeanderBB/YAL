@@ -25,7 +25,7 @@ namespace yal {
     class RefType;
     class DeclParamVarContainer;
     class StatementList;
-    class DeclFunctionBase : public DeclBase
+    class DeclFunctionBase : public DeclBase, public DeclTyped
     {
     protected:
         DeclFunctionBase(Module& module,

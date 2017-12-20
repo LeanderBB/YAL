@@ -188,15 +188,34 @@ namespace yal {
     ExprTypeAstVisitor::visit(DeclVar& node) {
         YAL_ASSERT(node.getVarType()->getType() != nullptr);
 
+        const QualType destType = node.getVarType()->getQualType();
         if (node.getExpression() != nullptr) {
             node.getExpression()->acceptVisitor(*this);
-            const QualType destType = node.getVarType()->getQualType();
+
             const QualType exprType = node.getExpression()->getQualType();
             if (!CanConvert(exprType,
                             node.getExpression()->getSourceInfo(),
                             destType,
                             node.getSourceInfo(),
                             m_compiler)) {
+                onError();
+            }
+        }
+
+        // check for recursive struct types that aren't references
+        if (destType.getType()->isStruct() && m_activeScope->isStructScope()) {
+            DeclStruct* dclStruct = dyn_cast<DeclStruct>(m_activeScope->getScopeDecl());
+            YAL_ASSERT(dclStruct != nullptr);
+
+            if (dclStruct->getDeclType()->getTypeId() == destType.getType()->getTypeId()
+                    && !destType.getQualifier().isReference()) {
+                Log& log = m_compiler.getLog();
+                PrettyPrint::SourceErrorPrint(log,
+                                              node.getSourceInfo(),
+                                              m_compiler.getSourceManager());
+                log.error("Can not declare struct variable inside struct "
+                          "'%' with the same type without being a reference.\n",
+                          dclStruct->getIdentifier());
                 onError();
             }
         }

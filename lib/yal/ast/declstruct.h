@@ -46,7 +46,7 @@ namespace yal {
     }
 
 
-    class DeclStruct : public DeclBase {
+    class DeclStruct : public DeclBase, public DeclTyped {
     public:
 
         DeclStruct(Module& module,

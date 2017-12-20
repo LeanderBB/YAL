@@ -150,6 +150,7 @@ namespace yal{
         auto type = m_allocator.construct<TypeDecl>(decl);
         type->m_typeId = m_typeIdCounter++;
         m_types.insert(std::make_pair(type->getIdentifier().getAsString(), type));
+        decl->setDeclType(type);
         return type;
     }
 
@@ -160,6 +161,7 @@ namespace yal{
         type->m_typeId = m_typeIdCounter++;
         m_types.insert(std::make_pair(type->getIdentifier().getAsString(), type));
         const_cast<Type*>(decl->getTargetType()->getType())->addFunction(type);
+        decl->setDeclType(type);
         return type;
     }
 
@@ -169,6 +171,7 @@ namespace yal{
         auto type = m_allocator.construct<TypeDecl>(decl);
         type->m_typeId = m_typeIdCounter++;
         m_types.insert(std::make_pair(type->getIdentifier().getAsString(), type));
+        decl->setDeclType(type);
         return type;
     }
 }

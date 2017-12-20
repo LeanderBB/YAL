@@ -278,6 +278,13 @@ struct_decl_var(A) ::= IDENTIFIER(B) COLON qualified_type(C) ASSIGN expression(D
     A->setSourceInfo(srcInfo);
 }
 
+struct_decl_var(A) ::= IDENTIFIER(B) COLON qualified_type(C) SEMI_COLON(Z). {
+    A = pParser->newAstNode<yal::DeclVar>(B.tokenStr, yal::Qualifier(), C, nullptr);
+    auto srcInfo = pParser->createSourceInfo(B, Z);
+    A->setSourceInfo(srcInfo);
+}
+
+
 // Function decl --------------------------------------------------------------
         
         
