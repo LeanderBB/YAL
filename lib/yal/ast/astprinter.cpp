@@ -39,7 +39,8 @@
 #include "yal/ast/exprlist.h"
 #include "yal/ast/exprdecimalliteral.h"
 #include "yal/ast/exprrangecast.h"
-
+#include "yal/ast/structmemberinit.h"
+#include "yal/ast/exprstructinit.h"
 namespace yal {
 
     AstPrinter::AstPrinter(ByteStream& stream):
@@ -83,7 +84,7 @@ namespace yal {
 
 
 
-         bool hasStatmentList = node.getFunctionBody() != nullptr;
+        bool hasStatmentList = node.getFunctionBody() != nullptr;
 
         if (node.getParams() != nullptr) {
             scopeBegin(!hasStatmentList);
@@ -394,6 +395,40 @@ namespace yal {
         scopeEnd();
         scopeBegin();
         node.getExpression()->acceptVisitor(*this);
+        scopeEnd();
+    }
+
+    void
+    AstPrinter::visit(ExprStructInit& node) {
+        print("ExprStructInit ");
+        printSourceInfo(node.getSourceInfo());
+        print();
+        if (node.getMemberInitList() != nullptr) {
+            scopeBegin();
+            node.getMemberInitList()->acceptVisitor(*this);
+            scopeEnd();
+        }
+    }
+
+    void
+    AstPrinter::visit(StructMemberInitList& node) {
+        print("StructMemberInitList ");
+        printSourceInfo(node.getSourceInfo());
+        print();
+        for (auto it = node.childBegin(); it != node.childEnd(); ++it) {
+            scopeBegin(it + 1 == node.childEnd());
+            (*it)->acceptVisitor(*this);
+            scopeEnd();
+        }
+    }
+
+    void
+    AstPrinter::visit(StructMemberInit& node) {
+        print("StructMemberInit % ", node.getMemberName());
+        printSourceInfo(node.getSourceInfo());
+        print();
+        scopeBegin();
+        node.getInitExpr()->acceptVisitor(*this);
         scopeEnd();
     }
 

@@ -28,6 +28,7 @@ namespace yal {
     class DeclParamVarContainer;
     class DeclStructMembers;
     class ExprList;
+    class StructMemberInitList;
     class AstVisitor {
     public:
 
@@ -51,6 +52,8 @@ namespace yal {
         virtual void visit(DeclStructMembers& node) override;
 
         virtual void visit(ExprList& node) override;
+
+        virtual void visit(StructMemberInitList& node) override;
 
 #define YAL_AST_SKIP_NODE_CONTAINERS
 #define YAL_AST_NODE_TYPE(type) virtual void visit(type&) override{}

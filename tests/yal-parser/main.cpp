@@ -252,6 +252,24 @@ TEST_F(CompileFixture, type_function_duplicate) {
     EXPECT_EQ(module, nullptr);
 }
 
+TEST_F(CompileFixture, struct_member_init_missing) {
+    const char* str = R"R(
+
+     type Foo:struct {
+            bar:i32 = 0;
+            other: bool;
+     }
+
+    fn Foo::static() : Foo {
+        var test:Foo = Foo {};
+    }
+)R";
+
+    auto handle = createSourceHanlde(str);
+    yal::Compiler compiler(*m_log, m_sourceManager, m_moduleManager);
+    yal::Module* module = compiler.compile(handle);
+    EXPECT_EQ(module, nullptr);
+}
 
 
 int main(int argc, char** argv) {

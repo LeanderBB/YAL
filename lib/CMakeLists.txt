@@ -100,6 +100,10 @@ set(YAL_SOURCES
     yal/ast/declscope.h
     yal/ast/exprrangecast.h
     yal/ast/exprrangecast.cpp
+    yal/ast/exprstructinit.cpp
+    yal/ast/exprstructinit.h
+    yal/ast/structmemberinit.h
+    yal/ast/structmemberinit.cpp
 
     yal/compiler/compiler.cpp
     yal/compiler/compiler.h

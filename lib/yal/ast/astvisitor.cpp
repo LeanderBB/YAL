@@ -26,6 +26,7 @@
 #include "yal/ast/declstruct.h"
 #include "yal/ast/exprlist.h"
 #include "yal/ast/stmtexpression.h"
+#include "yal/ast/structmemberinit.h"
 namespace yal {
 
 
@@ -60,6 +61,13 @@ namespace yal {
 
     void
     RecursiveAstVisitor::visit(ExprList& node) {
+        for (auto it = node.childBegin(); it != node.childEnd(); ++it) {
+            (*it)->acceptVisitor(*this);
+        }
+    }
+
+    void
+    RecursiveAstVisitor::visit(StructMemberInitList& node) {
         for (auto it = node.childBegin(); it != node.childEnd(); ++it) {
             (*it)->acceptVisitor(*this);
         }

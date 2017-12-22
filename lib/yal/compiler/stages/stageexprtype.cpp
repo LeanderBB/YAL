@@ -44,6 +44,8 @@
 #include "yal/ast/typedecl.h"
 #include "yal/ast/module.h"
 #include "yal/ast/exprrangecast.h"
+#include "yal/ast/exprstructinit.h"
+#include "yal/ast/structmemberinit.h"
 namespace yal {
 
 
@@ -90,8 +92,8 @@ namespace yal {
                                           compiler.getSourceManager());
             //TODO: insert copy trait
             if (!typeTo->isTriviallyCopiable() || !typeFrom->isTriviallyCopiable()) {
-                log.error("Cannot convert from '%' to '%', types are not \
-                          trivially copiable. Use copy trait.\n",
+                log.error("Cannot convert from '%' to '%', types are not "
+                          "trivially copiable. Use copy trait.\n",
                           from,to);
                 return false;
             }
@@ -756,7 +758,7 @@ namespace yal {
                                           node.getDestType()->getSourceInfo(),
                                           m_compiler.getSourceManager());
             log.error("range_cast<> can only be used to cast to builtin \
-numeric types.\n");
+                      numeric types.\n");
                       onError();
         }
 
@@ -773,7 +775,7 @@ numeric types.\n");
                                           expr->getSourceInfo(),
                                           m_compiler.getSourceManager());
             log.error("range_cast<> can only be used with builtin \
-numeric types.\n");
+                      numeric types.\n");
                       onError();
         }
 
@@ -796,12 +798,127 @@ numeric types.\n");
             if (!dstBuiltinType->isTriviallyCopiable()
                     || !exprBuiltinType->isTriviallyCopiable()) {
                 log.error("Cannot convert from '%' to '%', types are not \
-trivially copiable. Use copy trait.\n",
+                          trivially copiable. Use copy trait.\n",
                           exprType,dstType);
                 onError();
             }
         }
 
+
+    }
+
+
+    void
+    ExprTypeAstVisitor::visit(ExprStructInit& node) {
+
+        Log& log = m_compiler.getLog();
+        // check if type is struct
+
+        const Type* structType = node.getStructType()->getType();
+        const TypeDecl* declStrucType = dyn_cast<TypeDecl>(structType);
+
+        if (declStrucType == nullptr || !structType->isStruct()) {
+            PrettyPrint::SourceErrorPrint(log,
+                                          node.getSourceInfo(),
+                                          m_compiler.getSourceManager());
+            log.error("Can not use struct initializer on non struct type '%'.",
+                      *structType);
+            onError();
+        }
+
+        DeclStruct* declStruct = dyn_cast<DeclStruct>(declStrucType->getDecl());
+        YAL_ASSERT(declStruct != nullptr);
+
+        // count members without default constructors
+        uint32_t membersWithoutDefault = 0;
+
+        for (auto& member : declStruct->getMembers()->getChildRange()) {
+            if (member->getExpression() == nullptr) {
+                membersWithoutDefault++;
+            }
+        }
+
+
+        if (node.getMemberInitList() != nullptr) {
+            for (auto& memberInit : node.getMemberInitList()->getChildRange()) {
+
+                // check if the member actually exists ,maybe do this elsewhere?
+                const DeclVar* member
+                        = declStruct->getMemberByName(memberInit->getMemberName());
+                if (member == nullptr) {
+                    PrettyPrint::SourceErrorPrint(log,
+                                                  member->getSourceInfo(),
+                                                  m_compiler.getSourceManager());
+                    log.error("Struct '%' has no member named '%'.",
+                              *structType,
+                              memberInit->getMemberName());
+                    onError();
+                }
+
+                // visit expression
+                StmtExpression* initExpr = memberInit->getInitExpr();
+                initExpr->acceptVisitor(*this);
+
+                // check if we can expression type is valid
+
+                const QualType from = initExpr->getQualType();
+                const QualType to = member->getVarType()->getQualType();
+
+                const Type* typeFrom= from.getType();
+                const Type* typeTo = to.getType();
+
+
+                // check types
+                if(!typeFrom->isCastableTo(typeTo)) {
+                    PrettyPrint::SourceErrorPrint(log,
+                                                  memberInit->getSourceInfo(),
+                                                  m_compiler.getSourceManager());
+                    log.error("Cannot convert from '%' to '%', types are not compatible.\n",
+                              from,to);
+                    onError();
+                }
+
+                // check qualifiers
+                const Qualifier qualFrom= from.getQualifier();
+                const Qualifier qualTo = to.getQualifier();
+                if (qualFrom.isReference() && !qualTo.isReference()) {
+                    PrettyPrint::SourceErrorPrint(log,
+                                                  memberInit->getSourceInfo(),
+                                                  m_compiler.getSourceManager());
+                    //TODO: insert copy trait
+                    if (!typeTo->isTriviallyCopiable() || !typeFrom->isTriviallyCopiable()) {
+                        log.error("Cannot convert from '%' to '%', types are not \
+                                  trivially copiable. Use copy trait.\n",
+                                  from,to);
+                        onError();
+                    }
+                }
+
+
+                if (member->getExpression() == nullptr) {
+                    membersWithoutDefault--;
+                }
+            }
+
+        }
+
+        // check if all members are properly initialized
+
+        if (membersWithoutDefault != 0) {
+            PrettyPrint::SourceErrorPrint(log,
+                                          node.getSourceInfo(),
+                                          m_compiler.getSourceManager());
+            log.error("Can not create struct '%', % member(s) remain(s) unintialized.\n",
+                      *structType,
+                      membersWithoutDefault);
+            onError();
+        }
+
+    }
+
+    void
+    ExprTypeAstVisitor::visit(StructMemberInit&) {
+        YAL_ASSERT(false);
 
     }
 

@@ -40,8 +40,8 @@ namespace yal {
     public:
         using ContainerType = std::vector<NodeType>;
         using ChildType = NodeType;
-        using NodeRange = IteratorRange<typename ContainerType::reverse_iterator>;
-        using ConstNodeRange = IteratorRange<typename ContainerType::const_reverse_iterator>;
+        using NodeRange = IteratorRange<typename ContainerType::iterator>;
+        using ConstNodeRange = IteratorRange<typename ContainerType::const_iterator>;
 
         NodeContainer(Module&) {
 
@@ -68,12 +68,12 @@ namespace yal {
             return m_nodes.size();
         }
 
-        typename ContainerType::reverse_iterator childBegin() {
-            return m_nodes.rbegin();
+        typename ContainerType::iterator childBegin() {
+            return m_nodes.begin();
         }
 
-        typename ContainerType::reverse_iterator childEnd() {
-            return m_nodes.rend();
+        typename ContainerType::iterator childEnd() {
+            return m_nodes.end();
         }
 
         const SourceInfo& getSourceInfo() const {
@@ -91,11 +91,11 @@ namespace yal {
 
 
         NodeRange getChildRange() {
-            return NodeRange(std::rbegin(m_nodes), std::rend(m_nodes));
+            return NodeRange(std::begin(m_nodes), std::end(m_nodes));
         }
 
         ConstNodeRange getChildRangeConst() const {
-            return ConstNodeRange(std::crbegin(m_nodes), std::crend(m_nodes));
+            return ConstNodeRange(std::cbegin(m_nodes), std::cend(m_nodes));
         }
 
         void updateSourceInfo() {

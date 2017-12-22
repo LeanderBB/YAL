@@ -240,6 +240,16 @@ namespace yal {
 
     }
 
+    void
+    ReturnCheckVisitor::visit(ExprStructInit&) {
+
+    }
+
+    void
+    ReturnCheckVisitor::visit(StructMemberInit&) {
+
+    }
+
     StageFnReturn::StageFnReturn(Compiler& compiler):
         m_compiler(compiler) {
     }

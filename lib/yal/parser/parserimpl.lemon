@@ -54,6 +54,8 @@
 #include "yal/ast/exprlist.h"
 #include "yal/ast/exprdecimalliteral.h"
 #include "yal/ast/exprrangecast.h"
+#include "yal/ast/structmemberinit.h"
+#include "yal/ast/exprstructinit.h"
 #define YYMALLOCARGTYPE size_t
 }
 
@@ -125,8 +127,12 @@
 %type function_call_args{yal::ExprList*}
 %type qualifier {uint32_t}
 %type qualified_type {yal::RefType*}
+%type struct_init {yal::ExprStructInit* }
+%type struct_member_init_list {yal::StructMemberInitList*}
+%type struct_member_init {yal::StructMemberInit*}
 %start_symbol  module
 %token_type {yal::TokenInfo}
+
 
 
 module ::= decls END.
@@ -479,6 +485,7 @@ expression(A) ::= PAR_BEGIN expression(B) PAR_END. {A = B;}
 expression(A) ::= literal(B). {A = B;}
 expression (A) ::= unaryexp(B). {A = B;}
 expression (A) ::= binaryexp(B). {A = B;}
+expression (A) ::= struct_init(B). { A = B;}
 
 expression (A) ::= RANGE_CAST(B) LT qualified_type(C) GT PAR_BEGIN expression(D) PAR_END(E). {
     A = pParser->newAstNode<yal::ExprRangeCast>(C, D);
@@ -652,6 +659,35 @@ function_call_args(A)::= expression(B). {
 }
 function_call_args(A) ::=. {
     A= nullptr;
+}
+
+
+// Struct Init ---------------------------------------------------------------
+
+struct_init(A) ::= type_specifier(B) SCOPE_BEGIN struct_member_init_list (C) SCOPE_END(D). {
+    if (C) {
+        C->updateSourceInfo();
+    }
+
+    A = pParser->newAstNode<yal::ExprStructInit>(B, C);
+    auto srcInfo = pParser->createSourceInfo(B->getSourceInfo(), D);
+    A->setSourceInfo(srcInfo);
+}
+
+struct_member_init_list (A) ::=. {A = nullptr;}
+struct_member_init_list (A) ::= struct_member_init_list(B) COMMA struct_member_init(C). {
+     B->addStructMemberInit(C);
+     A = B;
+}
+struct_member_init_list (A) ::= struct_member_init(B). {
+        A = pParser->newAstNode<yal::StructMemberInitList>();
+        A->addStructMemberInit(B);
+}
+
+struct_member_init(A) ::= IDENTIFIER(B) COLON expression(C). {
+    A = pParser->newAstNode<yal::StructMemberInit>(B.tokenStr,C);
+    auto srcInfo = pParser->createSourceInfo(B, C->getSourceInfo());
+    A->setSourceInfo(srcInfo);
 }
 
 // Literals ------------------------------------------------------------------
