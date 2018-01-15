@@ -18,7 +18,7 @@
  */
 #include "yal/ast/declfunctionbase.h"
 #include "yal/ast/module.h"
-
+#include "yal/ast/reftype.h"
 
 namespace yal {
 
@@ -43,6 +43,12 @@ namespace yal {
         m_returnType = returnType;
     }
 
+    QualType
+    DeclFunctionBase::getReturnQualType() const {
+        return (hasReturnValue())
+                ? m_returnType->getQualType()
+                :QualType::Create(Qualifier(), nullptr);
+    }
 
     void
     DeclFunctionBase::setParams(DeclParamVarContainer* params) {

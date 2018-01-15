@@ -19,33 +19,11 @@
 
 #include "yal/compiler/stages/stageexprtype.h"
 #include "yal/compiler/compiler.h"
-#include "yal/ast/declmodule.h"
-#include "yal/ast/declfunction.h"
-#include "yal/ast/decltypefunction.h"
-#include "yal/ast/declstruct.h"
-#include "yal/ast/astvisitor.h"
-#include "yal/ast/stmtassign.h"
-#include "yal/ast/exprbinaryoperator.h"
-#include "yal/ast/exprunaryoperator.h"
-#include "yal/ast/exprvarref.h"
-#include "yal/ast/declparamvar.h"
-#include "yal/ast/exprfncall.h"
-#include "yal/ast/exprtypefncall.h"
-#include "yal/ast/exprstructvarref.h"
-#include "yal/ast/stmtdecl.h"
-#include "yal/ast/stmtreturn.h"
-#include "yal/ast/statementlist.h"
-#include "yal/ast/exprlist.h"
-#include "yal/ast/reftype.h"
+#include "yal/ast/astnodes.h"
 #include "yal/util/prettyprint.h"
 #include "yal/util/log.h"
 #include "yal/util/stackjump.h"
-#include "yal/ast/typebuiltin.h"
-#include "yal/ast/typedecl.h"
-#include "yal/ast/module.h"
-#include "yal/ast/exprrangecast.h"
-#include "yal/ast/exprstructinit.h"
-#include "yal/ast/structmemberinit.h"
+
 namespace yal {
 
 
@@ -72,7 +50,6 @@ namespace yal {
         }
 
         // check qualifiers
-
         const Qualifier qualFrom = from.getQualifier();
         const Qualifier qualTo = to.getQualifier();
 
@@ -85,18 +62,30 @@ namespace yal {
             return false;
         }
 
-
-        if (qualFrom.isReference() && !qualTo.isReference()) {
+        if (qualFrom.isReference() != qualTo.isReference()) {
             PrettyPrint::SourceErrorPrint(log,
                                           siFrom,
                                           compiler.getSourceManager());
-            //TODO: insert copy trait
-            if (!typeTo->isTriviallyCopiable() || !typeFrom->isTriviallyCopiable()) {
-                log.error("Cannot convert from '%' to '%', types are not "
-                          "trivially copiable. Use copy trait.\n",
+
+            if (!qualFrom.isReference() && qualTo.isReference()) {
+                log.error("Cannot convert from '%' to '%', use '&' operator.\n",
                           from,to);
-                return false;
+            } else {
+                log.error("Cannot convert from '%' to '%'\n",
+                          from,to);
             }
+            return false;
+        }
+
+        // TODO: Move to move evaluater
+        if (qualFrom.requiresReplace() && !typeFrom->isTriviallyCopiable()) {
+            PrettyPrint::SourceErrorPrint(log,
+                                          siFrom,
+                                          compiler.getSourceManager());
+            log.error("Can't move value. Value needs to be replaced before "
+                      "it can be moved. Use replace().\n",
+                      from,to);
+            return false;
         }
 
         return true;
@@ -343,6 +332,23 @@ namespace yal {
             node.setQualType(QualType::Create(Qualifier(), exprType));
             break;
         }
+        case UnaryOperatorType::Reference: {
+            const QualType exprQt = node.getExpression()->getQualType();
+            Qualifier qual = exprQt.getQualifier();
+
+            if (qual.isReference()) {
+                PrettyPrint::SourceErrorPrint(log,
+                                              node.getSourceInfo(),
+                                              m_compiler.getSourceManager());
+                log.error("Expression result is already a reference, can't "
+                          "create a reference of a reference\n");
+                onError();
+            }
+
+            qual.setReference();
+            node.setQualType(QualType::Create(qual, exprQt.getType()));
+            break;
+        }
         default:
             YAL_ASSERT(false);
             PrettyPrint::SourceErrorPrint(log,
@@ -551,10 +557,15 @@ namespace yal {
         }
 
         // set correct qualifier based on expression
-        Qualifier qualifier;
-        qualifier.setReference();
-        if (exprqt.getQualifier().isImmutable()
-                || decl->getQualifier().isImmutable()) {
+        Qualifier qualifier = decl->getQualifier();
+
+        if (!qualifier.isReference()) {
+            // only enabel this qualifier for non-reference memebers
+            qualifier.setRequiresReplace(true);
+        }
+
+        // if struct is immutable, mark variable as immutable
+        if (exprqt.getQualifier().isImmutable()){
             qualifier.setImmutable();
         }
 
@@ -566,14 +577,15 @@ namespace yal {
         Log& log = m_compiler.getLog();
 
         // get function declartion
-        const TypeDecl* fnType = dyn_cast<TypeDecl>(node.getFunctionType()->getType());
-        if (fnType != nullptr || !fnType->isFunction()) {
+        const Type* fncallType = node.getFunctionType()->getType();
+        const TypeDecl* fnType = dyn_cast<TypeDecl>(fncallType);
+
+        if (fnType == nullptr || !fncallType->isFunction()) {
             PrettyPrint::SourceErrorPrint(log,
                                           node.getFunctionType()->getSourceInfo(),
                                           m_compiler.getSourceManager());
             log.error("Type '%' is not a function.\n",
-                      fnType->getIdentifier());
-            onError();
+                      fncallType->getIdentifier());
             onError();
         }
 
@@ -620,7 +632,7 @@ namespace yal {
         }
 
         // Update expression type
-        node.setQualType(fndecl->getReturnType()->getQualType());
+        node.setQualType(fndecl->getReturnQualType());
     }
 
     void
@@ -664,7 +676,7 @@ namespace yal {
             PrettyPrint::SourceErrorPrint(log,
                                           node.getSourceInfo(),
                                           m_compiler.getSourceManager());
-            log.error("Function '%' is static, use '%'::'%'(...) to call this function instead.\n",
+            log.error("Function '%' is static, use '%::%(...)' to call this function instead.\n",
                       node.getFunctionName(),
                       *exprqt.getType(),
                       node.getFunctionName());
@@ -732,9 +744,106 @@ namespace yal {
         // update function type
         node.setFunctionType(fnType);
         // Update expression type
-        node.setQualType(fndecl->getReturnType()->getQualType());
+        node.setQualType(fndecl->getReturnQualType());
     }
 
+
+    void
+    ExprTypeAstVisitor::visit(ExprTypeFnCallStatic& node) {
+        Log& log = m_compiler.getLog();
+
+        const RefType* targetRefType = node.getTargetType();
+        const Type* targetType = targetRefType->getType();
+
+        // check if experession is a valid type
+        if (!targetType->isFunctionTargetable()) {
+            PrettyPrint::SourceErrorPrint(log,
+                                          targetRefType->getSourceInfo(),
+                                          m_compiler.getSourceManager());
+            log.error("Type '%' is not function targetable.\n",
+                      *targetType);
+            onError();
+        }
+
+        // check if fucntion exists
+        const TypeDecl* fnType =
+                targetType->getFunctionWithName(node.getFunctionName());
+
+        if ( fnType == nullptr || !fnType->isTypeFunction()) {
+            PrettyPrint::SourceErrorPrint(log,
+                                          node.getSourceInfo(),
+                                          m_compiler.getSourceManager());
+            log.error("Type '%' does not contain any target function named '%'.\n",
+                      *targetType,
+                      node.getFunctionName());
+            onError();
+        }
+
+        const DeclTypeFunction* fndecl = dyn_cast<DeclTypeFunction>(fnType->getDecl());
+        YAL_ASSERT(fndecl != nullptr);
+
+        //check if function is static type
+        if (!fndecl->isStatic()) {
+            PrettyPrint::SourceErrorPrint(log,
+                                          node.getSourceInfo(),
+                                          m_compiler.getSourceManager());
+            log.error("Function '%' is not static, it must be called from an "
+                      "instance of this struct.\n",
+                      node.getFunctionName());
+            onError();
+        }
+
+        // check function arg count
+
+        ExprList* args = node.getFunctionArgs();
+        DeclParamVarContainer* params =fndecl->getParams();
+
+        const size_t callArgCount = args != nullptr ? args->getCount() : 0;
+        const size_t paramCount = params != nullptr
+                ? params->getCount()
+                : 0;
+
+        if (callArgCount != paramCount) {
+            PrettyPrint::SourceErrorPrint(log,
+                                          args->getSourceInfo(),
+                                          m_compiler.getSourceManager());
+            log.error("Invalid function arg count, function '%' expects % arguments,\
+                      but only % provided.\n",
+                      fndecl->getIdentifier(),
+                      paramCount,
+                      callArgCount);
+            onError();
+        }
+
+
+        // validate function args
+        if (node.getFunctionArgs() != nullptr) {
+            node.getFunctionArgs()->acceptVisitor(*this);
+
+            auto paramIter = params->childBegin();
+            // skip over self param var
+            if (!fndecl->isStatic()) {
+                paramIter++;
+            }
+
+            for (auto argIter = args->childBegin();
+                 paramIter != params->childEnd();
+                 ++paramIter, ++argIter) {
+                if (!CanConvert((*argIter)->getQualType(),
+                                (*argIter)->getSourceInfo(),
+                                (*paramIter)->getVarType()->getQualType(),
+                                (*paramIter)->getSourceInfo(),
+                                m_compiler)) {
+                    onError();
+                }
+            }
+        }
+
+        // update function type
+        node.setFunctionType(fnType);
+        // Update expression type
+        node.setQualType(fndecl->getReturnQualType());
+    }
 
     void
     ExprTypeAstVisitor::visit(DeclParamVarSelf&) {

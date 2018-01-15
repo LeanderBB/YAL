@@ -76,6 +76,15 @@ namespace yal {
             return m_nodes.end();
         }
 
+        typename ContainerType::reverse_iterator rchildBegin() {
+            return m_nodes.rbegin();
+        }
+
+        typename ContainerType::reverse_iterator rchildEnd() {
+            return m_nodes.rend();
+        }
+
+
         const SourceInfo& getSourceInfo() const {
             return m_sourceInfo;
         }

@@ -19,24 +19,7 @@
 
 #include "yal/compiler/stages/stagefnreturn.h"
 #include "yal/compiler/compiler.h"
-#include "yal/ast/declmodule.h"
-#include "yal/ast/declfunction.h"
-#include "yal/ast/decltypefunction.h"
-#include "yal/ast/declstruct.h"
-#include "yal/ast/astvisitor.h"
-#include "yal/ast/stmtassign.h"
-#include "yal/ast/exprbinaryoperator.h"
-#include "yal/ast/exprunaryoperator.h"
-#include "yal/ast/exprvarref.h"
-#include "yal/ast/declparamvar.h"
-#include "yal/ast/exprfncall.h"
-#include "yal/ast/exprtypefncall.h"
-#include "yal/ast/exprstructvarref.h"
-#include "yal/ast/stmtdecl.h"
-#include "yal/ast/stmtreturn.h"
-#include "yal/ast/statementlist.h"
-#include "yal/ast/exprlist.h"
-#include "yal/ast/reftype.h"
+#include "yal/ast/astnodes.h"
 #include "yal/util/prettyprint.h"
 #include "yal/util/log.h"
 #include "yal/util/stackjump.h"
@@ -219,6 +202,11 @@ namespace yal {
     void
     ReturnCheckVisitor::visit(ExprFnCall&) {
     }
+
+    void
+    ReturnCheckVisitor::visit(ExprTypeFnCallStatic&) {
+    }
+
 
     void
     ReturnCheckVisitor::visit(ExprTypeFnCall&) {

@@ -48,6 +48,8 @@ namespace yal {
             return m_returnType;
         }
 
+        QualType getReturnQualType() const;
+
         void setReturnType(RefType* returnType);
 
         DeclParamVarContainer* getParams() const {

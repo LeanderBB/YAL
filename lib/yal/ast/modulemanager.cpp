@@ -28,9 +28,7 @@ namespace yal {
     }
 
     ModuleManager::~ModuleManager() {
-        for (auto& module : m_modules) {
-            module->~Module();
-        }
+        clear();
     }
 
     Module*
@@ -85,6 +83,9 @@ namespace yal {
 
     void
     ModuleManager::clear() {
+        for (auto& module : m_modules) {
+            module->~Module();
+        }
         m_modules.clear();
         m_allocator.reset();
     }

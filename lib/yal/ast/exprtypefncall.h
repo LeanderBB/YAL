@@ -28,9 +28,9 @@ namespace yal {
     public:
 
         ExprTypeFnCall(Module& module,
-                         StmtExpression* expression,
-                         const TokenInfo& functioName,
-                         ExprList* functionArgs);
+                       StmtExpression* expression,
+                       const TokenInfo& functioName,
+                       ExprList* functionArgs);
 
         StmtExpression* getExpression() const {
             return m_expression;

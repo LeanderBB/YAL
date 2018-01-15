@@ -37,6 +37,7 @@ namespace yal {
         const size_t secondSearchStart = (posDot == str.size() + 1)
                 ? str.size() - 1
                 : posDot - 1;
+        posDot = std::min(posDot, str.size());
         size_t posSlash = 0;
         for (size_t i = secondSearchStart; i >0 ; --i) {
             if (str[i] == '\\' || str[i] == '/') {

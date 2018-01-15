@@ -272,6 +272,221 @@ TEST_F(CompileFixture, struct_member_init_missing) {
 }
 
 
+TEST_F(CompileFixture, reference_assign_fail) {
+    const char* str = R"R(
+      type Bar : struct {
+          x : i32;
+      }
+
+      type Foo : struct {
+          b: Bar;
+      }
+
+      fn assign(f: mut& Foo) {
+         f = Foo{b:Bar{x:20}};
+      }
+)R";
+
+    auto handle = createSourceHanlde(str);
+    yal::Compiler compiler(*m_log, m_sourceManager, m_moduleManager);
+    yal::Module* module = compiler.compile(handle);
+    EXPECT_EQ(module, nullptr);
+}
+
+
+TEST_F(CompileFixture, reference_missing_cast) {
+    const char* str = R"R(
+      type Bar : struct {
+          x : i32;
+      }
+
+      type Foo : struct {
+          b: Bar;
+      }
+
+      fn test(f: mut& Foo) {
+          f.b = Bar { x: 30 };
+      }
+
+      fn main() {
+         var f:mut Foo = Foo{b:Bar{x:20}};
+         test(f);
+         f.b = Bar { x:10};
+
+         var other:Bar = f.b;
+      }
+)R";
+
+    auto handle = createSourceHanlde(str);
+    yal::Compiler compiler(*m_log, m_sourceManager, m_moduleManager);
+    yal::Module* module = compiler.compile(handle);
+    EXPECT_EQ(module, nullptr);
+}
+
+
+TEST_F(CompileFixture, reference_with_cast) {
+    const char* str = R"R(
+      type Bar : struct {
+          x : i32;
+      }
+
+      type Foo : struct {
+          b: Bar;
+      }
+
+      fn test(f: mut& Foo) {
+          f.b = Bar { x: 30 };
+      }
+
+      fn main() {
+         var f:mut Foo = Foo{b:Bar{x:20}};
+         test(&f);
+         f.b = Bar { x:10};
+      }
+)R";
+
+    auto handle = createSourceHanlde(str);
+    yal::Compiler compiler(*m_log, m_sourceManager, m_moduleManager);
+    yal::Module* module = compiler.compile(handle);
+    EXPECT_NE(module, nullptr);
+}
+
+
+TEST_F(CompileFixture, reference_replace_required) {
+    const char* str = R"R(
+      type Bar : struct {
+          x : i32;
+      }
+
+      type Foo : struct {
+          b: Bar;
+      }
+
+      fn main() {
+         var f:mut Foo = Foo{b:Bar{x:20}};
+         f.b = Bar { x:10};
+         var other:Bar = f.b;
+      }
+)R";
+
+    auto handle = createSourceHanlde(str);
+    yal::Compiler compiler(*m_log, m_sourceManager, m_moduleManager);
+    yal::Module* module = compiler.compile(handle);
+    EXPECT_EQ(module, nullptr);
+}
+
+TEST_F(CompileFixture, fntype_function_static_call) {
+    const char* str = R"R(
+      type Bar : struct {
+          x : i32;
+      }
+
+      type Foo : struct {
+          b: Bar;
+      }
+
+      fn Foo::create(i:i32) : mut Foo {
+          return Foo { b:Bar{ x:i}};
+      }
+
+      fn main() {
+         var f:mut Foo = Foo::create(20);
+      }
+)R";
+
+    auto handle = createSourceHanlde(str);
+    yal::Compiler compiler(*m_log, m_sourceManager, m_moduleManager);
+    yal::Module* module = compiler.compile(handle);
+    EXPECT_NE(module, nullptr);
+}
+
+TEST_F(CompileFixture, fntype_function_static_call_on_instance) {
+    const char* str = R"R(
+      type Bar : struct {
+          x : i32;
+      }
+
+      type Foo : struct {
+          b: Bar;
+      }
+
+      fn Foo::create(i:i32) : mut Foo {
+          return Foo { b:Bar{ x:i}};
+      }
+
+      fn main() {
+         var f:mut Foo = Foo::create(20);
+         var o:Foo = f.create(40);
+      }
+)R";
+
+    auto handle = createSourceHanlde(str);
+    yal::Compiler compiler(*m_log, m_sourceManager, m_moduleManager);
+    yal::Module* module = compiler.compile(handle);
+    EXPECT_EQ(module, nullptr);
+}
+
+TEST_F(CompileFixture, fntype_function_instance_call_as_static) {
+    const char* str = R"R(
+      type Bar : struct {
+          x : i32;
+      }
+
+      type Foo : struct {
+          b: Bar;
+      }
+
+      fn Foo::create(i:i32) : mut Foo {
+          return Foo { b:Bar{ x:i}};
+      }
+
+      fn Foo::setVal(mut& self, v:i32) {
+           self.b.x = v;
+      }
+
+      fn main() {
+         var f:mut Foo = Foo::create(20);
+         f.setVal(30);
+         Foo::setVal(40);
+      }
+)R";
+
+    auto handle = createSourceHanlde(str);
+    yal::Compiler compiler(*m_log, m_sourceManager, m_moduleManager);
+    yal::Module* module = compiler.compile(handle);
+    EXPECT_EQ(module, nullptr);
+}
+
+TEST_F(CompileFixture, fntype_instance_call) {
+    const char* str = R"R(
+      type Bar : struct {
+          x : i32;
+      }
+
+      type Foo : struct {
+          b: Bar;
+      }
+
+      fn Foo::create(i:i32) : mut Foo {
+          return Foo { b:Bar{ x:i}};
+      }
+
+      fn Foo::setVal(mut& self, v:i32) {
+           self.b.x = v;
+      }
+
+      fn main() {
+         var f:mut Foo = Foo::create(20);
+         f.setVal(30);
+      }
+)R";
+
+    auto handle = createSourceHanlde(str);
+    yal::Compiler compiler(*m_log, m_sourceManager, m_moduleManager);
+    yal::Module* module = compiler.compile(handle);
+    EXPECT_NE(module, nullptr);
+}
+
 int main(int argc, char** argv) {
     ::testing::InitGoogleTest(&argc, argv);
     return RUN_ALL_TESTS();

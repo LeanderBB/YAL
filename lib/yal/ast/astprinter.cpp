@@ -36,6 +36,7 @@
 #include "yal/ast/declstruct.h"
 #include "yal/ast/exprstructvarref.h"
 #include "yal/ast/exprtypefncall.h"
+#include "yal/ast/exprtypefncallstatic.h"
 #include "yal/ast/exprlist.h"
 #include "yal/ast/exprdecimalliteral.h"
 #include "yal/ast/exprrangecast.h"
@@ -374,6 +375,24 @@ namespace yal {
         scopeBegin(false);
         node.getExpression()->acceptVisitor(*this);
         scopeEnd();
+        const bool hasFunctionArgs = node.getFunctionArgs() != nullptr;
+        scopeBegin(!hasFunctionArgs);
+        node.getFunctionType()->acceptVisitor(*this);
+        scopeEnd();
+        if (hasFunctionArgs) {
+            scopeBegin();
+            node.getFunctionArgs()->acceptVisitor(*this);
+            scopeEnd();
+        }
+    }
+
+    void
+    AstPrinter::visit(ExprTypeFnCallStatic& node) {
+        print("ExprStructFnCallStatic %::% ",
+              node.getTargetType()->getIdentitfier(),
+              node.getFunctionName());
+        printSourceInfo(node.getSourceInfo());
+        print();
         const bool hasFunctionArgs = node.getFunctionArgs() != nullptr;
         scopeBegin(!hasFunctionArgs);
         node.getFunctionType()->acceptVisitor(*this);

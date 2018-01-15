@@ -24,7 +24,8 @@ namespace yal {
     enum class UnaryOperatorType {
         Not,
         BitNot,
-        Negate
+        Negate,
+        Reference
     };
 
     enum class BinaryOperatorType {

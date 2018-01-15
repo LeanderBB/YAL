@@ -29,33 +29,8 @@
 #include "yal/util/stringref.h"
 #include "yal/ast/module.h"
 #include "yal/ast/typebuiltin.h"
-#include "yal/ast/declfunction.h"
-#include "yal/ast/decltypefunction.h"
-#include "yal/ast/declmodule.h"
-#include "yal/ast/reftype.h"
-#include "yal/ast/declvar.h"
-#include "yal/ast/declparamvar.h"
-#include "yal/ast/stmtexpression.h"
-#include "yal/ast/stmtreturn.h"
-#include "yal/ast/exprunaryoperator.h"
-#include "yal/ast/exprbinaryoperator.h"
-#include "yal/ast/statement.h"
-#include "yal/ast/statementlist.h"
-#include "yal/ast/exprintegerliteral.h"
-#include "yal/ast/stmtreturn.h"
-#include "yal/ast/exprboolliteral.h"
-#include "yal/ast/stmtdecl.h"
+#include "yal/ast/astnodes.h"
 #include "yal/lexer/lexer.h"
-#include "yal/ast/stmtassign.h"
-#include "yal/ast/exprvarref.h"
-#include "yal/ast/declstruct.h"
-#include "yal/ast/exprstructvarref.h"
-#include "yal/ast/exprtypefncall.h"
-#include "yal/ast/exprlist.h"
-#include "yal/ast/exprdecimalliteral.h"
-#include "yal/ast/exprrangecast.h"
-#include "yal/ast/structmemberinit.h"
-#include "yal/ast/exprstructinit.h"
 #define YYMALLOCARGTYPE size_t
 }
 
@@ -373,13 +348,17 @@ type_function_args_decl(A) ::= function_args_decl(B). {
 }
 
 type_function_args_decl_other(A) ::= type_function_args_decl_other(B) COMMA function_arg_decl(C). {
-    A = B;
-    A->addDeclParam(C);
+    if (C != nullptr && pParser->onDecl(C)) {
+        A = B;
+        A->addDeclParam(C);
+    }
 }
 
 type_function_args_decl_other(A) ::= function_arg_decl(C). {
+    if (C != nullptr && pParser->onDecl(C)) {
         A = pParser->newAstNode<yal::DeclParamVarContainer>();
         A->addDeclParam(C);
+    }
 }
 
 // Function args decl --------------------------------------------------------
@@ -460,8 +439,8 @@ decl_var(A) ::= VAR(Z) IDENTIFIER(B) var_type_spec(C) ASSIGN expression(D). {
         auto srcInfo = pParser->createSourceInfo(Z, D->getSourceInfo());
         A->setSourceInfo(srcInfo);
     }
-
 }
+
 decl_var(A) ::= LET(Z) IDENTIFIER(B) var_type_spec(C) ASSIGN expression(D). {
     yal::Qualifier qualifier;
     qualifier.setImmutable();
@@ -501,6 +480,13 @@ expression (A) ::= IDENTIFIER(B). {
         A->setSourceInfo(srcInfo);
     }
 }
+
+expression (A) ::= expression(B) DOT IDENTIFIER(C). {
+    A = pParser->newAstNode<yal::ExprStructVarRef>(B, C.tokenStr);
+    auto srcInfo = pParser->createSourceInfo(B->getSourceInfo(), C);
+    A->setSourceInfo(srcInfo);
+}
+
 expression (A) ::= SELF(Z). {
     auto decl = pParser->resolveVarRefSelf(Z);
     if (decl != nullptr) {
@@ -508,12 +494,6 @@ expression (A) ::= SELF(Z). {
         auto srcInfo = pParser->createSourceInfo(Z, Z);
         A->setSourceInfo(srcInfo);
     }
-}
-
-expression (A) ::= expression(B) DOT IDENTIFIER(C). {
-    A = pParser->newAstNode<yal::ExprStructVarRef>(B, C.tokenStr);
-    auto srcInfo = pParser->createSourceInfo(B->getSourceInfo(), C);
-    A->setSourceInfo(srcInfo);
 }
 
 expression(A) ::= IDENTIFIER(C) PAR_BEGIN function_call_args(D) PAR_END(Z). {
@@ -539,6 +519,15 @@ expression(A) ::= expression(B) DOT IDENTIFIER(C) PAR_BEGIN function_call_args(D
     auto srcInfo = pParser->createSourceInfo(B->getSourceInfo(), Z);
     A->setSourceInfo(srcInfo);
 
+}
+
+expression(A) ::= type_specifier(B) COLON COLON IDENTIFIER(C) PAR_BEGIN function_call_args(D) PAR_END(Z). {
+    if (D != nullptr) {
+        D->updateSourceInfo();
+    }
+    A = pParser->newAstNode<yal::ExprTypeFnCallStatic>(B, C, D);
+    auto srcInfo = pParser->createSourceInfo(B->getSourceInfo(), Z);
+    A->setSourceInfo(srcInfo);
 }
 
 // Binary operators ----------------------------------------------------------
@@ -642,6 +631,13 @@ unaryexp(A) ::= BIT_NOT(Z) expression(B). {
 }
 unaryexp(A) ::= MINUS(Z) expression(B). [NEGATE] {
     A = pParser->newAstNode<yal::ExprUnaryOperator>(yal::UnaryOperatorType::Negate,
+                                               B);
+    auto srcInfo = pParser->createSourceInfo(Z, B->getSourceInfo());
+    A->setSourceInfo(srcInfo);
+}
+
+unaryexp(A) ::= REFERENCE(Z) expression(B).[NEGATE] {
+    A = pParser->newAstNode<yal::ExprUnaryOperator>(yal::UnaryOperatorType::Reference,
                                                B);
     auto srcInfo = pParser->createSourceInfo(Z, B->getSourceInfo());
     A->setSourceInfo(srcInfo);

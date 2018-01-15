@@ -26,6 +26,7 @@ set(YAL_SOURCES
     yal/ast/modulemanager.cpp
     yal/ast/astcontext.h
     yal/ast/astcontext.cpp
+    yal/ast/astnodes.h
     yal/ast/declbase.h
     yal/ast/declbase.cpp
     yal/ast/declbasetypes.def
@@ -104,6 +105,8 @@ set(YAL_SOURCES
     yal/ast/exprstructinit.h
     yal/ast/structmemberinit.h
     yal/ast/structmemberinit.cpp
+    yal/ast/exprtypefncallstatic.h
+    yal/ast/exprtypefncallstatic.cpp
 
     yal/compiler/compiler.cpp
     yal/compiler/compiler.h
@@ -113,6 +116,8 @@ set(YAL_SOURCES
     yal/compiler/stages/stageexprtype.h
     yal/compiler/stages/stagefnreturn.cpp
     yal/compiler/stages/stagefnreturn.h
+    yal/compiler/stages/stagemovecheck.cpp
+    yal/compiler/stages/stagemovecheck.h
 
     yal/io/memorystream.cpp
     yal/io/memorystream.h

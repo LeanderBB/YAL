@@ -52,6 +52,7 @@ public:
         m_log.reset();
         m_stdstream.close();
         m_sourceManager.clear();
+        m_moduleManager.clear();
     }
 
 public:

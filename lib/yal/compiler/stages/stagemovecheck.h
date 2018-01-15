@@ -16,27 +16,26 @@
  *  You should have received a copy of the GNU Lesser General Public
  *  License along with YAL. If not, see <http://www.gnu.org/licenses/>.
  */
-
-#include "yal/ast/exprstructinit.h"
-#include "yal/ast/astvisitor.h"
-#include "yal/ast/reftype.h"
+#pragma once
 
 namespace yal {
-    ExprStructInit::ExprStructInit(Module& module,
-                                   RefType* structType,
-                                   StructMemberInitList* memberInitList):
-        StmtExpression(module, AstType::ExprStructInit),
-        m_structType(structType),
-        m_memberInitList(memberInitList) {
 
-        Qualifier qualifier;
-        qualifier.setMutable();
-        m_qualType = QualType::Create(qualifier, m_structType->getType());
-    }
+    class Module;
+    class Compiler;
+    class DeclBase;
 
+    class StageMoveCheck {
+    public:
 
-    void
-    ExprStructInit::acceptVisitor(AstVisitor& visitor) {
-        visitor.visit(*this);
-    }
+        StageMoveCheck(Compiler& compiler,
+                       Module& module);
+
+        bool execute(DeclBase* decl);
+
+    private:
+        Compiler& m_compiler;
+        Module& m_module;
+    };
+
 }
+

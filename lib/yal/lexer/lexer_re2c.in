@@ -237,6 +237,7 @@ namespace yal {
             LT ="<";
             EQ ="==";
             NE ="!=";
+            SCM= "//" [^\n]* "\n";
 
             INTEGER = [0-9][0-9]*;
             DECIMAL = [0-9]+ "." [0-9]+;
@@ -303,6 +304,7 @@ namespace yal {
             NE { setToken(Token::CompareNe, *m_lexerState); return Status::Ok;}
 
             [ \t]* {continue;}
+            SCM {m_lexerState->updateLineStartOffset();continue;}
             * { setToken(Token::TokenCount, *m_lexerState); return Status::Error;}
             */
         }

@@ -150,16 +150,19 @@ namespace yal {
         void setImmutable();
         void setReference();
         void setPointer();
+        void setRequiresReplace(const bool v);
 
         bool isMutable() const;
         bool isImmutable() const;
         bool isReference() const;
         bool isPointer() const;
+        bool requiresReplace() const;
 
     private:
         unsigned m_mutable:1;
         unsigned m_reference:1;
         unsigned m_pointer:1;
+        unsigned m_reqReplace:1;
     };
 
     inline size_t FormatType(FormatTypeArgs& loc,
@@ -168,13 +171,14 @@ namespace yal {
         FormatTypeArgs localArg = loc;
         if (value.isMutable()) {
             bytesWritten += FormatType(localArg, "mut");
-            localArg = FormatTypeArgsAdvance(localArg, bytesWritten);
+            localArg = FormatTypeArgsAdvance(loc, bytesWritten);
         }
 
         if (value.isReference()) {
             bytesWritten += FormatType(localArg, "&");
-            localArg = FormatTypeArgsAdvance(localArg, bytesWritten);
+            localArg = FormatTypeArgsAdvance(loc, bytesWritten);
         }
+        bytesWritten += FormatType(localArg, " ");
         return bytesWritten;
     }
 
@@ -190,6 +194,10 @@ namespace yal {
 
         const Qualifier& getQualifier() const {
             return m_qualifier;
+        }
+
+        void setQualifier(const Qualifier qual) {
+            m_qualifier = qual;
         }
 
         const Type* getType() const {

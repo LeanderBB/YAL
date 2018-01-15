@@ -17,26 +17,32 @@
  *  License along with YAL. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "yal/ast/exprstructinit.h"
-#include "yal/ast/astvisitor.h"
-#include "yal/ast/reftype.h"
-
+#include "yal/ast/exprfncall.h"
+#include "yal/lexer/lexer.h"
 namespace yal {
-    ExprStructInit::ExprStructInit(Module& module,
-                                   RefType* structType,
-                                   StructMemberInitList* memberInitList):
-        StmtExpression(module, AstType::ExprStructInit),
-        m_structType(structType),
-        m_memberInitList(memberInitList) {
 
-        Qualifier qualifier;
-        qualifier.setMutable();
-        m_qualType = QualType::Create(qualifier, m_structType->getType());
-    }
+    class ExprTypeFnCallStatic : public ExprFnCall {
+    public:
+        ExprTypeFnCallStatic(Module& module,
+                             RefType* targetType,
+                             const TokenInfo& functioName,
+                             ExprList* functionArgs);
 
+        RefType* getTargetType() const {
+            return m_targetType;
+        }
 
-    void
-    ExprStructInit::acceptVisitor(AstVisitor& visitor) {
-        visitor.visit(*this);
-    }
+        StringRef getFunctionName() const {
+            return m_functionNameToken.tokenStr;
+        }
+
+        void setFunctionType(const TypeDecl *functionType);
+
+        virtual void acceptVisitor(AstVisitor& visitor) override;
+
+    private:
+        RefType* m_targetType;
+        TokenInfo m_functionNameToken;
+    };
+
 }
