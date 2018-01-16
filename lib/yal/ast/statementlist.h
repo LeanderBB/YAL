@@ -27,8 +27,8 @@ namespace  yal {
     class AstVisitor;
 
     class StatementList :
-            public NodeContainer<Statement*, AstType::StatementList> {
-        using BaseType = NodeContainer<Statement*, AstType::StatementList>;
+            public NodeContainer<Statement*, AstType::StatementList, false> {
+        using BaseType = NodeContainer<Statement*, AstType::StatementList, false>;
     public:
 
         StatementList(Module& module);

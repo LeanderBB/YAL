@@ -27,8 +27,8 @@ namespace  yal {
     class AstVisitor;
 
     class ExprList :
-            public NodeContainer<StmtExpression*,AstType::ExprList> {
-        using BaseType = NodeContainer<StmtExpression*,AstType::ExprList>;
+            public NodeContainer<StmtExpression*,AstType::ExprList, true> {
+        using BaseType = NodeContainer<StmtExpression*,AstType::ExprList, true>;
     public:
 
         ExprList(Module& module);

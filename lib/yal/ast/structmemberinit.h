@@ -87,8 +87,8 @@ namespace yal {
 
 
     class StructMemberInitList :
-            public NodeContainer<StructMemberInit*, AstType::StructMemberInitList> {
-        using BaseType =  NodeContainer<StructMemberInit*, AstType::StructMemberInitList>;
+            public NodeContainer<StructMemberInit*, AstType::StructMemberInitList, false> {
+        using BaseType =  NodeContainer<StructMemberInit*, AstType::StructMemberInitList, false>;
     public:
 
         StructMemberInitList(Module& module);

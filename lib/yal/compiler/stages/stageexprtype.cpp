@@ -77,17 +77,6 @@ namespace yal {
             return false;
         }
 
-        // TODO: Move to move evaluater
-        if (qualFrom.requiresReplace() && !typeFrom->isTriviallyCopiable()) {
-            PrettyPrint::SourceErrorPrint(log,
-                                          siFrom,
-                                          compiler.getSourceManager());
-            log.error("Can't move value. Value needs to be replaced before "
-                      "it can be moved. Use replace().\n",
-                      from,to);
-            return false;
-        }
-
         return true;
     }
 

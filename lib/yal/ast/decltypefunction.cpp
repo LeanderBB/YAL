@@ -54,7 +54,7 @@ namespace yal {
     bool
     DeclTypeFunction::isStatic() const{
         if (m_params != nullptr) {
-            return dyn_cast<DeclParamVarSelf>(*m_params->rchildBegin()) == nullptr;
+            return dyn_cast<DeclParamVarSelf>(*m_params->childBegin()) == nullptr;
         }
         return true;
     }

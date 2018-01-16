@@ -20,28 +20,81 @@
 #pragma once
 
 #include "yal/ast/asttypes.h"
-#include "yal/ast/astcontext.h"
-#include "yal/ast/module.h"
 #include "yal/io/sourcemanager.h"
 #include "yal/util/iteratorrange.h"
 #include <vector>
 #include <type_traits>
+#include <algorithm>
 
 namespace yal {
 
-    template<typename NodeType, AstType TYPE>
+    class Module;
+
+    template<typename T, bool reverse>
+    struct iterator_fn;
+
+    template<typename T>
+    struct iterator_fn<T, true>{
+
+        static typename T::reverse_iterator begin(T& t) {
+            return t.rbegin();
+        }
+
+        static typename T::reverse_iterator end(T& t) {
+            return t.rend();
+        }
+
+        static typename T::const_reverse_iterator cbegin(const T& t) {
+            return t.crbegin();
+        }
+
+        static typename T::const_reverse_iterator cend(const T& t) {
+            return t.crend();
+        }
+
+    };
+
+    template<typename T>
+    struct iterator_fn<T, false>{
+
+        static typename T::iterator begin(T& t) {
+            return t.begin();
+        }
+
+        static typename T::iterator end(T& t) {
+            return t.end();
+        }
+
+        static typename T::const_iterator cbegin(const T& t) {
+            return t.cbegin();
+        }
+
+        static typename T::const_iterator cend(const T& t) {
+            return t.cend();
+        }
+
+    };
+
+
+    template<typename NodeType, AstType TYPE, bool ReverseIter>
     class NodeContainer {
 
         static_assert(std::is_pointer<NodeType>::value,
         "NodeType needs to be a pointer type");
 
-        using ThisType =  NodeContainer<NodeType,TYPE>;
+        using ThisType =  NodeContainer<NodeType,TYPE,ReverseIter>;
 
     public:
         using ContainerType = std::vector<NodeType>;
+        using IteratorType = typename std::conditional<ReverseIter,
+            typename ContainerType::reverse_iterator,
+            typename ContainerType::iterator>::type;
+        using ConstIteratorType = typename std::conditional<ReverseIter,
+            typename ContainerType::const_reverse_iterator,
+            typename ContainerType::const_iterator>::type;
         using ChildType = NodeType;
-        using NodeRange = IteratorRange<typename ContainerType::iterator>;
-        using ConstNodeRange = IteratorRange<typename ContainerType::const_iterator>;
+        using NodeRange = IteratorRange<IteratorType>;
+        using ConstNodeRange = IteratorRange<ConstIteratorType>;
 
         NodeContainer(Module&) {
 
@@ -68,22 +121,13 @@ namespace yal {
             return m_nodes.size();
         }
 
-        typename ContainerType::iterator childBegin() {
-            return m_nodes.begin();
+        IteratorType childBegin() {
+            return iterator_fn<ContainerType, ReverseIter>::begin(m_nodes);
         }
 
-        typename ContainerType::iterator childEnd() {
-            return m_nodes.end();
+        IteratorType childEnd() {
+            return iterator_fn<ContainerType, ReverseIter>::end(m_nodes);
         }
-
-        typename ContainerType::reverse_iterator rchildBegin() {
-            return m_nodes.rbegin();
-        }
-
-        typename ContainerType::reverse_iterator rchildEnd() {
-            return m_nodes.rend();
-        }
-
 
         const SourceInfo& getSourceInfo() const {
             return m_sourceInfo;
@@ -100,11 +144,13 @@ namespace yal {
 
 
         NodeRange getChildRange() {
-            return NodeRange(std::begin(m_nodes), std::end(m_nodes));
+            return NodeRange(iterator_fn<ContainerType, ReverseIter>::begin(m_nodes),
+                             iterator_fn<ContainerType, ReverseIter>::end(m_nodes));
         }
 
         ConstNodeRange getChildRangeConst() const {
-            return ConstNodeRange(std::cbegin(m_nodes), std::cend(m_nodes));
+            return ConstNodeRange(iterator_fn<ContainerType, ReverseIter>::cbegin(m_nodes),
+                                  iterator_fn<ContainerType, ReverseIter>::cend(m_nodes));
         }
 
         void updateSourceInfo() {

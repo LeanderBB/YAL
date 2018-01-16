@@ -49,8 +49,8 @@ namespace yal {
     };
 
     class DeclParamVarContainer :
-            public NodeContainer<DeclParamVar*,AstType::DeclParamVarContainer> {
-        using BaseType = NodeContainer<DeclParamVar*,AstType::DeclParamVarContainer>;
+            public NodeContainer<DeclParamVar*,AstType::DeclParamVarContainer, true> {
+        using BaseType = NodeContainer<DeclParamVar*,AstType::DeclParamVarContainer, true>;
     public:
 
         DeclParamVarContainer(Module& module);

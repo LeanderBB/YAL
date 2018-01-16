@@ -27,8 +27,8 @@ namespace yal {
 
     class DeclVar;
     class DeclStructMembers :
-            public NodeContainer<DeclVar*,AstType::DeclStructMembers> {
-        using BaseType = NodeContainer<DeclVar*,AstType::DeclStructMembers>;
+            public NodeContainer<DeclVar*,AstType::DeclStructMembers, false> {
+        using BaseType = NodeContainer<DeclVar*,AstType::DeclStructMembers, false>;
     public:
 
         DeclStructMembers(Module& module);
