@@ -28,6 +28,38 @@
 
 namespace yal {
 
+    class AstSearchBase: public RecursiveAstVisitor {
+
+    public:
+        AstSearchBase(const AstType nodeType):
+            m_nodeType(nodeType),
+            m_searchNode(nullptr) {
+        }
+
+
+#define YAL_AST_SKIP_NODE_CONTAINERS
+#define YAL_AST_NODE_TYPE(TYPE) virtual void visit(TYPE&) override final;
+#include "yal/ast/astnodes.def"
+#undef YAL_AST_NODE_TYPE
+#undef YAL_AST_SKIP_NODE_CONTAINERS
+
+    protected:
+        const AstType m_nodeType;
+        const void* m_searchNode;
+    };
+
+    template <typename T>
+    class AstSearch : public AstSearchBase {
+    public:
+        AstSearch():
+            AstSearchBase(get_typeid<T>()) {
+        }
+        const T* getSearchResult() const {
+            return reinterpret_cast<const T*>(m_searchNode);
+        }
+    };
+
+
     static bool CanMove(const QualType& from,
                         const SourceInfo siFrom,
                         const QualType& to,
@@ -78,7 +110,7 @@ namespace yal {
     private:
         struct MoveState {
             bool moved = true;
-            Statement* stmtWhenMoved = nullptr;
+            const Statement* stmtWhenMoved = nullptr;
         };
 
         void pushScope(DeclScope* scope);
@@ -86,6 +118,10 @@ namespace yal {
         void popScope();
 
         void onError();
+
+        void annotateExpr(StmtExpression* expr);
+
+        void annotateExprList(ExprList* args);
 
         MoveState& findState(const DeclBase* decl);
 
@@ -144,6 +180,30 @@ namespace yal {
         m_activeScope = m_activeScope->getParentScope();
     }
 
+
+    void
+    MoveAstVisitor::annotateExpr(StmtExpression *expr) {
+        // check for varref and mark them as moved
+        {
+            AstSearch<ExprVarRef> varRefSearch;
+            expr->acceptVisitor(varRefSearch);
+
+            const ExprVarRef* varRef = varRefSearch.getSearchResult();
+            if (varRef != nullptr) {
+                MoveState& moveState = findState(varRef->getDeclVar());
+                moveState.moved = true;
+                moveState.stmtWhenMoved = varRef;
+            }
+        }
+    }
+
+    void
+    MoveAstVisitor::annotateExprList(ExprList* args) {
+        for (auto& expr : args->getChildRange()) {
+            annotateExpr(expr);
+        }
+    }
+
     void
     MoveAstVisitor::onError() {
         m_error = true;
@@ -186,18 +246,22 @@ namespace yal {
     void
     MoveAstVisitor::visit(DeclVar& node) {
         const QualType destType = node.getVarType()->getQualType();
-        node.getExpression()->acceptVisitor(*this);
+        StmtExpression* initExpr = node.getExpression();
+        initExpr->acceptVisitor(*this);
         const QualType exprType = node.getExpression()->getQualType();
         if (!CanMove(exprType,
-                        node.getExpression()->getSourceInfo(),
-                        destType,
-                        node.getSourceInfo(),
-                        m_compiler)) {
+                     initExpr->getSourceInfo(),
+                     destType,
+                     node.getSourceInfo(),
+                     m_compiler)) {
             onError();
         }
 
+        annotateExpr(initExpr);
+
         MoveState& state = findState(&node);
         state.moved = false;
+        state.stmtWhenMoved = nullptr;
     }
 
     void
@@ -236,9 +300,15 @@ namespace yal {
     MoveAstVisitor::visit(StmtAssign& node) {
         StmtExpression* destExpr = node.getDestExpr();
         StmtExpression* valueExpr = node.getValueExpr();
-        destExpr->acceptVisitor(*this);
-        valueExpr->acceptVisitor(*this);
+        const ExprVarRef* dstExprVarRef = dyn_cast<ExprVarRef>(destExpr);
 
+        // only visit left if different than varref
+        // TODO: Need better way to handle this!
+        if ( dstExprVarRef == nullptr) {
+            destExpr->acceptVisitor(*this);
+        }
+
+        valueExpr->acceptVisitor(*this);
 
         const QualType qualFrom = valueExpr->getQualType();
         const QualType qualTo = destExpr->getQualType();
@@ -251,6 +321,14 @@ namespace yal {
             onError();
         }
 
+        annotateExpr(valueExpr);
+
+        // TODO: Need better way to handle this!
+        if (dstExprVarRef != nullptr) {
+            MoveState& mvstate = findState(dstExprVarRef->getDeclVar());
+            mvstate.moved = false;
+            mvstate.stmtWhenMoved = nullptr;
+        }
     }
 
     void
@@ -262,14 +340,15 @@ namespace yal {
             PrettyPrint::SourceErrorPrint(log,
                                           node.getSourceInfo(),
                                           m_compiler.getSourceManager());
-            log.error("Can not use variable % as it has been moved and is no longer valid.\n",
+            log.error("Can not use variable '%' as it has been moved and is no longer valid.\n",
                       node.getDeclVar()->getIdentifier());
             if (state.stmtWhenMoved != nullptr) {
+                log.error("Variable '%' was moved here:\n",
+                          node.getDeclVar()->getIdentifier());
                 PrettyPrint::SourceErrorPrint(log,
                                               state.stmtWhenMoved->getSourceInfo(),
                                               m_compiler.getSourceManager());
-                log.error("Variable % was moved here.\n",
-                          node.getDeclVar()->getIdentifier());
+
             }
             onError();
         }
@@ -302,14 +381,15 @@ namespace yal {
     }
 
     void
-    MoveAstVisitor::visit(ExprStructVarRef&) {
-
+    MoveAstVisitor::visit(ExprStructVarRef& node) {
+        node.getExpression()->acceptVisitor(*this);
     }
 
     void
     MoveAstVisitor::visit(ExprFnCall& node) {
         if (node.getFunctionArgs() != nullptr) {
             node.getFunctionArgs()->acceptVisitor(*this);
+            annotateExprList(node.getFunctionArgs());
         }
     }
 
@@ -317,6 +397,7 @@ namespace yal {
     MoveAstVisitor::visit(ExprTypeFnCall& node) {
         if (node.getFunctionArgs() != nullptr) {
             node.getFunctionArgs()->acceptVisitor(*this);
+            annotateExprList(node.getFunctionArgs());
         }
     }
 
@@ -324,6 +405,7 @@ namespace yal {
     MoveAstVisitor::visit(ExprTypeFnCallStatic& node) {
         if (node.getFunctionArgs() != nullptr) {
             node.getFunctionArgs()->acceptVisitor(*this);
+            annotateExprList(node.getFunctionArgs());
         }
     }
 
@@ -346,6 +428,7 @@ namespace yal {
     MoveAstVisitor::visit(ExprStructInit& node) {
         if (node.getMemberInitList() != nullptr) {
             node.getMemberInitList()->acceptVisitor(*this);
+
         }
     }
 
@@ -368,5 +451,176 @@ namespace yal {
         jmp.mark();
         decl->acceptVisitor(visitor);
         return !visitor.didError();
+    }
+
+    // AST SEARCH BASE -------------------------------------------------------
+
+    void
+    AstSearchBase::visit(DeclFunction&) {
+        YAL_ASSERT(false);
+    }
+
+
+    void
+    AstSearchBase::visit(DeclTypeFunction&) {
+        YAL_ASSERT(false);
+    }
+
+    void
+    AstSearchBase::visit(DeclStruct&) {
+        YAL_ASSERT(false); // Maybe??
+    }
+
+    void
+    AstSearchBase::visit(DeclVar&) {
+        YAL_ASSERT(false);
+    }
+
+    void
+    AstSearchBase::visit(DeclParamVar&) {
+        YAL_ASSERT(false);
+    }
+
+    void
+    AstSearchBase::visit(DeclStrongAlias&) {
+        YAL_ASSERT(false);
+    }
+
+    void
+    AstSearchBase::visit(DeclWeakAlias&) {
+        YAL_ASSERT(false);
+    }
+
+    void
+    AstSearchBase::visit(RefType& ) {
+        YAL_ASSERT(false);
+    }
+
+    void
+    AstSearchBase::visit(StmtReturn&) {
+        YAL_ASSERT(false);
+    }
+
+    void
+    AstSearchBase::visit(StmtDecl&) {
+        YAL_ASSERT(false);
+    }
+
+    void
+    AstSearchBase::visit(StmtAssign&) {
+        YAL_ASSERT(false);
+    }
+
+    void
+    AstSearchBase::visit(ExprVarRef& node) {
+        if (node.getAstType() == m_nodeType) {
+            m_searchNode = &node;
+        } else {
+            m_searchNode = nullptr;
+        }
+    }
+
+    void
+    AstSearchBase::visit(ExprUnaryOperator& node) {
+        node.getExpression()->acceptVisitor(*this);
+        m_searchNode = nullptr;
+    }
+
+    void
+    AstSearchBase::visit(ExprBinaryOperator& node) {
+        node.getExpressionLeft()->acceptVisitor(*this);
+        node.getExpressionRight()->acceptVisitor(*this);
+        m_searchNode = nullptr;
+    }
+
+    void
+    AstSearchBase::visit(ExprBoolLiteral& node) {
+        if (node.getAstType() == m_nodeType) {
+            m_searchNode = &node;
+        } else {
+            m_searchNode = nullptr;
+        }
+    }
+
+    void
+    AstSearchBase::visit(ExprIntegerLiteral& node) {
+        if (node.getAstType() == m_nodeType) {
+            m_searchNode = &node;
+        } else {
+            m_searchNode = nullptr;
+        }
+    }
+
+    void
+    AstSearchBase::visit(ExprDecimalLiteral& node) {
+        if (node.getAstType() == m_nodeType) {
+            m_searchNode = &node;
+        } else {
+            m_searchNode = nullptr;
+        }
+    }
+
+    void
+    AstSearchBase::visit(ExprStructVarRef& node) {
+        if (node.getAstType() == m_nodeType) {
+            m_searchNode = &node;
+        } else {
+            m_searchNode = nullptr;
+        }
+    }
+
+    void
+    AstSearchBase::visit(ExprFnCall& node) {
+        if (node.getFunctionArgs() != nullptr) {
+            m_searchNode = nullptr;
+            node.getFunctionArgs()->acceptVisitor(*this);
+        }
+    }
+
+    void
+    AstSearchBase::visit(ExprTypeFnCall& node) {
+        if (node.getFunctionArgs() != nullptr) {
+            m_searchNode = nullptr;
+            node.getFunctionArgs()->acceptVisitor(*this);
+        }
+    }
+
+    void
+    AstSearchBase::visit(ExprTypeFnCallStatic& node) {
+        if (node.getFunctionArgs() != nullptr) {
+            m_searchNode = nullptr;
+            node.getFunctionArgs()->acceptVisitor(*this);
+        }
+    }
+
+    void
+    AstSearchBase::visit(DeclParamVarSelf&) {
+        YAL_ASSERT(false);
+    }
+
+    void
+    AstSearchBase::visit(ExprVarRefSelf& node) {
+        if (node.getAstType() == m_nodeType) {
+            m_searchNode = &node;
+        }
+    }
+
+    void
+    AstSearchBase::visit(ExprRangeCast& node) {
+        node.getExpression()->acceptVisitor(*this);
+    }
+
+    void
+    AstSearchBase::visit(ExprStructInit& node) {
+        if (node.getMemberInitList() != nullptr) {
+            m_searchNode = nullptr;
+            node.getMemberInitList()->acceptVisitor(*this);
+        }
+    }
+
+    void
+    AstSearchBase::visit(StructMemberInit& node) {
+        m_searchNode = nullptr;
+        node.getInitExpr()->acceptVisitor(*this);
     }
 }

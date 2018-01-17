@@ -487,6 +487,71 @@ TEST_F(CompileFixture, fntype_instance_call) {
     EXPECT_NE(module, nullptr);
 }
 
+TEST_F(CompileFixture, move_use_after_assign) {
+    const char* str = R"R(
+      type Bar : struct {
+          x : i32;
+      }
+
+      type Foo : struct {
+          b: Bar;
+      }
+
+      fn Foo::create(i:i32) : Foo{
+          return Foo { b:Bar{ x:i}};
+      }
+
+      fn main() {
+         var f:Foo = Foo{b:Bar{x:20}};
+         var f2:Foo = f;
+         var other:Bar = f.b;
+      }
+
+)R";
+
+    auto handle = createSourceHanlde(str);
+    yal::Compiler compiler(*m_log, m_sourceManager, m_moduleManager);
+    yal::Module* module = compiler.compile(handle);
+    EXPECT_EQ(module, nullptr);
+}
+
+TEST_F(CompileFixture, move_use_after_function_call) {
+    const char* str = R"R(
+      type Bar : struct {
+          x : i32;
+      }
+
+      type Foo : struct {
+          b: Bar;
+      }
+
+      fn Foo::create(i:i32) : Foo{
+          return Foo { b:Bar{ x:i}};
+      }
+
+      fn doSomething(f:Foo) {
+
+      }
+
+      fn main() {
+         var f:Foo = Foo{b:Bar{x:20}};
+
+         var f2:Foo = f;
+
+         f = Foo::create(40);
+
+         doSomething(f);
+
+         var f3:Foo = f;
+      }
+)R";
+
+    auto handle = createSourceHanlde(str);
+    yal::Compiler compiler(*m_log, m_sourceManager, m_moduleManager);
+    yal::Module* module = compiler.compile(handle);
+    EXPECT_EQ(module, nullptr);
+}
+
 int main(int argc, char** argv) {
     ::testing::InitGoogleTest(&argc, argv);
     return RUN_ALL_TESTS();
