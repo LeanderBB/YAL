@@ -298,8 +298,8 @@ namespace yal {
 
     void
     MoveAstVisitor::visit(StmtAssign& node) {
-        StmtExpression* destExpr = node.getDestExpr();
         StmtExpression* valueExpr = node.getValueExpr();
+        StmtExpression* destExpr = node.getDestExpr();
         const ExprVarRef* dstExprVarRef = dyn_cast<ExprVarRef>(destExpr);
 
         // only visit left if different than varref
@@ -333,24 +333,25 @@ namespace yal {
 
     void
     MoveAstVisitor::visit(ExprVarRef& node) {
-        const MoveState& state = findState(node.getDeclVar());
-
-        if (state.moved) {
-            Log& log = m_compiler.getLog();
-            PrettyPrint::SourceErrorPrint(log,
-                                          node.getSourceInfo(),
-                                          m_compiler.getSourceManager());
-            log.error("Can not use variable '%' as it has been moved and is no longer valid.\n",
-                      node.getDeclVar()->getIdentifier());
-            if (state.stmtWhenMoved != nullptr) {
-                log.error("Variable '%' was moved here:\n",
-                          node.getDeclVar()->getIdentifier());
+        if (!node.getQualType().getQualifier().isReference()) {
+            const MoveState& state = findState(node.getDeclVar());
+            if (state.moved) {
+                Log& log = m_compiler.getLog();
                 PrettyPrint::SourceErrorPrint(log,
-                                              state.stmtWhenMoved->getSourceInfo(),
+                                              node.getSourceInfo(),
                                               m_compiler.getSourceManager());
+                log.error("Can not use variable '%' as it has been moved and is no longer valid.\n",
+                          node.getDeclVar()->getIdentifier());
+                if (state.stmtWhenMoved != nullptr) {
+                    log.error("Variable '%' was moved here:\n",
+                              node.getDeclVar()->getIdentifier());
+                    PrettyPrint::SourceErrorPrint(log,
+                                                  state.stmtWhenMoved->getSourceInfo(),
+                                                  m_compiler.getSourceManager());
 
+                }
+                onError();
             }
-            onError();
         }
     }
 
@@ -361,8 +362,8 @@ namespace yal {
 
     void
     MoveAstVisitor::visit(ExprBinaryOperator& node) {
-        node.getExpressionLeft()->acceptVisitor(*this);
         node.getExpressionRight()->acceptVisitor(*this);
+        node.getExpressionLeft()->acceptVisitor(*this);
     }
 
     void

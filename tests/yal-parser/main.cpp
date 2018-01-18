@@ -552,6 +552,85 @@ TEST_F(CompileFixture, move_use_after_function_call) {
     EXPECT_EQ(module, nullptr);
 }
 
+TEST_F(CompileFixture, move_use_after_assign_paramvar) {
+    const char* str = R"R(
+      type Bar : struct {
+          x : i32;
+      }
+
+      type Foo : struct {
+          b: Bar;
+      }
+
+      fn Foo::create(i:i32) : Foo{
+          return Foo { b:Bar{ x:i}};
+      }
+
+      fn doSomething(f:Foo) {
+          var o:Foo = f;
+          var i:i32 = f.b.x;
+      }
+
+      fn main() {
+         var f:Foo = Foo{b:Bar{x:20}};
+         doSomething(f);
+      }
+)R";
+
+    auto handle = createSourceHanlde(str);
+    yal::Compiler compiler(*m_log, m_sourceManager, m_moduleManager);
+    yal::Module* module = compiler.compile(handle);
+    EXPECT_EQ(module, nullptr);
+}
+
+TEST_F(CompileFixture, move_use_after_assign_struct) {
+    const char* str = R"R(
+      type Bar : struct {
+          x : i32;
+      }
+
+      type Foo : struct {
+          b: Bar;
+      }
+
+      fn main() {
+         var b:Bar = Bar{x:4};
+
+         var f:Foo = Foo{b:b};
+
+         var i:i32 = b.x;
+      }
+
+)R";
+
+    auto handle = createSourceHanlde(str);
+    yal::Compiler compiler(*m_log, m_sourceManager, m_moduleManager);
+    yal::Module* module = compiler.compile(handle);
+    EXPECT_EQ(module, nullptr);
+}
+
+
+TEST_F(CompileFixture, declscope_check_for_declvar) {
+    const char* str = R"R(
+      type Bar : struct {
+          x : i32;
+      }
+
+      type Foo : struct {
+          b: Bar;
+      }
+
+      fn main() {
+         var f:Foo = Foo{b:Bar{x:f.b.x}};
+      }
+)R";
+
+    auto handle = createSourceHanlde(str);
+    yal::Compiler compiler(*m_log, m_sourceManager, m_moduleManager);
+    yal::Module* module = compiler.compile(handle);
+    EXPECT_EQ(module, nullptr);
+}
+
 int main(int argc, char** argv) {
     ::testing::InitGoogleTest(&argc, argv);
     return RUN_ALL_TESTS();

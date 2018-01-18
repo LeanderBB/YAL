@@ -253,8 +253,8 @@ namespace yal {
     ExprTypeAstVisitor::visit(StmtAssign& node) {
         StmtExpression* dstExpr = node.getDestExpr();
         StmtExpression* valExpr = node.getValueExpr();
-        dstExpr->acceptVisitor(*this);
         valExpr->acceptVisitor(*this);
+        dstExpr->acceptVisitor(*this);
 
         const QualType dstqt = dstExpr->getQualType();
         const QualType valqt = valExpr->getQualType();
@@ -350,8 +350,8 @@ namespace yal {
 
     void
     ExprTypeAstVisitor::visit(ExprBinaryOperator& node) {
-        node.getExpressionLeft()->acceptVisitor(*this);
         node.getExpressionRight()->acceptVisitor(*this);
+        node.getExpressionLeft()->acceptVisitor(*this);
         Log& log = m_compiler.getLog();
         switch(node.getOperatorType()) {
 
