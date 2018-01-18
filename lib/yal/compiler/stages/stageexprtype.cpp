@@ -53,7 +53,9 @@ namespace yal {
         const Qualifier qualFrom = from.getQualifier();
         const Qualifier qualTo = to.getQualifier();
 
-        if (qualFrom.isImmutable() && !qualTo.isImmutable()) {
+        if (qualFrom.isImmutable()
+                && !qualTo.isImmutable()
+                && !from.getType()->isTriviallyCopiable()) {
             PrettyPrint::SourceErrorPrint(log,
                                           siFrom,
                                           compiler.getSourceManager());
@@ -276,6 +278,15 @@ namespace yal {
                         m_compiler)) {
             onError();
         }
+
+        if (dstqt.getQualifier().isImmutable()) {
+            Log& log = m_compiler.getLog();
+            PrettyPrint::SourceErrorPrint(log,
+                                          dstExpr->getSourceInfo(),
+                                          m_compiler.getSourceManager());
+            log.error("Can't assign to an immutable value.\n");
+            onError();
+        }
     }
 
     void
@@ -300,7 +311,9 @@ namespace yal {
                 log.error("Operator only works on signed types\n");
                 onError();
             }
-            node.setQualType(QualType::Create(Qualifier(), exprType));
+            Qualifier qual;
+            qual.setMutable();
+            node.setQualType(QualType::Create(qual, exprType));
             break;
         }
         case UnaryOperatorType::Negate: {
@@ -314,13 +327,14 @@ namespace yal {
                 log.error("Operator only works on signed types\n");
                 onError();
             }
-            node.setQualType(QualType::Create(Qualifier(), exprType));
+            Qualifier qual;
+            qual.setMutable();
+            node.setQualType(QualType::Create(qual, exprType));
             break;
         }
         case UnaryOperatorType::Not: {
             const Type* exprType = node.getExpression()->getQualType().getType();
             const TypeBuiltin* typeBuiltin = dyn_cast<TypeBuiltin>(exprType);
-
             if (typeBuiltin == nullptr || !typeBuiltin->isBool()) {
                 PrettyPrint::SourceErrorPrint(log,
                                               node.getSourceInfo(),
@@ -328,7 +342,9 @@ namespace yal {
                 log.error("Operator only works on boolean expressions\n");
                 onError();
             }
-            node.setQualType(QualType::Create(Qualifier(), exprType));
+            Qualifier qual;
+            qual.setMutable();
+            node.setQualType(QualType::Create(qual, exprType));
             break;
         }
         case UnaryOperatorType::Reference: {
@@ -378,6 +394,8 @@ namespace yal {
         case BinaryOperatorType::Mult:
         case BinaryOperatorType::Plus:
         case BinaryOperatorType::Minus:{
+            Qualifier qual;
+            qual.setMutable();
             const Type* typeTo= node.getExpressionLeft()->getQualType().getType();
             const Type* typeFrom = node.getExpressionRight()->getQualType().getType();
 
@@ -398,7 +416,7 @@ namespace yal {
                 onError();
             }
 
-            node.setQualType(QualType::Create(Qualifier(), typeTo));
+            node.setQualType(QualType::Create(qual, typeTo));
             break;
         }
 
@@ -407,7 +425,8 @@ namespace yal {
         case BinaryOperatorType::BitXor:{
             // check if left and right are unsigned integers
             // and if they match
-
+            Qualifier qual;
+            qual.setMutable();
             const TypeBuiltin* typeLeft= dyn_cast<TypeBuiltin>(node.getExpressionLeft()->getQualType().getType());
             const TypeBuiltin* typeRight = dyn_cast<TypeBuiltin>(node.getExpressionRight()->getQualType().getType());
             Log& log = m_compiler.getLog();
@@ -435,7 +454,7 @@ namespace yal {
                 onError();
             }
 
-            node.setQualType(QualType::Create(Qualifier(), typeLeft));
+            node.setQualType(QualType::Create(qual, typeLeft));
             break;
         }
 
@@ -448,6 +467,8 @@ namespace yal {
             // check if left and right expr match
             // if types are comparable
             // set result of expression to bool
+            Qualifier qual;
+            qual.setMutable();
 
             const Type* typeTo= node.getExpressionLeft()->getQualType().getType();
             const Type* typeFrom = node.getExpressionRight()->getQualType().getType();
@@ -469,7 +490,7 @@ namespace yal {
                 onError();
             }
 
-            node.setQualType(QualType::Create(Qualifier(),
+            node.setQualType(QualType::Create(qual,
                                               m_module.getTypeContext().getTypeBuiltinBool()));
             break;
         }
@@ -479,7 +500,8 @@ namespace yal {
             // check if left and right expr match
             // if types are comparable
             // set result of expression to bool
-
+            Qualifier qual;
+            qual.setMutable();
             const TypeBuiltin* typeLeft= dyn_cast<TypeBuiltin>(node.getExpressionLeft()->getQualType().getType());
             const TypeBuiltin* typeRight = dyn_cast<TypeBuiltin>(node.getExpressionRight()->getQualType().getType());
             Log& log = m_compiler.getLog();
@@ -496,7 +518,7 @@ namespace yal {
                 onError();
             }
 
-            node.setQualType(QualType::Create(Qualifier(),
+            node.setQualType(QualType::Create(qual,
                                               m_module.getTypeContext().getTypeBuiltinBool()));
             break;
         }

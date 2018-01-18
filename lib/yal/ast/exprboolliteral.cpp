@@ -37,6 +37,7 @@ namespace yal{
         }
 
         Qualifier qual = Qualifier();
+        qual.setMutable();
         m_qualType = QualType::Create(qual,
                                       module.getTypeContext().getTypeBuiltinBool());
     }

@@ -31,6 +31,7 @@ namespace yal {
         m_literalValue(literalValue) {
 
         Qualifier qual = Qualifier();
+        qual.setMutable();
         m_qualType = QualType::Create(qual,
                                       module.getTypeContext().getTypeBuiltinDouble());
     }

@@ -54,3 +54,31 @@ TEST_F(CompileFixture, declscope_check_for_declvar) {
     yal::Module* module = compiler.compile(handle);
     EXPECT_EQ(module, nullptr);
 }
+
+TEST_F(CompileFixture, reference_sum_of_primitive_val) {
+    const char* str = R"R(
+ fn test(a:&i32) {
+    var b:i32 = a + 1;
+}
+)R";
+
+    auto handle = createSourceHanlde(str);
+    yal::Compiler compiler(*m_log, m_sourceManager, m_moduleManager);
+    yal::Module* module = compiler.compile(handle);
+    EXPECT_NE(module, nullptr);
+}
+
+TEST_F(CompileFixture, reference_assing_to_const) {
+    const char* str = R"R(
+ fn test(a:&i32) {
+    var i:i32 = 20;
+    a = &i;
+}
+)R";
+
+    auto handle = createSourceHanlde(str);
+    yal::Compiler compiler(*m_log, m_sourceManager, m_moduleManager);
+    yal::Module* module = compiler.compile(handle);
+    EXPECT_EQ(module, nullptr);
+}
+

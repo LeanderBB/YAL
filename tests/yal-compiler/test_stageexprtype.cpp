@@ -90,7 +90,7 @@ TEST_F(CompileFixture, type_function_instance) {
 TEST_F(CompileFixture, function_local_vars) {
     const char* str = R"R(
      fn static(b:i32, c:double) : double{
-        var local:i32 = 20;
+        var local:mut i32 = 20;
         local = local + b;
         return c * 2.0;
     }
@@ -234,11 +234,11 @@ TEST_F(CompileFixture, reference_missing_cast) {
 TEST_F(CompileFixture, reference_with_cast) {
     const char* str = R"R(
       type Bar : struct {
-          x : i32;
+          x : mut i32;
       }
 
       type Foo : struct {
-          b: Bar;
+          b: mut Bar;
       }
 
       fn test(f: mut& Foo) {
@@ -367,11 +367,11 @@ TEST_F(CompileFixture, fntype_function_instance_call_as_static) {
 TEST_F(CompileFixture, fntype_instance_call) {
     const char* str = R"R(
       type Bar : struct {
-          x : i32;
+          x : mut i32;
       }
 
       type Foo : struct {
-          b: Bar;
+          b: mut Bar;
       }
 
       fn Foo::create(i:i32) : mut Foo {
