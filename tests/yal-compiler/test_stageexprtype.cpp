@@ -20,99 +20,6 @@
 
 #include "fixture.h"
 
-
-TEST_F(CompileFixture, function_no_params_no_return) {
-    const char* str = R"R(
- fn Foo() {
-
-}
-)R";
-
-    auto handle = createSourceHanlde(str);
-    yal::Compiler compiler(*m_log, m_sourceManager, m_moduleManager);
-    yal::Module* module = compiler.compile(handle);
-    EXPECT_NE(module, nullptr);
-}
-
-
-TEST_F(CompileFixture, function_no_params_return) {
-    const char* str = R"R(
- fn Foo() : bool {
-    return true;
-}
-)R";
-
-    auto handle = createSourceHanlde(str);
-    yal::Compiler compiler(*m_log, m_sourceManager, m_moduleManager);
-    yal::Module* module = compiler.compile(handle);
-    EXPECT_NE(module, nullptr);
-}
-
-
-TEST_F(CompileFixture, function_params_no_return) {
-    const char* str = R"R(
- fn Foo(a:bool, b:mut& i32) {
-}
-)R";
-
-    auto handle = createSourceHanlde(str);
-    yal::Compiler compiler(*m_log, m_sourceManager, m_moduleManager);
-    yal::Module* module = compiler.compile(handle);
-    EXPECT_NE(module, nullptr);
-}
-
-TEST_F(CompileFixture, function_params_return) {
-    const char* str = R"R(
- fn Foo(a:bool, b:mut& i32) : bool {
-    return (b + 1 > 20) and a == true;
-}
-)R";
-
-    auto handle = createSourceHanlde(str);
-    yal::Compiler compiler(*m_log, m_sourceManager, m_moduleManager);
-    yal::Module* module = compiler.compile(handle);
-    EXPECT_NE(module, nullptr);
-}
-
-
-TEST_F(CompileFixture, type_function_unknown_type) {
-    const char* str = R"R(
- fn Foo::Bar() : bool {
-}
-)R";
-
-    auto handle = createSourceHanlde(str);
-    yal::Compiler compiler(*m_log, m_sourceManager, m_moduleManager);
-    yal::Module* module = compiler.compile(handle);
-    EXPECT_EQ(module, nullptr);
-}
-
-
-TEST_F(CompileFixture, function_unknown_type) {
-    const char* str = R"R(
- fn Bar(a:Foo) : bool {
-}
-)R";
-
-    auto handle = createSourceHanlde(str);
-    yal::Compiler compiler(*m_log, m_sourceManager, m_moduleManager);
-    yal::Module* module = compiler.compile(handle);
-    EXPECT_EQ(module, nullptr);
-}
-
-TEST_F(CompileFixture, function_self_use) {
-    const char* str = R"R(
- fn Bar(a:float) : bool {
-            return self.b == a;
-}
-)R";
-
-    auto handle = createSourceHanlde(str);
-    yal::Compiler compiler(*m_log, m_sourceManager, m_moduleManager);
-    yal::Module* module = compiler.compile(handle);
-    EXPECT_EQ(module, nullptr);
-}
-
 TEST_F(CompileFixture, struct) {
     const char* str = R"R(
      type Foo : struct {
@@ -487,150 +394,6 @@ TEST_F(CompileFixture, fntype_instance_call) {
     EXPECT_NE(module, nullptr);
 }
 
-TEST_F(CompileFixture, move_use_after_assign) {
-    const char* str = R"R(
-      type Bar : struct {
-          x : i32;
-      }
-
-      type Foo : struct {
-          b: Bar;
-      }
-
-      fn Foo::create(i:i32) : Foo{
-          return Foo { b:Bar{ x:i}};
-      }
-
-      fn main() {
-         var f:Foo = Foo{b:Bar{x:20}};
-         var f2:Foo = f;
-         var other:Bar = f.b;
-      }
-
-)R";
-
-    auto handle = createSourceHanlde(str);
-    yal::Compiler compiler(*m_log, m_sourceManager, m_moduleManager);
-    yal::Module* module = compiler.compile(handle);
-    EXPECT_EQ(module, nullptr);
-}
-
-TEST_F(CompileFixture, move_use_after_function_call) {
-    const char* str = R"R(
-      type Bar : struct {
-          x : i32;
-      }
-
-      type Foo : struct {
-          b: Bar;
-      }
-
-      fn Foo::create(i:i32) : Foo{
-          return Foo { b:Bar{ x:i}};
-      }
-
-      fn doSomething(f:Foo) {
-
-      }
-
-      fn main() {
-         var f:Foo = Foo{b:Bar{x:20}};
-
-         var f2:Foo = f;
-
-         f = Foo::create(40);
-
-         doSomething(f);
-
-         var f3:Foo = f;
-      }
-)R";
-
-    auto handle = createSourceHanlde(str);
-    yal::Compiler compiler(*m_log, m_sourceManager, m_moduleManager);
-    yal::Module* module = compiler.compile(handle);
-    EXPECT_EQ(module, nullptr);
-}
-
-TEST_F(CompileFixture, move_use_after_assign_paramvar) {
-    const char* str = R"R(
-      type Bar : struct {
-          x : i32;
-      }
-
-      type Foo : struct {
-          b: Bar;
-      }
-
-      fn Foo::create(i:i32) : Foo{
-          return Foo { b:Bar{ x:i}};
-      }
-
-      fn doSomething(f:Foo) {
-          var o:Foo = f;
-          var i:i32 = f.b.x;
-      }
-
-      fn main() {
-         var f:Foo = Foo{b:Bar{x:20}};
-         doSomething(f);
-      }
-)R";
-
-    auto handle = createSourceHanlde(str);
-    yal::Compiler compiler(*m_log, m_sourceManager, m_moduleManager);
-    yal::Module* module = compiler.compile(handle);
-    EXPECT_EQ(module, nullptr);
-}
-
-TEST_F(CompileFixture, move_use_after_assign_struct) {
-    const char* str = R"R(
-      type Bar : struct {
-          x : i32;
-      }
-
-      type Foo : struct {
-          b: Bar;
-      }
-
-      fn main() {
-         var b:Bar = Bar{x:4};
-
-         var f:Foo = Foo{b:b};
-
-         var i:i32 = b.x;
-      }
-
-)R";
-
-    auto handle = createSourceHanlde(str);
-    yal::Compiler compiler(*m_log, m_sourceManager, m_moduleManager);
-    yal::Module* module = compiler.compile(handle);
-    EXPECT_EQ(module, nullptr);
-}
-
-
-TEST_F(CompileFixture, declscope_check_for_declvar) {
-    const char* str = R"R(
-      type Bar : struct {
-          x : i32;
-      }
-
-      type Foo : struct {
-          b: Bar;
-      }
-
-      fn main() {
-         var f:Foo = Foo{b:Bar{x:f.b.x}};
-      }
-)R";
-
-    auto handle = createSourceHanlde(str);
-    yal::Compiler compiler(*m_log, m_sourceManager, m_moduleManager);
-    yal::Module* module = compiler.compile(handle);
-    EXPECT_EQ(module, nullptr);
-}
-
 TEST_F(CompileFixture, lvalue_assign_check) {
     const char* str = R"R(
       fn main() {
@@ -695,7 +458,27 @@ TEST_F(CompileFixture, lvalue_func_return_ref_check) {
     EXPECT_EQ(module, nullptr);
 }
 
-int main(int argc, char** argv) {
-    ::testing::InitGoogleTest(&argc, argv);
-    return RUN_ALL_TESTS();
+TEST_F(CompileFixture, type_function_unknown_type) {
+    const char* str = R"R(
+ fn Foo::Bar() : bool {
+}
+)R";
+
+    auto handle = createSourceHanlde(str);
+    yal::Compiler compiler(*m_log, m_sourceManager, m_moduleManager);
+    yal::Module* module = compiler.compile(handle);
+    EXPECT_EQ(module, nullptr);
+}
+
+
+TEST_F(CompileFixture, function_unknown_type) {
+    const char* str = R"R(
+ fn Bar(a:Foo) : bool {
+}
+)R";
+
+    auto handle = createSourceHanlde(str);
+    yal::Compiler compiler(*m_log, m_sourceManager, m_moduleManager);
+    yal::Module* module = compiler.compile(handle);
+    EXPECT_EQ(module, nullptr);
 }
