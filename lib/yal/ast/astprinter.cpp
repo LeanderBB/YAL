@@ -156,25 +156,14 @@ namespace yal {
         print("DeclParamVar  ");
         printSourceInfo(node.getSourceInfo());
         printOnLine(" %\n", node.getName());
-        scopeBegin();
-        node.getVarType()->acceptVisitor(*this);
-        scopeEnd();
     }
 
     void
     AstPrinter::visit(DeclParamVarSelf& node) {
         print("DeclParamVarSelf ");
         printSourceInfo(node.getSourceInfo());
-        printQualifier(node.getQualifier());
+        printQualifier(node.getQualType().getQualifier());
         print();
-
-        scopeBegin();
-        if (node.getVarType() != nullptr) {
-            node.getVarType()->acceptVisitor(*this);
-        } else {
-            print("Self type not yet defined\n");
-        }
-        scopeEnd();
     }
 
 

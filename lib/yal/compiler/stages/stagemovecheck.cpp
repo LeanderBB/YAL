@@ -245,7 +245,7 @@ namespace yal {
 
     void
     MoveAstVisitor::visit(DeclVar& node) {
-        const QualType destType = node.getVarType()->getQualType();
+        const QualType destType = node.getQualType();
         StmtExpression* initExpr = node.getExpression();
         initExpr->acceptVisitor(*this);
         const QualType exprType = node.getExpression()->getQualType();

@@ -157,7 +157,8 @@ namespace yal {
         m_mutable(0),
         m_reference(0),
         m_pointer(0),
-        m_reqReplace(0){
+        m_reqReplace(0),
+        m_lvalue(0){
     }
 
     void
@@ -174,6 +175,7 @@ namespace yal {
     Qualifier::setReference() {
         m_reference = 1;
         m_pointer = 0;
+        m_lvalue = 1;
     }
 
     void
@@ -185,6 +187,11 @@ namespace yal {
     void
     Qualifier::setRequiresReplace(const bool v) {
         m_reqReplace = v == true ? 1 : 0;
+    }
+
+    void
+    Qualifier::setLValue(const bool v) {
+        m_lvalue = v == true ? 1 : 0;
     }
 
     bool
@@ -210,6 +217,11 @@ namespace yal {
     bool
     Qualifier::requiresReplace() const {
         return m_reqReplace == 1;
+    }
+
+    bool
+    Qualifier::isLValue() const {
+        return m_lvalue == 1;
     }
 
     QualType

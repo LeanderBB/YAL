@@ -631,6 +631,70 @@ TEST_F(CompileFixture, declscope_check_for_declvar) {
     EXPECT_EQ(module, nullptr);
 }
 
+TEST_F(CompileFixture, lvalue_assign_check) {
+    const char* str = R"R(
+      fn main() {
+         4 = 20;
+      }
+)R";
+
+    auto handle = createSourceHanlde(str);
+    yal::Compiler compiler(*m_log, m_sourceManager, m_moduleManager);
+    yal::Module* module = compiler.compile(handle);
+    EXPECT_EQ(module, nullptr);
+}
+
+
+TEST_F(CompileFixture, lvalue_func_return_check) {
+    const char* str = R"R(
+
+      fn test() : i32 {
+           return 20;
+      }
+
+      fn main() {
+         test() = 30;
+      }
+)R";
+
+    auto handle = createSourceHanlde(str);
+    yal::Compiler compiler(*m_log, m_sourceManager, m_moduleManager);
+    yal::Module* module = compiler.compile(handle);
+    EXPECT_EQ(module, nullptr);
+}
+
+TEST_F(CompileFixture, lvalue_mkref) {
+    const char* str = R"R(
+      fn main() {
+         var i:mut& i32 = &30;
+      }
+)R";
+
+    auto handle = createSourceHanlde(str);
+    yal::Compiler compiler(*m_log, m_sourceManager, m_moduleManager);
+    yal::Module* module = compiler.compile(handle);
+    EXPECT_EQ(module, nullptr);
+}
+
+TEST_F(CompileFixture, lvalue_func_return_ref_check) {
+    const char* str = R"R(
+
+      fn test(x:mut& i32) : &i32 {
+           return x;
+      }
+
+      fn main() {
+         var i: mut i32 = 40;
+         test(&i) = 30;
+      }
+)R";
+
+    auto handle = createSourceHanlde(str);
+    yal::Compiler compiler(*m_log, m_sourceManager, m_moduleManager);
+    yal::Module* module = compiler.compile(handle);
+    EXPECT_EQ(module, nullptr);
+}
+
 int main(int argc, char** argv) {
     ::testing::InitGoogleTest(&argc, argv);
     return RUN_ALL_TESTS();

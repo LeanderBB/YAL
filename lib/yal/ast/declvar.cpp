@@ -19,6 +19,8 @@
 
 #include "yal/ast/declvar.h"
 #include "yal/ast/astvisitor.h"
+#include "yal/ast/type.h"
+#include "yal/ast/reftype.h"
 namespace yal {
 
     DeclVar::DeclVar(Module& module,
@@ -28,9 +30,16 @@ namespace yal {
                      StmtExpression *expr):
         DeclBase(module, AstType::DeclVar, name),
         m_varType(varType),
-        m_qualifier(qualifier),
+        m_qualType(varType->getQualType()),
         m_expression(expr){
 
+        Qualifier newQual = m_qualType.getQualifier();
+
+        if (qualifier.isMutable()) {
+            newQual.setMutable();
+        }
+        newQual.setLValue(true);
+        m_qualType.setQualifier(newQual);
     }
 
 
@@ -41,9 +50,16 @@ namespace yal {
                      RefType *varType) :
         DeclBase(module, type, name),
         m_varType(varType),
-        m_qualifier(qualifier),
+        m_qualType(varType->getQualType()),
         m_expression(nullptr){
 
+        Qualifier newQual = m_qualType.getQualifier();
+
+        if (qualifier.isMutable()) {
+            newQual.setMutable();
+        }
+        newQual.setLValue(true);
+        m_qualType.setQualifier(newQual);
     }
 
     void

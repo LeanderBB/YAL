@@ -63,7 +63,7 @@ namespace yal {
         if (m_params != nullptr) {
             const DeclParamVarSelf* selfVar =dyn_cast<DeclParamVarSelf>(*m_params->childBegin());
             if (selfVar != nullptr) {
-                return selfVar->getVarType()->getQualifier().isImmutable();
+                return selfVar->getQualType().getQualifier().isImmutable();
             }
         }
         return true;

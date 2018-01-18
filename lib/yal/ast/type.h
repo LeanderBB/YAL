@@ -151,18 +151,21 @@ namespace yal {
         void setReference();
         void setPointer();
         void setRequiresReplace(const bool v);
+        void setLValue(const bool v);
 
         bool isMutable() const;
         bool isImmutable() const;
         bool isReference() const;
         bool isPointer() const;
         bool requiresReplace() const;
+        bool isLValue() const;
 
     private:
         unsigned m_mutable:1;
         unsigned m_reference:1;
         unsigned m_pointer:1;
         unsigned m_reqReplace:1;
+        unsigned m_lvalue:1;
     };
 
     inline size_t FormatType(FormatTypeArgs& loc,

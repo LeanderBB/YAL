@@ -63,6 +63,7 @@ namespace yal{
         }
         YAL_ASSERT(type != nullptr);
         Qualifier qual = Qualifier();
+        qual.setMutable();
         m_qualType = QualType::Create(qual,type);
     }
 

@@ -28,8 +28,7 @@ namespace yal {
                            const DeclVar* decl):
         StmtExpression(module, astType),
         m_declVar(decl){
-        RefType* varType = decl->getVarType();
-        m_qualType = varType->getQualType();
+        m_qualType = decl->getQualType();
     }
 
     ExprVarRef::ExprVarRef(Module &module,

@@ -33,10 +33,6 @@ namespace yal {
                 RefType* varType,
                 StmtExpression* expr);
 
-        RefType* getVarType() const {
-            return m_varType;
-        }
-
         const StmtExpression* getExpression() const {
             return m_expression;
         }
@@ -45,8 +41,8 @@ namespace yal {
             return m_expression;
         }
 
-        Qualifier getQualifier() const  {
-            return m_qualifier;
+        QualType getQualType() const {
+            return m_qualType;
         }
 
         virtual void acceptVisitor(AstVisitor& visitor) override;
@@ -61,7 +57,7 @@ namespace yal {
 
     protected:
         RefType* m_varType;
-        Qualifier m_qualifier;
+        QualType m_qualType;
         StmtExpression* m_expression;
     };
 

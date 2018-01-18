@@ -166,9 +166,8 @@ namespace yal {
 
     void
     ExprTypeAstVisitor::visit(DeclVar& node) {
-        YAL_ASSERT(node.getVarType()->getType() != nullptr);
 
-        const QualType destType = node.getVarType()->getQualType();
+        const QualType destType = node.getQualType();
         if (node.getExpression() != nullptr) {
             node.getExpression()->acceptVisitor(*this);
 
@@ -259,6 +258,17 @@ namespace yal {
         const QualType dstqt = dstExpr->getQualType();
         const QualType valqt = valExpr->getQualType();
 
+
+        if (!dstqt.getQualifier().isLValue()) {
+            Log& log = m_compiler.getLog();
+            PrettyPrint::SourceErrorPrint(log,
+                                          dstExpr->getSourceInfo(),
+                                          m_compiler.getSourceManager());
+            log.error("Expression is not assignable.\n");
+            onError();
+
+        }
+
         if (!CanConvert(valqt,
                         valExpr->getSourceInfo(),
                         dstqt,
@@ -334,7 +344,16 @@ namespace yal {
                 onError();
             }
 
+            if (!qual.isLValue()) {
+                PrettyPrint::SourceErrorPrint(log,
+                                              node.getSourceInfo(),
+                                              m_compiler.getSourceManager());
+                log.error("Can't create reference of non-lvalue.\n");
+                onError();
+            }
+
             qual.setReference();
+            qual.setLValue(true);
             node.setQualType(QualType::Create(qual, exprQt.getType()));
             break;
         }
@@ -546,7 +565,7 @@ namespace yal {
         }
 
         // set correct qualifier based on expression
-        Qualifier qualifier = decl->getQualifier();
+        Qualifier qualifier = decl->getQualType().getQualifier();
 
         if (!qualifier.isReference()) {
             // only enabel this qualifier for non-reference memebers
@@ -558,7 +577,7 @@ namespace yal {
             qualifier.setImmutable();
         }
 
-        node.setQualType(QualType::Create(qualifier, decl->getVarType()->getType()));
+        node.setQualType(QualType::Create(qualifier, decl->getQualType().getType()));
     }
 
     void
@@ -612,7 +631,7 @@ namespace yal {
                  ++paramIter, ++argIter) {
                 if (!CanConvert((*argIter)->getQualType(),
                                 (*argIter)->getSourceInfo(),
-                                (*paramIter)->getVarType()->getQualType(),
+                                (*paramIter)->getQualType(),
                                 (*paramIter)->getSourceInfo(),
                                 m_compiler)) {
                     onError();
@@ -722,7 +741,7 @@ namespace yal {
                  ++paramIter, ++argIter) {
                 if (!CanConvert((*argIter)->getQualType(),
                                 (*argIter)->getSourceInfo(),
-                                (*paramIter)->getVarType()->getQualType(),
+                                (*paramIter)->getQualType(),
                                 (*paramIter)->getSourceInfo(),
                                 m_compiler)) {
                     onError();
@@ -820,7 +839,7 @@ namespace yal {
                  ++paramIter, ++argIter) {
                 if (!CanConvert((*argIter)->getQualType(),
                                 (*argIter)->getSourceInfo(),
-                                (*paramIter)->getVarType()->getQualType(),
+                                (*paramIter)->getQualType(),
                                 (*paramIter)->getSourceInfo(),
                                 m_compiler)) {
                     onError();
@@ -960,7 +979,7 @@ namespace yal {
                 // check if we can expression type is valid
 
                 const QualType from = initExpr->getQualType();
-                const QualType to = member->getVarType()->getQualType();
+                const QualType to = member->getQualType();
 
                 const Type* typeFrom= from.getType();
                 const Type* typeTo = to.getType();
@@ -1035,8 +1054,4 @@ namespace yal {
         decl->acceptVisitor(visitor);
         return !visitor.didError();
     }
-
-
-
-
 }
