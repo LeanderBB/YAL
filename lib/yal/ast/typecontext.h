@@ -59,6 +59,8 @@ namespace yal {
 
         Type* addType(DeclStruct* decl);
 
+        void updateTypeSize(const DeclStruct *decl);
+
         const TypeBuiltin* getTypeBuiltinBool() const {
             return m_typeBool;
         }

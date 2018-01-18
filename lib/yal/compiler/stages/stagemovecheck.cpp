@@ -289,6 +289,92 @@ namespace yal {
         if (node.getExpression()) {
             node.getExpression()->acceptVisitor(*this);
         }
+
+        //TODO: Move this to scoped lifetime check + simpler way??
+
+        // check for return of local variable out of scope?
+        // can either be :
+        // 1: reference to a var: &x
+        // 2: var that is a reference
+
+        {// check 1:
+            const ExprVarRef* exprVarRef
+                    = dyn_cast<ExprVarRef>(node.getExpression());
+
+            if (exprVarRef != nullptr) {
+                const QualType qt = exprVarRef->getQualType();
+                if (qt.getQualifier().isReference()) {
+                    const DeclVar* decl = exprVarRef->getDeclVar();
+
+                    if (decl->getExpression() == nullptr
+                            && (decl->getAstType() == AstType::DeclParamVar
+                                || decl->getAstType() == AstType::DeclParamVarSelf)) {
+                        // reference to function parameter
+                        Log& log = m_compiler.getLog();
+                        PrettyPrint::SourceErrorPrint(log,
+                                                      exprVarRef->getSourceInfo(),
+                                                      m_compiler.getSourceManager());
+                        log.error("Can not return reference to variable bound "
+                                  "to local scope\n");
+                        log.error("Variable referenced here:\n");
+                        PrettyPrint::SourceErrorPrint(log,
+                                                      decl->getSourceInfo(),
+                                                      m_compiler.getSourceManager());
+                        onError();
+                    } else {
+                        // is an actual Decl var
+                        const ExprUnaryOperator* unaryOp
+                                = dyn_cast<ExprUnaryOperator>(decl->getExpression());
+                        // check if the decl is a reference
+                        if (unaryOp != nullptr
+                                && unaryOp->getOperatorType()  == UnaryOperatorType::Reference) {
+                            const ExprVarRef* localVarRef
+                                    = dyn_cast<ExprVarRef>(unaryOp->getExpression());
+                            if (localVarRef != nullptr) {
+                                const DeclVar* decl = localVarRef->getDeclVar();
+                                if (m_activeScope->getDecl(decl->getIdentifier(), true)) {
+                                    Log& log = m_compiler.getLog();
+                                    PrettyPrint::SourceErrorPrint(log,
+                                                                  exprVarRef->getSourceInfo(),
+                                                                  m_compiler.getSourceManager());
+                                    log.error("Can not return reference to variable bound "
+                                              "to local scope\n");
+                                    log.error("Variable referenced here:\n");
+                                    PrettyPrint::SourceErrorPrint(log,
+                                                                  localVarRef->getSourceInfo(),
+                                                                  m_compiler.getSourceManager());
+                                    onError();
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        {// check 2:
+
+            const ExprUnaryOperator* unaryOp
+                    = dyn_cast<ExprUnaryOperator>(node.getExpression());
+
+            if (unaryOp != nullptr
+                    && unaryOp->getOperatorType()  == UnaryOperatorType::Reference) {
+                const ExprVarRef* exprVarRef
+                        = dyn_cast<ExprVarRef>(unaryOp->getExpression());
+                if (exprVarRef != nullptr) {
+                    const DeclVar* decl = exprVarRef->getDeclVar();
+                    if (m_activeScope->getDecl(decl->getIdentifier(), true)) {
+                        Log& log = m_compiler.getLog();
+                        PrettyPrint::SourceErrorPrint(log,
+                                                      exprVarRef->getSourceInfo(),
+                                                      m_compiler.getSourceManager());
+                        log.error("Can not return reference to variable bound "
+                                  "to local scope\n");
+                        onError();
+                    }
+                }
+            }
+        }
     }
 
     void
@@ -340,7 +426,8 @@ namespace yal {
                 PrettyPrint::SourceErrorPrint(log,
                                               node.getSourceInfo(),
                                               m_compiler.getSourceManager());
-                log.error("Can not use variable '%' as it has been moved and is no longer valid.\n",
+                log.error("Can not use variable '%' as it has been moved and "
+                          "is no longer valid.\n",
                           node.getDeclVar()->getIdentifier());
                 if (state.stmtWhenMoved != nullptr) {
                     log.error("Variable '%' was moved here:\n",

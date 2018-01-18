@@ -118,6 +118,8 @@ set(YAL_SOURCES
     yal/compiler/stages/stagefnreturn.h
     yal/compiler/stages/stagemovecheck.cpp
     yal/compiler/stages/stagemovecheck.h
+    yal/compiler/stages/stagesizecalc.cpp
+    yal/compiler/stages/stagesizecalc.h
 
     yal/io/memorystream.cpp
     yal/io/memorystream.h

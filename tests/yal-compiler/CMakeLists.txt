@@ -7,6 +7,7 @@ add_executable(test_yal_compiler
     test_stageexprtype.cpp
     test_stagemovecheck.cpp
     test_stagereturncheck.cpp
+    test_stagesizecalc.cpp
     main_test_compiler.cpp)
 
 target_link_libraries(test_yal_compiler

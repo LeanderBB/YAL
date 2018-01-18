@@ -16,31 +16,22 @@
  *  You should have received a copy of the GNU Lesser General Public
  *  License along with YAL. If not, see <http://www.gnu.org/licenses/>.
  */
-#include "yal/ast/typedecl.h"
-#include "yal/ast/declbase.h"
-#include "yal/ast/decltypefunction.h"
-#include "yal/ast/declstruct.h"
-#include "yal/ast/declfunction.h"
+
+#pragma once
+
 namespace yal {
 
+    class Module;
+    class Compiler;
+    class SourceItem;
+    class DeclBase;
+    class StageSizeCalc {
+    public:
+        StageSizeCalc(Compiler& compiler);
 
+        bool execute(DeclBase* decl);
 
-    TypeDecl::TypeDecl(DeclFunction* decl):
-        Type(&decl->getModule(), Kind::TypeDecl, decl->getIdentifier()),
-        m_decl(decl) {
-        m_function = 1;
-    }
-
-    TypeDecl::TypeDecl(DeclTypeFunction* decl):
-        Type(&decl->getModule(), Kind::TypeDecl, decl->getIdentifier()),
-        m_decl(decl) {
-        m_typefunction = 1;
-    }
-
-    TypeDecl::TypeDecl(DeclStruct* decl):
-        Type(&decl->getModule(), Kind::TypeDecl, decl->getIdentifier()),
-        m_decl(decl) {
-        m_struct = 1;
-        m_functionTargetable = 1;
-    }
+    private:
+        Compiler& m_compiler;
+    };
 }

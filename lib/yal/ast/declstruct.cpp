@@ -28,7 +28,7 @@ namespace yal {
     }
 
     DeclStructMembers::DeclStructMembers(Module& module,
-                      ContainerType&& params):
+                                         ContainerType&& params):
         BaseType(module, std::move(params)) {
 
     }
@@ -77,6 +77,41 @@ namespace yal {
         }
 
         return nullptr;
+    }
+
+    size_t
+    DeclStruct::calculateMemSizeWithAlignment(const size_t alignment,
+                                              const size_t sizeofPtr) const {
+        size_t size = 0;
+        for (auto& member : m_members->getChildRangeConst()) {
+
+            const QualType qt = member->getQualType();
+            const Qualifier qual = qt.getQualifier();
+            const Type* type = qt.getType();
+            size_t memberSize = 0;
+            if (qual.isPointer()) {
+                YAL_ASSERT_NOT_IMPLEMENTED();
+            }
+
+            if (qual.isReference()) {
+                memberSize = sizeofPtr;
+            } else {
+                const size_t typeSize = type->getSizeBytes();
+                YAL_ASSERT(typeSize != 0);
+                memberSize = typeSize;
+            }
+
+            if (memberSize < alignment
+                    && (memberSize % alignment) + memberSize <= alignment) {
+                size += memberSize;
+            } else {
+                // align size
+                size += memberSize;
+                size = Type::AlignTo(size, alignment);
+            }
+        }
+        YAL_ASSERT(size != 0);
+        return  size = Type::AlignTo(size, sizeofPtr);
     }
 
     void

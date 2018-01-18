@@ -42,6 +42,9 @@ namespace yal {
 #undef YAL_AST_TYPE
         };
 
+        static size_t AlignTo(const size_t size,
+                              const size_t alignment);
+
         Type(const Kind kind);
 
         Type(const Module*,
@@ -140,7 +143,6 @@ namespace yal {
                              const Type& value) {
        return FormatType(loc, value.getIdentifier());
     }
-
 
     class Qualifier {
     public:        

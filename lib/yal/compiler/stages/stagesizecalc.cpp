@@ -16,31 +16,26 @@
  *  You should have received a copy of the GNU Lesser General Public
  *  License along with YAL. If not, see <http://www.gnu.org/licenses/>.
  */
-#include "yal/ast/typedecl.h"
-#include "yal/ast/declbase.h"
-#include "yal/ast/decltypefunction.h"
-#include "yal/ast/declstruct.h"
-#include "yal/ast/declfunction.h"
+
+#include "yal/compiler/stages/stagesizecalc.h"
+#include "yal/compiler/compiler.h"
+#include "yal/ast/astnodes.h"
+#include "yal/util/prettyprint.h"
+#include "yal/util/log.h"
+#include "yal/util/stackjump.h"
 namespace yal {
 
-
-
-    TypeDecl::TypeDecl(DeclFunction* decl):
-        Type(&decl->getModule(), Kind::TypeDecl, decl->getIdentifier()),
-        m_decl(decl) {
-        m_function = 1;
+    StageSizeCalc::StageSizeCalc(Compiler& compiler):
+        m_compiler(compiler) {
     }
 
-    TypeDecl::TypeDecl(DeclTypeFunction* decl):
-        Type(&decl->getModule(), Kind::TypeDecl, decl->getIdentifier()),
-        m_decl(decl) {
-        m_typefunction = 1;
-    }
-
-    TypeDecl::TypeDecl(DeclStruct* decl):
-        Type(&decl->getModule(), Kind::TypeDecl, decl->getIdentifier()),
-        m_decl(decl) {
-        m_struct = 1;
-        m_functionTargetable = 1;
+    bool
+    StageSizeCalc::execute(DeclBase* decl) {
+        (void) m_compiler;
+        DeclStruct* structDecl = dyn_cast<DeclStruct>(decl);
+        if (structDecl != nullptr) {
+            decl->getModule().getTypeContext().updateTypeSize(structDecl);
+        }
+        return true;
     }
 }

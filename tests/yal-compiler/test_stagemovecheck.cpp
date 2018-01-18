@@ -142,3 +142,49 @@ TEST_F(CompileFixture, move_use_after_assign_struct) {
     yal::Module* module = compiler.compile(handle);
     EXPECT_EQ(module, nullptr);
 }
+
+TEST_F(CompileFixture, move_return_ref_to_local_var) {
+    const char* str = R"R(
+      fn test_return() : &i32 {
+         var x:i32 = 20;
+         return &x;
+      }
+
+)R";
+
+    auto handle = createSourceHanlde(str);
+    yal::Compiler compiler(*m_log, m_sourceManager, m_moduleManager);
+    yal::Module* module = compiler.compile(handle);
+    EXPECT_EQ(module, nullptr);
+}
+
+TEST_F(CompileFixture, move_return_local_refvar) {
+    const char* str = R"R(
+      fn test_return() : &i32 {
+         var x:i32 = 20;
+         var y:&i32 = &x;
+         return y;
+      }
+
+)R";
+
+    auto handle = createSourceHanlde(str);
+    yal::Compiler compiler(*m_log, m_sourceManager, m_moduleManager);
+    yal::Module* module = compiler.compile(handle);
+    EXPECT_EQ(module, nullptr);
+}
+
+TEST_F(CompileFixture, move_return_fn_refarg) {
+    const char* str = R"R(
+      fn test_return(x:i32) : &i32 {
+         var y:&i32 = &x;
+         return y;
+      }
+
+)R";
+
+    auto handle = createSourceHanlde(str);
+    yal::Compiler compiler(*m_log, m_sourceManager, m_moduleManager);
+    yal::Module* module = compiler.compile(handle);
+    EXPECT_EQ(module, nullptr);
+}

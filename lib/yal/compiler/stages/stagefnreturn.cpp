@@ -133,8 +133,6 @@ namespace yal {
         DeclFunctionBase* functionDecl = m_activeFunction;
 
         StmtExpression* expr = node.getExpression();
-
-        // todo Move out of this stage
         // check if we have a return type
         if (functionDecl->hasReturnValue() && expr == nullptr) {
             Log& log = m_compiler.getLog();

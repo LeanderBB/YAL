@@ -174,4 +174,15 @@ namespace yal{
         decl->setDeclType(type);
         return type;
     }
+
+    void
+    TypeContext::updateTypeSize(const DeclStruct* decl) {
+        auto it = m_types.find(decl->getIdentifier().getAsString());
+        YAL_ASSERT(it != m_types.end());
+        if (it != m_types.end()) {
+            // Todo: use platform settings;
+           const size_t structSize = decl->calculateMemSizeWithAlignment(8,8);
+           it->second->m_sizeBytes = structSize;
+        }
+    }
 }

@@ -26,6 +26,7 @@
 #include "yal/compiler/stages/stageexprtype.h"
 #include "yal/compiler/stages/stagefnreturn.h"
 #include "yal/compiler/stages/stagemovecheck.h"
+#include "yal/compiler/stages/stagesizecalc.h"
 #include "yal/ast/declmodule.h"
 
 namespace yal {
@@ -73,6 +74,7 @@ namespace yal {
         StageFnReturn stageFnRet(*this);
         StageExprType stageExpr(*this, *module);
         StageMoveCheck stageMoveCheck(*this, *module);
+        StageSizeCalc stageSizeCalc(*this);
 
         auto& decls = module->getDeclNode()->getDeclarations();
 
@@ -87,6 +89,10 @@ namespace yal {
             }
 
             if (!stageMoveCheck.execute(decl)) {
+                return nullptr;
+            }
+
+            if (!stageSizeCalc.execute(decl)) {
                 return nullptr;
             }
         }

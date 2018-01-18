@@ -39,6 +39,7 @@ namespace yal
     inline const A* dyn_cast(const B* other) {
         static_assert(std::is_same<typename cast_typeid<A>::type,typename cast_typeid<B>::type>::value,
                       "dyn_cast only works for classes with same cast type");
+
         if (get_typeid<A>() == get_typeid(*other)) {
             return static_cast<const A*>(other);
         }

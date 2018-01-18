@@ -71,6 +71,9 @@ namespace yal {
             return &m_declScope;
         }
 
+        size_t calculateMemSizeWithAlignment(const size_t alignment,
+                                             const size_t sizeofPtr) const;
+
         const DeclVar* getMemberByName(const StringRef name) const;
 
         virtual void acceptVisitor(AstVisitor& visitor) override;

@@ -23,6 +23,15 @@
 #include "yal/ast/typedecl.h"
 namespace yal {
 
+    size_t
+    Type::AlignTo(const size_t size,
+                  const size_t alignment) {
+        const size_t unaligned =  size % alignment;
+        const size_t newSize =  unaligned != 0
+                ? size + (alignment - unaligned)
+                : size;
+        return newSize;
+    }
 
     Type::Type(const Kind kind):
         Type(nullptr, kind, Identifier("unknown")) {
