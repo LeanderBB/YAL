@@ -107,6 +107,8 @@ set(YAL_SOURCES
     yal/ast/structmemberinit.cpp
     yal/ast/exprtypefncallstatic.h
     yal/ast/exprtypefncallstatic.cpp
+    yal/ast/astsearch.cpp
+    yal/ast/astsearch.h
 
     yal/compiler/compiler.cpp
     yal/compiler/compiler.h

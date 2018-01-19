@@ -23,42 +23,11 @@
 #include "yal/util/log.h"
 #include "yal/util/stackjump.h"
 #include "yal/ast/declbase.h"
+#include "yal/ast/astsearch.h"
 #include <memory>
 #include <unordered_map>
 
 namespace yal {
-
-    class AstSearchBase: public RecursiveAstVisitor {
-
-    public:
-        AstSearchBase(const AstType nodeType):
-            m_nodeType(nodeType),
-            m_searchNode(nullptr) {
-        }
-
-
-#define YAL_AST_SKIP_NODE_CONTAINERS
-#define YAL_AST_NODE_TYPE(TYPE) virtual void visit(TYPE&) override final;
-#include "yal/ast/astnodes.def"
-#undef YAL_AST_NODE_TYPE
-#undef YAL_AST_SKIP_NODE_CONTAINERS
-
-    protected:
-        const AstType m_nodeType;
-        const void* m_searchNode;
-    };
-
-    template <typename T>
-    class AstSearch : public AstSearchBase {
-    public:
-        AstSearch():
-            AstSearchBase(get_typeid<T>()) {
-        }
-        const T* getSearchResult() const {
-            return reinterpret_cast<const T*>(m_searchNode);
-        }
-    };
-
 
     static bool CanMove(const QualType& from,
                         const SourceInfo siFrom,
@@ -185,10 +154,8 @@ namespace yal {
     MoveAstVisitor::annotateExpr(StmtExpression *expr) {
         // check for varref and mark them as moved
         {
-            AstSearch<ExprVarRef> varRefSearch;
-            expr->acceptVisitor(varRefSearch);
-
-            const ExprVarRef* varRef = varRefSearch.getSearchResult();
+            AstExprLeafSearch<ExprVarRef> varRefSearch;
+            const ExprVarRef* varRef = varRefSearch.search(expr);
             if (varRef != nullptr) {
                 MoveState& moveState = findState(varRef->getDeclVar());
                 moveState.moved = true;
@@ -541,174 +508,4 @@ namespace yal {
         return !visitor.didError();
     }
 
-    // AST SEARCH BASE -------------------------------------------------------
-
-    void
-    AstSearchBase::visit(DeclFunction&) {
-        YAL_ASSERT(false);
-    }
-
-
-    void
-    AstSearchBase::visit(DeclTypeFunction&) {
-        YAL_ASSERT(false);
-    }
-
-    void
-    AstSearchBase::visit(DeclStruct&) {
-        YAL_ASSERT(false); // Maybe??
-    }
-
-    void
-    AstSearchBase::visit(DeclVar&) {
-        YAL_ASSERT(false);
-    }
-
-    void
-    AstSearchBase::visit(DeclParamVar&) {
-        YAL_ASSERT(false);
-    }
-
-    void
-    AstSearchBase::visit(DeclStrongAlias&) {
-        YAL_ASSERT(false);
-    }
-
-    void
-    AstSearchBase::visit(DeclWeakAlias&) {
-        YAL_ASSERT(false);
-    }
-
-    void
-    AstSearchBase::visit(RefType& ) {
-        YAL_ASSERT(false);
-    }
-
-    void
-    AstSearchBase::visit(StmtReturn&) {
-        YAL_ASSERT(false);
-    }
-
-    void
-    AstSearchBase::visit(StmtDecl&) {
-        YAL_ASSERT(false);
-    }
-
-    void
-    AstSearchBase::visit(StmtAssign&) {
-        YAL_ASSERT(false);
-    }
-
-    void
-    AstSearchBase::visit(ExprVarRef& node) {
-        if (node.getAstType() == m_nodeType) {
-            m_searchNode = &node;
-        } else {
-            m_searchNode = nullptr;
-        }
-    }
-
-    void
-    AstSearchBase::visit(ExprUnaryOperator& node) {
-        node.getExpression()->acceptVisitor(*this);
-        m_searchNode = nullptr;
-    }
-
-    void
-    AstSearchBase::visit(ExprBinaryOperator& node) {
-        node.getExpressionLeft()->acceptVisitor(*this);
-        node.getExpressionRight()->acceptVisitor(*this);
-        m_searchNode = nullptr;
-    }
-
-    void
-    AstSearchBase::visit(ExprBoolLiteral& node) {
-        if (node.getAstType() == m_nodeType) {
-            m_searchNode = &node;
-        } else {
-            m_searchNode = nullptr;
-        }
-    }
-
-    void
-    AstSearchBase::visit(ExprIntegerLiteral& node) {
-        if (node.getAstType() == m_nodeType) {
-            m_searchNode = &node;
-        } else {
-            m_searchNode = nullptr;
-        }
-    }
-
-    void
-    AstSearchBase::visit(ExprFloatLiteral& node) {
-        if (node.getAstType() == m_nodeType) {
-            m_searchNode = &node;
-        } else {
-            m_searchNode = nullptr;
-        }
-    }
-
-    void
-    AstSearchBase::visit(ExprStructVarRef& node) {
-        if (node.getAstType() == m_nodeType) {
-            m_searchNode = &node;
-        } else {
-            m_searchNode = nullptr;
-        }
-    }
-
-    void
-    AstSearchBase::visit(ExprFnCall& node) {
-        if (node.getFunctionArgs() != nullptr) {
-            m_searchNode = nullptr;
-            node.getFunctionArgs()->acceptVisitor(*this);
-        }
-    }
-
-    void
-    AstSearchBase::visit(ExprTypeFnCall& node) {
-        if (node.getFunctionArgs() != nullptr) {
-            m_searchNode = nullptr;
-            node.getFunctionArgs()->acceptVisitor(*this);
-        }
-    }
-
-    void
-    AstSearchBase::visit(ExprTypeFnCallStatic& node) {
-        if (node.getFunctionArgs() != nullptr) {
-            m_searchNode = nullptr;
-            node.getFunctionArgs()->acceptVisitor(*this);
-        }
-    }
-
-    void
-    AstSearchBase::visit(DeclParamVarSelf&) {
-        YAL_ASSERT(false);
-    }
-
-    void
-    AstSearchBase::visit(ExprVarRefSelf& node) {
-        if (node.getAstType() == m_nodeType) {
-            m_searchNode = &node;
-        }
-    }
-
-    void
-    AstSearchBase::visit(ExprRangeCast& node) {
-        node.getExpression()->acceptVisitor(*this);
-    }
-
-    void
-    AstSearchBase::visit(ExprStructInit& node) {
-        if (node.getMemberInitList() != nullptr) {
-            m_searchNode = nullptr;
-            node.getMemberInitList()->acceptVisitor(*this);
-        }
-    }
-
-    void
-    AstSearchBase::visit(StructMemberInit& node) {
-        m_searchNode = nullptr;
-        node.getInitExpr()->acceptVisitor(*this);
-    }
 }
