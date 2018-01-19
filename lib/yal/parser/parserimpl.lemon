@@ -201,12 +201,12 @@ type_builtin(A) ::= TYPE_UINT64(B). {
         A->setSourceInfo(srcInfo);
     }
 type_builtin(A) ::= TYPE_FLOAT(B). {
-    A = pParser->newAstNode<yal::RefType>(pParser->getModule().getTypeContext().getTypeBuiltinFloat());
+    A = pParser->newAstNode<yal::RefType>(pParser->getModule().getTypeContext().getTypeBuiltinFloat32());
         auto srcInfo = pParser->createSourceInfo(B, B);
         A->setSourceInfo(srcInfo);
     }
 type_builtin(A) ::= TYPE_DOUBLE(B). {
-    A = pParser->newAstNode<yal::RefType>(pParser->getModule().getTypeContext().getTypeBuiltinDouble());
+    A = pParser->newAstNode<yal::RefType>(pParser->getModule().getTypeContext().getTypeBuiltinFloat64());
         auto srcInfo = pParser->createSourceInfo(B, B);
         A->setSourceInfo(srcInfo);
     }
@@ -705,8 +705,8 @@ literal(A) ::= INTEGER_LITERAL(B). {
         auto srcInfo = pParser->createSourceInfo(B, B);
         A->setSourceInfo(srcInfo);
    }
-literal(A) ::= DECIMAL_LITERAL(B). {
-        A = pParser->newDecimalLiteral(B);
+literal(A) ::= FLOAT_LITERAL(B). {
+        A = pParser->newFloatLiteral(B);
         auto srcInfo = pParser->createSourceInfo(B, B);
         A->setSourceInfo(srcInfo);
 }

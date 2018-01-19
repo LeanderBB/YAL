@@ -28,7 +28,7 @@
 #include "yal/ast/declfunction.h"
 #include "yal/ast/reftype.h"
 #include "yal/ast/exprintegerliteral.h"
-#include "yal/ast/exprdecimalliteral.h"
+#include "yal/ast/exprfloatliteral.h"
 #include "yal/util/strconversions.h"
 #include "yal/ast/declmodule.h"
 #include "yal/ast/decltypefunction.h"
@@ -68,9 +68,9 @@ namespace yal{
             return YAL_TOKEN_TYPE_INT64;
         case Token::TypeUInt64:
             return YAL_TOKEN_TYPE_UINT64;
-        case Token::TypeFloat:
+        case Token::TypeFloat32:
             return YAL_TOKEN_TYPE_FLOAT;
-        case Token::TypeDouble:
+        case Token::TypeFloat64:
             return YAL_TOKEN_TYPE_DOUBLE;
         case Token::Mod:
             return YAL_TOKEN_MOD;
@@ -121,7 +121,7 @@ namespace yal{
         case Token::IntegerLiteral:
             return YAL_TOKEN_INTEGER_LITERAL;
         case Token::DecimalLiteral:
-            return YAL_TOKEN_DECIMAL_LITERAL;
+            return YAL_TOKEN_FLOAT_LITERAL;
         case Token::Function:
             return YAL_TOKEN_FUNCTION;
         case Token::Comma:
@@ -373,15 +373,15 @@ namespace yal{
     }
 
 
-    ExprDecimalLiteral*
-    Parser::newDecimalLiteral(const TokenInfo& ti) {
+    ExprFloatLiteral*
+    Parser::newFloatLiteral(const TokenInfo& ti) {
         const StringRef& str = ti.tokenStr;
         YAL_ASSERT(ti.token == Token::DecimalLiteral);
 
         double value = 0;
 
         if (StringRefToDecimal(value, str)) {
-            return newAstNode<ExprDecimalLiteral>(value);
+            return newAstNode<ExprFloatLiteral>(value);
         }
 
         PrettyPrint::SourceErrorPrint(m_stageDecls.m_sourceItem,

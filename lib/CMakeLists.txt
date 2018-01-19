@@ -93,8 +93,8 @@ set(YAL_SOURCES
     yal/ast/exprtypefncall.cpp
     yal/ast/exprlist.h
     yal/ast/exprlist.cpp
-    yal/ast/exprdecimalliteral.cpp
-    yal/ast/exprdecimalliteral.h
+    yal/ast/exprfloatliteral.cpp
+    yal/ast/exprfloatliteral.h
     yal/ast/typedecl.h
     yal/ast/typedecl.cpp
     yal/ast/declscope.cpp

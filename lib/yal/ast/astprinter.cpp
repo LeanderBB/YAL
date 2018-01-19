@@ -19,29 +19,7 @@
 
 #include "yal/ast/astprinter.h"
 #include "yal/io/bytestream.h"
-#include "yal/ast/declfunction.h"
-#include "yal/ast/decltypefunction.h"
-#include "yal/ast/declparamvar.h"
-#include "yal/ast/exprbinaryoperator.h"
-#include "yal/ast/exprboolliteral.h"
-#include "yal/ast/exprunaryoperator.h"
-#include "yal/ast/exprintegerliteral.h"
-#include "yal/ast/exprvarref.h"
-#include "yal/ast/statementlist.h"
-#include "yal/ast/stmtreturn.h"
-#include "yal/ast/stmtdecl.h"
-#include "yal/ast/reftype.h"
-#include "yal/ast/stmtassign.h"
-#include "yal/ast/declmodule.h"
-#include "yal/ast/declstruct.h"
-#include "yal/ast/exprstructvarref.h"
-#include "yal/ast/exprtypefncall.h"
-#include "yal/ast/exprtypefncallstatic.h"
-#include "yal/ast/exprlist.h"
-#include "yal/ast/exprdecimalliteral.h"
-#include "yal/ast/exprrangecast.h"
-#include "yal/ast/structmemberinit.h"
-#include "yal/ast/exprstructinit.h"
+#include "yal/ast/astnodes.h"
 namespace yal {
 
     AstPrinter::AstPrinter(ByteStream& stream):
@@ -334,8 +312,8 @@ namespace yal {
     }
 
     void
-    AstPrinter::visit(ExprDecimalLiteral& node) {
-        print("ExprDecimalLiteral ");
+    AstPrinter::visit(ExprFloatLiteral& node) {
+        print("ExprFloatLiteral ");
         printSourceInfo(node.getSourceInfo());
         print();
     }

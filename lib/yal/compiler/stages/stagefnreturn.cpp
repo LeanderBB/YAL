@@ -189,7 +189,7 @@ namespace yal {
     }
 
     void
-    ReturnCheckVisitor::visit(ExprDecimalLiteral&) {
+    ReturnCheckVisitor::visit(ExprFloatLiteral&) {
 
     }
 

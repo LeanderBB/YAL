@@ -464,7 +464,7 @@ namespace yal {
     }
 
     void
-    MoveAstVisitor::visit(ExprDecimalLiteral&) {
+    MoveAstVisitor::visit(ExprFloatLiteral&) {
 
     }
 
@@ -640,7 +640,7 @@ namespace yal {
     }
 
     void
-    AstSearchBase::visit(ExprDecimalLiteral& node) {
+    AstSearchBase::visit(ExprFloatLiteral& node) {
         if (node.getAstType() == m_nodeType) {
             m_searchNode = &node;
         } else {

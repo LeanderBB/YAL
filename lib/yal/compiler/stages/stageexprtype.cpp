@@ -546,7 +546,7 @@ namespace yal {
     }
 
     void
-    ExprTypeAstVisitor::visit(ExprDecimalLiteral&) {
+    ExprTypeAstVisitor::visit(ExprFloatLiteral&) {
 
     }
 

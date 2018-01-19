@@ -97,11 +97,11 @@ namespace yal {
             return m_typeU64;
         }
 
-        const TypeBuiltin* getTypeBuiltinFloat() const {
+        const TypeBuiltin* getTypeBuiltinFloat32() const {
             return m_typeFloat;
         }
 
-        const TypeBuiltin* getTypeBuiltinDouble() const {
+        const TypeBuiltin* getTypeBuiltinFloat64() const {
             return m_typeDouble;
         }
 

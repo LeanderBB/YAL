@@ -92,7 +92,7 @@ namespace yal {
 
         ExprIntegerLiteral* newIntegerLiteral(const TokenInfo& ti);
 
-        ExprDecimalLiteral* newDecimalLiteral(const TokenInfo& ti);
+        ExprFloatLiteral* newFloatLiteral(const TokenInfo& ti);
 
         SourceInfo createSourceInfo(const TokenInfo& start,
                                     const TokenInfo& end) const;

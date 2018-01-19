@@ -46,4 +46,4 @@
 #include "yal/ast/exprtypefncallstatic.h"
 #include "yal/ast/exprboolliteral.h"
 #include "yal/ast/exprintegerliteral.h"
-#include "yal/ast/exprdecimalliteral.h"
+#include "yal/ast/exprfloatliteral.h"

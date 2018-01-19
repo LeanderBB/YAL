@@ -89,7 +89,7 @@ TEST_F(CompileFixture, type_function_instance) {
 
 TEST_F(CompileFixture, function_local_vars) {
     const char* str = R"R(
-     fn static(b:i32, c:double) : double{
+     fn static(b:i32, c:f64) : f64{
         var local:mut i32 = 20;
         local = local + b;
         return c * 2.0;

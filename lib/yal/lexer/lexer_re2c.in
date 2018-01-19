@@ -219,8 +219,8 @@ namespace yal {
             TYPE_UINT32 = "u32";
             TYPE_INT64 = "i32";
             TYPE_UINT64 = "u32";
-            TYPE_FLOAT = "float";
-            TYPE_DOUBLE= "double";
+            TYPE_FLOAT = "f32";
+            TYPE_DOUBLE= "f64";
             STRUCT = "struct";
             RANGE_CAST ="range_cast";
             CAST = "cast";
@@ -270,8 +270,8 @@ namespace yal {
             TYPE_UINT32 { setToken(Token::TypeUInt32, *m_lexerState); return Status::Ok;}
             TYPE_INT64 { setToken(Token::TypeInt64, *m_lexerState); return Status::Ok;}
             TYPE_UINT64 { setToken(Token::TypeUInt64, *m_lexerState); return Status::Ok;}
-            TYPE_FLOAT { setToken(Token::TypeFloat, *m_lexerState); return Status::Ok;}
-            TYPE_DOUBLE { setToken(Token::TypeDouble, *m_lexerState); return Status::Ok;}
+            TYPE_FLOAT { setToken(Token::TypeFloat32, *m_lexerState); return Status::Ok;}
+            TYPE_DOUBLE { setToken(Token::TypeFloat64, *m_lexerState); return Status::Ok;}
             PLUS { setToken(Token::Plus, *m_lexerState); return Status::Ok;}
             MINUS { setToken(Token::Minus, *m_lexerState); return Status::Ok;}
             DIV { setToken(Token::Div, *m_lexerState); return Status::Ok;}

@@ -16,28 +16,28 @@
  *  You should have received a copy of the GNU Lesser General Public
  *  License along with YAL. If not, see <http://www.gnu.org/licenses/>.
  */
-
-
-#include "yal/ast/exprdecimalliteral.h"
-#include "yal/ast/module.h"
-#include "yal/ast/typebuiltin.h"
-#include "yal/ast/astvisitor.h"
+#pragma once
+#include "yal/ast/stmtexpression.h"
 
 namespace yal {
 
-    ExprDecimalLiteral::ExprDecimalLiteral(Module &module,
-                                           const double literalValue):
-        StmtExpression(module, AstType::ExprDecimalLiteral),
-        m_literalValue(literalValue) {
+    class ExprFloatLiteral : public StmtExpression {
+    public:
 
-        Qualifier qual = Qualifier();
-        qual.setMutable();
-        m_qualType = QualType::Create(qual,
-                                      module.getTypeContext().getTypeBuiltinDouble());
-    }
+        ExprFloatLiteral(Module& module,
+                           const double literalValue);
 
-    void
-    ExprDecimalLiteral::acceptVisitor(AstVisitor& visitor) {
-        visitor.visit(*this);
-    }
+        double getLiteralValueAsF64() const {
+            return m_literalValue;
+        }
+
+        float getLiteralValueAsF32() const {
+            return static_cast<float>(m_literalValue);
+        }
+
+        virtual void acceptVisitor(AstVisitor& visitor) override;
+    private:
+        double m_literalValue;
+    };
+
 }

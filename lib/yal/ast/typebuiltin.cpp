@@ -62,12 +62,12 @@ namespace yal {
             m_identifier.setIdString("u64");
             m_sizeBytes = 8;
             break;
-        case DataType::Float:
-            m_identifier.setIdString("float");
+        case DataType::Float32:
+            m_identifier.setIdString("f32");
             m_sizeBytes = 4;
             break;
-        case DataType::Double:
-            m_identifier.setIdString("double");
+        case DataType::Float64:
+            m_identifier.setIdString("f64");
             m_sizeBytes = 8;
             break;
         default:
@@ -128,13 +128,13 @@ namespace yal {
     }
 
     bool
-    TypeBuiltin::isFloat() const{
-        return m_builtinType == DataType::Float;
+    TypeBuiltin::isFloat32() const{
+        return m_builtinType == DataType::Float32;
     }
 
     bool
-    TypeBuiltin::isDouble() const {
-        return m_builtinType == DataType::Double;
+    TypeBuiltin::isFloat64() const {
+        return m_builtinType == DataType::Float64;
     }
 
     bool
@@ -144,8 +144,8 @@ namespace yal {
         case DataType::Int16:
         case DataType::Int32:
         case DataType::Int64:
-        case DataType::Float:
-        case DataType::Double:
+        case DataType::Float32:
+        case DataType::Float64:
             return true;
         default:
             return false;
@@ -183,10 +183,10 @@ namespace yal {
     }
 
     bool
-    TypeBuiltin::isDecimal() const {
+    TypeBuiltin::isFloat() const {
         switch(m_builtinType) {
-        case DataType::Float:
-        case DataType::Double:
+        case DataType::Float32:
+        case DataType::Float64:
             return true;
         default:
             return false;
@@ -204,8 +204,8 @@ namespace yal {
         case DataType::UInt16:
         case DataType::UInt32:
         case DataType::UInt64:
-        case DataType::Float:
-        case DataType::Double:
+        case DataType::Float32:
+        case DataType::Float64:
             return true;
         default:
             return false;
@@ -260,8 +260,8 @@ namespace yal {
             }
         case DataType::UInt32:
             return builtinOther->getDataType() == DataType::UInt64;
-        case DataType::Float:
-            return builtinOther->getDataType() == DataType::Double;
+        case DataType::Float32:
+            return builtinOther->getDataType() == DataType::Float64;
         default:
             break;
         }

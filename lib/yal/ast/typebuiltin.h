@@ -35,8 +35,8 @@ namespace yal {
             UInt32,
             Int64,
             UInt64,
-            Float,
-            Double
+            Float32,
+            Float64
         };
 
         TypeBuiltin(const DataType builtinType);
@@ -50,12 +50,12 @@ namespace yal {
         bool isUInt32() const;
         bool isInt64() const;
         bool isUInt64() const;
-        bool isFloat() const;
-        bool isDouble() const;
+        bool isFloat32() const;
+        bool isFloat64() const;
         bool isSigned() const;
         bool isUnsigned() const;
         bool isInteger() const;
-        bool isDecimal() const;
+        bool isFloat() const;
         bool isNumeric() const;
 
         DataType getDataType() const {

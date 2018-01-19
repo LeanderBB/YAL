@@ -111,7 +111,7 @@ namespace yal{
         }
 
         {
-            auto type = m_allocator.construct<TypeBuiltin>(TypeBuiltin::DataType::Float);
+            auto type = m_allocator.construct<TypeBuiltin>(TypeBuiltin::DataType::Float32);
             type->m_typeId = m_typeIdCounter++;
             m_typeFloat = type;
             m_types.insert(std::make_pair(type->getIdentifier().getAsString(),
@@ -119,7 +119,7 @@ namespace yal{
         }
 
         {
-            auto type = m_allocator.construct<TypeBuiltin>(TypeBuiltin::DataType::Double);
+            auto type = m_allocator.construct<TypeBuiltin>(TypeBuiltin::DataType::Float64);
             type->m_typeId = m_typeIdCounter++;
             m_typeDouble = type;
             m_types.insert(std::make_pair(type->getIdentifier().getAsString(),

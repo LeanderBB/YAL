@@ -20,7 +20,7 @@ void YALParserTrace(FILE *TraceFILE,char *zTracePrompt);
 #define YALParserARG_FETCH  yal::Parser *pParser  = yypParser->pParser 
 #define YALParserARG_SDECL  yal::Parser *pParser ;
 #define YAL_TOKEN_BOOL_LITERAL                   56
-#define YAL_TOKEN_DECIMAL_LITERAL                55
+#define YAL_TOKEN_FLOAT_LITERAL                  55
 #define YAL_TOKEN_INTEGER_LITERAL                54
 #define YAL_TOKEN_RANGE_CAST                     53
 #define YAL_TOKEN_LET                            52

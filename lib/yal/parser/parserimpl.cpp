@@ -97,7 +97,7 @@
 #define YAL_TOKEN_LET                            52
 #define YAL_TOKEN_RANGE_CAST                     53
 #define YAL_TOKEN_INTEGER_LITERAL                54
-#define YAL_TOKEN_DECIMAL_LITERAL                55
+#define YAL_TOKEN_FLOAT_LITERAL                  55
 #define YAL_TOKEN_BOOL_LITERAL                   56
 #endif
 /**************** End makeheaders token definitions ***************************/
@@ -649,7 +649,7 @@ static const char *const yyTokenName[] = {
   "COLON",         "SEMI_COLON",    "STRUCT",        "SCOPE_BEGIN", 
   "SCOPE_END",     "FUNCTION",      "PAR_BEGIN",     "PAR_END",     
   "SELF",          "COMMA",         "RETURN",        "VAR",         
-  "LET",           "RANGE_CAST",    "INTEGER_LITERAL",  "DECIMAL_LITERAL",
+  "LET",           "RANGE_CAST",    "INTEGER_LITERAL",  "FLOAT_LITERAL",
   "BOOL_LITERAL",  "error",         "type_builtin",  "decl_function",
   "type_function_decl",  "decls",         "module",        "function_return_decl",
   "type_specifier",  "var_type_spec",  "named_decl",    "function_args_decl",
@@ -769,7 +769,7 @@ static const char *const yyRuleName[] = {
  /*  98 */ "struct_member_init_list ::= struct_member_init",
  /*  99 */ "struct_member_init ::= IDENTIFIER COLON expression",
  /* 100 */ "literal ::= INTEGER_LITERAL",
- /* 101 */ "literal ::= DECIMAL_LITERAL",
+ /* 101 */ "literal ::= FLOAT_LITERAL",
  /* 102 */ "literal ::= BOOL_LITERAL",
  /* 103 */ "module ::= decls END",
  /* 104 */ "type_array ::= type_builtin ARRAY_BEGIN ARRAY_END",
@@ -1452,7 +1452,7 @@ static void yy_reduce(
         break;
       case 21: /* type_builtin ::= TYPE_FLOAT */
 {
-    yylhsminor.yy64 = pParser->newAstNode<yal::RefType>(pParser->getModule().getTypeContext().getTypeBuiltinFloat());
+    yylhsminor.yy64 = pParser->newAstNode<yal::RefType>(pParser->getModule().getTypeContext().getTypeBuiltinFloat32());
         auto srcInfo = pParser->createSourceInfo(yymsp[0].minor.yy0, yymsp[0].minor.yy0);
         yylhsminor.yy64->setSourceInfo(srcInfo);
     }
@@ -1460,7 +1460,7 @@ static void yy_reduce(
         break;
       case 22: /* type_builtin ::= TYPE_DOUBLE */
 {
-    yylhsminor.yy64 = pParser->newAstNode<yal::RefType>(pParser->getModule().getTypeContext().getTypeBuiltinDouble());
+    yylhsminor.yy64 = pParser->newAstNode<yal::RefType>(pParser->getModule().getTypeContext().getTypeBuiltinFloat64());
         auto srcInfo = pParser->createSourceInfo(yymsp[0].minor.yy0, yymsp[0].minor.yy0);
         yylhsminor.yy64->setSourceInfo(srcInfo);
     }
@@ -2088,9 +2088,9 @@ static void yy_reduce(
    }
   yymsp[0].minor.yy49 = yylhsminor.yy49;
         break;
-      case 101: /* literal ::= DECIMAL_LITERAL */
+      case 101: /* literal ::= FLOAT_LITERAL */
 {
-        yylhsminor.yy49 = pParser->newDecimalLiteral(yymsp[0].minor.yy0);
+        yylhsminor.yy49 = pParser->newFloatLiteral(yymsp[0].minor.yy0);
         auto srcInfo = pParser->createSourceInfo(yymsp[0].minor.yy0, yymsp[0].minor.yy0);
         yylhsminor.yy49->setSourceInfo(srcInfo);
 }
