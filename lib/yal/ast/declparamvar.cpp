@@ -26,16 +26,18 @@ namespace yal {
     DeclParamVar::DeclParamVar(Module& module,
                                const AstType astType,
                                StringRef name,
+                               const DeclScope* scope,
                                const Qualifier qualifier,
                                RefType* varType) :
-        DeclVar(module,astType, qualifier, name, varType){
+        DeclVar(module,astType, qualifier, scope, name, varType){
     }
 
     DeclParamVar::DeclParamVar(Module &module,
                                StringRef name,
+                               const DeclScope *scope,
                                const Qualifier qualifier,
                                RefType *varType):
-        DeclParamVar(module,AstType::DeclParamVar,name, qualifier, varType){
+        DeclParamVar(module,AstType::DeclParamVar,name, scope, qualifier, varType){
 
     }
 
@@ -46,10 +48,12 @@ namespace yal {
 
 
     DeclParamVarSelf::DeclParamVarSelf(Module& module,
-                                      RefType* refType):
+                                       const DeclScope *scope,
+                                       RefType* refType):
         DeclParamVar(module,
                      AstType::DeclParamVarSelf,
                      "self",
+                     scope,
                      Qualifier(),
                      refType) {
 

@@ -52,7 +52,7 @@ namespace yal {
 
     bool
     StageDecls::execute() {
-        m_activeScope = m_module.getDeclNode()->getDeclScope();
+        m_activeScope = m_module.getDeclNode()->getModuleDeclScope();
         yal::Lexer lexer (m_sourceItem.getByteStream());
         yal::Parser parser(lexer, m_compiler.getLog(), m_module, *this);
 
@@ -109,7 +109,7 @@ namespace yal {
     StageDecls::popDeclScope() {
         YAL_ASSERT(m_activeScope!= nullptr);
         YAL_ASSERT(m_activeScope->getParentScope() != nullptr);
-        m_activeScope = m_activeScope->getParentScope();
+        m_activeScope = const_cast<DeclScope*>(m_activeScope->getParentScope());
     }
 
 
@@ -121,7 +121,7 @@ namespace yal {
             return false;
         }
         m_activeScope->addDecl(decl);
-        pushDeclScope(decl->getDeclScope());
+        pushDeclScope(decl->getFunctionDeclScope());
         m_module.getTypeContext().addType(decl);
         return true;
     }
@@ -165,7 +165,7 @@ the same identifier declared here:\n",
         }
 
         m_activeScope->addDecl(decl);
-        pushDeclScope(decl->getDeclScope());
+        pushDeclScope(decl->getFunctionDeclScope());
         m_module.getTypeContext().addType(decl);
         return true;
     }
@@ -178,7 +178,7 @@ the same identifier declared here:\n",
             return false;
         }
         m_activeScope->addDecl(decl);
-        pushDeclScope(decl->getDeclScope());
+        pushDeclScope(decl->getStructDeclScope());
         m_module.getTypeContext().addType(decl);
         return true;
     }

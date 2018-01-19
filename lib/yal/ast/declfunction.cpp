@@ -24,22 +24,25 @@ namespace yal {
 
     DeclFunction::DeclFunction(Module& module,
                                const StringRef functionName,
+                               const DeclScope *scope,
                                DeclParamVarContainer *params,
                                RefType *returnType,
                                StatementList *body):
         DeclFunctionBase(module,
                          AstType::DeclFunction,
                          functionName,
+                         scope,
                          params,
                          returnType,
                          body),
-        m_declScope(this){
+        m_fnDeclScope(this, scope){
 
     }
 
     DeclFunction::DeclFunction(Module& module,
-                               const StringRef FunctionName):
-        DeclFunction(module, FunctionName, nullptr, nullptr, nullptr) {
+                               const StringRef FunctionName,
+                               const DeclScope* scope):
+        DeclFunction(module, FunctionName, scope, nullptr, nullptr, nullptr) {
 
     }
 

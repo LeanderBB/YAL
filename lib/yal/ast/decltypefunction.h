@@ -26,6 +26,7 @@ namespace yal {
     public:
         DeclTypeFunction(Module& module,
                          const StringRef functionName,
+                         const DeclScope* scope,
                          DeclParamVarContainer* params,
                          RefType* returnType,
                          RefType* destType,
@@ -33,6 +34,7 @@ namespace yal {
 
         DeclTypeFunction(Module& module,
                          const StringRef functionName,
+                         const DeclScope* scope,
                          RefType* destType);
 
         RefType* getTargetType() const {
@@ -43,12 +45,12 @@ namespace yal {
 
         bool isImmutable() const;
 
-        DeclScope* getDeclScope() {
-            return &m_declScope;
+        DeclScope* getFunctionDeclScope() {
+            return &m_fnDeclScope;
         }
 
-        const DeclScope* getDeclScope() const {
-            return &m_declScope;
+        const DeclScope* getFunctionDeclScope() const {
+            return &m_fnDeclScope;
         }
 
         virtual void acceptVisitor(AstVisitor& visitor) override;
@@ -56,6 +58,6 @@ namespace yal {
     protected:
         std::string m_functionName;
         RefType* m_targetType;
-        DeclScope m_declScope;
+        DeclScope m_fnDeclScope;
     };
 }

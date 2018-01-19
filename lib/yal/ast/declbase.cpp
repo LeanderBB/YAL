@@ -25,8 +25,10 @@ namespace yal{
 
     DeclBase::DeclBase(Module &module,
                        const AstType type,
-                       const Identifier& identifier):
+                       const Identifier& identifier,
+                       const DeclScope *scope):
         m_module(module),
+        m_scopeWhereDecl(scope),
         m_astType(type),
         m_sourceInfo(),
         m_identifier(identifier){

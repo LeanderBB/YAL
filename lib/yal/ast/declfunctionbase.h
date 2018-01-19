@@ -31,6 +31,7 @@ namespace yal {
         DeclFunctionBase(Module& module,
                          const AstType type,
                          const StringRef functionName,
+                         const DeclScope* scope,
                          DeclParamVarContainer* params,
                          RefType* returnType,
                          StatementList* body);

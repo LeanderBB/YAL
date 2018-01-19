@@ -34,6 +34,7 @@ namespace yal {
         using DeclMap = std::unordered_map<StringRef, DeclBase*>;
     public:
         using DeclRange= IteratorRange<DeclMap::iterator>;
+        using DeclRangeConst= IteratorRange<DeclMap::const_iterator>;
 
         enum class Kind {
             Module,
@@ -44,9 +45,12 @@ namespace yal {
         };
 
         DeclScope();
-        DeclScope(DeclFunction* decl);
-        DeclScope(DeclTypeFunction* decl);
-        DeclScope(DeclStruct* decl);
+        DeclScope(DeclFunction* decl,
+                  const DeclScope* parent);
+        DeclScope(DeclTypeFunction* decl,
+                  const DeclScope* parent);
+        DeclScope(DeclStruct* decl,
+                  const DeclScope* parent);
         DeclScope(DeclModule* decl);
 
         bool hasDecl(const DeclBase* decl,
@@ -56,18 +60,22 @@ namespace yal {
                      const bool local) const;
 
         DeclBase* getDecl(const Identifier &identifier,
-                          const bool local);
+                          const bool local) const;
 
         void addDecl(DeclBase* decl);
 
-        void setParentScope(DeclScope* scope);
+        void setParentScope(const DeclScope* scope);
 
-        DeclScope* getParentScope() const {
+        const DeclScope* getParentScope() const {
             return m_parentScope;
         }
 
         DeclRange getDecls() {
             return DeclRange(m_declMap.begin(), m_declMap.end());
+        }
+
+        DeclRangeConst getDeclsConst() const{
+            return DeclRangeConst(m_declMap.cbegin(), m_declMap.cend());
         }
 
         Kind getKind() const {
@@ -89,7 +97,7 @@ namespace yal {
         bool isScopedScope() const;
         bool isStructScope() const;
 private:
-        DeclScope* m_parentScope;
+        const DeclScope* m_parentScope;
         DeclMap m_declMap;
         DeclBase* m_scopeDecl;
         Kind m_scopeKind;

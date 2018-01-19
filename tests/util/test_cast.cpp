@@ -51,6 +51,7 @@ TEST_F(CastTest, TestDynCast) {
    yal::DeclBase* decl = m_module->newASTNode<yal::DeclFunction>(fnName,
                                                                  nullptr,
                                                                  nullptr,
+                                                                 nullptr,
                                                                  nullptr);
 
    yal::DeclFunction* declFunction =

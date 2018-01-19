@@ -25,10 +25,11 @@ namespace yal {
 
     DeclVar::DeclVar(Module& module,
                      StringRef name,
+                     const DeclScope *scope,
                      const Qualifier qualifier,
                      RefType* varType,
                      StmtExpression *expr):
-        DeclBase(module, AstType::DeclVar, name),
+        DeclBase(module, AstType::DeclVar, name, scope),
         m_varType(varType),
         m_qualType(varType->getQualType()),
         m_expression(expr){
@@ -46,9 +47,10 @@ namespace yal {
     DeclVar::DeclVar(Module& module,
                      const AstType type,
                      const Qualifier qualifier,
+                     const DeclScope *scope,
                      StringRef name,
                      RefType *varType) :
-        DeclBase(module, type, name),
+        DeclBase(module, type, name, scope),
         m_varType(varType),
         m_qualType(varType->getQualType()),
         m_expression(nullptr){

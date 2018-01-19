@@ -93,7 +93,7 @@ namespace yal {
             m_module(module),
             m_stackJump(jump),
             m_error(false) {
-            m_activeScope = m_module.getDeclNode()->getDeclScope();
+            m_activeScope = m_module.getDeclNode()->getModuleDeclScope();
             m_moveMap = std::make_unique<MoveMap>();
         }
 
@@ -113,7 +113,7 @@ namespace yal {
             const Statement* stmtWhenMoved = nullptr;
         };
 
-        void pushScope(DeclScope* scope);
+        void pushScope(const DeclScope *scope);
 
         void popScope();
 
@@ -131,16 +131,16 @@ namespace yal {
         Compiler& m_compiler;
         Module& m_module;
         StackJump& m_stackJump;
-        DeclScope* m_activeScope;
+        const DeclScope* m_activeScope;
         std::unique_ptr<MoveMap> m_moveMap;
         bool m_error;
     };
 
 
     void
-    MoveAstVisitor::pushScope(DeclScope* scope) {
+    MoveAstVisitor::pushScope(const DeclScope* scope) {
         m_activeScope = scope;
-        for (auto& declit : m_activeScope->getDecls()) {
+        for (auto& declit : m_activeScope->getDeclsConst()) {
             const DeclBase* decl =declit.second;
             switch (decl->getAstType()) {
 
@@ -165,7 +165,7 @@ namespace yal {
     void
     MoveAstVisitor::popScope() {
 
-        for (auto& declit : m_activeScope->getDecls()) {
+        for (auto& declit : m_activeScope->getDeclsConst()) {
             const DeclBase* decl =declit.second;
             switch (decl->getAstType()) {
             case AstType::DeclVar:
@@ -223,7 +223,7 @@ namespace yal {
 
     void
     MoveAstVisitor::visit(DeclFunction& node) {
-        pushScope(node.getDeclScope());
+        pushScope(node.getFunctionDeclScope());
         if (node.getFunctionBody() != nullptr) {
             node.getFunctionBody()->acceptVisitor(*this);
         }
@@ -232,7 +232,7 @@ namespace yal {
 
     void
     MoveAstVisitor::visit(DeclTypeFunction& node) {
-        pushScope(node.getDeclScope());
+        pushScope(node.getFunctionDeclScope());
         if (node.getFunctionBody() != nullptr) {
             node.getFunctionBody()->acceptVisitor(*this);
         }
@@ -332,7 +332,7 @@ namespace yal {
                                     = dyn_cast<ExprVarRef>(unaryOp->getExpression());
                             if (localVarRef != nullptr) {
                                 const DeclVar* decl = localVarRef->getDeclVar();
-                                if (m_activeScope->getDecl(decl->getIdentifier(), true)) {
+                                if (m_activeScope == decl->getScopeWhereDeclared()) {
                                     Log& log = m_compiler.getLog();
                                     PrettyPrint::SourceErrorPrint(log,
                                                                   exprVarRef->getSourceInfo(),

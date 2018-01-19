@@ -313,6 +313,11 @@ namespace yal{
         return result;
     }
 
+    const DeclScope*
+    Parser::getActiveScope() const {
+        return m_stageDecls.getActiveScope();
+    }
+
     ExprIntegerLiteral*
     Parser::newIntegerLiteral(const TokenInfo& ti) {
         const StringRef& str = ti.tokenStr;

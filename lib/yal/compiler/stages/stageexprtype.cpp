@@ -118,7 +118,7 @@ namespace yal {
     public:
         Compiler& m_compiler;
         Module& m_module;
-        DeclScope* m_activeScope;
+        const DeclScope* m_activeScope;
         StackJump& m_stackJump;
         bool m_error;
     };
@@ -143,7 +143,7 @@ namespace yal {
 
     void
     ExprTypeAstVisitor::visit(DeclFunction& node) {
-        pushScope(node.getDeclScope());
+        pushScope(node.getFunctionDeclScope());
         if (node.getFunctionBody() != nullptr) {
             node.getFunctionBody()->acceptVisitor(*this);
         }
@@ -152,7 +152,7 @@ namespace yal {
 
     void
     ExprTypeAstVisitor::visit(DeclTypeFunction& node) {
-        pushScope(node.getDeclScope());
+        pushScope(node.getFunctionDeclScope());
         if (node.getFunctionBody() != nullptr) {
             node.getFunctionBody()->acceptVisitor(*this);
         }
@@ -161,7 +161,7 @@ namespace yal {
 
     void
     ExprTypeAstVisitor::visit(DeclStruct& node) {
-        pushScope(node.getDeclScope());
+        pushScope(node.getStructDeclScope());
         node.getMembers()->acceptVisitor(*this);
         popScope();
     }
@@ -184,8 +184,10 @@ namespace yal {
         }
 
         // check for recursive struct types that aren't references
-        if (destType.getType()->isStruct() && m_activeScope->isStructScope()) {
-            DeclStruct* dclStruct = dyn_cast<DeclStruct>(m_activeScope->getScopeDecl());
+        if (destType.getType()->isStruct()
+                && node.getScopeWhereDeclared()->isStructScope()) {
+            DeclStruct* dclStruct
+                    = dyn_cast<DeclStruct>(node.getScopeWhereDeclared()->getScopeDecl());
             YAL_ASSERT(dclStruct != nullptr);
 
             if (dclStruct->getDeclType()->getTypeId() == destType.getType()->getTypeId()

@@ -29,11 +29,13 @@ namespace yal {
         DeclParamVar(Module& module,
                      const AstType astType,
                      StringRef name,
+                     const DeclScope *scope,
                      const Qualifier qualifier,
                      RefType* varType);
     public:
         DeclParamVar(Module& module,
                      StringRef name,
+                     const DeclScope *scope,
                      const Qualifier qualifier,
                      RefType* varType);
 
@@ -43,6 +45,7 @@ namespace yal {
     class DeclParamVarSelf : public DeclParamVar {
     public:
         DeclParamVarSelf(Module& module,
+                         const DeclScope* scope,
                          RefType* refType);
 
         virtual void acceptVisitor(AstVisitor& visitor) override;

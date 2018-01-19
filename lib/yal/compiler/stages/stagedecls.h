@@ -64,6 +64,10 @@ namespace yal {
 
         DeclVar* resolveVarRefSelf(const TokenInfo &ti);
 
+        const DeclScope* getActiveScope() const {
+            return m_activeScope;
+        }
+
     private:
 
         void onDuplicateDecl(const DeclBase* oldDecl,

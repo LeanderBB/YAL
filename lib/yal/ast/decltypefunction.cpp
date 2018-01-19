@@ -25,6 +25,7 @@ namespace yal {
 
     DeclTypeFunction::DeclTypeFunction(Module& module,
                                        const StringRef functionName,
+                                       const DeclScope *scope,
                                        DeclParamVarContainer* params,
                                        RefType *returnType,
                                        RefType *destType,
@@ -32,6 +33,7 @@ namespace yal {
         DeclFunctionBase(module,
                          AstType::DeclTypeFunction,
                          functionName,
+                         scope,
                          params,
                          returnType,
                          body),
@@ -39,14 +41,16 @@ namespace yal {
                        + "::"
                        + functionName.toString()),
         m_targetType(destType),
-        m_declScope(this){
+        m_fnDeclScope(this, scope){
         m_identifier.setIdString(m_functionName);
     }
 
     DeclTypeFunction::DeclTypeFunction(Module& module,
                                        const StringRef functionName,
+                                       const DeclScope *scope,
                                        RefType* destType):
-        DeclTypeFunction(module, functionName, nullptr, nullptr, destType, nullptr) {
+        DeclTypeFunction(module, functionName, scope,
+                         nullptr, nullptr, destType, nullptr) {
 
     }
 

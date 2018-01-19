@@ -40,11 +40,11 @@ namespace yal {
 
         void addDecl(DeclBase* node);
 
-        DeclScope* getDeclScope() {
+        DeclScope* getModuleDeclScope() {
             return &m_declScope;
         }
 
-        const DeclScope* getDeclScope() const {
+        const DeclScope* getModuleDeclScope() const {
             return &m_declScope;
         }
 

@@ -51,10 +51,12 @@ namespace yal {
 
         DeclStruct(Module& module,
                    StringRef typeName,
+                   const DeclScope* scope,
                    DeclStructMembers* members);
 
         DeclStruct(Module& module,
-                   StringRef typeName);
+                   StringRef typeName,
+                   const DeclScope *scope);
 
 
         DeclStructMembers* getMembers() const {
@@ -63,12 +65,12 @@ namespace yal {
 
         void setMembers(DeclStructMembers* members);
 
-        DeclScope* getDeclScope() {
-            return &m_declScope;
+        DeclScope* getStructDeclScope() {
+            return &m_structDeclScope;
         }
 
-        const DeclScope* getDeclScope() const {
-            return &m_declScope;
+        const DeclScope* getStructDeclScope() const {
+            return &m_structDeclScope;
         }
 
         size_t calculateMemSizeWithAlignment(const size_t alignment,
@@ -80,7 +82,7 @@ namespace yal {
 
     private:
         DeclStructMembers* m_members;
-        DeclScope m_declScope;
+        DeclScope m_structDeclScope;
 
     };
 

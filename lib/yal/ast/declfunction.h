@@ -28,26 +28,28 @@ namespace yal {
 
         DeclFunction(Module& module,
                      const StringRef functionName,
+                     const DeclScope* scope,
                      DeclParamVarContainer* params,
                      RefType* returnType,
                      StatementList* body);
 
         DeclFunction(Module& module,
-                     const StringRef FunctionName);
+                     const StringRef FunctionName,
+                     const DeclScope* scope);
 
 
         virtual void acceptVisitor(AstVisitor& visitor) override;
 
-        DeclScope* getDeclScope() {
-            return &m_declScope;
+        DeclScope* getFunctionDeclScope() {
+            return &m_fnDeclScope;
         }
 
-        const DeclScope* getDeclScope() const {
-            return &m_declScope;
+        const DeclScope* getFunctionDeclScope() const {
+            return &m_fnDeclScope;
         }
 
     private:
-        DeclScope m_declScope;
+        DeclScope m_fnDeclScope;
     };
 
 }

@@ -25,7 +25,7 @@ namespace yal {
 
     DeclModule::DeclModule(Module& module,
                            StringRef name):
-        DeclBase(module, AstType::DeclModule, name),
+        DeclBase(module, AstType::DeclModule, name, nullptr),
         m_declScope(this){
 
     }

@@ -29,6 +29,7 @@ namespace yal {
     public:
         DeclVar(Module& module,
                 StringRef name,
+                const DeclScope* scope,
                 const Qualifier qualifier,
                 RefType* varType,
                 StmtExpression* expr);
@@ -52,6 +53,7 @@ namespace yal {
         DeclVar(Module& module,
                 const AstType type,
                 const Qualifier qualifier,
+                const DeclScope *scope,
                 StringRef name,
                 RefType* varType);
 

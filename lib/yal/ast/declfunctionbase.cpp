@@ -25,10 +25,11 @@ namespace yal {
     DeclFunctionBase::DeclFunctionBase(Module& module,
                                        const AstType type,
                                        const StringRef functionName,
+                                       const DeclScope *scope,
                                        DeclParamVarContainer *params,
                                        RefType *returnType,
                                        StatementList* body):
-        DeclBase(module, type, Identifier(functionName, module)),
+        DeclBase(module, type, Identifier(functionName, module), scope),
         m_params(params),
         m_returnType(returnType),
         m_functionBody(body){

@@ -46,16 +46,18 @@ namespace yal {
 
     DeclStruct::DeclStruct(Module &module,
                            StringRef typeName,
+                           const DeclScope *scope,
                            DeclStructMembers *members):
-        DeclBase(module, AstType::DeclStruct, Identifier(typeName, module)),
+        DeclBase(module, AstType::DeclStruct, Identifier(typeName, module), scope),
         m_members(members),
-        m_declScope(this){
+        m_structDeclScope(this, scope){
 
     }
 
     DeclStruct::DeclStruct(Module& module,
-                           StringRef typeName):
-        DeclStruct(module, typeName, nullptr) {
+                           StringRef typeName,
+                           const DeclScope *scope):
+        DeclStruct(module, typeName, scope, nullptr) {
 
     }
 

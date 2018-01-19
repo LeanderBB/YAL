@@ -30,13 +30,15 @@ namespace yal{
     class AstVisitor;
     class Type;
     class TypeContext;
+    class DeclScope;
     class DeclBase
     {
     public:
 
         DeclBase(Module& module,
                  const AstType type,
-                 const Identifier &identifier);
+                 const Identifier &identifier,
+                 const DeclScope* scope);
 
         YAL_NO_COPY_CLASS(DeclBase);
 
@@ -74,12 +76,17 @@ namespace yal{
             return m_module;
         }
 
+        const DeclScope* getScopeWhereDeclared() const {
+            return m_scopeWhereDecl;
+        }
+
         bool isVariableDecl() const;
 
         virtual void acceptVisitor(AstVisitor& visitor) = 0;
 
     protected:
         Module& m_module;
+        const DeclScope* m_scopeWhereDecl;
         const AstType m_astType;
         SourceInfo m_sourceInfo;
         Identifier m_identifier;

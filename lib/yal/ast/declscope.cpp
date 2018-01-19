@@ -34,24 +34,27 @@ namespace yal {
 
     }
 
-    DeclScope::DeclScope(DeclFunction* decl):
-        m_parentScope(nullptr),
+    DeclScope::DeclScope(DeclFunction* decl,
+                         const DeclScope* parent):
+        m_parentScope(parent),
         m_declMap(),
         m_scopeDecl(decl),
         m_scopeKind(Kind::Function){
 
     }
 
-    DeclScope::DeclScope(DeclTypeFunction* decl):
-        m_parentScope(nullptr),
+    DeclScope::DeclScope(DeclTypeFunction* decl,
+                         const DeclScope* parent):
+        m_parentScope(parent),
         m_declMap(),
         m_scopeDecl(decl),
         m_scopeKind(Kind::TypeFunction) {
 
     }
 
-    DeclScope::DeclScope(DeclStruct* decl):
-        m_parentScope(nullptr),
+    DeclScope::DeclScope(DeclStruct* decl,
+                         const DeclScope* parent):
+        m_parentScope(parent),
         m_declMap(),
         m_scopeDecl(decl),
         m_scopeKind(Kind::Struct) {
@@ -87,7 +90,7 @@ namespace yal {
 
     DeclBase*
     DeclScope::getDecl(const Identifier& identifier,
-                       const bool local) {
+                       const bool local) const {
         auto it = m_declMap.find(identifier.getAsString());
         if (it == m_declMap.end()) {
             return (m_parentScope != nullptr && !local)
@@ -105,7 +108,7 @@ namespace yal {
     }
 
     void
-    DeclScope::setParentScope(DeclScope* scope) {
+    DeclScope::setParentScope(const DeclScope *scope) {
         m_parentScope = scope;
     }
 

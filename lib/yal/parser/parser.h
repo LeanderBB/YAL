@@ -83,6 +83,8 @@ namespace yal {
 
         DeclVar* resolveVarRefSelf(const TokenInfo& ti);
 
+        const DeclScope* getActiveScope() const;
+
         template <typename T, typename... ARGS>
         T* newAstNode(ARGS&& ...args) {
             return m_module.newASTNode<T>(std::forward<ARGS>(args)...);

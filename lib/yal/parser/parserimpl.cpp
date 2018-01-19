@@ -1477,7 +1477,7 @@ static void yy_reduce(
         break;
       case 25: /* struct_header ::= TYPE IDENTIFIER COLON STRUCT */
 {
-    yylhsminor.yy152 = pParser->newAstNode<yal::DeclStruct>(yymsp[-2].minor.yy0.tokenStr);
+    yylhsminor.yy152 = pParser->newAstNode<yal::DeclStruct>(yymsp[-2].minor.yy0.tokenStr, pParser->getActiveScope());
     yylhsminor.yy152->setSourceInfo(pParser->createSourceInfo(yymsp[-3].minor.yy0, yymsp[-2].minor.yy0));
     pParser->onDeclBegin(yylhsminor.yy152);
 }
@@ -1516,7 +1516,9 @@ static void yy_reduce(
         break;
       case 29: /* struct_decl_var ::= IDENTIFIER COLON qualified_type ASSIGN expression SEMI_COLON */
 {
-    yylhsminor.yy44 = pParser->newAstNode<yal::DeclVar>(yymsp[-5].minor.yy0.tokenStr, yal::Qualifier(), yymsp[-3].minor.yy64, yymsp[-1].minor.yy49);
+    yylhsminor.yy44 = pParser->newAstNode<yal::DeclVar>(yymsp[-5].minor.yy0.tokenStr,
+                                          pParser->getActiveScope(),
+                                          yal::Qualifier(), yymsp[-3].minor.yy64, yymsp[-1].minor.yy49);
     auto srcInfo = pParser->createSourceInfo(yymsp[-5].minor.yy0, yymsp[0].minor.yy0);
     yylhsminor.yy44->setSourceInfo(srcInfo);
 }
@@ -1524,7 +1526,9 @@ static void yy_reduce(
         break;
       case 30: /* struct_decl_var ::= IDENTIFIER COLON qualified_type SEMI_COLON */
 {
-    yylhsminor.yy44 = pParser->newAstNode<yal::DeclVar>(yymsp[-3].minor.yy0.tokenStr, yal::Qualifier(), yymsp[-1].minor.yy64, nullptr);
+    yylhsminor.yy44 = pParser->newAstNode<yal::DeclVar>(yymsp[-3].minor.yy0.tokenStr,
+                                          pParser->getActiveScope(),
+                                          yal::Qualifier(), yymsp[-1].minor.yy64, nullptr);
     auto srcInfo = pParser->createSourceInfo(yymsp[-3].minor.yy0, yymsp[0].minor.yy0);
     yylhsminor.yy44->setSourceInfo(srcInfo);
 }
@@ -1541,7 +1545,7 @@ static void yy_reduce(
         break;
       case 32: /* function_start ::= FUNCTION IDENTIFIER */
 {
-     yylhsminor.yy161 = pParser->newAstNode<yal::DeclFunction>(yymsp[0].minor.yy0.tokenStr);
+     yylhsminor.yy161 = pParser->newAstNode<yal::DeclFunction>(yymsp[0].minor.yy0.tokenStr, pParser->getActiveScope());
      yylhsminor.yy161->setSourceInfo(pParser->createSourceInfo(yymsp[-1].minor.yy0, yymsp[0].minor.yy0));
      pParser->onDeclBegin(yylhsminor.yy161);
 }
@@ -1572,7 +1576,9 @@ static void yy_reduce(
         break;
       case 36: /* type_function_start ::= FUNCTION type_specifier COLON COLON IDENTIFIER */
 {
-    yylhsminor.yy129 = pParser->newAstNode<yal::DeclTypeFunction>(yymsp[0].minor.yy0.tokenStr, yymsp[-3].minor.yy64);
+    yylhsminor.yy129 = pParser->newAstNode<yal::DeclTypeFunction>(yymsp[0].minor.yy0.tokenStr,
+                                                   pParser->getActiveScope(),
+                                                   yymsp[-3].minor.yy64);
     yylhsminor.yy129->setSourceInfo(pParser->createSourceInfo(yymsp[-4].minor.yy0, yymsp[0].minor.yy0));
     pParser->onDeclBegin(yylhsminor.yy129);
 }
@@ -1592,7 +1598,7 @@ static void yy_reduce(
         yylhsminor.yy120 = pParser->newAstNode<yal::DeclParamVarContainer>();
         auto qualifier = yal::parser::MakeQualifierFromFlags(yymsp[-1].minor.yy174);
         auto refType = pParser->newAstNode<yal::RefType>(qualifier, pParser->resolveSelfType());
-        auto selfVar = pParser->newAstNode<yal::DeclParamVarSelf>(refType);
+        auto selfVar = pParser->newAstNode<yal::DeclParamVarSelf>(pParser->getActiveScope(),refType);
         auto srcInfo = pParser->createSourceInfo(yymsp[0].minor.yy0, yymsp[0].minor.yy0);
         selfVar->setSourceInfo(srcInfo);
         yylhsminor.yy120->addDeclParam(selfVar);
@@ -1605,7 +1611,7 @@ static void yy_reduce(
     yylhsminor.yy120 = yymsp[0].minor.yy120;
     auto qualifier = yal::parser::MakeQualifierFromFlags(yymsp[-3].minor.yy174);
     auto refType = pParser->newAstNode<yal::RefType>(qualifier, pParser->resolveSelfType());
-    auto selfVar = pParser->newAstNode<yal::DeclParamVarSelf>(refType);
+    auto selfVar = pParser->newAstNode<yal::DeclParamVarSelf>(pParser->getActiveScope(),refType);
     auto srcInfo = pParser->createSourceInfo(yymsp[-2].minor.yy0, yymsp[-2].minor.yy0);
     selfVar->setSourceInfo(srcInfo);
     yylhsminor.yy120->addDeclParam(selfVar);
@@ -1663,7 +1669,9 @@ static void yy_reduce(
       case 47: /* function_arg_decl ::= IDENTIFIER COLON qualified_type */
 {
     if (yymsp[0].minor.yy64) {
-        yylhsminor.yy173 = pParser->newAstNode<yal::DeclParamVar>(yymsp[-2].minor.yy0.tokenStr, yal::Qualifier(),yymsp[0].minor.yy64);
+        yylhsminor.yy173 = pParser->newAstNode<yal::DeclParamVar>(yymsp[-2].minor.yy0.tokenStr,
+                                                   pParser->getActiveScope(),
+                                                   yal::Qualifier(),yymsp[0].minor.yy64);
         auto srcInfo = pParser->createSourceInfo(yymsp[-2].minor.yy0, yymsp[0].minor.yy64->getSourceInfo());
         yylhsminor.yy173->setSourceInfo(srcInfo);
     } else {
@@ -1735,7 +1743,9 @@ static void yy_reduce(
         break;
       case 59: /* decl_var ::= VAR IDENTIFIER var_type_spec ASSIGN expression */
 {
-    auto varDecl = pParser->newAstNode<yal::DeclVar>(yymsp[-3].minor.yy0.tokenStr, yal::Qualifier(), yymsp[-2].minor.yy64, yymsp[0].minor.yy49);
+    auto varDecl = pParser->newAstNode<yal::DeclVar>(yymsp[-3].minor.yy0.tokenStr,
+                                                     pParser->getActiveScope(),
+                                                     yal::Qualifier(), yymsp[-2].minor.yy64, yymsp[0].minor.yy49);
     auto varSrcInfo = pParser->createSourceInfo(yymsp[-4].minor.yy0, yymsp[-3].minor.yy0);
     varDecl->setSourceInfo(varSrcInfo);
     if (pParser->onDecl(varDecl)) {
@@ -1750,7 +1760,9 @@ static void yy_reduce(
 {
     yal::Qualifier qualifier;
     qualifier.setImmutable();
-    auto varDecl = pParser->newAstNode<yal::DeclVar>(yymsp[-3].minor.yy0.tokenStr, qualifier, yymsp[-2].minor.yy64, yymsp[0].minor.yy49);
+    auto varDecl = pParser->newAstNode<yal::DeclVar>(yymsp[-3].minor.yy0.tokenStr,
+                                                     pParser->getActiveScope(),
+                                                     qualifier, yymsp[-2].minor.yy64, yymsp[0].minor.yy49);
     auto varSrcInfo = pParser->createSourceInfo(yymsp[-4].minor.yy0, yymsp[-3].minor.yy0);
     varDecl->setSourceInfo(varSrcInfo);
     if (pParser->onDecl(varDecl)) {
