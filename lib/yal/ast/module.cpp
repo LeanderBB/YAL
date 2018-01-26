@@ -19,34 +19,14 @@
 
 #include "yal/ast/module.h"
 #include "yal/ast/declmodule.h"
-#include <cstring>
+#include "yal/util/path.h"
 namespace yal {
 
-    std::string
+    StringRef
     Module::ModuleNameFromPath(const StringRef str) {
-        // search for last '.'
-        size_t posDot = str.size()+1;
-        for (size_t i = 0; i< str.size();++i) {
-            const size_t pos = str.size() - i - 1;
-            if (str[pos] == '.') {
-                posDot = pos;
-                break;
-            }
-        }
-         // search for '/' or '\\'
-        const size_t secondSearchStart = (posDot == str.size() + 1)
-                ? str.size() - 1
-                : posDot - 1;
-        posDot = std::min(posDot, str.size());
-        size_t posSlash = 0;
-        for (size_t i = secondSearchStart; i >0 ; --i) {
-            if (str[i] == '\\' || str[i] == '/') {
-                posSlash = i + 1;
-                break;
-            }
-        }
-        std::string name(str.data() + posSlash, (posDot - posSlash));
-        return name;
+        const StringRef basename = Path::GetBasename(str);
+        const StringRef moduleName = Path::RemoveExtension(basename);
+        return moduleName;
     }
 
     Module::Module(const StringRef name,

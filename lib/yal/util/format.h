@@ -19,35 +19,60 @@
 #pragma once
 #include <cstring>
 #include <cstddef>
-
+#include <string>
 #include "yal/util/formattypes.h"
 namespace yal{
 
 
-    template <size_t size>
+
     struct Formater {
         const char* string = nullptr;
         size_t stringLen = 0;
         size_t stringPos = 0;
         size_t bufferPos = 0;
-        char buffer[size];
+        char* buffer = nullptr;
+        const size_t bufferSize = 0;
 
         StringRef toStringRef() const {
             return StringRef(buffer, bufferPos);
         }
+
+        void reset() {
+            stringLen = 0;
+            stringPos =0;
+            bufferPos = 0;
+        }
+
+    protected:
+        Formater(char* bufferPtr,
+                 const size_t bufferPtrSize) :
+            buffer(bufferPtr),
+            bufferSize(bufferPtrSize) {
+
+        }
     };
 
-
-
     template <size_t size>
-    size_t FormatImpl(Formater<size>& formater) {
-        const size_t bufferSize =sizeof(formater.buffer) ;
-        const size_t leftOverSize = bufferSize - formater.bufferPos;
+    struct FormaterStack : Formater {
+        char stackBuffer[size];
+        FormaterStack() :
+            Formater(stackBuffer, size){
+        }
+    };
+
+    struct FormaterString : Formater {
+        FormaterString(std::string& str) :
+            Formater(const_cast<char*>(str.data()), str.size()){
+        }
+    };
+
+    inline size_t FormatImpl(Formater& formater) {
+        const size_t leftOverSize = formater.bufferSize - formater.bufferPos;
         const size_t leftOverString = formater.stringLen - formater.stringPos;
 
         if (leftOverString > 0
                 && leftOverSize > formater.bufferPos
-                && leftOverSize <= bufferSize) {
+                && leftOverSize <= formater.bufferSize) {
             const size_t copySize = std::min(leftOverString, leftOverSize);
 
             memcpy(formater.buffer + formater.bufferPos,
@@ -58,15 +83,15 @@ namespace yal{
         return formater.bufferPos;
     }
 
-    template <size_t size, typename T, typename ...Args>
-    size_t FormatImpl(Formater<size>& formater,
-                      const T& arg,
-                      const Args&... other) {
+    template <typename T, typename ...Args>
+    inline size_t FormatImpl(Formater& formater,
+                             const T& arg,
+                             const Args&... other) {
         const char* curString = formater.string + formater.stringPos;
         const size_t remainingStrSize = formater.stringLen - formater.stringPos;
 
         // check if we filled out our buffer
-        if (formater.bufferPos == sizeof(formater.buffer)) {
+        if (formater.bufferPos == formater.bufferSize) {
             return formater.bufferPos;
         }
 
@@ -80,7 +105,7 @@ namespace yal{
 
         // copy remaining text from marker to buffer
         const size_t markerPosDiff =  (reinterpret_cast<const uint8_t* >(marker) -
-                                      reinterpret_cast<const uint8_t*>(curString));
+                                       reinterpret_cast<const uint8_t*>(curString));
 
         if (markerPosDiff > 0) {
             ::memcpy(formater.buffer + formater.bufferPos,
@@ -91,7 +116,7 @@ namespace yal{
         formater.stringPos += markerPosDiff + 1;
 
         FormatTypeArgs formatLoc {
-            sizeof(formater.buffer) -formater.bufferPos,
+            formater.bufferSize -formater.bufferPos,
                     formater.buffer + formater.bufferPos};
 
         const size_t bytesWritten = FormatType(formatLoc, arg);
@@ -100,8 +125,8 @@ namespace yal{
         return FormatImpl(formater, other...);
     }
 
-    template <size_t size, typename ...Args>
-    size_t Format(Formater<size>& formater,
+    template <typename ...Args>
+    size_t Format(Formater& formater,
                   const char* str,
                   const Args&... other) {
         formater.bufferPos = 0;
@@ -110,6 +135,17 @@ namespace yal{
         formater.stringPos = 0;
         return FormatImpl(formater,other...);
     }
+
+    template <typename ...Args>
+    size_t FormatAppend(Formater& formater,
+                        const char* str,
+                        const Args&... other) {
+        formater.string = str;
+        formater.stringLen = ::strlen(str);
+        formater.stringPos = 0;
+        return FormatImpl(formater,other...);
+    }
+
 
 
 

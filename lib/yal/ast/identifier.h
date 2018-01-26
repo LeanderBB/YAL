@@ -45,6 +45,10 @@ namespace yal {
 
         StringRef getAsString() const;
 
+        const std::string& getAsStdString() const {
+            return m_idString;
+        }
+
         void setIdString(StringRef idString);
 
         void setIdString(StringRef idString,

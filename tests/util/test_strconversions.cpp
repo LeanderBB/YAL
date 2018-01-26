@@ -163,3 +163,23 @@ TEST(StringConversion, doubleNegative) {
     EXPECT_EQ(value, expected);
 }
 
+TEST(StringReplace, pattern_bigger) {
+    const yal::StringRef input = "test";
+    const std::string result = input.replace("adeafeafafe", "ad");
+    EXPECT_EQ(input.toString(), result);
+}
+
+TEST(StringReplace, pattern_replace) {
+    const yal::StringRef input = "test::module::type";
+    const yal::StringRef expected = "test_module_type";
+    const std::string result = input.replace("::", "_");
+    EXPECT_EQ(expected.toString(), result);
+}
+
+TEST(StringReplace, pattern_replace_end) {
+    const yal::StringRef input = "test::module::type::";
+    const yal::StringRef expected = "test_module_type_";
+    const std::string result = input.replace("::", "_");
+    EXPECT_EQ(expected.toString(), result);
+}
+

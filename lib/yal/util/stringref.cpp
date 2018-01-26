@@ -19,7 +19,10 @@
 #include "yal/yal.h"
 #include "yal/util/stringref.h"
 #include <cstring>
+#include <limits>
 namespace yal {
+
+    const size_t StringRef::npos = std::numeric_limits<size_t>::max();
 
     StringRef::StringRef(const char* str):
         m_str(str),
@@ -163,6 +166,99 @@ namespace yal {
         StringRefPod result;
         result.str = m_str;
         result.size = m_size;
+        return result;
+    }
+
+    void
+    StringRef::toCStr(char* dst,
+                      const size_t size) const {
+        const size_t copySize = std::min(size, size - 1);
+        memcpy(dst, m_str, copySize);
+        dst[copySize] = '\0';
+    }
+
+    size_t
+    StringRef::findFirstOf(const size_t start,
+                           const char ch) const {
+        if (m_size == 0 || start >= m_size) {
+            return npos;
+        }
+
+        const void* result = memchr(m_str + start, ch, m_size);
+        if (result == nullptr) {
+            return npos;
+        }
+
+        const std::ptrdiff_t resultPtr = reinterpret_cast<std::ptrdiff_t>(result);
+        const std::ptrdiff_t dataPtr = reinterpret_cast<std::ptrdiff_t>(m_str);
+        return resultPtr - dataPtr;
+    }
+
+    size_t
+    StringRef::findLastOf(const size_t start,
+                          const char ch) const {
+        if (m_size == 0 || start >= m_size) {
+            return npos;
+        }
+
+        const void* result = memrchr(m_str, ch, start);
+        if (result == nullptr) {
+            return npos;
+        }
+
+        const std::ptrdiff_t resultPtr = reinterpret_cast<std::ptrdiff_t>(result);
+        const std::ptrdiff_t dataPtr = reinterpret_cast<std::ptrdiff_t>(m_str);
+        return resultPtr - dataPtr;
+    }
+
+    StringRef
+    StringRef::subStr(const size_t start,
+                      const size_t len) const {
+        const size_t verifiedStart = std::min(start, m_size);
+        size_t verifiedLen = len;
+        if (verifiedStart + len > m_size) {
+            verifiedLen = m_size - verifiedStart;
+        }
+        return StringRef(m_str + verifiedStart, verifiedLen);
+    }
+
+    StringRef
+    StringRef::subStr(const size_t start) const {
+        const size_t verifiedStart = std::min(start, m_size);
+        const  size_t verifiedLen = m_size - verifiedStart;
+        return StringRef(m_str + verifiedStart, verifiedLen);
+    }
+
+    std::string
+    StringRef::replace(const StringRef pattern,
+                        const StringRef with) const {
+        //TODO: Boyer-Moore string search!
+        if (pattern.size() > m_size
+                || pattern.data() == nullptr
+                || with.data() == nullptr) {
+            return toString();
+        }
+
+        std::string result;
+        result.reserve(m_size);
+
+        size_t offset = 0;
+        size_t lastFoundOffset = 0;
+
+        while(offset + pattern.size() <= m_size) {
+            if (StringRef(m_str + offset, pattern.size()) == pattern){
+                result.append(m_str + lastFoundOffset, offset-lastFoundOffset);
+                result.append(with.data(), with.size());
+                offset += pattern.size();
+                lastFoundOffset = offset;
+            } else {
+                offset += 1;
+            }
+        }
+
+        if (offset-lastFoundOffset != 0) {
+            result.append(m_str + lastFoundOffset, m_size-lastFoundOffset);
+        }
         return result;
     }
 }

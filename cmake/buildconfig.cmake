@@ -2,6 +2,24 @@
 # Build Configuration settings
 #
 
+set(YAL_OS_DEFINES)
+
+if (UNIX)
+    set(YAL_OS_DEFINES ${YAL_OS_DEFINES} "YAL_OS_UNIX")
+endif()
+
+if (UNIX AND NOT APPLE)
+    set(YAL_OS_DEFINES ${YAL_OS_DEFINES} "YAL_OS_LINUX")
+endif()
+
+if (APPLE)
+    set(YAL_OS_DEFINES ${YAL_OS_DEFINES} "YAL_OS_UNIX YAL_OS_APPLE")
+endif()
+
+if (WIN32)
+    set(YAL_OS_DEFINES ${YAL_OS_DEFINES} "YAL_OS_WIN32")
+endif()
+
 if (NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE "Release")
 endif()
@@ -14,7 +32,7 @@ if (NOT MSVC) # Clang and GCC
     set(YAL_C_FLAGS -std=c99 -Wall -Wextra -pedantic)
     set(YAL_CXX_FLAGS -Wall -Wextra -std=c++14 -fno-exceptions -fno-rtti)
 
-    set(YAL_DEFINITIONS)
+    set(YAL_DEFINITIONS ${YAL_OS_DEFINES})
     # Release flags
      set(YAL_DEFINITIONS_RELEASE "YAL_RELEASE")
     # Debug flags
@@ -25,7 +43,7 @@ if (NOT MSVC) # Clang and GCC
 else() # MSVC
     # Common flags
     set(YAL_WERROR_FLAG /WX)
-    set(YAL_DEFINITIONS WIN32 _WINDOWS _CRT_SECURE_NO_WARNINGS)
+    set(YAL_DEFINITIONS WIN32 _WINDOWS _CRT_SECURE_NO_WARNINGS ${YAL_OS_DEFINES})
     set(YAL_C_FLAGS /Wall)
     set(YAL_C_WARNING_FLAGS /W2)
     set(YAL_CXX_FLAGS /W2 /EHsc)

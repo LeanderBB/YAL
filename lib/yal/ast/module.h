@@ -31,7 +31,7 @@ namespace yal {
     public:
         typedef uint32_t Id;
 
-        static std::string ModuleNameFromPath(const StringRef str);
+        static StringRef ModuleNameFromPath(const StringRef str);
 
         Module(const StringRef name,
                ModuleManager &manager,
@@ -92,7 +92,7 @@ namespace yal {
         const Id m_id;
         const SourceManager::Handle m_sourceHandle;
         ModuleManager& m_manager;
-        const std::string m_name;
+        const StringRef m_name;
         ASTContext m_astContext;
         TypeContext m_typeContext;
         DeclModule* m_rootNode;

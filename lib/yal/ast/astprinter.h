@@ -66,7 +66,7 @@ namespace yal {
 
     private:
         ByteStream& m_stream;
-        Formater<1024> m_formater;
+        FormaterStack<1024> m_formater;
         std::vector<char> m_identationChars;
     };
 

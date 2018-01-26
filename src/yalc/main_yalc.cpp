@@ -33,6 +33,8 @@
 #include <yal/io/sourceitems.h>
 #include <yal/compiler/compiler.h>
 
+#include <yal/transpiler/c/transpilerc.h>
+
 int main(const int argc,
          const char** argv) {
 
@@ -69,6 +71,14 @@ int main(const int argc,
     if (module != nullptr) {
         yal::AstPrinter astPrinter(stdoutStream);
         astPrinter.visit(*module->getDeclNode());
+
+        if (argc > 2) {
+            yal::TranspilerC transpiler;
+            yal::TranspilerOptions options;
+            options.intermediatOuputDir = argv[2];
+            transpiler.transpile(options, log, *module, sourceManager);
+        }
+
     }
 
     return module != nullptr ? EXIT_SUCCESS : EXIT_FAILURE;

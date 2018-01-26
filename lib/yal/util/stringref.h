@@ -33,6 +33,9 @@ namespace yal {
     class StringRef
     {
     public:
+
+        static const size_t npos;
+
         StringRef() = default;
 
         ~StringRef() = default;
@@ -77,6 +80,31 @@ namespace yal {
         std::string toString() const;
 
         StringRefPod toStringRefPod() const;
+
+        void toCStr(char* dst,
+                         const size_t size) const;
+
+        size_t findFirstOf(const size_t start,
+                           const char ch) const;
+
+        size_t findLastOf(const size_t start,
+                          const char ch) const;
+
+        inline size_t findFirstOf(const char ch) const {
+            return findFirstOf(0, ch);
+        }
+
+        inline size_t findLastOf(const char ch) const {
+            return findLastOf(m_size - 1, ch);
+        }
+
+        StringRef subStr(const size_t start,
+                         const size_t len) const;
+
+        StringRef subStr(const size_t start) const;
+
+        std::string replace(const StringRef pattern,
+                            const StringRef with) const;
 
     private:
         const char* m_str = nullptr;

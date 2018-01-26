@@ -43,7 +43,9 @@ namespace yal {
             return m_returnType != nullptr;
         }
 
-        bool hasFunctionParameters() const;
+        bool hasFunctionParameters() const {
+            return m_params != nullptr;
+        }
 
         RefType* getReturnType() const {
             return m_returnType;

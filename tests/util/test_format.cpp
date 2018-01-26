@@ -24,7 +24,7 @@
 
 
 TEST(Format, Simple) {
-    yal::Formater<1024> formater;
+    yal::FormaterStack<1024> formater;
     const size_t result = yal::Format(formater, "my pretty %", "string");
     const std::string expected = "my pretty string";
     const yal::StringRef string = formater.toStringRef();
@@ -34,7 +34,7 @@ TEST(Format, Simple) {
 
 
 TEST(Format, Multiple) {
-    yal::Formater<1024> formater;
+    yal::FormaterStack<1024> formater;
     const size_t result = yal::Format(formater, "my pretty %, is it %", "string", false);
     const std::string expected = "my pretty string, is it false";
     const yal::StringRef string = formater.toStringRef();
@@ -44,7 +44,7 @@ TEST(Format, Multiple) {
 
 
 TEST(Format, MissingArgs) {
-    yal::Formater<1024> formater;
+    yal::FormaterStack<1024> formater;
     const size_t result = yal::Format(formater, "my pretty %, is it % or is it %", "string", false);
     const std::string expected = "my pretty string, is it false or is it %";
     const yal::StringRef string = formater.toStringRef();
@@ -53,7 +53,7 @@ TEST(Format, MissingArgs) {
 }
 
 TEST(Format, NotEnoughSpace) {
-    yal::Formater<15> formater;
+    yal::FormaterStack<15> formater;
     const size_t result = yal::Format(formater, "my pretty %, is it % or is it %", "string", false);
     const std::string expected = "my pretty strin";
     const yal::StringRef string = formater.toStringRef();
@@ -63,7 +63,7 @@ TEST(Format, NotEnoughSpace) {
 
 
 TEST(Format, NotEnoughSpaceInteger) {
-    yal::Formater<12> formater;
+    yal::FormaterStack<12> formater;
     const size_t result = yal::Format(formater, "my pretty %", 2048u);
     const std::string expected = "my pretty 2";
     const yal::StringRef string = formater.toStringRef();

@@ -82,7 +82,7 @@ namespace yal{
 
     private:
         enum {kInternalBufferSizBytes = 4096};
-        Formater<kInternalBufferSizBytes> m_formater;
+        FormaterStack<kInternalBufferSizBytes> m_formater;
         ByteStream& m_out;
         ByteStream& m_error;
         bool m_multiLine;

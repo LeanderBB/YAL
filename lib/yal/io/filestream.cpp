@@ -69,11 +69,11 @@ namespace yal {
                      const uint32_t mode) {
         const char* fmode = nullptr;
         if ((mode & kModeReadWrite) == kModeReadWrite){
-            fmode = "bw+";
+            fmode = "rw+";
         } else if (mode & kModeRead){
             fmode = "rb";
         } else {
-            fmode = "rw";
+            fmode = "w";
         }
 
         FileType file(fopen(path, fmode), fileDtor);

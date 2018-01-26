@@ -150,6 +150,14 @@ set(YAL_SOURCES
     yal/parser/parserhelper.h
     yal/parser/parserhelper.cpp
 
+    yal/transpiler/transpiler.h
+    yal/transpiler/c/transpilerc.h
+    yal/transpiler/c/transpilerc.cpp
+    yal/transpiler/c/codegenc.cpp
+    yal/transpiler/c/codegenc.h
+    yal/transpiler/c/gentypesc.h
+    yal/transpiler/c/gentypesc.cpp
+
     yal/util/log.h
     yal/util/log.cpp
     yal/util/prettyprint.cpp
@@ -165,6 +173,10 @@ set(YAL_SOURCES
     yal/util/strconversions.cpp
     yal/util/iteratorrange.h
     yal/util/stackjump.h
+    yal/util/path.h
+    yal/util/path.cpp
+    yal/util/codewriter.cpp
+    yal/util/codewriter.h
     )
 
 # include parser / lexer DSL's
