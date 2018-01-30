@@ -18,15 +18,14 @@
  */
 
 #include "yal/transpiler/c/gentypesc.h"
-#include "yal/ast/typebuiltin.h"
-#include "yal/ast/typedecl.h"
+#include "yal/ast/astnodes.h"
 namespace yal {
 
     static const char*
     CTypeForDataType(const TypeBuiltin::DataType dt) {
         switch(dt) {
         case TypeBuiltin::DataType::Boolean:
-            return "int8_t";
+            return "yal_bool";
         case TypeBuiltin::DataType::Int8:
             return "int8_t";
         case TypeBuiltin::DataType::UInt8:
@@ -55,7 +54,12 @@ namespace yal {
 
     std::string
     GenTypesC::GenIdentifier(const Identifier& identifier) {
-        return identifier.getAsString().replace("::", "_");
+        return GenIdentifier(identifier.getAsString());
+    }
+
+    std::string
+    GenTypesC::GenIdentifier(const StringRef& string) {
+        return string.replace("::", "_");
     }
 
     void
@@ -84,10 +88,11 @@ namespace yal {
     GenTypesC::GenIdentifierFromType(CodeWriter &writer,
                                      const TypeDecl& type) {
         std::string cidentifier = GenIdentifier(type.getIdentifier());
-        const char* formatStr = type.isStruct()
-                ? "struct %"
-                : "%";
-        writer.write(formatStr, cidentifier.c_str());
+        if (type.isStruct()) {
+            writer.write("t_%", cidentifier);
+        } else {
+            writer.write("%", cidentifier);
+        }
     }
 
     void
@@ -110,5 +115,159 @@ namespace yal {
         }
 
         writer.write(" ");
+    }
+
+
+    void
+    GenTypesC::GenDeclFunctionIntro(CodeWriter& writer,
+                                    const DeclFunctionBase& function) {
+        if (function.hasReturnValue()) {
+            GenTypesC::GenFromQualType(writer, function.getReturnQualType());
+        } else {
+            writer.write("void ");
+        }
+        writer.write();
+        const std::string id = GenTypesC::GenIdentifier(function.getIdentifier());
+        writer.write("%", id);
+        if (function.hasFunctionParameters()) {
+            const DeclParamVarContainer* params = function.getParams();
+            bool first = true;
+            writer.write("(");
+            writer.ident();
+            for (auto& param : params->getChildRangeConst()) {
+                if (!first) {
+                    writer.write("\n,");
+                }
+
+                const QualType paramQt = param->getQualType();
+                GenTypesC::GenFromQualType(writer, paramQt);
+                // movable variables need to passed in by pointer
+                if (!paramQt.getQualifier().isReference()
+                        && !paramQt.getType()->isTriviallyCopiable()) {
+                    writer.write("%_moved *", param->getName());
+                } else {
+                    writer.write("%", param->getName());
+                }
+                first = false;
+            }
+            writer.uindent();
+            writer.write(")");
+        } else {
+            writer.write("()");
+        }
+    }
+
+    void
+    GenTypesC::GenDeclFunctionMovedParams(CodeWriter& writer,
+                                          const DeclFunctionBase& function) {
+        if (function.hasFunctionParameters()) {
+            const DeclParamVarContainer* params = function.getParams();
+            for (auto& param : params->getChildRangeConst()) {
+
+
+                const QualType paramQt = param->getQualType();
+                // movable variables need to passed in by pointer
+                if (!paramQt.getQualifier().isReference()
+                        && !paramQt.getType()->isTriviallyCopiable()) {
+                    GenTypesC::GenFromQualType(writer, paramQt);
+                    writer.write("% = *%_moved;\n",
+                                 param->getName(),
+                                 param->getName());
+                }
+            }
+        }
+    }
+
+    void
+    GenTypesC::GenDeclStruct(CodeWriter& writer,
+                             const DeclStruct& decl){
+        const std::string identifier
+                = GenTypesC::GenIdentifier(decl.getIdentifier());
+        writer.write("struct % {\n", identifier);
+        writer.ident();
+        for (auto& member : decl.getMembers()->getChildRangeConst()) {
+            GenTypesC::GenFromQualType(writer, member->getQualType());
+            writer.write("%;\n", member->getName());
+        }
+        writer.uindent();
+        writer.write("};\ntypedef struct % t_%;\n\n", identifier, identifier);
+    }
+
+    void
+    GenTypesC::GenUnaryOperator(CodeWriter& writer,
+                                const UnaryOperatorType op) {
+        switch (op) {
+        case UnaryOperatorType::Not:
+            writer.write("!");
+            break;
+        case UnaryOperatorType::BitNot:
+            writer.write("~");
+            break;
+        case UnaryOperatorType::Negate:
+            writer.write("-");
+            break;
+        case UnaryOperatorType::Reference:
+            writer.write("&");
+            break;
+        default:
+            YAL_ASSERT_MESSAGE(false, "unknown unary operator type");
+        }
+    }
+
+    void
+    GenTypesC::GenBinaryOperator(CodeWriter& writer,
+                                 const BinaryOperatorType op) {
+        switch(op) {
+        case BinaryOperatorType::Plus:
+            writer.write("+");
+            break;
+        case BinaryOperatorType::Minus:
+            writer.write("-");
+            break;
+        case BinaryOperatorType::Div:
+            writer.write("/");
+            break;
+        case BinaryOperatorType::Mult:
+            writer.write("*");
+            break;
+        case BinaryOperatorType::Mod:
+            writer.write("%");
+            break;
+        case BinaryOperatorType::And:
+            writer.write("&&");
+            break;
+        case BinaryOperatorType::Or:
+            writer.write("||");
+            break;
+        case BinaryOperatorType::BitAnd:
+            writer.write("&");
+            break;
+        case BinaryOperatorType::BitOr:
+            writer.write("|");
+            break;
+        case BinaryOperatorType::BitXor:
+            writer.write("^");
+            break;
+        case BinaryOperatorType::Eq:
+            writer.write("==");
+            break;
+        case BinaryOperatorType::Ne:
+            writer.write("!=");
+            break;
+        case BinaryOperatorType::Gt:
+            writer.write(">");
+            break;
+        case BinaryOperatorType::Ge:
+            writer.write(">=");
+            break;
+        case BinaryOperatorType::Le:
+            writer.write("<=");
+            break;
+        case BinaryOperatorType::Lt:
+            writer.write("<");
+            break;
+        default:
+            YAL_ASSERT_MESSAGE(false, "unknown binary operator type");
+        }
     }
 }

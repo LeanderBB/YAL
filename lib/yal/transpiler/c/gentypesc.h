@@ -26,10 +26,16 @@ namespace yal {
     class TypeDecl;
     class Identifier;
     class QualType;
+    class DeclFunctionBase;
+    class DeclStruct;
+    enum class UnaryOperatorType;
+    enum class BinaryOperatorType;
     class GenTypesC {
     public:
 
         static std::string GenIdentifier(const Identifier& identifier);
+
+        static std::string GenIdentifier(const StringRef& string);
 
         static void GenIdentifierFromType(CodeWriter &writer,
                                           const Type &type);
@@ -42,5 +48,20 @@ namespace yal {
 
         static void GenFromQualType(CodeWriter &writer,
                                     const QualType& type);
+
+        static void GenDeclFunctionIntro(CodeWriter& writer,
+                                         const DeclFunctionBase& function);
+
+        static void GenDeclFunctionMovedParams(CodeWriter& writer,
+                                                const DeclFunctionBase& function);
+
+        static void GenDeclStruct(CodeWriter& writer,
+                                  const DeclStruct& decl);
+
+        static void GenUnaryOperator(CodeWriter& writer,
+                                     const UnaryOperatorType op);
+
+        static void GenBinaryOperator(CodeWriter& writer,
+                                      const BinaryOperatorType op);
     };
 }

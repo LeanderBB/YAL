@@ -68,8 +68,24 @@ namespace yal {
             return false;
         }
 
-        CodeGenC codegen(module, streamSource, streamHeader);
-        codegen.writeFwdDecls();
+        CodeGenCConfig genConfig;
+        genConfig.genRvoReturnCode = 1;
+        genConfig.pragmaHeaderGuard = 0;
+        genConfig.modeC89 = 0;
+        genConfig.modeC99 = 1;
+
+        CodeGenC codegen(genConfig, module, streamSource, streamHeader);
+        if (!codegen.writeHeader()) {
+            log.error("TranspilerC: Failed to write module header file '%'\n",
+                      moduleHeader);
+            return false;
+        }
+
+        if (!codegen.writeSource()) {
+            log.error("TranspilerC: Failed to write module header file '%'\n",
+                      moduleSource);
+            return false;
+        }
 
         return true;
     }

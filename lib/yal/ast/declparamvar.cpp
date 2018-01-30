@@ -82,6 +82,11 @@ namespace yal {
     }
 
     void
+    DeclParamVarContainer::addDeclParam(DeclParamVarSelf* decl) {
+        m_nodes.insert(m_nodes.begin(), decl);
+    }
+
+    void
     DeclParamVarContainer::acceptVisitor(AstVisitor& visitor) {
         visitor.visit(*this);
     }

@@ -27,19 +27,30 @@ namespace yal {
     class Identifier;
     class Type;
     class QualType;
+
+    struct CodeGenCConfig {
+        unsigned pragmaHeaderGuard:1;
+        unsigned genRvoReturnCode: 1;
+        unsigned modeC99:1;
+        unsigned modeC89:1;
+    };
+
     class CodeGenC {
     public:
 
-        CodeGenC(Module& module,
+        CodeGenC(const CodeGenCConfig& config,
+                 Module& module,
                  ByteStream& streamSrc,
                  ByteStream& streamHdr);
 
-        bool writeFwdDecls();
+        bool writeHeader();
+
+        bool writeSource();
 
 
     private:
-        class FwdDeclVisitor;
-        class GenVisitor;
+        class VisitorHeader;
+        class VisitorSource;
 
         void scopeBegin(CodeWriter& stream);
 
@@ -47,12 +58,10 @@ namespace yal {
                       const bool useSemiColon);
 
     private:
-        enum {kInternalBufferSizBytes = 4096};
+        CodeGenCConfig m_config;
         Module& m_module;
         CodeWriter m_streamSrc;
         CodeWriter m_streamHdr;
-        FormaterStack<kInternalBufferSizBytes> m_formater;
-        uint32_t m_identLevel;
     };
 
 }
