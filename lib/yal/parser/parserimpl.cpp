@@ -2181,8 +2181,8 @@ static void yy_syntax_error(
                 pParser->getLog().error("%\n",yyTokenName[i]);
             }
         }
-    }
 #endif
+    }
 /************ End %syntax_error code ******************************************/
   YALParserARG_STORE; /* Suppress warning about unused %extra_argument variable */
 }

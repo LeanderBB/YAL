@@ -51,8 +51,8 @@
                 pParser->getLog().error("%\n",yyTokenName[i]);
             }
         }
-    }
 #endif
+    }
 }
 
 %right ASSIGN.

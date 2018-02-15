@@ -44,17 +44,17 @@ namespace yal {
     FileStream::open(const StdStream stream) {
 
         if (stream == StdStream::In) {
-            m_file = FileType(::stdin, stdStreamDtor);
+            m_file = FileType(stdin, stdStreamDtor);
             m_flags = kModeRead;
             m_fileSizeBytes = 0;
             m_offset = 0;
         } else if (stream == StdStream::Out) {
-            m_file = FileType(::stdout, stdStreamDtor);
+            m_file = FileType(stdout, stdStreamDtor);
             m_flags = kModeWrite;
             m_fileSizeBytes = 0;
             m_offset = 0;
         } else if (stream == StdStream::Error){
-            m_file = FileType(::stderr, stdStreamDtor);
+            m_file = FileType(stderr, stdStreamDtor);
             m_flags = kModeWrite;
             m_fileSizeBytes = 0;
             m_offset = 0;

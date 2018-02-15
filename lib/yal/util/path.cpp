@@ -29,6 +29,14 @@
 #include <linux/limits.h>
 #endif
 
+#if defined(YAL_OS_WIN32)
+#include <Windows.h>
+#include <direct.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <wchar.h>
+#endif
+
 namespace yal {
 
 #if defined(YAL_OS_UNIX)
@@ -48,10 +56,11 @@ namespace yal {
     }
 
 #else
-#erorr "Unsupport OS paltform"
+#error "Unsupport OS paltform"
 #endif
 
     static const char kExtSep = '.';
+
     using OSPathBuffer = std::array<OSPathCharType, GetMaxPathSize()>;
 
     static bool ConvertToOSPath(OSPathBuffer& osPath,
@@ -59,8 +68,27 @@ namespace yal {
 #if defined(YAL_OS_UNIX)
         path.toCStr(osPath.data(), GetMaxPathSize());
         return true;
+#elif defined(YAL_OS_WIN32)
+        const int nLenWide = MultiByteToWideChar(CP_UTF8, 
+                                                 0, 
+                                                 path.data(),
+                                                 path.length(), 
+                                                 NULL, 
+                                                 0);
+
+        if (nLenWide == 0 || static_cast<size_t>(nLenWide) >= osPath.size()) {
+            return false;
+        }
+
+        const int convResult = MultiByteToWideChar(CP_UTF8,
+                                                   0,
+                                                   path.data(),
+                                                   path.length(),
+                                                   osPath.data(),
+                                                   osPath.size());
+        return convResult != 0;
 #else
-#erorr "Unsupport OS paltform"
+#error "Unsupport OS paltform"
 #endif
     }
 
@@ -110,12 +138,22 @@ namespace yal {
 
 
 #if defined(YAL_OS_UNIX)
-    static inline int yal_mkdir(const char* path) {
+    static inline int yal_mkdir(const OSPathCharType* path) {
         return ::mkdir(path, (S_IWUSR | S_IRUSR | S_IXUSR));
     }
+
+    static inline OSPathCharType* yal_strchr(OSPathCharType* str,
+                                             const OSPathCharType ch) {
+        return strchr(str, ch);
+    }
 #elif defined (YAL_OS_WIN32)
-    static inline int yal_mkdir(const char* path) {
-        return _mkdir(path);
+    static inline int yal_mkdir(const OSPathCharType* path) {
+        return _wmkdir(path);
+    }
+
+    static inline OSPathCharType* yal_strchr(OSPathCharType* str,
+                                             const OSPathCharType ch) {
+        return wcschr(str, ch);
     }
 #else
 #error Missing implementation of mkdir
@@ -124,7 +162,7 @@ namespace yal {
     static bool MakeDirectoryRecursive(OSPathCharType *path,
                                        OSPathCharType* offset) {
         errno = 0;
-        OSPathCharType* char_loc = strchr(offset, kPathSep);
+        OSPathCharType* char_loc = yal_strchr(offset, kPathSep);
         if (char_loc) {
             *char_loc = '\0';
             const int errCode = yal_mkdir(path);
@@ -156,6 +194,24 @@ namespace yal {
         return MakeDirectoryRecursive(osPath.data(), osPath.data());
     }
 
+
+#if defined(YAL_OS_UNIX)
+    typedef struct stat yal_stat;
+    #define yal_statfn stat
+    #define yal_remove remove
+    #define yal_rename rename
+#elif defined(YAL_OS_WIN32)
+    typedef struct _stat64 yal_stat;
+    #define yal_statfn _wstat64
+    #define S_ISREG(m) (m & _S_IFREG == _S_IFREG)
+    #define S_ISDIR(m) (m & _S_IFDIR == _S_IFDIR)
+    #define S_ISLNK(m) (false)
+    #define yal_remove _wremove
+    #define yal_rename _wrename
+#else
+#error "Unknown platform"
+#endif
+
     bool
     Path::Exists(const StringRef path) {
         YAL_ASSERT(path.data() != nullptr);
@@ -163,8 +219,8 @@ namespace yal {
         if (!ConvertToOSPath(osPath, path)) {
             return false;
         }
-        struct stat file_info;
-        return (stat(osPath.data(), &file_info) == 0);
+        yal_stat file_info;
+        return (yal_statfn(osPath.data(), &file_info) == 0);
     }
 
     bool
@@ -176,8 +232,8 @@ namespace yal {
         }
 
         bool ret = false;
-        struct stat file_info;
-        ret = (stat(osPath.data(), &file_info) == 0);
+        yal_stat file_info;
+        ret = (yal_statfn(osPath.data(), &file_info) == 0);
         if (ret) {
             ret = S_ISREG(file_info.st_mode);
         }
@@ -192,8 +248,8 @@ namespace yal {
             return false;
         }
         bool ret = false;
-        struct stat file_info;
-        ret = (stat(osPath.data(), &file_info) == 0);
+        yal_stat file_info;
+        ret = (yal_statfn(osPath.data(), &file_info) == 0);
         if (ret) {
             ret = S_ISDIR(file_info.st_mode);
         }
@@ -208,8 +264,8 @@ namespace yal {
             return false;
         }
         bool ret = false;
-        struct stat file_info;
-        ret = (stat(osPath.data(), &file_info) == 0);
+        yal_stat file_info;
+        ret = (yal_statfn(osPath.data(), &file_info) == 0);
         if (ret) {
             ret = S_ISLNK(file_info.st_mode);
         }
@@ -223,7 +279,7 @@ namespace yal {
         if (!ConvertToOSPath(osPath, path)) {
             return false;
         }
-        return remove(osPath.data()) == 0;
+        return yal_remove(osPath.data()) == 0;
     }
 
     bool
@@ -238,6 +294,6 @@ namespace yal {
         if (!ConvertToOSPath(osPathNew, newPath)) {
             return false;
         }
-        return rename(osPathOld.data(), osPathNew.data()) == 0;
+        return yal_rename(osPathOld.data(), osPathNew.data()) == 0;
     }
 }

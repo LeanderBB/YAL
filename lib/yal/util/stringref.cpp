@@ -20,6 +20,7 @@
 #include "yal/util/stringref.h"
 #include <cstring>
 #include <limits>
+#include <algorithm>
 namespace yal {
 
     const size_t StringRef::npos = std::numeric_limits<size_t>::max();
@@ -194,6 +195,30 @@ namespace yal {
         return resultPtr - dataPtr;
     }
 
+#if defined(YAL_OS_WIN32)
+    const void* yal_memrchr(const void* ptr,
+                            const int intChar,
+                            const size_t size) {
+        //TODO: Optimize?
+        const char ch = static_cast<char>(intChar);
+        const char* chPtr = reinterpret_cast<const char*>(ptr);
+
+        size_t curIndex = 0;
+        for (size_t i = 1; i <= size; ++i) {
+            curIndex = size - i;
+            if (chPtr[curIndex] == ch) {
+                return &chPtr[curIndex];
+            }
+        }
+        return nullptr;
+    }
+#elif defined(YAL_OS_UNIX)
+#define yal_memrchr memrchr
+#else 
+#error "Unknown OS"
+#endif
+
+
     size_t
     StringRef::findLastOf(const size_t start,
                           const char ch) const {
@@ -201,7 +226,7 @@ namespace yal {
             return npos;
         }
 
-        const void* result = memrchr(m_str, ch, start);
+        const void* result = yal_memrchr(m_str + start, ch, m_size - start);
         if (result == nullptr) {
             return npos;
         }
