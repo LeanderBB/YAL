@@ -161,6 +161,7 @@ namespace yal {
         bool isPointer() const;
         bool requiresReplace() const;
         bool isLValue() const;
+        bool isRValue() const;
 
     private:
         unsigned m_mutable:1;
@@ -208,6 +209,40 @@ namespace yal {
         const Type* getType() const {
             return m_type;
         }
+
+
+        bool isMutable() const {
+            return m_qualifier.isMutable();
+        }
+
+        bool isImmutable() const {
+            return m_qualifier.isImmutable();
+        }
+
+        bool isReference() const {
+            return m_qualifier.isReference();
+        }
+
+        bool isPointer() const {
+            return m_qualifier.isPointer();
+        }
+
+        bool requiresReplace() const {
+            return m_qualifier.requiresReplace();
+        }
+
+        bool isLValue() const {
+            return m_qualifier.isLValue();
+        }
+
+        bool isRValue() const {
+            return m_qualifier.isRValue();
+        }
+
+        bool isTriviallyCopiable() const;
+
+        bool isMovable() const;
+
     private:
         Qualifier m_qualifier;
         const Type* m_type = nullptr;

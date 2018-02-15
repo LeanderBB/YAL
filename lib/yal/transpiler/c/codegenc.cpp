@@ -55,7 +55,8 @@ namespace yal {
         VisitorSource(const CodeGenCConfig& config,
                       CodeWriter& writer):
             m_writer(writer),
-            m_config(config){
+            m_config(config),
+            m_varRefMkReference(false) {
 
         }
 
@@ -63,13 +64,12 @@ namespace yal {
         visit(DeclFunction& node) override {
             GenTypesC::GenDeclFunctionIntro(m_writer, node);
             m_writer.write(" {\n");
-            GenTypesC::GenDeclFunctionMovedParams(m_writer, node);
+            m_writer.ident();
             StatementList* body = node.getFunctionBody();
             if (body != nullptr) {
-                m_writer.ident();
                 body->acceptVisitor(*this);
-                m_writer.uindent();
             }
+            m_writer.uindent();
             m_writer.write("}\n\n");
         }
 
@@ -77,13 +77,12 @@ namespace yal {
         visit(DeclTypeFunction& node) override {
             GenTypesC::GenDeclFunctionIntro(m_writer, node);
             m_writer.write(" {\n");
-            GenTypesC::GenDeclFunctionMovedParams(m_writer, node);
+            m_writer.ident();
             StatementList* body = node.getFunctionBody();
             if (body != nullptr) {
-                m_writer.ident();
                 body->acceptVisitor(*this);
-                m_writer.uindent();
             }
+            m_writer.uindent();
             m_writer.write("}\n\n");
         }
 
@@ -196,6 +195,21 @@ namespace yal {
 
         void
         visit(ExprVarRef& node) override {
+            if (m_varRefMkReference) {
+                const QualType qt = node.getQualType();
+                if (!qt.isReference()
+                        && !qt.isTriviallyCopiable()) {
+                    m_writer.write("&");
+                }
+            }
+
+            const DeclParamVar* decl = dyn_cast<DeclParamVar>(node.getDeclVar());
+            if (decl != nullptr) {
+                if (decl->getQualType().isMovable()) {
+                    m_writer.write("*");
+                }
+            }
+
             m_writer.write("%", node.getDeclVar()->getName());
         }
 
@@ -218,7 +232,16 @@ namespace yal {
         void
         visit(ExprUnaryOperator& node) override {
             GenTypesC::GenUnaryOperator(m_writer,node.getOperatorType());
+            const bool varRefMkReferenceVal = m_varRefMkReference;
+            if (node.getOperatorType() == UnaryOperatorType::Reference) {
+                m_varRefMkReference = false;
+            }
+
             node.getExpression()->acceptVisitor(*this);
+
+            if (node.getOperatorType() == UnaryOperatorType::Reference) {
+                m_varRefMkReference = varRefMkReferenceVal;
+            }
         }
 
         void
@@ -237,6 +260,7 @@ namespace yal {
                                                  *qtLeft.getType());
                 m_writer.write(")");
             }
+
             node.getExpressionRight()->acceptVisitor(*this);
         }
 
@@ -288,18 +312,21 @@ namespace yal {
 
         void
         visit(ExprFnCall& node) override {
+            m_varRefMkReference = true;
             GenTypesC::GenIdentifierFromType(m_writer,
                                              *node.getFunctionType()->getType());
             const bool hasFunctionArgs = node.getFunctionArgs() != nullptr;
-             m_writer.write("(");
+            m_writer.write("(");
             if (hasFunctionArgs) {
                 node.getFunctionArgs()->acceptVisitor(*this);
             }
             m_writer.write(")");
+            m_varRefMkReference = false;
         }
 
         void
         visit(ExprTypeFnCall& node) override {
+            m_varRefMkReference = true;
             GenTypesC::GenIdentifierFromType(m_writer,
                                              *node.getFunctionType()->getType());
             const bool hasFunctionArgs = node.getFunctionArgs() != nullptr;
@@ -314,10 +341,12 @@ namespace yal {
                 node.getFunctionArgs()->acceptVisitor(*this);
             }
             m_writer.write(")");
+            m_varRefMkReference = false;
         }
 
         void
         visit(ExprTypeFnCallStatic& node) override {
+            m_varRefMkReference = true;
             GenTypesC::GenIdentifierFromType(m_writer,
                                              *node.getFunctionType()->getType());
             const bool hasFunctionArgs = node.getFunctionArgs() != nullptr;
@@ -326,6 +355,7 @@ namespace yal {
                 node.getFunctionArgs()->acceptVisitor(*this);
             }
             m_writer.write(")");
+            m_varRefMkReference = false;
         }
 
         void
@@ -384,6 +414,7 @@ namespace yal {
     private:
         CodeWriter& m_writer;
         const CodeGenCConfig& m_config;
+        bool m_varRefMkReference;
     };
 
     enum { kIdentLevel = 4};
@@ -442,6 +473,8 @@ namespace yal {
         m_streamSrc.write("// Auto generated source file for module %\n",
                           m_module.getName());
         m_streamSrc.write("// Do not modify\n\n");
+
+        m_streamSrc.write("#include <%>\n\n", m_config.relativeHeaderPath);
 
         VisitorSource visitor(m_config, m_streamSrc);
         m_module.getDeclNode()->acceptVisitor(visitor);

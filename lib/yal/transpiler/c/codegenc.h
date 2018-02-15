@@ -33,6 +33,9 @@ namespace yal {
         unsigned genRvoReturnCode: 1;
         unsigned modeC99:1;
         unsigned modeC89:1;
+        StringRef fullSourcePath;
+        StringRef fullHeaderPath;
+        StringRef relativeHeaderPath;
     };
 
     class CodeGenC {

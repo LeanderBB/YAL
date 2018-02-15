@@ -142,9 +142,8 @@ namespace yal {
                 const QualType paramQt = param->getQualType();
                 GenTypesC::GenFromQualType(writer, paramQt);
                 // movable variables need to passed in by pointer
-                if (!paramQt.getQualifier().isReference()
-                        && !paramQt.getType()->isTriviallyCopiable()) {
-                    writer.write("%_moved *", param->getName());
+                if (paramQt.isMovable()) {
+                    writer.write("%*", param->getName());
                 } else {
                     writer.write("%", param->getName());
                 }
@@ -154,27 +153,6 @@ namespace yal {
             writer.write(")");
         } else {
             writer.write("()");
-        }
-    }
-
-    void
-    GenTypesC::GenDeclFunctionMovedParams(CodeWriter& writer,
-                                          const DeclFunctionBase& function) {
-        if (function.hasFunctionParameters()) {
-            const DeclParamVarContainer* params = function.getParams();
-            for (auto& param : params->getChildRangeConst()) {
-
-
-                const QualType paramQt = param->getQualType();
-                // movable variables need to passed in by pointer
-                if (!paramQt.getQualifier().isReference()
-                        && !paramQt.getType()->isTriviallyCopiable()) {
-                    GenTypesC::GenFromQualType(writer, paramQt);
-                    writer.write("% = *%_moved;\n",
-                                 param->getName(),
-                                 param->getName());
-                }
-            }
         }
     }
 

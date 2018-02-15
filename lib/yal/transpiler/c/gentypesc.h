@@ -52,9 +52,6 @@ namespace yal {
         static void GenDeclFunctionIntro(CodeWriter& writer,
                                          const DeclFunctionBase& function);
 
-        static void GenDeclFunctionMovedParams(CodeWriter& writer,
-                                                const DeclFunctionBase& function);
-
         static void GenDeclStruct(CodeWriter& writer,
                                   const DeclStruct& decl);
 

@@ -233,6 +233,11 @@ namespace yal {
         return m_lvalue == 1;
     }
 
+    bool
+    Qualifier::isRValue() const {
+        return m_lvalue == 0;
+    }
+
     QualType
     QualType::Create(const Qualifier& qualifier,
                      const Type* type) {
@@ -242,4 +247,14 @@ namespace yal {
         return qt;
     }
 
+    bool
+    QualType::isTriviallyCopiable() const {
+        YAL_ASSERT(m_type != nullptr);
+        return m_type->isTriviallyCopiable();
+    }
+
+    bool
+    QualType::isMovable() const {
+        return !isReference() && !isTriviallyCopiable();
+    }
 }

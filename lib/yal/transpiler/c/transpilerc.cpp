@@ -29,6 +29,11 @@ namespace yal {
 
     }
 
+    static std::string
+    MakeModuleName(Module& module) {
+        return module.getName().replace("::","/");
+    }
+
     bool
     TranspilerC::transpile(const TranspilerOptions& options,
                            Log& log,
@@ -46,25 +51,31 @@ namespace yal {
             return false;
         }
 
-        const std::string moduleNameNoExt = Path::Join(intermediateDir,
-                                                       module.getName());
+
+        const std::string moduleNameNoExt = MakeModuleName(module);
 
         std::string moduleSource(moduleNameNoExt);
         moduleSource+= ".c";
         std::string moduleHeader(moduleNameNoExt);
         moduleHeader += ".h";
 
+        const std::string moduleSourcePath = Path::Join(intermediateDir,
+                                                    moduleSource);
+
+        const std::string moduleHeaderPath = Path::Join(intermediateDir,
+                                                    moduleHeader);
+
         FileStream streamSource, streamHeader;
 
-        if (!streamSource.open(moduleSource.c_str(), FileStream::kModeWrite)) {
+        if (!streamSource.open(moduleSourcePath.c_str(), FileStream::kModeWrite)) {
             log.error("TranspilerC: Failed to create module source file '%'\n",
-                      moduleSource);
+                      moduleSourcePath);
             return false;
         }
 
-        if (!streamHeader.open(moduleHeader.c_str(), FileStream::kModeWrite)) {
+        if (!streamHeader.open(moduleHeaderPath.c_str(), FileStream::kModeWrite)) {
             log.error("TranspilerC: Failed to create module header file '%'\n",
-                      moduleHeader);
+                      moduleHeaderPath);
             return false;
         }
 
@@ -73,6 +84,9 @@ namespace yal {
         genConfig.pragmaHeaderGuard = 0;
         genConfig.modeC89 = 0;
         genConfig.modeC99 = 1;
+        genConfig.fullSourcePath = StringRef(moduleSourcePath);
+        genConfig.fullHeaderPath = StringRef(moduleHeaderPath);
+        genConfig.relativeHeaderPath = StringRef(moduleHeader);
 
         CodeGenC codegen(genConfig, module, streamSource, streamHeader);
         if (!codegen.writeHeader()) {
