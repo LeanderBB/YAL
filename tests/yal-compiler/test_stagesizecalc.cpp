@@ -24,8 +24,8 @@
 TEST_F(CompileFixture, struct_size_2_integer) {
     const char* str = R"R(
     type Foo : struct {
-         x: i32;
-         y: i32;
+         x: i32,
+         y: i32
     }
 )R";
 
@@ -48,11 +48,11 @@ TEST_F(CompileFixture, struct_size_2_integer) {
 TEST_F(CompileFixture, struct_size_4i8_integer) {
     const char* str = R"R(
     type Foo : struct {
-        x0: i8;
-        x1: i8;
-        x2: i8;
-        x3: i8;
-        y: i32;
+        x0: i8,
+        x1: i8,
+        x2: i8,
+        x3: i8,
+        y: i32
     }
 )R";
 
@@ -74,8 +74,8 @@ TEST_F(CompileFixture, struct_size_4i8_integer) {
 TEST_F(CompileFixture, struct_size_ref_and_integer) {
     const char* str = R"R(
     type Foo : struct {
-         x: &i32;
-         y: i32;
+         x: &i32,
+         y: i32
     }
 )R";
 
@@ -97,8 +97,8 @@ TEST_F(CompileFixture, struct_size_ref_and_integer) {
 TEST_F(CompileFixture, struct_size_integer_and_ref) {
     const char* str = R"R(
     type Foo : struct {
-         x: i32;
-         y: &i32;
+         x: i32,
+         y: &i32
     }
 )R";
 

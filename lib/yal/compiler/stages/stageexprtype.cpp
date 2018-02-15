@@ -971,14 +971,7 @@ namespace yal {
         YAL_ASSERT(declStruct != nullptr);
 
         // count members without default constructors
-        uint32_t membersWithoutDefault = 0;
-
-        for (auto& member : declStruct->getMembers()->getChildRange()) {
-            if (member->getExpression() == nullptr) {
-                membersWithoutDefault++;
-            }
-        }
-
+        uint32_t memberCount = declStruct->getMembers()->getCount();
 
         if (node.getMemberInitList() != nullptr) {
             for (auto& memberInit : node.getMemberInitList()->getChildRange()) {
@@ -1034,24 +1027,19 @@ namespace yal {
                         onError();
                     }
                 }
-
-
-                if (member->getExpression() == nullptr) {
-                    membersWithoutDefault--;
-                }
+                memberCount--;
             }
 
         }
 
         // check if all members are properly initialized
-
-        if (membersWithoutDefault != 0) {
+        if (memberCount != 0) {
             PrettyPrint::SourceErrorPrint(log,
                                           node.getSourceInfo(),
                                           m_compiler.getSourceManager());
             log.error("Can not create struct '%', % member(s) remain(s) unintialized.\n",
                       *structType,
-                      membersWithoutDefault);
+                      memberCount);
             onError();
         }
 

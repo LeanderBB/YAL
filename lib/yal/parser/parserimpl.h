@@ -26,11 +26,11 @@ void YALParserTrace(FILE *TraceFILE,char *zTracePrompt);
 #define YAL_TOKEN_LET                            52
 #define YAL_TOKEN_VAR                            51
 #define YAL_TOKEN_RETURN                         50
-#define YAL_TOKEN_COMMA                          49
-#define YAL_TOKEN_SELF                           48
-#define YAL_TOKEN_PAR_END                        47
-#define YAL_TOKEN_PAR_BEGIN                      46
-#define YAL_TOKEN_FUNCTION                       45
+#define YAL_TOKEN_SELF                           49
+#define YAL_TOKEN_PAR_END                        48
+#define YAL_TOKEN_PAR_BEGIN                      47
+#define YAL_TOKEN_FUNCTION                       46
+#define YAL_TOKEN_COMMA                          45
 #define YAL_TOKEN_SCOPE_END                      44
 #define YAL_TOKEN_SCOPE_BEGIN                    43
 #define YAL_TOKEN_STRUCT                         42

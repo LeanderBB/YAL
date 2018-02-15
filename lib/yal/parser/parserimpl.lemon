@@ -240,7 +240,7 @@ decl_struct(A) ::= struct_header(B) SCOPE_BEGIN struct_decl_vars(C) SCOPE_END(Z)
     pParser->onDeclEnd();
 }
 
-struct_decl_vars(A) ::= struct_decl_vars(B) struct_decl_var(C). {
+struct_decl_vars(A) ::= struct_decl_vars(B) COMMA struct_decl_var(C). {
     A = B;
     if (pParser->onDecl(C)) {
         A->addDeclVar(C);
@@ -253,20 +253,16 @@ struct_decl_vars(A) ::= struct_decl_var(B). {
     }
 }
 
-struct_decl_var(A) ::= IDENTIFIER(B) COLON qualified_type(C) ASSIGN expression(D) SEMI_COLON(Z). {
-    A = pParser->newAstNode<yal::DeclVar>(B.tokenStr,
-                                          pParser->getActiveScope(),
-                                          yal::Qualifier(), C, D);
-    auto srcInfo = pParser->createSourceInfo(B, Z);
-    A->setSourceInfo(srcInfo);
-}
-
-struct_decl_var(A) ::= IDENTIFIER(B) COLON qualified_type(C) SEMI_COLON(Z). {
-    A = pParser->newAstNode<yal::DeclVar>(B.tokenStr,
-                                          pParser->getActiveScope(),
-                                          yal::Qualifier(), C, nullptr);
-    auto srcInfo = pParser->createSourceInfo(B, Z);
-    A->setSourceInfo(srcInfo);
+struct_decl_var(A) ::= IDENTIFIER(B) COLON qualified_type(C). {
+    if (C) {
+        A = pParser->newAstNode<yal::DeclVar>(B.tokenStr,
+                                              pParser->getActiveScope(),
+                                              yal::Qualifier(), C, nullptr);
+        auto srcInfo = pParser->createSourceInfo(B, C->getSourceInfo());
+        A->setSourceInfo(srcInfo);
+    } else {
+        A = nullptr;
+    }
 }
 
 

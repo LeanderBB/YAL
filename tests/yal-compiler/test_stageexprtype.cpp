@@ -23,8 +23,8 @@
 TEST_F(CompileFixture, struct) {
     const char* str = R"R(
      type Foo : struct {
-        bar: i32 = 0;
-        other: bool = false;
+        bar: i32,
+        other: bool
      }
 )R";
 
@@ -37,8 +37,8 @@ TEST_F(CompileFixture, struct) {
 TEST_F(CompileFixture, struct_unknown_member_type) {
     const char* str = R"R(
      type Foo : struct {
-        bar: i32 = 0;
-        other: Bar = Bar();
+        bar: i32,
+        other: Bar
      }
 )R";
 
@@ -51,8 +51,8 @@ TEST_F(CompileFixture, struct_unknown_member_type) {
 TEST_F(CompileFixture, type_function_static) {
     const char* str = R"R(
      type Foo : struct {
-        bar: i32 = 0;
-        other: bool = false;
+        bar: i32,
+        other: bool
      }
 
      fn Foo::static(instance:&Foo) : bool{
@@ -70,8 +70,8 @@ TEST_F(CompileFixture, type_function_static) {
 TEST_F(CompileFixture, type_function_instance) {
     const char* str = R"R(
      type Foo : struct {
-        bar: i32 = 0;
-        other: bool = false;
+        bar: i32,
+        other: bool
      }
 
      fn Foo::static(&self) : bool{
@@ -141,7 +141,7 @@ TEST_F(CompileFixture, type_function_duplicate) {
     const char* str = R"R(
 
      type Foo:struct {
-            bar:i32 = 0;
+            bar:i32
      }
 
      fn Foo::static(c:double) : double{
@@ -163,8 +163,8 @@ TEST_F(CompileFixture, struct_member_init_missing) {
     const char* str = R"R(
 
      type Foo:struct {
-            bar:i32 = 0;
-            other: bool;
+            bar:i32 ,
+            other:bool
      }
 
     fn Foo::static() : Foo {
@@ -182,11 +182,11 @@ TEST_F(CompileFixture, struct_member_init_missing) {
 TEST_F(CompileFixture, reference_assign_fail) {
     const char* str = R"R(
       type Bar : struct {
-          x : i32;
+          x : i32
       }
 
       type Foo : struct {
-          b: Bar;
+          b: Bar
       }
 
       fn assign(f: mut& Foo) {
@@ -204,11 +204,11 @@ TEST_F(CompileFixture, reference_assign_fail) {
 TEST_F(CompileFixture, reference_missing_cast) {
     const char* str = R"R(
       type Bar : struct {
-          x : i32;
+          x : i32
       }
 
       type Foo : struct {
-          b: Bar;
+          b: Bar
       }
 
       fn test(f: mut& Foo) {
@@ -234,11 +234,11 @@ TEST_F(CompileFixture, reference_missing_cast) {
 TEST_F(CompileFixture, reference_with_cast) {
     const char* str = R"R(
       type Bar : struct {
-          x : mut i32;
+          x : mut i32
       }
 
       type Foo : struct {
-          b: mut Bar;
+          b: mut Bar
       }
 
       fn test(f: mut& Foo) {
@@ -262,11 +262,11 @@ TEST_F(CompileFixture, reference_with_cast) {
 TEST_F(CompileFixture, reference_replace_required) {
     const char* str = R"R(
       type Bar : struct {
-          x : i32;
+          x : i32
       }
 
       type Foo : struct {
-          b: Bar;
+          b: Bar
       }
 
       fn main() {
@@ -285,11 +285,11 @@ TEST_F(CompileFixture, reference_replace_required) {
 TEST_F(CompileFixture, fntype_function_static_call) {
     const char* str = R"R(
       type Bar : struct {
-          x : i32;
+          x : i32
       }
 
       type Foo : struct {
-          b: Bar;
+          b: Bar
       }
 
       fn Foo::create(i:i32) : mut Foo {
@@ -310,11 +310,11 @@ TEST_F(CompileFixture, fntype_function_static_call) {
 TEST_F(CompileFixture, fntype_function_static_call_on_instance) {
     const char* str = R"R(
       type Bar : struct {
-          x : i32;
+          x : i32
       }
 
       type Foo : struct {
-          b: Bar;
+          b: Bar
       }
 
       fn Foo::create(i:i32) : mut Foo {
@@ -336,11 +336,11 @@ TEST_F(CompileFixture, fntype_function_static_call_on_instance) {
 TEST_F(CompileFixture, fntype_function_instance_call_as_static) {
     const char* str = R"R(
       type Bar : struct {
-          x : i32;
+          x : i32
       }
 
       type Foo : struct {
-          b: Bar;
+          b: Bar
       }
 
       fn Foo::create(i:i32) : mut Foo {
@@ -367,11 +367,11 @@ TEST_F(CompileFixture, fntype_function_instance_call_as_static) {
 TEST_F(CompileFixture, fntype_instance_call) {
     const char* str = R"R(
       type Bar : struct {
-          x : mut i32;
+          x : mut i32
       }
 
       type Foo : struct {
-          b: mut Bar;
+          b: mut Bar
       }
 
       fn Foo::create(i:i32) : mut Foo {

@@ -255,6 +255,9 @@ namespace yal{
 
     bool
     Parser::onDecl(DeclVar* decl) {
+        if (m_status != Result::Ok) {
+            return false;
+        }
         if (!m_stageDecls.onDecl(decl)) {
             m_status = Result::DeclError;
             return false;
@@ -264,6 +267,9 @@ namespace yal{
 
     bool
     Parser::onDecl(DeclParamVar* decl) {
+        if (m_status != Result::Ok) {
+            return false;
+        }
         if (!m_stageDecls.onDecl(decl)) {
             m_status = Result::DeclError;
             return false;

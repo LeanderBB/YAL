@@ -37,11 +37,11 @@ TEST_F(CompileFixture, function_self_use) {
 TEST_F(CompileFixture, declscope_check_for_declvar) {
     const char* str = R"R(
       type Bar : struct {
-          x : i32;
+          x : i32
       }
 
       type Foo : struct {
-          b: Bar;
+          b: Bar
       }
 
       fn main() {
