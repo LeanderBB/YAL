@@ -254,7 +254,7 @@ namespace yal {
     }
 
     bool
-    QualType::isMovable() const {
+    QualType::isMovedType() const {
         return !isReference() && !isTriviallyCopiable();
     }
 }

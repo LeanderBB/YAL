@@ -195,19 +195,23 @@ namespace yal {
 
         void
         visit(ExprVarRef& node) override {
+            const DeclParamVar* decl = dyn_cast<DeclParamVar>(node.getDeclVar());
+            const bool isMovedDeclParm = decl != nullptr;
+
             if (m_varRefMkReference) {
                 const QualType qt = node.getQualType();
                 if (!qt.isReference()
-                        && !qt.isTriviallyCopiable()) {
+                        && !qt.isTriviallyCopiable()
+                        && !isMovedDeclParm) {
                     m_writer.write("&");
                 }
             }
 
-            const DeclParamVar* decl = dyn_cast<DeclParamVar>(node.getDeclVar());
-            if (decl != nullptr) {
-                if (decl->getQualType().isMovable()) {
+
+            if (isMovedDeclParm
+                    && decl->getQualType().isMovedType()
+                    && !m_varRefMkReference) {
                     m_writer.write("*");
-                }
             }
 
             m_writer.write("%", node.getDeclVar()->getName());
@@ -231,10 +235,16 @@ namespace yal {
 
         void
         visit(ExprUnaryOperator& node) override {
-            GenTypesC::GenUnaryOperator(m_writer,node.getOperatorType());
+            // Do not write reference operator since it is handled when
+            // variables are being referenced.
+            if (node.getOperatorType() != UnaryOperatorType::Reference) {
+                GenTypesC::GenUnaryOperator(m_writer,node.getOperatorType());
+            }
+
             const bool varRefMkReferenceVal = m_varRefMkReference;
+
             if (node.getOperatorType() == UnaryOperatorType::Reference) {
-                m_varRefMkReference = false;
+                m_varRefMkReference = true;
             }
 
             node.getExpression()->acceptVisitor(*this);

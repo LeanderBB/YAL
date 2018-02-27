@@ -31,7 +31,8 @@ namespace yal {
 
     static std::string
     MakeModuleName(Module& module) {
-        return module.getName().replace("::","/");
+        StringRef noExt = Path::RemoveExtension(module.getName());
+        return noExt.replace("::","/");
     }
 
     bool

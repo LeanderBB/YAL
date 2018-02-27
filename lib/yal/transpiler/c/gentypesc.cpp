@@ -142,8 +142,8 @@ namespace yal {
                 const QualType paramQt = param->getQualType();
                 GenTypesC::GenFromQualType(writer, paramQt);
                 // movable variables need to passed in by pointer
-                if (paramQt.isMovable()) {
-                    writer.write("%*", param->getName());
+                if (paramQt.isMovedType()) {
+                    writer.write("*%", param->getName());
                 } else {
                     writer.write("%", param->getName());
                 }

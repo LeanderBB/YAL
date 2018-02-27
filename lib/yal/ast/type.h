@@ -241,7 +241,7 @@ namespace yal {
 
         bool isTriviallyCopiable() const;
 
-        bool isMovable() const;
+        bool isMovedType() const;
 
     private:
         Qualifier m_qualifier;

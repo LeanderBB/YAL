@@ -95,7 +95,7 @@ namespace yal {
         }
 
         inline size_t findLastOf(const char ch) const {
-            return findLastOf(m_size - 1, ch);
+            return findLastOf(0, ch);
         }
 
         StringRef subStr(const size_t start,
