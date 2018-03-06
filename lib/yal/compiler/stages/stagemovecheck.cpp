@@ -276,18 +276,20 @@ namespace yal {
                     if (decl->getExpression() == nullptr
                             && (decl->getAstType() == AstType::DeclParamVar
                                 || decl->getAstType() == AstType::DeclParamVarSelf)) {
-                        // reference to function parameter
-                        Log& log = m_compiler.getLog();
-                        PrettyPrint::SourceErrorPrint(log,
-                                                      exprVarRef->getSourceInfo(),
-                                                      m_compiler.getSourceManager());
-                        log.error("Can not return reference to variable bound "
-                                  "to local scope\n");
-                        log.error("Variable referenced here:\n");
-                        PrettyPrint::SourceErrorPrint(log,
-                                                      decl->getSourceInfo(),
-                                                      m_compiler.getSourceManager());
-                        onError();
+                        if (!decl->getQualType().isReference()) {
+                            // reference to function parameter
+                            Log& log = m_compiler.getLog();
+                            PrettyPrint::SourceErrorPrint(log,
+                                                          exprVarRef->getSourceInfo(),
+                                                          m_compiler.getSourceManager());
+                            log.error("Can not return reference to variable bound "
+                                      "to local scope\n");
+                            log.error("Variable referenced here:\n");
+                            PrettyPrint::SourceErrorPrint(log,
+                                                          decl->getSourceInfo(),
+                                                          m_compiler.getSourceManager());
+                            onError();
+                        }
                     } else {
                         // is an actual Decl var
                         const ExprUnaryOperator* unaryOp
@@ -445,12 +447,50 @@ namespace yal {
         if (node.getFunctionArgs() != nullptr) {
             node.getFunctionArgs()->acceptVisitor(*this);
             annotateExprList(node.getFunctionArgs());
+            /*
+             // This is unlikely to happen, left here for reference
+            const TypeDecl* fnType
+                    = dyn_cast<TypeDecl>(node.getFunctionType()->getType());
+            YAL_ASSERT(fnType != nullptr);
+
+            const DeclFunction* fnDecl
+                    = dyn_cast<DeclFunction>(fnType->getDecl());
+            YAL_ASSERT(fnDecl != nullptr);
+
+            const DeclParamVarContainer* fnParams = fnDecl->getParams();
+            const ExprList* fnArgs = node.getFunctionArgs();
+
+            for(size_t i = 0; i < fnParams->getCount(); ++i) {
+                const DeclParamVar* param = (*fnParams)[i];
+                const StmtExpression* expr = (*fnArgs)[i];
+
+                const QualType exprQt = expr->getQualType();
+                const QualType paramQt = param->getQualType();
+
+                if (paramQt.isReference()) {
+                    if (exprQt.isRValue()) {
+                        Log& log = m_compiler.getLog();
+                        PrettyPrint::SourceErrorPrint(log,
+                                                      node.getSourceInfo(),
+                                                      m_compiler.getSourceManager());
+                        log.error("Can not use rvalue as a parameter as reference for arg '%' in function '%'.",
+                                  param->getName(), fnDecl->getIdentifier());
+                        onError();
+                    }
+                }
+            } */
         }
     }
 
     void
     MoveAstVisitor::visit(ExprTypeFnCall& node) {
         if (node.getFunctionArgs() != nullptr) {
+
+            // TODO:
+            // For every function call, check if type is
+            // movable, if so, make sure the expression is an
+            // rvalue instead of an lvalue?
+
             node.getFunctionArgs()->acceptVisitor(*this);
             annotateExprList(node.getFunctionArgs());
         }

@@ -188,3 +188,55 @@ TEST_F(CompileFixture, move_return_fn_refarg) {
     yal::Module* module = compiler.compile(handle);
     EXPECT_EQ(module, nullptr);
 }
+
+TEST_F(CompileFixture, move_return_param_ref) {
+    const char* str = R"R(
+      fn make_ref(x:&i32) : &i32 {
+        return x;
+      }
+)R";
+
+    auto handle = createSourceHanlde(str);
+    yal::Compiler compiler(*m_log, m_sourceManager, m_moduleManager);
+    yal::Module* module = compiler.compile(handle);
+    EXPECT_NE(module, nullptr);
+}
+
+
+TEST_F(CompileFixture, move_return_self_param_ref) {
+    const char* str = R"R(
+      type Foo : struct {
+          x: i32
+      }
+
+      fn Foo::make_ref(&self) : &i32 {
+        return &self.x;
+      }
+)R";
+
+    auto handle = createSourceHanlde(str);
+    yal::Compiler compiler(*m_log, m_sourceManager, m_moduleManager);
+    yal::Module* module = compiler.compile(handle);
+    EXPECT_NE(module, nullptr);
+}
+
+TEST_F(CompileFixture, move_rvalue_into_ref) {
+    const char* str = R"R(
+
+      fn test(x:&i32) {
+      }
+
+      fn make_ref(x:&i32) : &i32 {
+        return x;
+      }
+      fn main(){
+         var x:i32 = 2;
+         test(make_ref(&x));
+      }
+)R";
+
+    auto handle = createSourceHanlde(str);
+    yal::Compiler compiler(*m_log, m_sourceManager, m_moduleManager);
+    yal::Module* module = compiler.compile(handle);
+    EXPECT_NE(module, nullptr);
+}

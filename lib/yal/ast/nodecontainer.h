@@ -168,6 +168,14 @@ namespace yal {
             }
         }
 
+        NodeType& operator [](const size_t i) {
+            return m_nodes[i];
+        }
+
+        const NodeType& operator [](const size_t i) const {
+            return m_nodes[i];
+        }
+
     protected:
         ContainerType m_nodes;
         SourceInfo m_sourceInfo;
