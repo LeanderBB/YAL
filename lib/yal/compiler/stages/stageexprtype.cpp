@@ -83,7 +83,7 @@ namespace yal {
     }
 
 
-    class ExprTypeAstVisitor : public RecursiveAstVisitor {
+    class ExprTypeAstVisitor final : public RecursiveAstVisitor {
 
     public:
 

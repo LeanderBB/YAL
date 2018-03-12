@@ -30,7 +30,6 @@ namespace yal {
                      RefType* varType,
                      StmtExpression *expr):
         DeclBase(module, AstType::DeclVar, name, scope),
-        m_varType(varType),
         m_qualType(varType->getQualType()),
         m_expression(expr){
 
@@ -43,6 +42,20 @@ namespace yal {
         m_qualType.setQualifier(newQual);
     }
 
+    DeclVar::DeclVar(Module& module,
+                     StringRef name,
+                     const DeclScope* scope,
+                     const QualType qaulType,
+                     StmtExpression* expr) :
+        DeclBase(module, AstType::DeclVar, name, scope),
+        m_qualType(qaulType),
+        m_expression(expr){
+
+        Qualifier newQual = m_qualType.getQualifier();
+        newQual.setLValue(true);
+        m_qualType.setQualifier(newQual);
+    }
+
 
     DeclVar::DeclVar(Module& module,
                      const AstType type,
@@ -51,7 +64,6 @@ namespace yal {
                      StringRef name,
                      RefType *varType) :
         DeclBase(module, type, name, scope),
-        m_varType(varType),
         m_qualType(varType->getQualType()),
         m_expression(nullptr){
 

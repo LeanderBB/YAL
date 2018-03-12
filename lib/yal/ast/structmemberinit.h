@@ -73,6 +73,8 @@ namespace yal {
             return m_initExpr;
         }
 
+        void setInitExpr(StmtExpression* initExpr);
+
     private:
         Module& m_module;
         SourceInfo m_sourceInfo;

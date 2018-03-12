@@ -34,6 +34,13 @@ namespace yal {
                 RefType* varType,
                 StmtExpression* expr);
 
+        DeclVar(Module& module,
+                StringRef name,
+                const DeclScope* scope,
+                const QualType qaulType,
+                StmtExpression* expr);
+
+
         const StmtExpression* getExpression() const {
             return m_expression;
         }
@@ -58,7 +65,6 @@ namespace yal {
                 RefType* varType);
 
     protected:
-        RefType* m_varType;
         QualType m_qualType;
         StmtExpression* m_expression;
     };

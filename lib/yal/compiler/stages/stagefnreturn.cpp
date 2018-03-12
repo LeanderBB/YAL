@@ -26,7 +26,7 @@
 namespace yal {
 
 
-    class ReturnCheckVisitor : public RecursiveAstVisitor {
+    class ReturnCheckVisitor final : public RecursiveAstVisitor {
 
     public:
 

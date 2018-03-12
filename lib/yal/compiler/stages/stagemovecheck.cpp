@@ -53,7 +53,7 @@ namespace yal {
         return true;
     }
 
-    class MoveAstVisitor : public RecursiveAstVisitor {
+    class MoveAstVisitor final : public RecursiveAstVisitor {
     public:
         MoveAstVisitor(Compiler& compiler,
                        Module& module,

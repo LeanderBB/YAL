@@ -38,6 +38,11 @@ namespace yal {
     }
 
     void
+    StructMemberInit::setInitExpr(StmtExpression *initExpr) {
+        m_initExpr = initExpr;
+    }
+
+    void
     StructMemberInit::acceptVisitor(AstVisitor& visitor) {
         visitor.visit(*this);
     }

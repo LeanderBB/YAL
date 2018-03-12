@@ -122,6 +122,8 @@ set(YAL_SOURCES
     yal/compiler/stages/stagemovecheck.h
     yal/compiler/stages/stagesizecalc.cpp
     yal/compiler/stages/stagesizecalc.h
+    yal/compiler/stages/stageexprlistbreakdown.h
+    yal/compiler/stages/stageexprlistbreakdown.cpp
 
     yal/io/memorystream.cpp
     yal/io/memorystream.h

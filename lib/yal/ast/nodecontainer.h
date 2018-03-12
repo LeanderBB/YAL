@@ -153,6 +153,12 @@ namespace yal {
                                   iterator_fn<ContainerType, ReverseIter>::cend(m_nodes));
         }
 
+
+        IteratorType insertAfter(IteratorType it,
+                                 ChildType child) {
+            return m_nodes.insert(it, child);
+        }
+
         void updateSourceInfo() {
             if (m_nodes.size() == 1) {
                 m_sourceInfo = m_nodes[0]->getSourceInfo();
