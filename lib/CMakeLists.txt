@@ -151,6 +151,38 @@ set(YAL_SOURCES
     yal/parser/parserimpl.h
     yal/parser/parserhelper.h
     yal/parser/parserhelper.cpp
+    yal/parser/syntaxtree.h
+    yal/parser/syntaxtree.cpp
+    yal/parser/syntaxtreetypes.def
+    yal/parser/syntaxtreevisitor.h
+    yal/parser/stdeclmodule.cpp
+    yal/parser/stdeclmodule.h
+    yal/parser/stdeclfunction.h
+    yal/parser/stdeclfunction.cpp
+    yal/parser/stdeclstruct.cpp
+    yal/parser/stdeclstruct.h
+    yal/parser/stdeclvar.h
+    yal/parser/stdeclvar.cpp
+    yal/parser/ststatement.h
+    yal/parser/ststmtexpression.h
+    yal/parser/ststmtreturn.h
+    yal/parser/ststmtreturn.cpp
+    yal/parser/ststmtdecl.cpp
+    yal/parser/ststmtdecl.h
+    yal/parser/ststmtassign.h
+    yal/parser/ststmtassign.cpp
+    yal/parser/stexprvarref.h
+    yal/parser/stexprvarref.cpp
+    yal/parser/stexproperators.cpp
+    yal/parser/stexproperators.h
+    yal/parser/stexprliterals.h
+    yal/parser/stexprliterals.cpp
+    yal/parser/stexprfncall.cpp
+    yal/parser/stexprfncall.h
+    yal/parser/stexprstructinit.cpp
+    yal/parser/stexprstructinit.h
+    yal/parser/stexprcasts.cpp
+    yal/parser/stexprcasts.h
 
     yal/transpiler/transpiler.h
     yal/transpiler/c/transpilerc.h
@@ -194,8 +226,8 @@ set_source_files_properties(yal/parser/declbasetypes.def
     PROPERTIES HEADER_FILE_ONLY TRUE)
 set_source_files_properties(yal/parser/typelist.def
     PROPERTIES HEADER_FILE_ONLY TRUE)
-
-
+set_source_files_properties( yal/parser/syntaxtreetypes.def
+    PROPERTIES HEADER_FILE_ONLY TRUE)
 
 
 #if re2c is availabe use custom targets
