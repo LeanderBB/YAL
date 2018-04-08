@@ -19,11 +19,11 @@
 
 #pragma once
 
-#include "yal/parser/syntaxtree.h"
+#include "yal/parser/ststmtexpression.h"
 
 namespace yal {
 
-    class STExprVarRef final : public SyntaxTree {
+    class STExprVarRef final : public STStmtExpression {
     public:
         STExprVarRef(const STIdentifier* identitifer);
 
@@ -38,8 +38,8 @@ namespace yal {
     };
 
     class STStmtExpression;
-    class STExprStructVarRef final : public SyntaxTree {
-
+    class STExprStructVarRef final : public STStmtExpression {
+    public:
         STExprStructVarRef( const STStmtExpression* expression,
                             const STIdentifier* identitifer);
 

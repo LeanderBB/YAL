@@ -34,10 +34,10 @@ namespace yal {
     }
 
     STDeclStruct::STDeclStruct(const STIdentifier *name,
-                               Members &&members):
-        SyntaxTree(SyntaxTreeType::STDeclStruct),
+                               const Members *members):
+        STDecl(SyntaxTreeType::STDeclStruct),
         m_name(name),
-        m_members(std::move(members)){
+        m_members(members) {
 
     }
 

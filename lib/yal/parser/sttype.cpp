@@ -16,23 +16,42 @@
  *  You should have received a copy of the GNU Lesser General Public
  *  License along with YAL. If not, see <http://www.gnu.org/licenses/>.
  */
-#include "yal/parser/stdeclmodule.h"
-#include "yal/parser/syntaxtreevisitor.h"
+#include "yal/parser/sttype.h"
+
 namespace yal {
 
-    STDeclModule::STDeclModule():
-    SyntaxTree(SyntaxTreeType::STDeclModule){
+    STIdentifier::STIdentifier(const StringRef identifier):
+        m_identifier(identifier) {
 
     }
 
     void
-    STDeclModule::addDecl(STDecl *node) {
-        m_decls.push_back(node);
+    STIdentifier::setSourceInfo(const SourceInfo& sourceInfo) {
+        m_sourceInfo = sourceInfo;
+    }
+
+
+    STType::STType(const Type type):
+        m_type(type),
+        m_identifier(){
+        YAL_ASSERT(m_type != Type::Custom);
+    }
+
+    STType::STType(const StringRef type):
+        m_type(Type::Custom),
+        m_identifier(type) {
+
     }
 
     void
-    STDeclModule::acceptVisitor(SyntaxTreeVisitor &visitor) const {
-        visitor.visit(*this);
+    STType::setSourceInfo(const SourceInfo& sourceInfo) {
+        m_sourceInfo = sourceInfo;
     }
 
+    STQualType::STQualType(const STType* type,
+                           const uint32_t qualifiers):
+    m_type(type),
+    m_qualifiers(qualifiers) {
+
+    }
 }

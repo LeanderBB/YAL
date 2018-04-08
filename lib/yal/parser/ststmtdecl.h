@@ -25,15 +25,15 @@ namespace yal {
 
     class STStmtDecl final : public STStatement {
     public:
-        STStmtDecl(const SyntaxTree* decl);
+        STStmtDecl(const STDecl* decl);
 
         void acceptVisitor(SyntaxTreeVisitor& visitor) const override final;
 
-        const SyntaxTree* getDecl() const {
+        const STDecl* getDecl() const {
             return m_decl;
         }
     private:
-        const SyntaxTree* m_decl;
+        const STDecl* m_decl;
     };
 
 }

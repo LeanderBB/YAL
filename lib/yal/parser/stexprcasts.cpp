@@ -22,9 +22,9 @@
 
 namespace yal {
 
-    STExprRangeCast::STExprRangeCast(const STIdentifier* targetType,
+    STExprRangeCast::STExprRangeCast(const STQualType *targetType,
                                      const STStmtExpression* expr):
-        SyntaxTree(SyntaxTreeType::STExprRangeCast),
+        STStmtExpression(SyntaxTreeType::STExprRangeCast),
         m_targetType(targetType),
         m_expr(expr) {
 

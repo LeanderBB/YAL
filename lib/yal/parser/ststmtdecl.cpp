@@ -22,7 +22,7 @@
 
 namespace yal {
 
-    STStmtDecl::STStmtDecl(const SyntaxTree* decl):
+    STStmtDecl::STStmtDecl(const STDecl* decl):
         STStatement(SyntaxTreeType::STStmtDecl),
         m_decl(decl) {
 

@@ -23,7 +23,7 @@
 namespace yal {
     STExprUnaryOperator::STExprUnaryOperator(const UnaryOperatorType op,
                                              const STStmtExpression* expr):
-        SyntaxTree(SyntaxTreeType::STExprUnaryOperator),
+        STStmtExpression(SyntaxTreeType::STExprUnaryOperator),
         m_op(op),
         m_expr(expr) {
 
@@ -39,7 +39,7 @@ namespace yal {
     STExprBinaryOperator::STExprBinaryOperator(const BinaryOperatorType op,
                                                const STStmtExpression* exprLeft,
                                                const STStmtExpression* exprRight):
-        SyntaxTree(SyntaxTreeType::STExprBinaryOperator),
+        STStmtExpression(SyntaxTreeType::STExprBinaryOperator),
         m_op(op),
         m_exprLeft(exprLeft),
         m_exprRight(exprRight) {

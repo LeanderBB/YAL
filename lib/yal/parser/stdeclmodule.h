@@ -25,11 +25,19 @@ namespace yal {
     class STDeclModule final : public SyntaxTree {
     public:
 
+        using Decls = std::vector<STDecl*>;
+
         STDeclModule();
 
         void acceptVisitor(SyntaxTreeVisitor& visitor) const override final;
 
+        void addDecl(STDecl* decl);
+
+        const Decls& getDecls() const {
+            return m_decls;
+        }
+
     protected:
-        std::vector<STDecl*> m_decls;
+        Decls m_decls;
     };
 }

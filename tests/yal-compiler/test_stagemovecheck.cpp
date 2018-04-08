@@ -24,11 +24,11 @@
 TEST_F(CompileFixture, move_use_after_assign) {
     const char* str = R"R(
       type Bar : struct {
-          x : i32;
+          x : i32
       }
 
       type Foo : struct {
-          b: Bar;
+          b: Bar
       }
 
       fn Foo::create(i:i32) : Foo{
@@ -52,11 +52,11 @@ TEST_F(CompileFixture, move_use_after_assign) {
 TEST_F(CompileFixture, move_use_after_function_call) {
     const char* str = R"R(
       type Bar : struct {
-          x : i32;
+          x : i32
       }
 
       type Foo : struct {
-          b: Bar;
+          b: Bar
       }
 
       fn Foo::create(i:i32) : Foo{
@@ -89,11 +89,11 @@ TEST_F(CompileFixture, move_use_after_function_call) {
 TEST_F(CompileFixture, move_use_after_assign_paramvar) {
     const char* str = R"R(
       type Bar : struct {
-          x : i32;
+          x : i32
       }
 
       type Foo : struct {
-          b: Bar;
+          b: Bar
       }
 
       fn Foo::create(i:i32) : Foo{
@@ -120,11 +120,11 @@ TEST_F(CompileFixture, move_use_after_assign_paramvar) {
 TEST_F(CompileFixture, move_use_after_assign_struct) {
     const char* str = R"R(
       type Bar : struct {
-          x : i32;
+          x : i32
       }
 
       type Foo : struct {
-          b: Bar;
+          b: Bar
       }
 
       fn main() {

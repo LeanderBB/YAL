@@ -19,12 +19,12 @@
 
 #pragma once
 
-#include "yal/parser/syntaxtree.h"
+#include "yal/parser/ststatement.h"
 
 namespace yal {
 
     class STStmtExpression;
-    class STStmtAssign final : public SyntaxTree{
+    class STStmtAssign final : public STStatement{
     public:
 
         STStmtAssign(const STStmtExpression* leftExpr,

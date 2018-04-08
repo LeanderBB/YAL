@@ -16,23 +16,21 @@
  *  You should have received a copy of the GNU Lesser General Public
  *  License along with YAL. If not, see <http://www.gnu.org/licenses/>.
  */
+
+#pragma once
+
 #include "yal/parser/stdeclmodule.h"
-#include "yal/parser/syntaxtreevisitor.h"
-namespace yal {
-
-    STDeclModule::STDeclModule():
-    SyntaxTree(SyntaxTreeType::STDeclModule){
-
-    }
-
-    void
-    STDeclModule::addDecl(STDecl *node) {
-        m_decls.push_back(node);
-    }
-
-    void
-    STDeclModule::acceptVisitor(SyntaxTreeVisitor &visitor) const {
-        visitor.visit(*this);
-    }
-
-}
+#include "yal/parser/stdeclfunction.h"
+#include "yal/parser/stdeclstruct.h"
+#include "yal/parser/stdeclvar.h"
+#include "yal/parser/ststatement.h"
+#include "yal/parser/ststmtassign.h"
+#include "yal/parser/ststmtdecl.h"
+#include "yal/parser/ststmtexpression.h"
+#include "yal/parser/ststmtreturn.h"
+#include "yal/parser/stexprcasts.h"
+#include "yal/parser/stexprfncall.h"
+#include "yal/parser/stexprliterals.h"
+#include "yal/parser/stexproperators.h"
+#include "yal/parser/stexprstructinit.h"
+#include "yal/parser/stexprvarref.h"

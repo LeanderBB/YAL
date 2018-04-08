@@ -19,12 +19,11 @@
 
 #pragma once
 
-#include "yal/parser/syntaxtree.h"
+#include "yal/parser/ststmtexpression.h"
 #include "yal/ast/operators.h"
 namespace yal {
 
-    class STStmtExpression;
-    class STExprUnaryOperator final : public SyntaxTree {
+    class STExprUnaryOperator final : public STStmtExpression {
     public:
 
         STExprUnaryOperator(const UnaryOperatorType op,
@@ -46,7 +45,7 @@ namespace yal {
     };
 
 
-    class STExprBinaryOperator final : public SyntaxTree {
+    class STExprBinaryOperator final : public STStmtExpression {
     public:
 
         STExprBinaryOperator(const BinaryOperatorType op,

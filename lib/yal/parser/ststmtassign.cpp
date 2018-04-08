@@ -24,7 +24,7 @@ namespace yal {
 
     STStmtAssign::STStmtAssign(const STStmtExpression* leftExpr,
                                const STStmtExpression* rightExpr) :
-        SyntaxTree(SyntaxTreeType::STStmtAssign),
+        STStatement(SyntaxTreeType::STStmtAssign),
         m_leftExpr(leftExpr),
         m_rightExpr(rightExpr){
     }

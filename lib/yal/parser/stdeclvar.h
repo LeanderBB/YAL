@@ -24,7 +24,7 @@
 namespace yal {
 
     class STStmtExpression;
-    class STDeclVar final : public SyntaxTree {
+    class STDeclVar final : public STDecl {
     public:
         STDeclVar(const STIdentifier* name,
                   const STQualType* type,

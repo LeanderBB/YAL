@@ -18,50 +18,51 @@
  */
 
 #pragma once
-
-#include "yal/parser/syntaxtree.h"
+#include "yal/parser/ststmtexpression.h"
 
 namespace yal {
 
-    class STExprBoolLiteral final : public SyntaxTree {
+    class STExprBoolLiteral final : public STStmtExpression {
     public:
 
-        STExprBoolLiteral(const bool value);
+        STExprBoolLiteral(const StringRef value);
 
-        bool getValue() const;
+        StringRef getValue() const {
+            return m_value;
+        }
 
         void acceptVisitor(SyntaxTreeVisitor& visitor) const override final;
     private:
-        const bool m_value;
+         const StringRef m_value;
     };
 
 
-    class STExprIntegerLiteral final : public SyntaxTree {
+    class STExprIntegerLiteral final : public STStmtExpression {
     public:
 
-        STExprIntegerLiteral(const STIdentifier* value);
+        STExprIntegerLiteral(const StringRef value);
 
-        const STIdentifier* getValue() const {
+        StringRef getValue() const {
             return m_value;
         }
 
         void acceptVisitor(SyntaxTreeVisitor& visitor) const override final;
 
     private:
-        const STIdentifier* m_value;
+        const StringRef m_value;
     };
 
-    class STExprFloatLiteral final : public SyntaxTree {
+    class STExprFloatLiteral final : public STStmtExpression {
     public:
 
-        STExprFloatLiteral(const STIdentifier* value);
+        STExprFloatLiteral(const StringRef value);
 
-        const STIdentifier* getValue() const {
+        StringRef getValue() const {
             return m_value;
         }
 
         void acceptVisitor(SyntaxTreeVisitor& visitor) const override final;
     private:
-        const STIdentifier* m_value;
+        const StringRef m_value;
     };
 }

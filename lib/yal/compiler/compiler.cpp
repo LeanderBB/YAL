@@ -21,6 +21,7 @@
 #include "yal/ast/modulemanager.h"
 #include "yal/lexer/lexer.h"
 #include "yal/parser/parser.h"
+#include "yal/parser/stparser.h"
 #include "yal/ast/astprinter.h"
 #include "yal/compiler/stages/stagedecls.h"
 #include "yal/compiler/stages/stageexprtype.h"
@@ -29,6 +30,7 @@
 #include "yal/compiler/stages/stagesizecalc.h"
 #include "yal/compiler/stages/stageexprlistbreakdown.h"
 #include "yal/ast/declmodule.h"
+#include "yal/io/memorystream.h"
 
 namespace yal {
     Compiler::Compiler(Log& log,
@@ -51,6 +53,18 @@ namespace yal {
         yal::SourceItem* sourceItem = m_srcManager.getItem(source);
         if (sourceItem == nullptr) {
             m_log.error("Could not locate item from source handle.\n");
+            return nullptr;
+        }
+
+        Lexer lexer(sourceItem->getByteStream());
+        STParser parser(lexer, m_log, *sourceItem);
+
+        if (!parser.parse()) {
+            return nullptr;
+        }
+
+        if (!sourceItem->getByteStream().seek(0)) {
+            m_log.error("Failed to seek beginning of stream");
             return nullptr;
         }
 

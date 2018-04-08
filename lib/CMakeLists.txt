@@ -183,6 +183,13 @@ set(YAL_SOURCES
     yal/parser/stexprstructinit.h
     yal/parser/stexprcasts.cpp
     yal/parser/stexprcasts.h
+    yal/parser/stparserimpl.lemon
+    yal/parser/stparser.cpp
+    yal/parser/stparser.h
+    yal/parser/stparserimpl.cpp
+    yal/parser/stparserimpl.h
+    yal/parser/sttype.h
+    yal/parser/sttype.cpp
 
     yal/transpiler/transpiler.h
     yal/transpiler/c/transpilerc.h
@@ -216,7 +223,9 @@ set(YAL_SOURCES
 # include parser / lexer DSL's
 set_source_files_properties(yal/lexer/lexer_re2c.in
     PROPERTIES HEADER_FILE_ONLY TRUE)
-set_source_files_properties(yal/parser/parser.lemon
+set_source_files_properties(yal/parser/parserimpl.lemon
+    PROPERTIES HEADER_FILE_ONLY TRUE)
+set_source_files_properties(yal/parser/stparserimpl.lemon
     PROPERTIES HEADER_FILE_ONLY TRUE)
 
 # include .def files
@@ -243,6 +252,11 @@ if (${LEMON_TOOLS_FOUND})
         "${CMAKE_CURRENT_SOURCE_DIR}/yal/parser/"
         parserimpl.lemon
         parserimpl.cpp)
+
+    LEMON_GEN(
+        "${CMAKE_CURRENT_SOURCE_DIR}/yal/parser/"
+        stparserimpl.lemon
+        stparserimpl.cpp)
 endif()
 
 add_library(${YAL_LIB_NAME} STATIC
@@ -256,3 +270,4 @@ target_include_directories( ${YAL_LIB_NAME}
 
 YAL_APPLY_COMPILER_FLAGS_WERROR(${YAL_LIB_NAME})
 YAL_REMOVE_WERROR_FROM_SOURCE(yal/parser/parserimpl.cpp)
+YAL_REMOVE_WERROR_FROM_SOURCE(yal/parser/stparserimpl.cpp)

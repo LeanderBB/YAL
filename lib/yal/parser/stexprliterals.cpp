@@ -22,8 +22,8 @@
 
 namespace yal {
 
-    STExprBoolLiteral::STExprBoolLiteral(const bool value):
-        SyntaxTree(SyntaxTreeType::STExprBoolLiteral),
+    STExprBoolLiteral::STExprBoolLiteral(const StringRef value):
+        STStmtExpression(SyntaxTreeType::STExprBoolLiteral),
         m_value(value) {
 
     }
@@ -35,8 +35,8 @@ namespace yal {
 
     // -----------------------------------------------------------------------
 
-    STExprIntegerLiteral::STExprIntegerLiteral(const STIdentifier* value):
-        SyntaxTree(SyntaxTreeType::STExprIntegerLiteral),
+    STExprIntegerLiteral::STExprIntegerLiteral(const StringRef value):
+        STStmtExpression(SyntaxTreeType::STExprIntegerLiteral),
         m_value(value){
 
     }
@@ -48,8 +48,8 @@ namespace yal {
 
     // -----------------------------------------------------------------------
 
-    STExprFloatLiteral::STExprFloatLiteral(const STIdentifier* value):
-        SyntaxTree(SyntaxTreeType::STExprIntegerLiteral),
+    STExprFloatLiteral::STExprFloatLiteral(const StringRef value):
+        STStmtExpression(SyntaxTreeType::STExprIntegerLiteral),
         m_value(value){
 
     }

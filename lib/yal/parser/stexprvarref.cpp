@@ -23,7 +23,7 @@
 namespace yal {
 
     STExprVarRef::STExprVarRef(const STIdentifier* identifier):
-        SyntaxTree(SyntaxTreeType::STExprVarRef),
+        STStmtExpression(SyntaxTreeType::STExprVarRef),
         m_varRef(identifier) {
 
     }
@@ -37,7 +37,7 @@ namespace yal {
 
     STExprStructVarRef::STExprStructVarRef(const STStmtExpression* expression,
                                            const STIdentifier* identitifer):
-        SyntaxTree(SyntaxTreeType::STExprStructVarRef),
+        STStmtExpression(SyntaxTreeType::STExprStructVarRef),
         m_expr(expression),
         m_varRef(identitifer) {
 

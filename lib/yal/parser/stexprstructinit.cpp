@@ -22,9 +22,21 @@
 
 namespace yal {
 
-    STExprStructInit::STExprStructInit(const STIdentifier *structName,
-                                       MemberInitList &&members):
-        SyntaxTree(SyntaxTreeType::STExprStructInit),
+
+    STStructMemberInit::STStructMemberInit(const STIdentifier* name,
+                                           const STStmtExpression *expr):
+        m_name(name),
+        m_expr(expr) {
+
+    }
+
+    void STStructMemberInit::setSourceInfo(const SourceInfo &sourceInfo) {
+        m_sourceInfo = sourceInfo;
+    }
+
+    STExprStructInit::STExprStructInit(const STType *structName,
+                                       const MemberInitList *members):
+        STStmtExpression(SyntaxTreeType::STExprStructInit),
         m_structType(structName),
         m_memberInits(std::move(members)) {
 

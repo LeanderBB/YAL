@@ -19,37 +19,58 @@
 
 #pragma once
 
-#include "yal/parser/syntaxtree.h"
+#include "yal/parser/ststmtexpression.h"
 
 namespace yal {
 
     class STStmtExpression;
 
-    struct StrurctMemberInit {
-        const STIdentifier* name;
-        const STStmtExpression* expr;
-    };
-
-    class STExprStructInit final : public SyntaxTree {
+    class STStructMemberInit {
     public:
 
-        using MemberInitList = std::vector<const StrurctMemberInit*>;
+        STStructMemberInit(const STIdentifier* name,
+                           const STStmtExpression* expr);
 
-        STExprStructInit(const STIdentifier* structType,
-                         MemberInitList&& members);
+        const STIdentifier* getName() const {
+            return m_name;
+        }
 
-        const STIdentifier* getStructType() const {
+        const STStmtExpression* getExpr() const {
+            return m_expr;
+        }
+
+        const SourceInfo getSourceInfo() const {
+            return m_sourceInfo;
+        }
+
+        void setSourceInfo(const SourceInfo& sourceInfo);
+
+    protected:
+        const STIdentifier* m_name;
+        const STStmtExpression* m_expr;
+        SourceInfo m_sourceInfo;
+    };
+
+    class STExprStructInit final : public STStmtExpression {
+    public:
+
+        using MemberInitList = std::vector<const STStructMemberInit*>;
+
+        STExprStructInit(const STType* structType,
+                         const MemberInitList* members);
+
+        const STType* getStructType() const {
             return m_structType;
         }
 
         const MemberInitList& getMemeberInitExprs() const {
-            return m_memberInits;
+            return *m_memberInits;
         }
 
         void acceptVisitor(SyntaxTreeVisitor& visitor) const override final;
 
     private:
-        const STIdentifier* m_structType;
-        const MemberInitList m_memberInits;
+        const STType* m_structType;
+        const MemberInitList* m_memberInits;
     };
 }

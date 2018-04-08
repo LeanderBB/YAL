@@ -34,16 +34,16 @@ namespace yal {
     }
 
     STDeclFunction::STDeclFunction(const STIdentifier* functionName,
-                                   const STIdentifier* functionTarget,
+                                   const STType *functionTarget,
                                    const STQualType* returnType,
-                                   Params &&params,
-                                   Body &&statements):
-        SyntaxTree(SyntaxTreeType::STDeclFunction),
+                                   const Params *params,
+                                   const Body *statements):
+        STDecl(SyntaxTreeType::STDeclFunction),
         m_functionName(functionName),
         m_functionTarget(functionTarget),
         m_returnType(returnType),
         m_params(params),
-        m_body(std::move(statements)) {
+        m_body(statements) {
 
     }
 

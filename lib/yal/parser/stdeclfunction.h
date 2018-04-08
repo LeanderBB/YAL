@@ -50,22 +50,22 @@ namespace yal {
     };
 
 
-    class STDeclFunction final : public SyntaxTree {
+    class STDeclFunction final : public STDecl {
     public:
         using Body = std::vector<const STStatement*>;
         using Params = std::vector<const STDeclParam*>;
 
         STDeclFunction(const STIdentifier* functionName,
-                       const STIdentifier* functionTarget,
+                       const STType* functionTarget,
                        const STQualType* returnType,
-                       Params&& params,
-                       Body&& statements);
+                       const Params* params,
+                       const Body* statements);
 
         const STIdentifier* getFunctionName() const {
             return m_functionName;
         }
 
-        const STIdentifier* getFunctionTarget() const{
+        const STType* getFunctionTarget() const{
             return m_functionTarget;
         }
 
@@ -73,11 +73,11 @@ namespace yal {
             return m_returnType;
         }
 
-        const Body& getBody() const {
+        const Body* getBody() const {
             return m_body;
         }
 
-        const Params& getParams() const {
+        const Params* getParams() const {
             return m_params;
         }
 
@@ -85,10 +85,10 @@ namespace yal {
 
     protected:
         const STIdentifier* m_functionName;
-        const STIdentifier* m_functionTarget;
+        const STType* m_functionTarget;
         const STQualType* m_returnType;
-        const Params m_params;
-        const Body m_body;
+        const Params* m_params;
+        const Body* m_body;
     };
 
 }

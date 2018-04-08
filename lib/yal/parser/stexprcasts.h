@@ -19,17 +19,17 @@
 
 #pragma once
 
-#include "yal/parser/syntaxtree.h"
+#include "yal/parser/ststmtexpression.h"
 
 namespace yal {
 
     class STStmtExpression;
-    class STExprRangeCast final : public SyntaxTree {
+    class STExprRangeCast final : public STStmtExpression {
     public:
-        STExprRangeCast(const STIdentifier* targetType,
+        STExprRangeCast(const STQualType* targetType,
                         const STStmtExpression* expr);
 
-        const STIdentifier* getTargetType() const {
+        const STQualType* getTargetType() const {
             return m_targetType;
         }
 
@@ -40,7 +40,7 @@ namespace yal {
         void acceptVisitor(SyntaxTreeVisitor& visitor) const final override;
 
     private:
-        const STIdentifier* m_targetType;
+        const STQualType* m_targetType;
         const STStmtExpression* m_expr;
     };
 

@@ -42,4 +42,6 @@ namespace yal {
     inline SyntaxTreeType get_typeid(const STStatement& type) {
         return type.getSyntaxTreeType();
     }
+
+    using STStatementList = std::vector<const STStatement*>;
 }

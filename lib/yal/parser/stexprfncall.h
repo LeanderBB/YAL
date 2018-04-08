@@ -19,49 +19,49 @@
 
 #pragma once
 
-#include "yal/parser/syntaxtree.h"
+#include "yal/parser/ststmtexpression.h"
 
 namespace yal {
 
     class STStmtExpression;
-    class STExprFnCall final : public SyntaxTree {
+    class STExprFnCall final : public STStmtExpression {
     public:
         using ParamList = std::vector<const STStmtExpression*>;
 
-        enum class Type {
+        enum class FnType {
             Regular,
             Static,
             Instance
         };
 
         STExprFnCall(const STIdentifier* name,
-                     ParamList&& params);
+                     const ParamList* params);
 
         STExprFnCall(const STIdentifier* name,
-                     const STIdentifier* type,
-                     ParamList&& params);
+                     const STType* type,
+                     const ParamList *params);
 
         STExprFnCall(const STIdentifier* name,
                      const STStmtExpression* expr,
-                     ParamList&& params);
+                     const ParamList *params);
 
         const STIdentifier* getName() const {
             return m_name;
         }
 
-        const STIdentifier* getTypeName() const {
-            return m_typeName;
+        const STType* getTargetType() const {
+            return m_targetType;
         }
 
         const STStmtExpression* getExpr() const {
             return m_expr;
         }
 
-        const ParamList& getParams() const {
+        const ParamList* getParams() const {
             return m_params;
         }
 
-        Type getType() const {
+        FnType getFunctionType() const {
             return m_type;
         }
 
@@ -69,10 +69,10 @@ namespace yal {
 
     private:
         const STIdentifier* m_name;
-        const STIdentifier* m_typeName;
+        const STType* m_targetType;
         const STStmtExpression* m_expr;
-        const ParamList m_params;
-        const Type m_type;
+        const ParamList* m_params;
+        const FnType m_type;
     };
 
 }

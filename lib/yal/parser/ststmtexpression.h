@@ -29,7 +29,7 @@ namespace yal {
         virtual ~STStmtExpression() {}
 
     protected:
-        STStmtExpression(const SyntaxTreeType):
+        STStmtExpression(const SyntaxTreeType type):
             STStatement(type) {
 
         }

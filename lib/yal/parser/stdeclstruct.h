@@ -48,26 +48,26 @@ namespace yal {
     };
 
 
-    class STDeclStruct final : public SyntaxTree {
+    class STDeclStruct final : public STDecl {
     public:
         using Members = std::vector<const STStructMember*>;
 
         STDeclStruct(const STIdentifier* name,
-                     Members&& members);
+                    const Members* members);
 
         const STIdentifier* getName() const {
             return m_name;
         }
 
         const Members& getMembers() const {
-            return m_members;
+            return *m_members;
         }
 
         void acceptVisitor(SyntaxTreeVisitor& visitor) const override final;
 
     protected:
         const STIdentifier* m_name;
-        const Members m_members;
+        const Members* m_members;
     };
 
 }

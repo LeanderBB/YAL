@@ -23,37 +23,37 @@
 namespace yal {
 
     STExprFnCall::STExprFnCall(const STIdentifier* name,
-                               ParamList&& params):
-        SyntaxTree(SyntaxTreeType::STExprFnCall),
+                               const ParamList *params):
+        STStmtExpression(SyntaxTreeType::STExprFnCall),
         m_name(name),
-        m_typeName(nullptr),
+        m_targetType(nullptr),
         m_expr(nullptr),
-        m_params(std::move(params)),
-        m_type(Type::Regular) {
+        m_params(params),
+        m_type(FnType::Regular) {
 
     }
 
     STExprFnCall::STExprFnCall(const STIdentifier* name,
-                               const STIdentifier* type,
-                               ParamList&& params):
-        SyntaxTree(SyntaxTreeType::STExprFnCall),
+                               const STType *type,
+                               const ParamList *params):
+        STStmtExpression(SyntaxTreeType::STExprFnCall),
         m_name(name),
-        m_typeName(type),
+        m_targetType(type),
         m_expr(nullptr),
-        m_params(std::move(params)),
-        m_type(Type::Static) {
+        m_params(params),
+        m_type(FnType::Static) {
 
     }
 
     STExprFnCall::STExprFnCall(const STIdentifier* name,
                                const STStmtExpression* expr,
-                               ParamList&& params):
-        SyntaxTree(SyntaxTreeType::STExprFnCall),
+                               const ParamList *params):
+        STStmtExpression(SyntaxTreeType::STExprFnCall),
         m_name(name),
-        m_typeName(nullptr),
+        m_targetType(nullptr),
         m_expr(expr),
-        m_params(std::move(params)),
-        m_type(Type::Instance) {
+        m_params(params),
+        m_type(FnType::Instance) {
 
     }
 

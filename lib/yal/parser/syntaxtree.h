@@ -20,6 +20,7 @@
 #include "yal/io/sourcemanager.h"
 #include "yal/util/cast.h"
 #include "yal/util/stringref.h"
+#include "yal/parser/sttype.h"
 namespace yal {
 
     enum class SyntaxTreeType {
@@ -72,35 +73,19 @@ namespace yal {
     }
 
 
-    class STIdentifier {
+    class STDecl : public SyntaxTree {
     public:
-
-        STIdentifier(const StringRef identifier);
-
-        void setSourceInfo(const SourceInfo& sourceInfo);
-
-        const SourceInfo& getSourceInfo() const {
-            return m_sourceInfo;
-        }
 
     protected:
-        const StringRef m_identifier;
-        SourceInfo m_sourceInfo;
+        STDecl(const SyntaxTreeType type);
     };
 
-    class STQualType {
-    public:
-
-        enum Qualifiers {
-            kQualReference = 1 << 0,
-            kQualMutable = 1 << 1
-        };
-
-        STQualType(const STIdentifier* typeName,
-                   const uint32_t qualifiers);
-
-    public:
-        const STIdentifier* m_typeName;
-        const uint32_t m_qualifiers;
+    template<>
+    struct cast_typeid<STDecl> {
+        typedef SyntaxTreeType type;
     };
+
+    inline SyntaxTreeType get_typeid(const STDecl& st) {
+        return st.getSyntaxTreeType();
+    }
 }

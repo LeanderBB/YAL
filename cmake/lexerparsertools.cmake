@@ -103,7 +103,7 @@ function(LEMON_GEN WKDIR INPUT OUTPUT)
         OUTPUT "${WKDIR}/${OUTPUT}" "${WKDIR}/${LEMON-OUTPUT-HDR}"
         DEPENDS "${WKDIR}/${INPUT}"
         MAIN_DEPENDENCY "${WKDIR}/${INPUT}"
-        COMMAND ${LEMON_BIN} -m -l "${INPUT}"
+        COMMAND ${LEMON_BIN} -m "${INPUT}"
         COMMAND ${MKHEADERS_BIN} "${LEMON-OUTPUT-SRC}"
         COMMAND ${CMAKE_COMMAND} -E rename "${LEMON-OUTPUT-SRC}" "${OUTPUT}"
         COMMENT "Generating lemon source file for ${INPUT}..."

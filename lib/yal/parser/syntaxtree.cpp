@@ -30,13 +30,8 @@ namespace yal {
         m_sourceInfo = sourceInfo;
     }
 
-    STIdentifier::STIdentifier(const StringRef identifier):
-        m_identifier(identifier) {
+    STDecl::STDecl(const SyntaxTreeType type):
+        SyntaxTree(type) {
 
-    }
-
-    void
-    STIdentifier::setSourceInfo(const SourceInfo& sourceInfo) {
-        m_sourceInfo = sourceInfo;
     }
 }
