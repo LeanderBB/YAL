@@ -22,7 +22,9 @@
 #include "yal/util/codewriter.h"
 namespace yal {
 
-    class Module;
+    namespace frontend{
+        class Module;
+    }
     class ByteStream;
     class Identifier;
     class Type;
@@ -42,7 +44,7 @@ namespace yal {
     public:
 
         CodeGenC(const CodeGenCConfig& config,
-                 Module& module,
+                 frontend::Module& module,
                  ByteStream& streamSrc,
                  ByteStream& streamHdr);
 
@@ -62,7 +64,7 @@ namespace yal {
 
     private:
         CodeGenCConfig m_config;
-        Module& m_module;
+        frontend::Module& m_module;
         CodeWriter m_streamSrc;
         CodeWriter m_streamHdr;
     };

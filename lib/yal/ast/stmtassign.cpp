@@ -21,7 +21,7 @@
 #include "yal/ast/astvisitor.h"
 namespace yal {
 
-    StmtAssign::StmtAssign(Module& module,
+    StmtAssign::StmtAssign(frontend::Module& module,
                            StmtExpression* destExpr,
                            StmtExpression* valueExpr) :
         Statement(module, AstType::StmtAssign),

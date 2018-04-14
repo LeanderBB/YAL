@@ -18,9 +18,9 @@
  */
 #include "yal/frontend/lexer/tokens.h"
 #include "yal/yal.h"
-namespace yal
-{
 
+namespace yal::frontend
+{
     const char* TokenToString(const Token token){
         static const char* sLookupTable[] ={
             "Var",

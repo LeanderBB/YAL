@@ -25,13 +25,15 @@
 
 namespace yal {
 
+    namespace frontend {
     class Module;
+    }
     class AstVisitor;
 
     class Statement {
     public:
 
-        Statement(Module& module,
+        Statement(frontend::Module& module,
                   const AstType type);
 
         virtual ~Statement();
@@ -56,7 +58,7 @@ namespace yal {
         virtual void acceptVisitor(AstVisitor& visitor) = 0;
 
     protected:
-        Module& m_module;
+        frontend::Module& m_module;
         const AstType m_astType;
         SourceInfo m_sourceInfo;
     };

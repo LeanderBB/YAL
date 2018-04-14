@@ -21,7 +21,7 @@
 
 namespace yal{
 
-    StmtExpression::StmtExpression(Module& module,
+    StmtExpression::StmtExpression(frontend::Module& module,
                                    const AstType astType):
         Statement(module, astType){
 

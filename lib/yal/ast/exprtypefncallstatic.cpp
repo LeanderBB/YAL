@@ -24,7 +24,7 @@
 #include "yal/frontend/module.h"
 namespace yal {
 
-    ExprTypeFnCallStatic::ExprTypeFnCallStatic(Module& module,
+    ExprTypeFnCallStatic::ExprTypeFnCallStatic(frontend::Module& module,
                                                RefType* targetType,
                                                const TokenInfo& functionName,
                                                ExprList* functionArgs):

@@ -20,7 +20,7 @@
 #include "yal/frontend/parser/ststmtassign.h"
 #include "yal/frontend/parser/syntaxtreevisitor.h"
 
-namespace yal {
+namespace yal::frontend {
 
     STStmtAssign::STStmtAssign(const STStmtExpression* leftExpr,
                                const STStmtExpression* rightExpr) :

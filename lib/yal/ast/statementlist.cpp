@@ -21,12 +21,12 @@
 
 namespace  yal {
 
-    StatementList::StatementList(Module& module):
+    StatementList::StatementList(frontend::Module& module):
         BaseType(module){
 
     }
 
-    StatementList::StatementList(Module& module,
+    StatementList::StatementList(frontend::Module& module,
                                  ContainerType&& params):
         BaseType(module, std::move(params)) {
 

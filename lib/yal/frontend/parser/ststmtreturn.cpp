@@ -20,7 +20,7 @@
 #include "yal/frontend/parser/ststmtreturn.h"
 #include "yal/frontend/parser/syntaxtreevisitor.h"
 
-namespace yal {
+namespace yal::frontend {
 
     STStmtReturn::STStmtReturn(const STStmtExpression* expr):
         STStatement(SyntaxTreeType::STStmtReturn),

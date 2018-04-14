@@ -21,7 +21,7 @@
 
 #include "yal/frontend/parser/ststatement.h"
 
-namespace yal {
+namespace yal::frontend {
 
     class STStmtExpression;
     class STStmtReturn final : public STStatement {

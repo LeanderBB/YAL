@@ -25,7 +25,7 @@
 #include <iostream>
 #define YYMAXFILL 11
 
-namespace yal {
+namespace yal::frontend {
 
     enum {
         kMaxBufferSize = 4096

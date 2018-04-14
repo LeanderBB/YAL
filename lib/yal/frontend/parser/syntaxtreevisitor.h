@@ -19,7 +19,7 @@
 
 #pragma once
 
-namespace yal {
+namespace yal::frontend {
 
 #define YAL_ST_NODE_TYPE(type) class type;
 #include "yal/frontend/parser/syntaxtreetypes.def"

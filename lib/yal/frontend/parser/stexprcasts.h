@@ -21,7 +21,7 @@
 
 #include "yal/frontend/parser/ststmtexpression.h"
 
-namespace yal {
+namespace yal::frontend {
 
     class STStmtExpression;
     class STExprRangeCast final : public STStmtExpression {

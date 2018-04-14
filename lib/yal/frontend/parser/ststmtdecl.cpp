@@ -20,7 +20,7 @@
 #include "yal/frontend/parser/ststmtdecl.h"
 #include "yal/frontend/parser/syntaxtreevisitor.h"
 
-namespace yal {
+namespace yal::frontend {
 
     STStmtDecl::STStmtDecl(const STDecl* decl):
         STStatement(SyntaxTreeType::STStmtDecl),

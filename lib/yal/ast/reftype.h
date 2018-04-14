@@ -24,16 +24,18 @@
 #include "yal/ast/type.h"
 namespace yal {
 
-    class Module;
+    namespace frontend {
+        class Module;
+    }
     class AstVisitor;
 
     class RefType {
     public:
 
-        RefType(Module& module,
+        RefType(frontend::Module& module,
                 const Type* resolvedType);
 
-        RefType(Module& module,
+        RefType(frontend::Module& module,
                 const Qualifier qualifier,
                 const Type* resolvedType);
 
@@ -74,7 +76,7 @@ namespace yal {
         void acceptVisitor(AstVisitor& visitor);
 
     protected:
-        Module& m_module;
+        frontend::Module& m_module;
         SourceInfo m_sourceInfo;
         Qualifier m_qualifier;
         Identifier m_identifier;

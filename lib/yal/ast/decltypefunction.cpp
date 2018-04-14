@@ -23,7 +23,7 @@
 #include "yal/ast/reftype.h"
 namespace yal {
 
-    DeclTypeFunction::DeclTypeFunction(Module& module,
+    DeclTypeFunction::DeclTypeFunction(frontend::Module& module,
                                        const StringRef functionName,
                                        const DeclScope *scope,
                                        DeclParamVarContainer* params,
@@ -45,7 +45,7 @@ namespace yal {
         m_identifier.setIdString(m_functionName);
     }
 
-    DeclTypeFunction::DeclTypeFunction(Module& module,
+    DeclTypeFunction::DeclTypeFunction(frontend::Module& module,
                                        const StringRef functionName,
                                        const DeclScope *scope,
                                        RefType* destType):

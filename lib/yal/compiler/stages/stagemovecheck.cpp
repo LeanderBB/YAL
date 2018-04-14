@@ -56,7 +56,7 @@ namespace yal {
     class MoveAstVisitor final : public RecursiveAstVisitor {
     public:
         MoveAstVisitor(Compiler& compiler,
-                       Module& module,
+                       frontend::Module& module,
                        StackJump& jump):
             m_compiler(compiler),
             m_module(module),

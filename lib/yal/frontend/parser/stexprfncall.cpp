@@ -20,7 +20,7 @@
 #include "yal/frontend/parser/stexprfncall.h"
 #include "yal/frontend/parser/syntaxtreevisitor.h"
 
-namespace yal {
+namespace yal::frontend  {
 
     STExprFnCall::STExprFnCall(const STIdentifier* name,
                                const ParamList *params):

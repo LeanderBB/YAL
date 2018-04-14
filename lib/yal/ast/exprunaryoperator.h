@@ -27,11 +27,11 @@ namespace yal {
     class ExprUnaryOperator : public StmtExpression {
     public:
 
-        ExprUnaryOperator(Module& module,
-                          const UnaryOperatorType opType,
+        ExprUnaryOperator(frontend::Module& module,
+                          const frontend::UnaryOperatorType opType,
                           StmtExpression* expr);
 
-        UnaryOperatorType getOperatorType() const {
+        frontend::UnaryOperatorType getOperatorType() const {
             return m_opType;
         }
 
@@ -48,7 +48,7 @@ namespace yal {
         virtual void acceptVisitor(AstVisitor& visitor) override;
 
     private:
-        const UnaryOperatorType m_opType;
+        const frontend::UnaryOperatorType m_opType;
         StmtExpression* m_expr;
     };
 

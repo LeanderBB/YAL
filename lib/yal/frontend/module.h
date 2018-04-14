@@ -25,7 +25,7 @@
 #include "yal/util/stringref.h"
 #include <string>
 
-namespace yal {
+namespace yal::frontend {
     class ModuleManager;
     class Module {
     public:

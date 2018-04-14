@@ -20,7 +20,7 @@
 #include "yal/frontend/parser/stexprcasts.h"
 #include "yal/frontend/parser/syntaxtreevisitor.h"
 
-namespace yal {
+namespace yal::frontend {
 
     STExprRangeCast::STExprRangeCast(const STQualType *targetType,
                                      const STStmtExpression* expr):

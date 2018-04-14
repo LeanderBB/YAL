@@ -23,11 +23,13 @@
 #include "yal/frontend/lexer/tokens.h"
 #include "yal/util/stringref.h"
 
-namespace yal{
+namespace yal {
 
     enum class Token;
     class MemoryStream;
+}
 
+namespace yal::frontend {
     class Lexer {
     public:
 

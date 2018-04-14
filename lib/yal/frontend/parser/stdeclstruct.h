@@ -19,7 +19,7 @@
 
 #include "yal/frontend/parser/syntaxtree.h"
 
-namespace yal {
+namespace yal::frontend {
 
     class STStructMember {
     public:

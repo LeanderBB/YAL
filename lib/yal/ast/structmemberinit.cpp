@@ -22,7 +22,7 @@
 
 namespace yal {
 
-    StructMemberInit::StructMemberInit(Module &module,
+    StructMemberInit::StructMemberInit(frontend::Module &module,
                                        const StringRef memberName,
                                        StmtExpression *initExpression):
     m_module(module),
@@ -47,7 +47,7 @@ namespace yal {
         visitor.visit(*this);
     }
 
-    StructMemberInitList::StructMemberInitList(Module& module):
+    StructMemberInitList::StructMemberInitList(frontend::Module& module):
     BaseType(module) {
 
     }

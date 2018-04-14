@@ -30,13 +30,13 @@ namespace yal {
     class ExprFnCall : public StmtExpression {
 
     protected:
-        ExprFnCall(Module& module,
+        ExprFnCall(frontend::Module& module,
                    const AstType astType,
                    RefType* functionType,
                    ExprList* functionArgs);
     public:
 
-        ExprFnCall(Module& module,
+        ExprFnCall(frontend::Module& module,
                    RefType* functionType,
                    ExprList* functionArgs);
 

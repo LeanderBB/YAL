@@ -20,8 +20,7 @@
 #include "yal/frontend/parser/stexprstructinit.h"
 #include "yal/frontend/parser/syntaxtreevisitor.h"
 
-namespace yal {
-
+namespace yal::frontend {
 
     STStructMemberInit::STStructMemberInit(const STIdentifier* name,
                                            const STStmtExpression *expr):

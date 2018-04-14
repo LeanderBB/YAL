@@ -18,7 +18,7 @@
  */
 #include "yal/frontend/parser/sttype.h"
 
-namespace yal {
+namespace yal::frontend {
 
     STIdentifier::STIdentifier(const StringRef identifier):
         m_identifier(identifier) {

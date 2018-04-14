@@ -21,7 +21,7 @@
 
 #include "yal/frontend/parser/ststmtexpression.h"
 #include "yal/frontend/types/operators.h"
-namespace yal {
+namespace yal::frontend {
 
     class STExprUnaryOperator final : public STStmtExpression {
     public:

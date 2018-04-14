@@ -20,7 +20,9 @@
 
 namespace yal {
 
-    class Module;
+    namespace frontend{
+        class Module;
+    }
     class Compiler;
     class DeclBase;
 
@@ -28,13 +30,13 @@ namespace yal {
     public:
 
         StageMoveCheck(Compiler& compiler,
-                       Module& module);
+                       frontend::Module& module);
 
         bool execute(DeclBase* decl);
 
     private:
         Compiler& m_compiler;
-        Module& m_module;
+        frontend::Module& m_module;
     };
 
 }

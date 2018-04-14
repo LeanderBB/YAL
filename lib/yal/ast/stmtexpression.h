@@ -27,7 +27,7 @@ namespace yal {
     class StmtExpression : public Statement{
     public:
 
-        StmtExpression(Module& module,
+        StmtExpression(frontend::Module& module,
                        const AstType astType);
 
 

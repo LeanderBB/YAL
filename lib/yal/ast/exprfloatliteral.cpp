@@ -25,8 +25,8 @@
 
 namespace yal {
 
-    ExprFloatLiteral::ExprFloatLiteral(Module &module,
-                                           const double literalValue):
+    ExprFloatLiteral::ExprFloatLiteral(frontend::Module &module,
+                                       const double literalValue):
         StmtExpression(module, AstType::ExprFloatLiteral),
         m_literalValue(literalValue) {
 

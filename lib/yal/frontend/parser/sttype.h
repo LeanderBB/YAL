@@ -22,7 +22,7 @@
 #include "yal/io/sourcemanager.h"
 #include "yal/util/stringref.h"
 
-namespace yal {
+namespace yal::frontend {
 
     class STIdentifier {
     public:

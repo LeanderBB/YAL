@@ -23,7 +23,9 @@
 #include "yal/util/formattypes.h"
 namespace yal {
 
-    class Module;
+    namespace frontend {
+        class Module;
+    }
     class StringRef;
     class Identifier
     {
@@ -32,12 +34,12 @@ namespace yal {
         Identifier();
 
         Identifier(StringRef idString,
-                   const Module& module);
+                   const frontend::Module& module);
 
         Identifier(StringRef idString);
 
         Identifier(StringRef idString,
-                   const Module* module);
+                   const frontend::Module* module);
 
         StringRef getName() const {
             return m_name;
@@ -52,7 +54,7 @@ namespace yal {
         void setIdString(StringRef idString);
 
         void setIdString(StringRef idString,
-                         const Module& module);
+                         const frontend::Module& module);
 
         bool operator == (const Identifier& other) const;
         bool operator != (const Identifier& other) const;

@@ -25,12 +25,12 @@ namespace yal {
     class DeclVar;
     class ExprVarRef : public StmtExpression {
     protected:
-        ExprVarRef(Module& module,
+        ExprVarRef(frontend::Module& module,
                    const AstType astType,
                    const DeclVar* decl);
     public:
 
-        ExprVarRef(Module& module,
+        ExprVarRef(frontend::Module& module,
                    const DeclVar* decl);
 
         const DeclVar* getDeclVar() const {
@@ -47,7 +47,7 @@ namespace yal {
 
     class ExprVarRefSelf : public ExprVarRef {
     public:
-        ExprVarRefSelf(Module& module,
+        ExprVarRefSelf(frontend::Module& module,
                        const DeclVar* decl);
 
         virtual void acceptVisitor(AstVisitor& visitor) override;

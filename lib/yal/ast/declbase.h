@@ -26,7 +26,9 @@
 #include "yal/ast/identifier.h"
 namespace yal{
 
-    class Module;
+    namespace frontend {
+        class Module;
+    }
     class AstVisitor;
     class Type;
     class TypeContext;
@@ -35,7 +37,7 @@ namespace yal{
     {
     public:
 
-        DeclBase(Module& module,
+        DeclBase(frontend::Module& module,
                  const AstType type,
                  const Identifier &identifier,
                  const DeclScope* scope);
@@ -68,11 +70,11 @@ namespace yal{
             return m_identifier;
         }
 
-        Module& getModule() {
+        frontend::Module& getModule() {
             return m_module;
         }
 
-        const Module& getModule() const {
+        const frontend::Module& getModule() const {
             return m_module;
         }
 
@@ -85,7 +87,7 @@ namespace yal{
         virtual void acceptVisitor(AstVisitor& visitor) = 0;
 
     protected:
-        Module& m_module;
+        frontend::Module& m_module;
         const DeclScope* m_scopeWhereDecl;
         const AstType m_astType;
         SourceInfo m_sourceInfo;

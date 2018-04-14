@@ -24,7 +24,9 @@
 #include "yal/frontend/module.h"
 namespace yal {
 
-    ExprTypeFnCall::ExprTypeFnCall(Module& module,
+    using namespace frontend;
+
+    ExprTypeFnCall::ExprTypeFnCall(frontend::Module& module,
                                        StmtExpression* expression,
                                        const TokenInfo& functionName,
                                        ExprList *functionArgs):

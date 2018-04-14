@@ -20,8 +20,8 @@
 #include "yal/ast/astvisitor.h"
 namespace yal{
 
-    ExprUnaryOperator::ExprUnaryOperator(Module& module,
-                                         const UnaryOperatorType opType,
+    ExprUnaryOperator::ExprUnaryOperator(frontend::Module& module,
+                                         const frontend::UnaryOperatorType opType,
                                          StmtExpression* expr):
         StmtExpression(module, AstType::ExprUnaryOperator),
         m_opType(opType),

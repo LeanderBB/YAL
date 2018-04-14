@@ -20,7 +20,7 @@
 #include "yal/frontend/parser/stexprliterals.h"
 #include "yal/frontend/parser/syntaxtreevisitor.h"
 
-namespace yal {
+namespace yal::frontend {
 
     STExprBoolLiteral::STExprBoolLiteral(const StringRef value):
         STStmtExpression(SyntaxTreeType::STExprBoolLiteral),

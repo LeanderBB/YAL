@@ -22,12 +22,12 @@
 #include "yal/ast/declvar.h"
 namespace yal {
 
-    DeclStructMembers::DeclStructMembers(Module& module):
+    DeclStructMembers::DeclStructMembers(frontend::Module& module):
         BaseType(module) {
 
     }
 
-    DeclStructMembers::DeclStructMembers(Module& module,
+    DeclStructMembers::DeclStructMembers(frontend::Module& module,
                                          ContainerType&& params):
         BaseType(module, std::move(params)) {
 
@@ -44,7 +44,7 @@ namespace yal {
     }
 
 
-    DeclStruct::DeclStruct(Module &module,
+    DeclStruct::DeclStruct(frontend::Module &module,
                            StringRef typeName,
                            const DeclScope *scope,
                            DeclStructMembers *members):
@@ -54,7 +54,7 @@ namespace yal {
 
     }
 
-    DeclStruct::DeclStruct(Module& module,
+    DeclStruct::DeclStruct(frontend::Module& module,
                            StringRef typeName,
                            const DeclScope *scope):
         DeclStruct(module, typeName, scope, nullptr) {

@@ -23,7 +23,7 @@
 #include "yal/ast/reftype.h"
 namespace yal {
 
-    DeclVar::DeclVar(Module& module,
+    DeclVar::DeclVar(frontend::Module& module,
                      StringRef name,
                      const DeclScope *scope,
                      const Qualifier qualifier,
@@ -42,7 +42,7 @@ namespace yal {
         m_qualType.setQualifier(newQual);
     }
 
-    DeclVar::DeclVar(Module& module,
+    DeclVar::DeclVar(frontend::Module& module,
                      StringRef name,
                      const DeclScope* scope,
                      const QualType qaulType,
@@ -57,7 +57,7 @@ namespace yal {
     }
 
 
-    DeclVar::DeclVar(Module& module,
+    DeclVar::DeclVar(frontend::Module& module,
                      const AstType type,
                      const Qualifier qualifier,
                      const DeclScope *scope,

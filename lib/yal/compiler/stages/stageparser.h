@@ -35,10 +35,10 @@ namespace yal {
 
         bool execute();
 
-        const STDeclModule* getSyntaxTree() const;
+        const frontend::STDeclModule* getSyntaxTree() const;
 
     private:
-        Lexer m_lexer;
-        STParser m_parser;
+        frontend::Lexer m_lexer;
+        frontend::STParser m_parser;
     };
 }

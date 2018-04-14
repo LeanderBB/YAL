@@ -39,17 +39,17 @@ int main(const int argc,
     yal::MemoryStream memStream;
     memStream.create(stream);
 
-    yal::Lexer lexer(memStream);
+    yal::frontend::Lexer lexer(memStream);
 
     while(true) {
-        const yal::Lexer::Status status = lexer.scan();
-        const yal::TokenInfo info = lexer.getLastToken();
-        if (status == yal::Lexer::Status::Ok) {
-            std::cout <<"[Token] " << yal::TokenToString(info.token)
+        const yal::frontend::Lexer::Status status = lexer.scan();
+        const yal::frontend::TokenInfo info = lexer.getLastToken();
+        if (status == yal::frontend::Lexer::Status::Ok) {
+            std::cout <<"[Token] " << yal::frontend::TokenToString(info.token)
                       << " (l: " << info.lineStart
                       << " c: " << info.columnStart
                       << ")\n";
-        } else if (status == yal::Lexer::Status::Error) {
+        } else if (status == yal::frontend::Lexer::Status::Error) {
             std::cout <<" [Error] Unknown token at l: " << info.lineStart
                       << " c: " << info.columnStart
                       << "\n";

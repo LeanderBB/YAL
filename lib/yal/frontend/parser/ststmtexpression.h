@@ -21,7 +21,7 @@
 
 #include "yal/frontend/parser/ststatement.h"
 
-namespace yal {
+namespace yal::frontend {
 
     class STStmtExpression : public STStatement {
     public:
@@ -34,13 +34,15 @@ namespace yal {
 
         }
     };
+}
 
+namespace yal {
     template<>
-    struct cast_typeid<STStmtExpression> {
-        typedef SyntaxTreeType type;
+    struct cast_typeid<frontend::STStmtExpression> {
+        typedef frontend::SyntaxTreeType type;
     };
 
-    inline SyntaxTreeType get_typeid(const STStmtExpression& type) {
+    inline frontend::SyntaxTreeType get_typeid(const frontend::STStmtExpression& type) {
         return type.getSyntaxTreeType();
     }
 }

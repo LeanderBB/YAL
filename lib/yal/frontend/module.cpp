@@ -20,7 +20,8 @@
 #include "yal/frontend/module.h"
 #include "yal/ast/declmodule.h"
 #include "yal/util/path.h"
-namespace yal {
+
+namespace yal::frontend {
 
     StringRef
     Module::ModuleNameFromPath(const StringRef str) {

@@ -16,22 +16,13 @@
  *  You should have received a copy of the GNU Lesser General Public
  *  License along with YAL. If not, see <http://www.gnu.org/licenses/>.
  */
-#include "yal/frontend/parser/syntaxtree.h"
 
-namespace yal::frontend {
+#include "yal/frontend/parser/stcontext.h"
 
-    SyntaxTree::SyntaxTree(const SyntaxTreeType type):
-        m_treeType(type){
+namespace yal {
 
-    }
-
-    void
-    SyntaxTree::setSourceInfo(const SourceInfo& sourceInfo) {
-        m_sourceInfo = sourceInfo;
-    }
-
-    STDecl::STDecl(const SyntaxTreeType type):
-        SyntaxTree(type) {
+    STContext::STContext() {
 
     }
+
 }

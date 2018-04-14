@@ -20,7 +20,7 @@
 #include "yal/frontend/parser/stexprvarref.h"
 #include "yal/frontend/parser/syntaxtreevisitor.h"
 
-namespace yal {
+namespace yal::frontend {
 
     STExprVarRef::STExprVarRef(const STIdentifier* identifier):
         STStmtExpression(SyntaxTreeType::STExprVarRef),

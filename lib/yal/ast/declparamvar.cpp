@@ -23,7 +23,7 @@
 #include "yal/ast/astvisitor.h"
 namespace yal {
 
-    DeclParamVar::DeclParamVar(Module& module,
+    DeclParamVar::DeclParamVar(frontend::Module& module,
                                const AstType astType,
                                StringRef name,
                                const DeclScope* scope,
@@ -32,7 +32,7 @@ namespace yal {
         DeclVar(module,astType, qualifier, scope, name, varType){
     }
 
-    DeclParamVar::DeclParamVar(Module &module,
+    DeclParamVar::DeclParamVar(frontend::Module &module,
                                StringRef name,
                                const DeclScope *scope,
                                const Qualifier qualifier,
@@ -47,7 +47,7 @@ namespace yal {
     }
 
 
-    DeclParamVarSelf::DeclParamVarSelf(Module& module,
+    DeclParamVarSelf::DeclParamVarSelf(frontend::Module& module,
                                        const DeclScope *scope,
                                        RefType* refType):
         DeclParamVar(module,
@@ -65,12 +65,12 @@ namespace yal {
     }
 
 
-    DeclParamVarContainer::DeclParamVarContainer(Module& module):
+    DeclParamVarContainer::DeclParamVarContainer(frontend::Module& module):
         BaseType(module){
 
     }
 
-    DeclParamVarContainer::DeclParamVarContainer(Module &module,
+    DeclParamVarContainer::DeclParamVarContainer(frontend::Module &module,
                                                  ContainerType &&params):
         BaseType(module, std::move(params)) {
 

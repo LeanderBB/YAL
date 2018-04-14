@@ -37,7 +37,7 @@ namespace yal {
     Compiler::Compiler(Log& log,
                        ErrorReporter& errorReporter,
                        SourceManager& srcManager,
-                       ModuleManager& moduleManager):
+                       frontend::ModuleManager& moduleManager):
         m_log(log),
         m_srcManager(srcManager),
         m_moduleManager(moduleManager),
@@ -51,7 +51,7 @@ namespace yal {
         m_flags = flags;
     }
 
-    Module*
+    frontend::Module*
     Compiler::compile(const SourceManager::Handle source){
         yal::SourceItem* sourceItem = m_srcManager.getItem(source);
         if (sourceItem == nullptr) {
@@ -70,7 +70,7 @@ namespace yal {
             return nullptr;
         }
 
-        yal::Module* module =
+        yal::frontend::Module* module =
                 m_moduleManager.createNew(sourceItem->getPath(), source);
         if (module == nullptr) {
             m_log.error("Failed to create module with name '%'.\n",

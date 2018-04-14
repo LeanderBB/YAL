@@ -173,18 +173,18 @@ namespace yal {
 
     void
     GenTypesC::GenUnaryOperator(CodeWriter& writer,
-                                const UnaryOperatorType op) {
+                                const frontend::UnaryOperatorType op) {
         switch (op) {
-        case UnaryOperatorType::Not:
+        case frontend::UnaryOperatorType::Not:
             writer.write("!");
             break;
-        case UnaryOperatorType::BitNot:
+        case frontend::UnaryOperatorType::BitNot:
             writer.write("~");
             break;
-        case UnaryOperatorType::Negate:
+        case frontend::UnaryOperatorType::Negate:
             writer.write("-");
             break;
-        case UnaryOperatorType::Reference:
+        case frontend::UnaryOperatorType::Reference:
             writer.write("&");
             break;
         default:

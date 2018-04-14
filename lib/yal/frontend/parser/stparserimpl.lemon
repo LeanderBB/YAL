@@ -35,15 +35,15 @@
 }
 
 
-%extra_argument { yal::STParser *pParser }
+%extra_argument { yal::frontend::STParser *pParser }
 
 %syntax_error {
 
-    yal::STParser::OnParseError(*pParser);
+    yal::frontend::STParser::OnParseError(*pParser);
     {
 #if defined(YAL_DEBUG)
         /*
-        yal::Log::MultiLineScope multiLineScope(pParser->getLog());
+        yal::frontend::Log::MultiLineScope multiLineScope(pParser->getLog());
         pParser->getLog().error("Expected one of the following tokens:\n");
         int n = sizeof(yyTokenName) / sizeof(yyTokenName[0]);
         for (int i = 0; i < n; ++i) {
@@ -70,53 +70,53 @@
 
 
 // Module
-%type decls {yal::STDeclModule*}
-%type module {yal::STDeclModule*}
+%type decls {yal::frontend::STDeclModule*}
+%type module {yal::frontend::STDeclModule*}
 // Types
-%type type_builtin {yal::STType*}
-%type type_qualified {yal::STQualType*}
-%type type_specifier {yal::STType*}
+%type type_builtin {yal::frontend::STType*}
+%type type_qualified {yal::frontend::STQualType*}
+%type type_specifier {yal::frontend::STType*}
 %type qualifier {uint32_t}
-%type identifier {yal::STIdentifier*}
-%type self {yal::STIdentifier*}
-%type identifier_or_self {yal::STIdentifier*}
+%type identifier {yal::frontend::STIdentifier*}
+%type self {yal::frontend::STIdentifier*}
+%type identifier_or_self {yal::frontend::STIdentifier*}
 // Decls
 
-%type decl_var {yal::STDeclVar*}
-%type decl_type {yal::STDecl*}
+%type decl_var {yal::frontend::STDeclVar*}
+%type decl_type {yal::frontend::STDecl*}
 
 //function
-%type decl_function {yal::STDeclFunction*}
-%type decl_type_function {yal::STDeclFunction*}
-%type function_return_decl {yal::STQualType*}
-%type function_args_decl {yal::STDeclFunction::Params*}
-%type function_arg_decl {yal::STDeclParam*}
-%type function_param_list {yal::STDeclFunction::Params*}
+%type decl_function {yal::frontend::STDeclFunction*}
+%type decl_type_function {yal::frontend::STDeclFunction*}
+%type function_return_decl {yal::frontend::STQualType*}
+%type function_args_decl {yal::frontend::STDeclFunction::Params*}
+%type function_arg_decl {yal::frontend::STDeclParam*}
+%type function_param_list {yal::frontend::STDeclFunction::Params*}
 
 // struct
-%type decl_struct {yal::STDeclStruct*}
-%type struct_decl_var {yal::STStructMember*}
-%type struct_decl_vars {yal::STDeclStruct::Members*}
+%type decl_struct {yal::frontend::STDeclStruct*}
+%type struct_decl_var {yal::frontend::STStructMember*}
+%type struct_decl_vars {yal::frontend::STDeclStruct::Members*}
 // var
-%type var_type_spec {yal::STQualType*}
+%type var_type_spec {yal::frontend::STQualType*}
 %type named_decl {yal::StringRefPod}
 // statements
-%type statement_list {yal::STStatementList*}
-%type statement_list_or_empty {yal::STStatementList*}
-%type statement {yal::STStatement*}
+%type statement_list {yal::frontend::STStatementList*}
+%type statement_list_or_empty {yal::frontend::STStatementList*}
+%type statement {yal::frontend::STStatement*}
 // expressions
-%type expression {yal::STStmtExpression*}
-%type unaryexp {yal::STExprUnaryOperator*}
-%type binaryexp {yal::STExprBinaryOperator*}
-%type literal {yal::STStmtExpression*}
-%type function_call_args{yal::STExprFnCall::ParamList*}
-%type struct_init {yal::STExprStructInit* }
-%type struct_member_init_list {yal::STExprStructInit::MemberInitList*}
-%type struct_member_init {yal::STStructMemberInit*}
+%type expression {yal::frontend::STStmtExpression*}
+%type unaryexp {yal::frontend::STExprUnaryOperator*}
+%type binaryexp {yal::frontend::STExprBinaryOperator*}
+%type literal {yal::frontend::STStmtExpression*}
+%type function_call_args{yal::frontend::STExprFnCall::ParamList*}
+%type struct_init {yal::frontend::STExprStructInit* }
+%type struct_member_init_list {yal::frontend::STExprStructInit::MemberInitList*}
+%type struct_member_init {yal::frontend::STStructMemberInit*}
 
 
 %start_symbol  module
-%token_type {yal::TokenInfo}
+%token_type {yal::frontend::TokenInfo}
 
 
 
@@ -139,13 +139,13 @@ decls(A) ::=. {
 
 
 identifier(A) ::= IDENTIFIER(B). {
-        A = pParser->createNode<yal::STIdentifier>(B.tokenStr);
+        A = pParser->createNode<yal::frontend::STIdentifier>(B.tokenStr);
         auto srcInfo = CreateSourceInfo(B, B, pParser->getSourceHandle());
         A->setSourceInfo(srcInfo);
 }
 
 self(A) ::= SELF(B). {
-        A = pParser->createNode<yal::STIdentifier>(B.tokenStr);
+        A = pParser->createNode<yal::frontend::STIdentifier>(B.tokenStr);
         auto srcInfo = CreateSourceInfo(B, B, pParser->getSourceHandle());
         A->setSourceInfo(srcInfo);
 }
@@ -159,76 +159,76 @@ type_specifier(A) ::= type_builtin(B). {
 
 type_specifier(A) ::= type_array. {A = nullptr;}
 type_specifier(A) ::= IDENTIFIER(B). {
-    A = pParser->createNode<yal::STType>(B.tokenStr);
-    A->setSourceInfo(yal::CreateSourceInfo(B,B, pParser->getSourceHandle()));
+    A = pParser->createNode<yal::frontend::STType>(B.tokenStr);
+    A->setSourceInfo(yal::frontend::CreateSourceInfo(B,B, pParser->getSourceHandle()));
 }
 
 type_builtin(A) ::= TYPE_BOOL(B). {
-    A = pParser->createNode<yal::STType>(yal::STType::Type::Bool);
-    auto srcInfo = yal::CreateSourceInfo(B, B, pParser->getSourceHandle());
+    A = pParser->createNode<yal::frontend::STType>(yal::frontend::STType::Type::Bool);
+    auto srcInfo = yal::frontend::CreateSourceInfo(B, B, pParser->getSourceHandle());
     A->setSourceInfo(srcInfo);
     }
 type_builtin(A) ::= TYPE_INT8(B). {
-        A = pParser->createNode<yal::STType>(yal::STType::Type::Int8);
-        auto srcInfo = yal::CreateSourceInfo(B, B, pParser->getSourceHandle());
+        A = pParser->createNode<yal::frontend::STType>(yal::frontend::STType::Type::Int8);
+        auto srcInfo = yal::frontend::CreateSourceInfo(B, B, pParser->getSourceHandle());
         A->setSourceInfo(srcInfo);
     }
 type_builtin(A) ::= TYPE_UINT8(B). {
-        A = pParser->createNode<yal::STType>(yal::STType::Type::UInt8);
-        auto srcInfo = yal::CreateSourceInfo(B, B, pParser->getSourceHandle());
+        A = pParser->createNode<yal::frontend::STType>(yal::frontend::STType::Type::UInt8);
+        auto srcInfo = yal::frontend::CreateSourceInfo(B, B, pParser->getSourceHandle());
         A->setSourceInfo(srcInfo);
     }
 type_builtin(A) ::= TYPE_INT16(B). {
-        A = pParser->createNode<yal::STType>(yal::STType::Type::Int16);
-        auto srcInfo = yal::CreateSourceInfo(B, B, pParser->getSourceHandle());
+        A = pParser->createNode<yal::frontend::STType>(yal::frontend::STType::Type::Int16);
+        auto srcInfo = yal::frontend::CreateSourceInfo(B, B, pParser->getSourceHandle());
         A->setSourceInfo(srcInfo);
     }
 type_builtin(A) ::= TYPE_UINT16(B). {
-        A = pParser->createNode<yal::STType>(yal::STType::Type::UInt16);
-        auto srcInfo = yal::CreateSourceInfo(B, B, pParser->getSourceHandle());
+        A = pParser->createNode<yal::frontend::STType>(yal::frontend::STType::Type::UInt16);
+        auto srcInfo = yal::frontend::CreateSourceInfo(B, B, pParser->getSourceHandle());
         A->setSourceInfo(srcInfo);
     }
 type_builtin(A) ::= TYPE_INT32(B). {
-        A = pParser->createNode<yal::STType>(yal::STType::Type::Int32);
-        auto srcInfo = yal::CreateSourceInfo(B, B, pParser->getSourceHandle());
+        A = pParser->createNode<yal::frontend::STType>(yal::frontend::STType::Type::Int32);
+        auto srcInfo = yal::frontend::CreateSourceInfo(B, B, pParser->getSourceHandle());
         A->setSourceInfo(srcInfo);
     }
 type_builtin(A) ::= TYPE_UINT32(B). {
-        A = pParser->createNode<yal::STType>(yal::STType::Type::UInt32);
-        auto srcInfo = yal::CreateSourceInfo(B, B, pParser->getSourceHandle());
+        A = pParser->createNode<yal::frontend::STType>(yal::frontend::STType::Type::UInt32);
+        auto srcInfo = yal::frontend::CreateSourceInfo(B, B, pParser->getSourceHandle());
         A->setSourceInfo(srcInfo);
     }
 type_builtin(A) ::= TYPE_INT64(B). {
-        A = pParser->createNode<yal::STType>(yal::STType::Type::Int64);
-        auto srcInfo = yal::CreateSourceInfo(B, B, pParser->getSourceHandle());
+        A = pParser->createNode<yal::frontend::STType>(yal::frontend::STType::Type::Int64);
+        auto srcInfo = yal::frontend::CreateSourceInfo(B, B, pParser->getSourceHandle());
         A->setSourceInfo(srcInfo);
     }
 type_builtin(A) ::= TYPE_UINT64(B). {
-        A = pParser->createNode<yal::STType>(yal::STType::Type::UInt64);
-        auto srcInfo = yal::CreateSourceInfo(B, B, pParser->getSourceHandle());
+        A = pParser->createNode<yal::frontend::STType>(yal::frontend::STType::Type::UInt64);
+        auto srcInfo = yal::frontend::CreateSourceInfo(B, B, pParser->getSourceHandle());
         A->setSourceInfo(srcInfo);
     }
 type_builtin(A) ::= TYPE_FLOAT(B). {
-        A = pParser->createNode<yal::STType>(yal::STType::Type::Float32);
-        auto srcInfo = yal::CreateSourceInfo(B, B, pParser->getSourceHandle());
+        A = pParser->createNode<yal::frontend::STType>(yal::frontend::STType::Type::Float32);
+        auto srcInfo = yal::frontend::CreateSourceInfo(B, B, pParser->getSourceHandle());
         A->setSourceInfo(srcInfo);
     }
 type_builtin(A) ::= TYPE_DOUBLE(B). {
-        A = pParser->createNode<yal::STType>(yal::STType::Type::Float64);
-        auto srcInfo = yal::CreateSourceInfo(B, B, pParser->getSourceHandle());
+        A = pParser->createNode<yal::frontend::STType>(yal::frontend::STType::Type::Float64);
+        auto srcInfo = yal::frontend::CreateSourceInfo(B, B, pParser->getSourceHandle());
         A->setSourceInfo(srcInfo);
     }
 
 type_array ::= type_builtin ARRAY_BEGIN ARRAY_END.
 
 qualifier(A)::=. {A = 0;}
-qualifier(A)::= MUT. {A = yal::STQualType::Qualifiers::kQualMutable;}
-qualifier(A)::= REFERENCE. {A = yal::STQualType::Qualifiers::kQualReference;}
+qualifier(A)::= MUT. {A = yal::frontend::STQualType::Qualifiers::kQualMutable;}
+qualifier(A)::= REFERENCE. {A = yal::frontend::STQualType::Qualifiers::kQualReference;}
 qualifier(A)::= MUT REFERENCE. {
-        A = yal::STQualType::Qualifiers::kQualReference | yal::STQualType::Qualifiers::kQualMutable;
+        A = yal::frontend::STQualType::Qualifiers::kQualReference | yal::frontend::STQualType::Qualifiers::kQualMutable;
  }
 type_qualified(A) ::= qualifier(D) type_specifier(C). {
-    A = pParser->createNode<yal::STQualType>(C, D);
+    A = pParser->createNode<yal::frontend::STQualType>(C, D);
 }
 
 // Type Decl -----------------------------------------------------------------
@@ -243,7 +243,7 @@ decl_type(A) ::= decl_struct(B). { A = B;}
 // Decl Struct ---------------------------------------------------------------
 
 decl_struct(A) ::= TYPE(B) identifier(D) COLON STRUCT SCOPE_BEGIN struct_decl_vars(C) SCOPE_END(Z). {
-    A = pParser->createNode<yal::STDeclStruct>(D, C);
+    A = pParser->createNode<yal::frontend::STDeclStruct>(D, C);
     auto srcInfo = CreateSourceInfo(B, Z, pParser->getSourceHandle());
     A->setSourceInfo(srcInfo);
 }
@@ -253,13 +253,13 @@ struct_decl_vars(A) ::= struct_decl_vars(B) COMMA struct_decl_var(C). {
     A->push_back(C);
 }
 struct_decl_vars(A) ::= struct_decl_var(B). {
-    A = pParser->createNode<yal::STDeclStruct::Members>();
+    A = pParser->createNode<yal::frontend::STDeclStruct::Members>();
     A->push_back(B);
 }
 
 struct_decl_var(A) ::= identifier(B) COLON type_qualified(C). {
-    A = pParser->createNode<yal::STStructMember>(B, C);
-    auto srcInfo = CreateSourceInfo(B->getSourceInfo(), C->getSourceInfo(),pParser->getSourceHandle());
+    A = pParser->createNode<yal::frontend::STStructMember>(B, C);
+    auto srcInfo = yal::frontend::CreateSourceInfo(B->getSourceInfo(), C->getSourceInfo(),pParser->getSourceHandle());
     A->setSourceInfo(srcInfo);
 }
 
@@ -272,7 +272,7 @@ function_param_list(A) ::= PAR_BEGIN function_args_decl (B) PAR_END. {
 
 decl_function(A) ::= FUNCTION(B) identifier(C) function_param_list(D) function_return_decl (E)
         SCOPE_BEGIN statement_list_or_empty(F) SCOPE_END(Z). {
-    A = pParser->createNode<yal::STDeclFunction>(C, nullptr, E, D, F);
+    A = pParser->createNode<yal::frontend::STDeclFunction>(C, nullptr, E, D, F);
     A->setSourceInfo(CreateSourceInfo(B, Z, pParser->getSourceHandle()));
 }
 
@@ -280,7 +280,7 @@ decl_function(A) ::= FUNCTION(B) identifier(C) function_param_list(D) function_r
 
 decl_type_function(A)::= FUNCTION(B) type_specifier(T) COLON COLON identifier(C) function_param_list(D) function_return_decl (E)
         SCOPE_BEGIN statement_list_or_empty(F) SCOPE_END(Z).  {
-    A = pParser->createNode<yal::STDeclFunction>(C, T, E, D, F);
+    A = pParser->createNode<yal::frontend::STDeclFunction>(C, T, E, D, F);
     A->setSourceInfo(CreateSourceInfo(B, Z, pParser->getSourceHandle()));
 }
 
@@ -292,7 +292,7 @@ function_args_decl(A) ::= function_args_decl(B) COMMA function_arg_decl(C). {
 }
 
 function_args_decl(A) ::= function_arg_decl(B). {
-    A = pParser->createNode<yal::STDeclFunction::Params>();
+    A = pParser->createNode<yal::frontend::STDeclFunction::Params>();
     A->push_back(B);
 }
 
@@ -301,13 +301,13 @@ function_args_decl(A) ::= . {
 }
 
 function_arg_decl(A) ::= identifier(B) COLON type_qualified(C). {
-        A = pParser->createNode<yal::STDeclParam>(B, C);
-        A->setSourceInfo(yal::CreateSourceInfo(B->getSourceInfo(),C->getSourceInfo(), pParser->getSourceHandle()));
+        A = pParser->createNode<yal::frontend::STDeclParam>(B, C);
+        A->setSourceInfo(yal::frontend::CreateSourceInfo(B->getSourceInfo(),C->getSourceInfo(), pParser->getSourceHandle()));
 }
 
 function_arg_decl(A) ::= qualifier(B) self(C). {
-        auto qualType = pParser->createNode<yal::STQualType>(nullptr, B);
-        A = pParser->createNode<yal::STDeclParam>(C, qualType);
+        auto qualType = pParser->createNode<yal::frontend::STQualType>(nullptr, B);
+        A = pParser->createNode<yal::frontend::STDeclParam>(C, qualType);
         A->setSourceInfo(C->getSourceInfo());
 }
 
@@ -325,17 +325,17 @@ statement_list(A) ::= statement_list(B) statement(C).{
     A=B;
 }
 statement_list(A) ::= statement(B). {
-    A = pParser->createNode<yal::STStatementList>();
+    A = pParser->createNode<yal::frontend::STStatementList>();
     A->push_back(B);
 }
 
 
 statement(A) ::= expression(B) ASSIGN expression(C) SEMI_COLON. {
-   A = pParser->createNode<yal::STStmtAssign>(B,C);
-   A->setSourceInfo(yal::CreateSourceInfo(B->getSourceInfo(), C->getSourceInfo(), pParser->getSourceHandle()));
+   A = pParser->createNode<yal::frontend::STStmtAssign>(B,C);
+   A->setSourceInfo(yal::frontend::CreateSourceInfo(B->getSourceInfo(), C->getSourceInfo(), pParser->getSourceHandle()));
 }
 statement(A)::= decl_var(B) SEMI_COLON. {
-    A = pParser->createNode<yal::STStmtDecl>(B);
+    A = pParser->createNode<yal::frontend::STStmtDecl>(B);
     A->setSourceInfo(B->getSourceInfo());
 }
 
@@ -344,28 +344,28 @@ statement(A) ::= expression(B) SEMI_COLON. {
 }
 
 statement(A) ::= RETURN(Z) expression(B) SEMI_COLON. {
-    A = pParser->createNode<yal::STStmtReturn>(B);
-    auto srcInfo = yal::CreateSourceInfo(Z, B->getSourceInfo(), pParser->getSourceHandle());
+    A = pParser->createNode<yal::frontend::STStmtReturn>(B);
+    auto srcInfo = yal::frontend::CreateSourceInfo(Z, B->getSourceInfo(), pParser->getSourceHandle());
     A->setSourceInfo(srcInfo);
 }
 
 statement(A) ::= RETURN(Z) SEMI_COLON. {
-    A = pParser->createNode<yal::STStmtReturn>(nullptr);
-    auto srcInfo = yal::CreateSourceInfo(Z, Z, pParser->getSourceHandle());
+    A = pParser->createNode<yal::frontend::STStmtReturn>(nullptr);
+    auto srcInfo = yal::frontend::CreateSourceInfo(Z, Z, pParser->getSourceHandle());
     A->setSourceInfo(srcInfo);
 }
 
 // Var Decls -----------------------------------------------------------------
 
 decl_var(A) ::= VAR(Z) identifier(B) var_type_spec(C) ASSIGN expression(D). {
-    A = pParser->createNode<yal::STDeclVar>(B, C, D);
-    auto srcInfo = yal::CreateSourceInfo(Z, D->getSourceInfo(), pParser->getSourceHandle());
+    A = pParser->createNode<yal::frontend::STDeclVar>(B, C, D);
+    auto srcInfo = yal::frontend::CreateSourceInfo(Z, D->getSourceInfo(), pParser->getSourceHandle());
     A->setSourceInfo(srcInfo);
 }
 
 decl_var(A) ::= LET(Z) identifier(B) var_type_spec(C) ASSIGN expression(D). {
-    A = pParser->createNode<yal::STDeclVar>(B, C, D);
-    auto srcInfo = yal::CreateSourceInfo(Z, D->getSourceInfo(), pParser->getSourceHandle());
+    A = pParser->createNode<yal::frontend::STDeclVar>(B, C, D);
+    auto srcInfo = yal::frontend::CreateSourceInfo(Z, D->getSourceInfo(), pParser->getSourceHandle());
     A->setSourceInfo(srcInfo);
 }
 
@@ -382,150 +382,150 @@ expression (A) ::= binaryexp(B). {A = B;}
 expression (A) ::= struct_init(B). { A = B;}
 
 expression (A) ::= RANGE_CAST(B) LT type_qualified(C) GT PAR_BEGIN expression(D) PAR_END(E). {
-    A = pParser->createNode<yal::STExprRangeCast>(C, D);
-    auto srcInfo = yal::CreateSourceInfo(B, E, pParser->getSourceHandle());
+    A = pParser->createNode<yal::frontend::STExprRangeCast>(C, D);
+    auto srcInfo = yal::frontend::CreateSourceInfo(B, E, pParser->getSourceHandle());
     A->setSourceInfo(srcInfo);
 }
 
 expression (A) ::= identifier_or_self(B). {
-    A = pParser->createNode<yal::STExprVarRef>(B);
+    A = pParser->createNode<yal::frontend::STExprVarRef>(B);
     A->setSourceInfo(B->getSourceInfo());
 }
 
 expression (A) ::= expression(B) DOT identifier(C). {
-    A = pParser->createNode<yal::STExprStructVarRef>(B, C);
-    auto srcInfo = yal::CreateSourceInfo(B->getSourceInfo(), C->getSourceInfo(), pParser->getSourceHandle());
+    A = pParser->createNode<yal::frontend::STExprStructVarRef>(B, C);
+    auto srcInfo = yal::frontend::CreateSourceInfo(B->getSourceInfo(), C->getSourceInfo(), pParser->getSourceHandle());
     A->setSourceInfo(srcInfo);
 }
 
 expression(A) ::= identifier(C) PAR_BEGIN function_call_args(D) PAR_END(Z). {
-    A = pParser->createNode<yal::STExprFnCall>(C,D);
-    auto srcInfo = yal::CreateSourceInfo(C->getSourceInfo(), Z, pParser->getSourceHandle());
+    A = pParser->createNode<yal::frontend::STExprFnCall>(C,D);
+    auto srcInfo = yal::frontend::CreateSourceInfo(C->getSourceInfo(), Z, pParser->getSourceHandle());
     A->setSourceInfo(srcInfo);
 }
 
 expression(A) ::= expression(B) DOT identifier(C) PAR_BEGIN function_call_args(D) PAR_END(Z). {
-    A = pParser->createNode<yal::STExprFnCall>(C,B,D);
-    auto srcInfo = yal::CreateSourceInfo(B->getSourceInfo(), Z, pParser->getSourceHandle());
+    A = pParser->createNode<yal::frontend::STExprFnCall>(C,B,D);
+    auto srcInfo = yal::frontend::CreateSourceInfo(B->getSourceInfo(), Z, pParser->getSourceHandle());
     A->setSourceInfo(srcInfo);
 }
 
 expression(A) ::= type_specifier(B) COLON COLON identifier(C) PAR_BEGIN function_call_args(D) PAR_END(Z). {
-    A = pParser->createNode<yal::STExprFnCall>(C,B,D);
-    auto srcInfo = yal::CreateSourceInfo(B->getSourceInfo(), Z, pParser->getSourceHandle());
+    A = pParser->createNode<yal::frontend::STExprFnCall>(C,B,D);
+    auto srcInfo = yal::frontend::CreateSourceInfo(B->getSourceInfo(), Z, pParser->getSourceHandle());
     A->setSourceInfo(srcInfo);
 }
 
 // Binary operators ----------------------------------------------------------
 
 binaryexp(A) ::= expression(B) AND expression(C). {
-        A = pParser->createNode<yal::STExprBinaryOperator>(yal::BinaryOperatorType::And,
+        A = pParser->createNode<yal::frontend::STExprBinaryOperator>(yal::frontend::BinaryOperatorType::And,
                                                         B, C);
-        auto srcInfo = yal::CreateSourceInfo(B->getSourceInfo(), C->getSourceInfo(), pParser->getSourceHandle());
+        auto srcInfo = yal::frontend::CreateSourceInfo(B->getSourceInfo(), C->getSourceInfo(), pParser->getSourceHandle());
         A->setSourceInfo(srcInfo);
 }
 binaryexp(A) ::= expression(B) OR expression(C). {
-        A = pParser->createNode<yal::STExprBinaryOperator>(yal::BinaryOperatorType::Or,
+        A = pParser->createNode<yal::frontend::STExprBinaryOperator>(yal::frontend::BinaryOperatorType::Or,
                                                         B, C);
-        auto srcInfo = yal::CreateSourceInfo(B->getSourceInfo(), C->getSourceInfo(), pParser->getSourceHandle());
+        auto srcInfo = yal::frontend::CreateSourceInfo(B->getSourceInfo(), C->getSourceInfo(), pParser->getSourceHandle());
         A->setSourceInfo(srcInfo);
 }
 binaryexp(A) ::= expression(B) PLUS expression(C). {
-        A = pParser->createNode<yal::STExprBinaryOperator>(yal::BinaryOperatorType::Plus,
+        A = pParser->createNode<yal::frontend::STExprBinaryOperator>(yal::frontend::BinaryOperatorType::Plus,
                                                         B, C);
-        auto srcInfo = yal::CreateSourceInfo(B->getSourceInfo(), C->getSourceInfo(), pParser->getSourceHandle());
+        auto srcInfo = yal::frontend::CreateSourceInfo(B->getSourceInfo(), C->getSourceInfo(), pParser->getSourceHandle());
         A->setSourceInfo(srcInfo);
 }
 binaryexp(A) ::= expression(B) MINUS expression(C).  {
-        A = pParser->createNode<yal::STExprBinaryOperator>(yal::BinaryOperatorType::Minus,
+        A = pParser->createNode<yal::frontend::STExprBinaryOperator>(yal::frontend::BinaryOperatorType::Minus,
                                                         B, C);
-        auto srcInfo = yal::CreateSourceInfo(B->getSourceInfo(), C->getSourceInfo(), pParser->getSourceHandle());
+        auto srcInfo = yal::frontend::CreateSourceInfo(B->getSourceInfo(), C->getSourceInfo(), pParser->getSourceHandle());
         A->setSourceInfo(srcInfo);
 }
 binaryexp(A) ::= expression(B) MULT expression(C). {
-        A = pParser->createNode<yal::STExprBinaryOperator>(yal::BinaryOperatorType::Mult,
+        A = pParser->createNode<yal::frontend::STExprBinaryOperator>(yal::frontend::BinaryOperatorType::Mult,
                                                         B, C);
-        auto srcInfo = yal::CreateSourceInfo(B->getSourceInfo(), C->getSourceInfo(), pParser->getSourceHandle());
+        auto srcInfo = yal::frontend::CreateSourceInfo(B->getSourceInfo(), C->getSourceInfo(), pParser->getSourceHandle());
         A->setSourceInfo(srcInfo);
 }
 binaryexp(A) ::= expression(B) DIV expression(C). {
-        A = pParser->createNode<yal::STExprBinaryOperator>(yal::BinaryOperatorType::Div,
+        A = pParser->createNode<yal::frontend::STExprBinaryOperator>(yal::frontend::BinaryOperatorType::Div,
                                                         B, C);
 }
 binaryexp(A) ::= expression(B) MOD expression(C). {
-        A = pParser->createNode<yal::STExprBinaryOperator>(yal::BinaryOperatorType::Mod,
+        A = pParser->createNode<yal::frontend::STExprBinaryOperator>(yal::frontend::BinaryOperatorType::Mod,
                                                         B, C);
-        auto srcInfo = yal::CreateSourceInfo(B->getSourceInfo(), C->getSourceInfo(), pParser->getSourceHandle());
+        auto srcInfo = yal::frontend::CreateSourceInfo(B->getSourceInfo(), C->getSourceInfo(), pParser->getSourceHandle());
         A->setSourceInfo(srcInfo);
 }
 
 binaryexp(A) ::= expression(B) EQ expression(C). {
-        A = pParser->createNode<yal::STExprBinaryOperator>(yal::BinaryOperatorType::Eq,
+        A = pParser->createNode<yal::frontend::STExprBinaryOperator>(yal::frontend::BinaryOperatorType::Eq,
                                                         B, C);
-        auto srcInfo = yal::CreateSourceInfo(B->getSourceInfo(), C->getSourceInfo(), pParser->getSourceHandle());
+        auto srcInfo = yal::frontend::CreateSourceInfo(B->getSourceInfo(), C->getSourceInfo(), pParser->getSourceHandle());
         A->setSourceInfo(srcInfo);
 }
 
 binaryexp(A) ::= expression(B) NE expression(C). {
-        A = pParser->createNode<yal::STExprBinaryOperator>(yal::BinaryOperatorType::Ne,
+        A = pParser->createNode<yal::frontend::STExprBinaryOperator>(yal::frontend::BinaryOperatorType::Ne,
                                                         B, C);
-        auto srcInfo = yal::CreateSourceInfo(B->getSourceInfo(), C->getSourceInfo(), pParser->getSourceHandle());
+        auto srcInfo = yal::frontend::CreateSourceInfo(B->getSourceInfo(), C->getSourceInfo(), pParser->getSourceHandle());
         A->setSourceInfo(srcInfo);
 }
 
 binaryexp(A) ::= expression(B) LE expression(C). {
-        A = pParser->createNode<yal::STExprBinaryOperator>(yal::BinaryOperatorType::Le,
+        A = pParser->createNode<yal::frontend::STExprBinaryOperator>(yal::frontend::BinaryOperatorType::Le,
                                                         B, C);
-        auto srcInfo = yal::CreateSourceInfo(B->getSourceInfo(), C->getSourceInfo(), pParser->getSourceHandle());
+        auto srcInfo = yal::frontend::CreateSourceInfo(B->getSourceInfo(), C->getSourceInfo(), pParser->getSourceHandle());
         A->setSourceInfo(srcInfo);
 }
 
 binaryexp(A) ::= expression(B) LT expression(C). {
-        A = pParser->createNode<yal::STExprBinaryOperator>(yal::BinaryOperatorType::Lt,
+        A = pParser->createNode<yal::frontend::STExprBinaryOperator>(yal::frontend::BinaryOperatorType::Lt,
                                                         B, C);
-        auto srcInfo = yal::CreateSourceInfo(B->getSourceInfo(), C->getSourceInfo(), pParser->getSourceHandle());
+        auto srcInfo = yal::frontend::CreateSourceInfo(B->getSourceInfo(), C->getSourceInfo(), pParser->getSourceHandle());
         A->setSourceInfo(srcInfo);
 }
 
 binaryexp(A) ::= expression(B) GE expression(C). {
-        A = pParser->createNode<yal::STExprBinaryOperator>(yal::BinaryOperatorType::Ge,
+        A = pParser->createNode<yal::frontend::STExprBinaryOperator>(yal::frontend::BinaryOperatorType::Ge,
                                                         B, C);
-        auto srcInfo = yal::CreateSourceInfo(B->getSourceInfo(), C->getSourceInfo(), pParser->getSourceHandle());
+        auto srcInfo = yal::frontend::CreateSourceInfo(B->getSourceInfo(), C->getSourceInfo(), pParser->getSourceHandle());
         A->setSourceInfo(srcInfo);
 }
 
 binaryexp(A) ::= expression(B) GT expression(C). {
-        A = pParser->createNode<yal::STExprBinaryOperator>(yal::BinaryOperatorType::Gt,
+        A = pParser->createNode<yal::frontend::STExprBinaryOperator>(yal::frontend::BinaryOperatorType::Gt,
                                                         B, C);
-        auto srcInfo = yal::CreateSourceInfo(B->getSourceInfo(), C->getSourceInfo(), pParser->getSourceHandle());
+        auto srcInfo = yal::frontend::CreateSourceInfo(B->getSourceInfo(), C->getSourceInfo(), pParser->getSourceHandle());
         A->setSourceInfo(srcInfo);
 }
 
 // Unary operators -----------------------------------------------------------
 
 unaryexp(A) ::= NOT(Z) expression(B). {
-    A = pParser->createNode<yal::STExprUnaryOperator>(yal::UnaryOperatorType::Not,
+    A = pParser->createNode<yal::frontend::STExprUnaryOperator>(yal::frontend::UnaryOperatorType::Not,
                                                B);
-    auto srcInfo = yal::CreateSourceInfo(Z, B->getSourceInfo(), pParser->getSourceHandle());
+    auto srcInfo = yal::frontend::CreateSourceInfo(Z, B->getSourceInfo(), pParser->getSourceHandle());
     A->setSourceInfo(srcInfo);
 }
 unaryexp(A) ::= BIT_NOT(Z) expression(B). {
-    A = pParser->createNode<yal::STExprUnaryOperator>(yal::UnaryOperatorType::BitNot,
+    A = pParser->createNode<yal::frontend::STExprUnaryOperator>(yal::frontend::UnaryOperatorType::BitNot,
                                                B);
-    auto srcInfo = yal::CreateSourceInfo(Z, B->getSourceInfo(), pParser->getSourceHandle());
+    auto srcInfo = yal::frontend::CreateSourceInfo(Z, B->getSourceInfo(), pParser->getSourceHandle());
     A->setSourceInfo(srcInfo);
 }
 unaryexp(A) ::= MINUS(Z) expression(B). [NEGATE] {
-    A = pParser->createNode<yal::STExprUnaryOperator>(yal::UnaryOperatorType::Negate,
+    A = pParser->createNode<yal::frontend::STExprUnaryOperator>(yal::frontend::UnaryOperatorType::Negate,
                                                B);
-    auto srcInfo = yal::CreateSourceInfo(Z, B->getSourceInfo(), pParser->getSourceHandle());
+    auto srcInfo = yal::frontend::CreateSourceInfo(Z, B->getSourceInfo(), pParser->getSourceHandle());
     A->setSourceInfo(srcInfo);
 }
 
 unaryexp(A) ::= REFERENCE(Z) expression(B).[NEGATE] {
-    A = pParser->createNode<yal::STExprUnaryOperator>(yal::UnaryOperatorType::Reference,
+    A = pParser->createNode<yal::frontend::STExprUnaryOperator>(yal::frontend::UnaryOperatorType::Reference,
                                                B);
-    auto srcInfo = yal::CreateSourceInfo(Z, B->getSourceInfo(), pParser->getSourceHandle());
+    auto srcInfo = yal::frontend::CreateSourceInfo(Z, B->getSourceInfo(), pParser->getSourceHandle());
     A->setSourceInfo(srcInfo);
 }
 
@@ -536,7 +536,7 @@ function_call_args(A) ::= function_call_args(B) COMMA expression(C). {
     A->push_back(C);
 }
 function_call_args(A)::= expression(B). {
-    A = pParser->createNode<yal::STExprFnCall::ParamList>();
+    A = pParser->createNode<yal::frontend::STExprFnCall::ParamList>();
     A->push_back(B);
 }
 function_call_args(A) ::=. {
@@ -547,8 +547,8 @@ function_call_args(A) ::=. {
 // Struct Init ---------------------------------------------------------------
 
 struct_init(A) ::= type_specifier(B) SCOPE_BEGIN struct_member_init_list (C) SCOPE_END(D). {
-    A = pParser->createNode<yal::STExprStructInit>(B, C);
-    auto srcInfo = yal::CreateSourceInfo(B->getSourceInfo(), D, pParser->getSourceHandle());
+    A = pParser->createNode<yal::frontend::STExprStructInit>(B, C);
+    auto srcInfo = yal::frontend::CreateSourceInfo(B->getSourceInfo(), D, pParser->getSourceHandle());
     A->setSourceInfo(srcInfo);
 }
 
@@ -558,31 +558,31 @@ struct_member_init_list (A) ::= struct_member_init_list(B) COMMA struct_member_i
      A = B;
 }
 struct_member_init_list (A) ::= struct_member_init(B). {
-        A = pParser->createNode<yal::STExprStructInit::MemberInitList>();
+        A = pParser->createNode<yal::frontend::STExprStructInit::MemberInitList>();
         A->push_back(B);
 }
 
 struct_member_init(A) ::= identifier(B) COLON expression(C). {
-    A = pParser->createNode<yal::STStructMemberInit>(B,C);
-    auto srcInfo = yal::CreateSourceInfo(B->getSourceInfo(), C->getSourceInfo(), pParser->getSourceHandle());
+    A = pParser->createNode<yal::frontend::STStructMemberInit>(B,C);
+    auto srcInfo = yal::frontend::CreateSourceInfo(B->getSourceInfo(), C->getSourceInfo(), pParser->getSourceHandle());
     A->setSourceInfo(srcInfo);
 }
 
 // Literals ------------------------------------------------------------------
 
 literal(A) ::= INTEGER_LITERAL(B). {
-        A = pParser->createNode<yal::STExprIntegerLiteral>(B.tokenStr);
-        auto srcInfo =yal::CreateSourceInfo(B, B, pParser->getSourceHandle());
+        A = pParser->createNode<yal::frontend::STExprIntegerLiteral>(B.tokenStr);
+        auto srcInfo =yal::frontend::CreateSourceInfo(B, B, pParser->getSourceHandle());
         A->setSourceInfo(srcInfo);
    }
 literal(A) ::= FLOAT_LITERAL(B). {
-        A = pParser->createNode<yal::STExprFloatLiteral>(B.tokenStr);
-        auto srcInfo = yal::CreateSourceInfo(B, B, pParser->getSourceHandle());
+        A = pParser->createNode<yal::frontend::STExprFloatLiteral>(B.tokenStr);
+        auto srcInfo = yal::frontend::CreateSourceInfo(B, B, pParser->getSourceHandle());
         A->setSourceInfo(srcInfo);
 }
 literal(A) ::= BOOL_LITERAL(B). {
-        A = pParser->createNode<yal::STExprBoolLiteral>(B.tokenStr);
-        auto srcInfo = yal::CreateSourceInfo(B, B, pParser->getSourceHandle());
+        A = pParser->createNode<yal::frontend::STExprBoolLiteral>(B.tokenStr);
+        auto srcInfo = yal::frontend::CreateSourceInfo(B, B, pParser->getSourceHandle());
         A->setSourceInfo(srcInfo);
 }
 

@@ -20,7 +20,7 @@
 #include "yal/frontend/parser/stdeclmodule.h"
 #include "yal/frontend/parser/syntaxtreevisitor.h"
 
-namespace yal {
+namespace yal::frontend {
 
     STDeclModule::STDeclModule():
     SyntaxTree(SyntaxTreeType::STDeclModule){

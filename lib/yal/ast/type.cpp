@@ -38,7 +38,7 @@ namespace yal {
 
     }
 
-    Type::Type(const Module* module,
+    Type::Type(const frontend::Module* module,
                const Kind kind,
                const Identifier &identifier) :
         m_module(module),

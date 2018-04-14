@@ -24,7 +24,7 @@
 #include "yal/util/cast.h"
 #include "yal/util/stringref.h"
 
-namespace yal {
+namespace yal::frontend {
 
     enum class SyntaxTreeType {
 #define YAL_ST_NODE_TYPE(type) type,
@@ -34,11 +34,21 @@ namespace yal {
     };
 
 #define YAL_ST_NODE_TYPE(CLASS) \
-    class CLASS; \
-    template<> struct cast_typeid< CLASS >{typedef SyntaxTreeType type;}; \
-    template<> constexpr cast_typeid< CLASS >::type get_typeid< CLASS >() {return SyntaxTreeType::CLASS ;}
+    class CLASS;
 #include "yal/frontend/parser/syntaxtreetypes.def"
 #undef YAL_ST_NODE_TYPE
+
+}
+
+namespace yal {
+#define YAL_ST_NODE_TYPE(CLASS) \
+    template<> struct cast_typeid< yal::frontend::CLASS >{typedef yal::frontend::SyntaxTreeType type;}; \
+    template<> constexpr cast_typeid< yal::frontend::CLASS >::type get_typeid< yal::frontend::CLASS >() {return yal::frontend::SyntaxTreeType::CLASS ;}
+#include "yal/frontend/parser/syntaxtreetypes.def"
+#undef YAL_ST_NODE_TYPE
+}
+
+namespace yal::frontend {
 
     class SyntaxTreeVisitor;
     class SyntaxTree {
@@ -66,29 +76,32 @@ namespace yal {
         SourceInfo m_sourceInfo;
     };
 
-    template<>
-    struct cast_typeid<SyntaxTree> {
-        typedef SyntaxTreeType type;
-    };
-
-    inline SyntaxTreeType get_typeid(const SyntaxTree& st) {
-        return st.getSyntaxTreeType();
-    }
-
-
     class STDecl : public SyntaxTree {
     public:
 
     protected:
         STDecl(const SyntaxTreeType type);
     };
+}
+
+namespace yal {
 
     template<>
-    struct cast_typeid<STDecl> {
-        typedef SyntaxTreeType type;
+    struct cast_typeid<frontend::SyntaxTree> {
+        typedef frontend::SyntaxTreeType type;
     };
 
-    inline SyntaxTreeType get_typeid(const STDecl& st) {
+    inline frontend::SyntaxTreeType get_typeid(const frontend::SyntaxTree& st) {
+        return st.getSyntaxTreeType();
+    }
+
+    template<>
+    struct cast_typeid<frontend::STDecl> {
+        typedef frontend::SyntaxTreeType type;
+    };
+
+    inline frontend::SyntaxTreeType get_typeid(const frontend::STDecl& st) {
         return st.getSyntaxTreeType();
     }
 }
+

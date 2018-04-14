@@ -22,12 +22,14 @@
 #include "yal/ast/declscope.h"
 #include "yal/ast/declbase.h"
 namespace yal {
-    class Module;
+    namespace frontend{
+        class Module;
+    }
     class AstVisitor;
     class DeclModule : public DeclBase{
     public:
 
-        DeclModule(Module& module,
+        DeclModule(frontend::Module& module,
                    StringRef name);
 
         std::vector<DeclBase*>& getDeclarations()  {

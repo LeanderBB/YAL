@@ -22,7 +22,7 @@
 #include "yal/ast/reftype.h"
 
 namespace yal {
-    ExprStructInit::ExprStructInit(Module& module,
+    ExprStructInit::ExprStructInit(frontend::Module& module,
                                    RefType* structType,
                                    StructMemberInitList* memberInitList):
         StmtExpression(module, AstType::ExprStructInit),

@@ -23,7 +23,7 @@
 
 namespace yal{
 
-    DeclBase::DeclBase(Module &module,
+    DeclBase::DeclBase(frontend::Module &module,
                        const AstType type,
                        const Identifier& identifier,
                        const DeclScope *scope):

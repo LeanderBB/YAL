@@ -23,10 +23,12 @@
 namespace yal {
 
     class Log;
-    class ModuleManager;
     class MemoryStream;
     class ByteStream;
-    class Module;
+    namespace frontend{
+        class Module;
+        class ModuleManager;
+    }
     class ErrorReporter;
 
     class Compiler {
@@ -39,7 +41,7 @@ namespace yal {
         Compiler(Log& log,
                  ErrorReporter& errorReporter,
                  SourceManager& srcManager,
-                 ModuleManager& moduleManager);
+                 frontend::ModuleManager& moduleManager);
 
         Log& getLog() {
             return m_log;
@@ -49,7 +51,7 @@ namespace yal {
             return m_srcManager;
         }
 
-        ModuleManager& getModuleManager() {
+        frontend::ModuleManager& getModuleManager() {
             return m_moduleManager;
         }
 
@@ -63,12 +65,12 @@ namespace yal {
 
         void setFlags(const uint64_t flags);
 
-        Module* compile(const SourceManager::Handle source);
+        frontend::Module* compile(const SourceManager::Handle source);
 
     private:
         Log& m_log;
         SourceManager& m_srcManager;
-        ModuleManager& m_moduleManager;
+        frontend::ModuleManager& m_moduleManager;
         ErrorReporter& m_errorReporter;
         uint64_t m_flags;
     };

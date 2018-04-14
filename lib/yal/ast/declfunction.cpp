@@ -22,7 +22,7 @@
 
 namespace yal {
 
-    DeclFunction::DeclFunction(Module& module,
+    DeclFunction::DeclFunction(frontend::Module& module,
                                const StringRef functionName,
                                const DeclScope *scope,
                                DeclParamVarContainer *params,
@@ -39,7 +39,7 @@ namespace yal {
 
     }
 
-    DeclFunction::DeclFunction(Module& module,
+    DeclFunction::DeclFunction(frontend::Module& module,
                                const StringRef FunctionName,
                                const DeclScope* scope):
         DeclFunction(module, FunctionName, scope, nullptr, nullptr, nullptr) {

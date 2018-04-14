@@ -22,15 +22,12 @@
 #include "yal/frontend/module.h"
 namespace yal {
 
-
-
-
-    RefType::RefType(Module& module,
+    RefType::RefType(frontend::Module& module,
                      const Type *resolvedType):
         RefType(module, Qualifier(), resolvedType) {
     }
 
-    RefType::RefType(Module& module,
+    RefType::RefType(frontend::Module& module,
                      const Qualifier qualifier,
                      const Type *resolvedType):
         m_module(module),

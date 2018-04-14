@@ -27,7 +27,7 @@ namespace yal {
 
     class StmtAssign : public Statement {
     public:
-        StmtAssign(Module& module,
+        StmtAssign(frontend::Module& module,
                    StmtExpression* destExpr,
                    StmtExpression* valueExpr);
 

@@ -24,7 +24,7 @@
 
 namespace yal{
 
-    ExprBoolLiteral::ExprBoolLiteral(Module& module,
+    ExprBoolLiteral::ExprBoolLiteral(frontend::Module& module,
                                      StringRef strvalue) :
         StmtExpression(module, AstType::ExprBoolLiteral) {
 

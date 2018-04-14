@@ -63,14 +63,14 @@ int main(const int argc,
    }
 
     yal::SourceManager sourceManager;
-    yal::ModuleManager moduleManager;
+    yal::frontend::ModuleManager moduleManager;
     yal::ErrorReporter errorReporter;
 
     auto handle = sourceManager.add(std::move(sourceStream));
 
     yal::Compiler compiler(log, errorReporter, sourceManager, moduleManager);
 
-    yal::Module* module = compiler.compile(handle);
+    yal::frontend::Module* module = compiler.compile(handle);
 
     if (!errorReporter.empty()) {
         yal::ErrorPrinter errPrinter(stdoutStream, sourceManager);

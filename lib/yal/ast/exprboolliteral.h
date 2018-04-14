@@ -25,7 +25,7 @@ namespace yal {
     {
     public:
 
-        ExprBoolLiteral(Module& module,
+        ExprBoolLiteral(frontend::Module& module,
                         StringRef strvalue);
 
         bool getLiteralValue() const {

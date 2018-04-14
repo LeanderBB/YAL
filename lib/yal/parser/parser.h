@@ -22,8 +22,11 @@
 #include "yal/frontend/lexer/tokens.h"
 #include "yal/io/sourcemanager.h"
 namespace yal {
+    namespace frontend {
+        class Lexer;
+    }
     class Log;
-    class Lexer;
+
     class DeclModule;
 #define YAL_AST_NODE_TYPE(N) class N;
 #include "yal/ast/astnodes.def"
@@ -31,6 +34,8 @@ namespace yal {
     class StringRef;
     class DeclScope;
     class StageDecls;
+    using namespace frontend;
+
     class Parser
     {
     public:
@@ -47,7 +52,7 @@ namespace yal {
 
         Parser(Lexer& lexer,
                Log& log,
-               Module& context,
+               frontend::Module& context,
                StageDecls& stageDecls);
 
 
@@ -57,7 +62,7 @@ namespace yal {
             return m_log;
         }
 
-        Module& getModule() {
+        frontend::Module& getModule() {
             return m_module;
         }
 
@@ -90,18 +95,18 @@ namespace yal {
             return m_module.newASTNode<T>(std::forward<ARGS>(args)...);
         }
 
-        ExprIntegerLiteral* newIntegerLiteral(const TokenInfo& ti);
+        ExprIntegerLiteral* newIntegerLiteral(const frontend::TokenInfo& ti);
 
-        ExprFloatLiteral* newFloatLiteral(const TokenInfo& ti);
+        ExprFloatLiteral* newFloatLiteral(const frontend::TokenInfo& ti);
 
-        SourceInfo createSourceInfo(const TokenInfo& start,
-                                    const TokenInfo& end) const;
+        SourceInfo createSourceInfo(const frontend::TokenInfo& start,
+                                    const frontend::TokenInfo& end) const;
 
-        SourceInfo createSourceInfo(const TokenInfo& start,
+        SourceInfo createSourceInfo(const frontend::TokenInfo& start,
                                     const SourceInfo& end) const;
 
         SourceInfo createSourceInfo(const SourceInfo& start,
-                                    const TokenInfo& end) const;
+                                    const frontend::TokenInfo& end) const;
 
         SourceInfo createSourceInfo(const SourceInfo& start,
                                     const SourceInfo& end) const;
@@ -110,7 +115,7 @@ namespace yal {
         std::unique_ptr<void, void(*)(void*)> m_parserImpl;
         Lexer& m_lexer;
         Log& m_log;
-        Module& m_module;
+        frontend::Module& m_module;
         StageDecls& m_stageDecls;
         Result m_status;
         DeclBase* m_activeDecl;

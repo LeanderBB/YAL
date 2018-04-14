@@ -21,14 +21,17 @@
 #include "yal/ast/declbase.h"
 #include "yal/util/stringref.h"
 namespace yal {
-    class Module;
+    namespace frontend {
+        class Module;
+    }
     class RefType;
     class DeclParamVarContainer;
     class StatementList;
+
     class DeclFunctionBase : public DeclBase, public DeclTyped
     {
     protected:
-        DeclFunctionBase(Module& module,
+        DeclFunctionBase(frontend::Module& module,
                          const AstType type,
                          const StringRef functionName,
                          const DeclScope* scope,

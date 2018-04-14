@@ -23,14 +23,17 @@
 #include "yal/util/allocatorstack.h"
 #include <memory>
 
-namespace yal {
 
-    class Log;
+namespace yal {
+    class SourceItem;
+    class ErrorReporter;
+}
+
+namespace yal::frontend {
+
     class Lexer;
     class STDeclModule;
     struct TokenInfo;
-    class SourceItem;
-    class ErrorReporter;
 
     class STParser {
     public:

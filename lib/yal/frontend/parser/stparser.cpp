@@ -32,7 +32,7 @@
 
 #include <cstdlib>
 
-namespace yal {
+namespace yal::frontend {
 
     static int TokenToParserToken(const Token token) {
 

@@ -21,7 +21,7 @@
 #include "yal/io/memorystream.h"
 
 
-namespace yal {
+namespace yal::frontend {
 
     Lexer::Status
     Lexer::scan() {

@@ -28,7 +28,9 @@
 
 namespace yal {
 
-    class Module;
+    namespace frontend{
+        class Module;
+    }
 
     template<typename T, bool reverse>
     struct iterator_fn;
@@ -96,11 +98,11 @@ namespace yal {
         using NodeRange = IteratorRange<IteratorType>;
         using ConstNodeRange = IteratorRange<ConstIteratorType>;
 
-        NodeContainer(Module&) {
+        NodeContainer(frontend::Module&) {
 
         }
 
-        NodeContainer(Module&,
+        NodeContainer(frontend::Module&,
                       ContainerType&& nodes) :
         m_nodes(std::move(nodes)) {
 

@@ -26,14 +26,14 @@ namespace yal {
     class DeclFunction : public DeclFunctionBase {
     public:
 
-        DeclFunction(Module& module,
+        DeclFunction(frontend::Module& module,
                      const StringRef functionName,
                      const DeclScope* scope,
                      DeclParamVarContainer* params,
                      RefType* returnType,
                      StatementList* body);
 
-        DeclFunction(Module& module,
+        DeclFunction(frontend::Module& module,
                      const StringRef FunctionName,
                      const DeclScope* scope);
 

@@ -18,7 +18,8 @@
  */
 #include "yal/frontend/modulemanager.h"
 #include <algorithm>
-namespace yal {
+
+namespace yal::frontend {
 
     enum {kStackSize = 4096};
     ModuleManager::ModuleManager() :

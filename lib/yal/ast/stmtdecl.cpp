@@ -20,7 +20,7 @@
 #include "yal/ast/astvisitor.h"
 namespace yal {
 
-    StmtDecl::StmtDecl(Module& module,
+    StmtDecl::StmtDecl(frontend::Module& module,
                        DeclBase* decl):
         Statement(module, AstType::StmtDecl),
         m_decl(decl) {

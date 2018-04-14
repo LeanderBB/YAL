@@ -31,9 +31,9 @@ namespace yal {
         using BaseType = NodeContainer<DeclVar*,AstType::DeclStructMembers, false>;
     public:
 
-        DeclStructMembers(Module& module);
+        DeclStructMembers(frontend::Module& module);
 
-        DeclStructMembers(Module& module,
+        DeclStructMembers(frontend::Module& module,
                           ContainerType&& params);
 
         void addDeclVar(DeclVar* decl);
@@ -49,12 +49,12 @@ namespace yal {
     class DeclStruct : public DeclBase, public DeclTyped {
     public:
 
-        DeclStruct(Module& module,
+        DeclStruct(frontend::Module& module,
                    StringRef typeName,
                    const DeclScope* scope,
                    DeclStructMembers* members);
 
-        DeclStruct(Module& module,
+        DeclStruct(frontend::Module& module,
                    StringRef typeName,
                    const DeclScope *scope);
 

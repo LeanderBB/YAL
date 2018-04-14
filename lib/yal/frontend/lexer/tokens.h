@@ -20,10 +20,10 @@
 
 #include <cstdlib>
 #include "yal/util/stringref.h"
-namespace yal
-{
-    enum class Token
-    {
+
+namespace yal::frontend {
+
+    enum class Token {
         Var= 0,
         Let,
         True,
@@ -103,8 +103,7 @@ namespace yal
     const char* TokenToString(const Token token);
 
 
-    struct TokenInfo
-    {
+    struct TokenInfo {
         Token token;
         size_t lineStart;
         size_t lineEnd;

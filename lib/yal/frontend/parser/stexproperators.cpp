@@ -20,7 +20,7 @@
 #include "yal/frontend/parser/stexproperators.h"
 #include "yal/frontend/parser/syntaxtreevisitor.h"
 
-namespace yal {
+namespace yal::frontend {
     STExprUnaryOperator::STExprUnaryOperator(const UnaryOperatorType op,
                                              const STStmtExpression* expr):
         STStmtExpression(SyntaxTreeType::STExprUnaryOperator),

@@ -23,7 +23,9 @@
 namespace yal {
 
     class Log;
-    class Module;
+    namespace frontend {
+        class Module;
+    }
     class SourceManager;
     class ByteStream;
 
@@ -38,7 +40,7 @@ namespace yal {
 
         virtual bool transpile(const TranspilerOptions& options,
                                Log& log,
-                               Module& module,
+                               frontend::Module& module,
                                SourceManager& srcManager) = 0;
     };
 }

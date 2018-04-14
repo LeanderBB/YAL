@@ -1,6 +1,6 @@
 /* This file was automatically generated.  Do not edit! */
-#define YALSTParserTOKENTYPE yal::TokenInfo
-#define YALSTParserARG_PDECL , yal::STParser *pParser 
+#define YALSTParserTOKENTYPE yal::frontend::TokenInfo
+#define YALSTParserARG_PDECL , yal::frontend::STParser *pParser 
 void YALSTParser(void *yyp,int yymajor,YALSTParserTOKENTYPE yyminor YALSTParserARG_PDECL);
 #if defined(YYTRACKMAXSTACKDEPTH)
 int YALSTParserStackPeak(void *p);
@@ -17,8 +17,8 @@ void YALSTParserInit(void *yypParser);
 void YALSTParserTrace(FILE *TraceFILE,char *zTracePrompt);
 #endif
 #define YALSTParserARG_STORE yypParser->pParser  = pParser 
-#define YALSTParserARG_FETCH  yal::STParser *pParser  = yypParser->pParser 
-#define YALSTParserARG_SDECL  yal::STParser *pParser ;
+#define YALSTParserARG_FETCH  yal::frontend::STParser *pParser  = yypParser->pParser 
+#define YALSTParserARG_SDECL  yal::frontend::STParser *pParser ;
 #define YAL_TOKEN_BOOL_LITERAL                   56
 #define YAL_TOKEN_FLOAT_LITERAL                  55
 #define YAL_TOKEN_INTEGER_LITERAL                54

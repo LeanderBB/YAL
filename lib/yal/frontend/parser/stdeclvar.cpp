@@ -20,7 +20,7 @@
 #include "yal/frontend/parser/stdeclvar.h"
 #include "yal/frontend/parser/syntaxtreevisitor.h"
 
-namespace yal {
+namespace yal::frontend {
 
     STDeclVar::STDeclVar(const STIdentifier* name,
                          const STQualType* type,

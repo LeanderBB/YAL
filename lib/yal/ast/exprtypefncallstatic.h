@@ -20,10 +20,11 @@
 #include "yal/ast/exprfncall.h"
 #include "yal/frontend/lexer/lexer.h"
 namespace yal {
+    using namespace frontend;
 
     class ExprTypeFnCallStatic : public ExprFnCall {
     public:
-        ExprTypeFnCallStatic(Module& module,
+        ExprTypeFnCallStatic(frontend::Module& module,
                              RefType* targetType,
                              const TokenInfo& functioName,
                              ExprList* functionArgs);

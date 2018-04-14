@@ -42,7 +42,7 @@ namespace yal {
 
     StageDecls::StageDecls(Compiler& compiler,
                            SourceItem &sourceItem,
-                           Module& module):
+                           frontend::Module& module):
         m_compiler(compiler),
         m_sourceItem(sourceItem),
         m_module(module),

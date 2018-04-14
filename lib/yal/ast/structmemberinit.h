@@ -34,7 +34,7 @@ namespace yal {
     class StructMemberInit
     {
     public:
-        StructMemberInit(Module& module,
+        StructMemberInit(frontend::Module& module,
                          const StringRef memberName,
                          StmtExpression* initExpression);
 
@@ -55,11 +55,11 @@ namespace yal {
             return AstType::StructMemberInit;
         }
 
-        Module& getModule() {
+        frontend::Module& getModule() {
             return m_module;
         }
 
-        const Module& getModule() const {
+        const frontend::Module& getModule() const {
             return m_module;
         }
 
@@ -76,7 +76,7 @@ namespace yal {
         void setInitExpr(StmtExpression* initExpr);
 
     private:
-        Module& m_module;
+        frontend::Module& m_module;
         SourceInfo m_sourceInfo;
         StringRef m_memberName;
         StmtExpression* m_initExpr;
@@ -93,7 +93,7 @@ namespace yal {
         using BaseType =  NodeContainer<StructMemberInit*, AstType::StructMemberInitList, false>;
     public:
 
-        StructMemberInitList(Module& module);
+        StructMemberInitList(frontend::Module& module);
 
         void addStructMemberInit(StructMemberInit* memberInit);
 

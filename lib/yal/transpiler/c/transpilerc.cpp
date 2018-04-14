@@ -30,7 +30,7 @@ namespace yal {
     }
 
     static std::string
-    MakeModuleName(Module& module) {
+    MakeModuleName(frontend::Module& module) {
         StringRef noExt = Path::RemoveExtension(module.getName());
         return noExt.replace("::","/");
     }
@@ -38,7 +38,7 @@ namespace yal {
     bool
     TranspilerC::transpile(const TranspilerOptions& options,
                            Log& log,
-                           Module& module,
+                           frontend::Module& module,
                            SourceManager& srcManager) {
 
         (void) log;

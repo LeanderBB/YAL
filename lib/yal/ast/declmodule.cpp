@@ -23,7 +23,7 @@
 
 namespace yal {
 
-    DeclModule::DeclModule(Module& module,
+    DeclModule::DeclModule(frontend::Module& module,
                            StringRef name):
         DeclBase(module, AstType::DeclModule, name, nullptr),
         m_declScope(this){

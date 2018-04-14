@@ -21,7 +21,7 @@
 
 #include "yal/frontend/parser/syntaxtree.h"
 
-namespace yal {
+namespace yal::frontend {
 
     class STStatement : public SyntaxTree {
     public:
@@ -34,14 +34,17 @@ namespace yal {
         }
     };
 
+    using STStatementList = std::vector<const STStatement*>;
+}
+
+namespace yal {
+
     template<>
-    struct cast_typeid<STStatement> {
-        typedef SyntaxTreeType type;
+    struct cast_typeid<frontend::STStatement> {
+        typedef frontend::SyntaxTreeType type;
     };
 
-    inline SyntaxTreeType get_typeid(const STStatement& type) {
+    inline frontend::SyntaxTreeType get_typeid(const frontend::STStatement& type) {
         return type.getSyntaxTreeType();
     }
-
-    using STStatementList = std::vector<const STStatement*>;
 }

@@ -20,7 +20,7 @@
 
 #include "yal/frontend/parser/syntaxtree.h"
 
-namespace yal {
+namespace yal::frontend {
     class STStatement;
 
     class STDeclParam {

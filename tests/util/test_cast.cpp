@@ -38,8 +38,8 @@ public:
     }
 
 
-    yal::ModuleManager m_moduleManager;
-    yal::Module* m_module;
+    yal::frontend::ModuleManager m_moduleManager;
+    yal::frontend::Module* m_module;
 };
 
 

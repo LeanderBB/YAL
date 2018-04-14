@@ -20,7 +20,7 @@
 #include "yal/frontend/parser/stdeclfunction.h"
 #include "yal/frontend/parser/syntaxtreevisitor.h"
 
-namespace yal {
+namespace yal::frontend {
 
     STDeclParam::STDeclParam(const STIdentifier* name,
                                    const STQualType *type):

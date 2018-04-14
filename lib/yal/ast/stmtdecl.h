@@ -25,7 +25,7 @@ namespace yal{
     class StmtDecl : public Statement{
     public:
 
-        StmtDecl(Module& module,
+        StmtDecl(frontend::Module& module,
                  DeclBase*);
 
         const DeclBase* getDecl() const {

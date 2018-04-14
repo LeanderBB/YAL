@@ -27,9 +27,9 @@ namespace yal {
     class ExprTypeFnCall : public ExprFnCall {
     public:
 
-        ExprTypeFnCall(Module& module,
+        ExprTypeFnCall(frontend::Module& module,
                        StmtExpression* expression,
-                       const TokenInfo& functioName,
+                       const frontend::TokenInfo& functioName,
                        ExprList* functionArgs);
 
         StmtExpression* getExpression() const {
@@ -46,7 +46,7 @@ namespace yal {
 
     private:
         StmtExpression* m_expression;
-        TokenInfo m_functionNameToken;
+        frontend::TokenInfo m_functionNameToken;
 
     };
 

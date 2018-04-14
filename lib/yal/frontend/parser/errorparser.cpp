@@ -21,7 +21,7 @@
 #include "yal/frontend/lexer/tokens.h"
 #include "yal/util/format.h"
 
-namespace yal {
+namespace yal::frontend {
 
     static const uint16_t kErrorCategoryCode = 2;
     static const uint16_t kErrorTypeCode = 1;

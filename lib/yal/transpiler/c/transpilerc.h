@@ -29,7 +29,7 @@ namespace yal {
 
         bool transpile(const TranspilerOptions& options,
                        Log& log,
-                       Module& module,
+                       frontend::Module& module,
                        SourceManager& srcManager) override;
     };
 

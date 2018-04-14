@@ -22,7 +22,7 @@
 #include "yal/ast/astvisitor.h"
 #include "yal/ast/reftype.h"
 namespace yal {
-    ExprRangeCast::ExprRangeCast(Module& module,
+    ExprRangeCast::ExprRangeCast(frontend::Module& module,
                                  RefType* destType,
                                  StmtExpression* expression):
         StmtExpression(module, AstType::ExprRangeCast),

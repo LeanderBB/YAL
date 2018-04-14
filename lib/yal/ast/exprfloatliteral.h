@@ -24,8 +24,8 @@ namespace yal {
     class ExprFloatLiteral : public StmtExpression {
     public:
 
-        ExprFloatLiteral(Module& module,
-                           const double literalValue);
+        ExprFloatLiteral(frontend::Module& module,
+                         const double literalValue);
 
         double getLiteralValueAsF64() const {
             return m_literalValue;

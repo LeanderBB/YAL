@@ -24,7 +24,7 @@ namespace yal {
 
     class DeclTypeFunction : public DeclFunctionBase {
     public:
-        DeclTypeFunction(Module& module,
+        DeclTypeFunction(frontend::Module& module,
                          const StringRef functionName,
                          const DeclScope* scope,
                          DeclParamVarContainer* params,
@@ -32,7 +32,7 @@ namespace yal {
                          RefType* destType,
                          StatementList *body);
 
-        DeclTypeFunction(Module& module,
+        DeclTypeFunction(frontend::Module& module,
                          const StringRef functionName,
                          const DeclScope* scope,
                          RefType* destType);

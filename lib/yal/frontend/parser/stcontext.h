@@ -1,5 +1,5 @@
 /*
- *  Copyright 2017 by Leander Beernaert (leanderbb@gmail.com)
+ *  Copyright 2018 by Leander Beernaert (leanderbb@gmail.com)
  *
  *  This file is part of YAL.
  *
@@ -19,34 +19,12 @@
 
 #pragma once
 
-#include "yal/ast/nodecontainer.h"
+namespace yal {
 
-namespace  yal {
-
-    class StmtExpression;
-    class AstVisitor;
-
-    class ExprList :
-            public NodeContainer<StmtExpression*,AstType::ExprList, true> {
-        using BaseType = NodeContainer<StmtExpression*,AstType::ExprList, true>;
-    public:
-
-        ExprList(frontend::Module& module);
-
-        ExprList(frontend::Module& module,
-                      ContainerType&& params);
-
-        void addExpression(StmtExpression* expr);
-
-        void acceptVisitor(AstVisitor& visitor);
-
-    };
-
-
-    inline AstType get_typeid(const ExprList& container) {
-        return container.getAstType();
-    }
+class STContext
+{
+public:
+    STContext();
+};
 
 }
-
-

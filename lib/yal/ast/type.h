@@ -29,7 +29,9 @@
 namespace yal {
 
     class TypeRegistry;
+    namespace frontend {
     class Module;
+    }
     class DeclBase;
     class TypeDecl;
 
@@ -47,7 +49,7 @@ namespace yal {
 
         Type(const Kind kind);
 
-        Type(const Module*,
+        Type(const frontend::Module*,
              const Kind kind,
              const Identifier& identifier);
 
@@ -77,7 +79,7 @@ namespace yal {
             return m_identifier;
         }
 
-        const Module* getModule() const {
+        const frontend::Module* getModule() const {
             return m_module;
         }
 
@@ -107,7 +109,7 @@ namespace yal {
     protected:
         using FunctionMap = std::unordered_map<StringRef,TypeDecl*>;
         uint64_t m_typeId;
-        const Module* m_module;
+        const frontend::Module* m_module;
         const Kind m_kind;
         uint32_t m_sizeBytes = 0;
         Identifier m_identifier;

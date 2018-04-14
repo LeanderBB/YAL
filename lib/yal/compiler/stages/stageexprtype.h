@@ -21,19 +21,21 @@
 
 namespace yal {
 
-    class Module;
+    namespace frontend {
+        class Module;
+    }
     class Compiler;
     class SourceItem;
     class DeclBase;
     class StageExprType {
     public:
         StageExprType(Compiler& compiler,
-                      Module& module);
+                      frontend::Module& module);
 
         bool execute(DeclBase* decl);
 
     private:
         Compiler& m_compiler;
-        Module& m_module;
+        frontend::Module& m_module;
     };
 }

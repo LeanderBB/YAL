@@ -23,8 +23,11 @@
 #include "yal/io/sourcemanager.h"
 
 namespace yal {
-    struct TokenInfo;
     class SourceItem;
+}
+
+namespace yal::frontend {
+    struct TokenInfo;
 
     class ErrorLexer final : public Error {
     public:

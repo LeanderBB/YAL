@@ -22,12 +22,12 @@
 
 namespace yal {
 
-    StmtReturn::StmtReturn(Module &module):
+    StmtReturn::StmtReturn(frontend::Module &module):
         StmtReturn(module, nullptr){
 
     }
 
-    StmtReturn::StmtReturn(Module& module,
+    StmtReturn::StmtReturn(frontend::Module& module,
                            StmtExpression* expression):
         Statement(module, AstType::StmtReturn),
         m_expr(expression) {

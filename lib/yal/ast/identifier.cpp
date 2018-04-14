@@ -25,7 +25,7 @@ namespace yal {
 
     static std::string
     BuildTypeNameWithModule(const StringRef name,
-                            const Module& module) {
+                            const frontend::Module& module) {
 
         std::string result;
         StringRef moduleName = module.getName();
@@ -48,7 +48,7 @@ namespace yal {
     }
 
     Identifier::Identifier(StringRef idString,
-                           const Module* module):
+                           const frontend::Module* module):
         m_name(idString){
         if (module != nullptr) {
             m_idString =BuildTypeNameWithModule(idString, *module);
@@ -59,7 +59,7 @@ namespace yal {
 
 
     Identifier::Identifier(StringRef idString,
-                           const Module& module):
+                           const frontend::Module& module):
         m_name(idString),
         m_idString(BuildTypeNameWithModule(idString, module))
     {
@@ -78,7 +78,7 @@ namespace yal {
 
     void
     Identifier::setIdString(StringRef idString,
-                            const Module& module) {
+                            const frontend::Module& module) {
         m_idString =BuildTypeNameWithModule(idString, module);
     }
 

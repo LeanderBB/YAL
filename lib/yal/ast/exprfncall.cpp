@@ -22,7 +22,7 @@
 
 namespace yal {
 
-    ExprFnCall::ExprFnCall(Module& module,
+    ExprFnCall::ExprFnCall(frontend::Module& module,
                            const AstType astType,
                            RefType *functionType,
                            ExprList* functionArgs):
@@ -32,7 +32,7 @@ namespace yal {
 
     }
 
-    ExprFnCall::ExprFnCall(Module& module,
+    ExprFnCall::ExprFnCall(frontend::Module& module,
                            RefType* functionType,
                            ExprList* functionArgs):
         ExprFnCall(module, AstType::ExprFnCall, functionType, functionArgs) {

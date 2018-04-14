@@ -26,14 +26,14 @@ namespace yal {
 
     class DeclParamVar : public DeclVar{
     protected:
-        DeclParamVar(Module& module,
+        DeclParamVar(frontend::Module& module,
                      const AstType astType,
                      StringRef name,
                      const DeclScope *scope,
                      const Qualifier qualifier,
                      RefType* varType);
     public:
-        DeclParamVar(Module& module,
+        DeclParamVar(frontend::Module& module,
                      StringRef name,
                      const DeclScope *scope,
                      const Qualifier qualifier,
@@ -44,7 +44,7 @@ namespace yal {
 
     class DeclParamVarSelf : public DeclParamVar {
     public:
-        DeclParamVarSelf(Module& module,
+        DeclParamVarSelf(frontend::Module& module,
                          const DeclScope* scope,
                          RefType* refType);
 
@@ -56,9 +56,9 @@ namespace yal {
         using BaseType = NodeContainer<DeclParamVar*,AstType::DeclParamVarContainer, false>;
     public:
 
-        DeclParamVarContainer(Module& module);
+        DeclParamVarContainer(frontend::Module& module);
 
-        DeclParamVarContainer(Module& module,
+        DeclParamVarContainer(frontend::Module& module,
                               ContainerType&& params);
 
         void addDeclParam(DeclParamVar* decl);

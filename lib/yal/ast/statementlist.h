@@ -31,9 +31,9 @@ namespace  yal {
         using BaseType = NodeContainer<Statement*, AstType::StatementList, false>;
     public:
 
-        StatementList(Module& module);
+        StatementList(frontend::Module& module);
 
-        StatementList(Module& module,
+        StatementList(frontend::Module& module,
                       ContainerType&& params);
 
         void addStatement(Statement* st);

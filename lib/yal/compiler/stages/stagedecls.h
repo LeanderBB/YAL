@@ -22,11 +22,13 @@
 namespace yal {
 
     class Compiler;
-    class Module;
     class SourceItem;
     class Type;
     class Identifier;
-    struct TokenInfo;
+    namespace frontend {
+        class Module;
+        struct TokenInfo;
+    }
     class DeclScope;
     class DeclFunction;
     class DeclTypeFunction;
@@ -36,11 +38,13 @@ namespace yal {
     class DeclParamVar;
     class DeclParamVarSelf;
 
+    using namespace frontend;
+
     class StageDecls {
     public:
         StageDecls(Compiler& compiler,
                    SourceItem &sourceItem,
-                   Module& module);
+                   frontend::Module& module);
 
         bool execute();
 
@@ -76,7 +80,7 @@ namespace yal {
     public:
         Compiler& m_compiler;
         SourceItem& m_sourceItem;
-        Module& m_module;
+        frontend::Module& m_module;
         DeclScope* m_activeScope;
     };
 }

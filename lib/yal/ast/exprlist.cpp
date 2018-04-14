@@ -21,12 +21,12 @@
 
 namespace  yal {
 
-    ExprList::ExprList(Module& module):
+    ExprList::ExprList(frontend::Module& module):
         BaseType(module){
 
     }
 
-    ExprList::ExprList(Module &module,
+    ExprList::ExprList(frontend::Module &module,
                        ContainerType &&params):
         BaseType(module, std::move(params)) {
 

@@ -22,7 +22,7 @@
 #include "yal/frontend/module.h"
 namespace yal {
 
-    Statement::Statement(Module& module,
+    Statement::Statement(frontend::Module& module,
                          const AstType type):
         m_module(module),
         m_astType(type),

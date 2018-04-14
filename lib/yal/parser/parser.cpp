@@ -39,111 +39,113 @@
 #include <limits>
 namespace yal{
 
-    static int TokenToParserToken(const Token token) {
+    using namespace frontend;
+
+    static int TokenToParserToken(const frontend::Token token) {
 
         // TODO: Optimize out later when all tokens are known
         switch(token)
         {
-        case Token::And:
+        case frontend::Token::And:
             return YAL_TOKEN_AND;
-        case Token::Or:
+        case frontend::Token::Or:
             return YAL_TOKEN_OR;
-        case Token::Not:
+        case frontend::Token::Not:
             return YAL_TOKEN_NOT;
-        case Token::TypeBool:
+        case frontend::Token::TypeBool:
             return YAL_TOKEN_TYPE_BOOL;
-        case Token::TypeInt8:
+        case frontend::Token::TypeInt8:
             return YAL_TOKEN_TYPE_INT8;
-        case Token::TypeUInt8:
+        case frontend::Token::TypeUInt8:
             return YAL_TOKEN_TYPE_UINT8;
-        case Token::TypeInt16:
+        case frontend::Token::TypeInt16:
             return YAL_TOKEN_TYPE_INT16;
-        case Token::TypeUInt16:
+        case frontend::Token::TypeUInt16:
             return YAL_TOKEN_TYPE_UINT16;
-        case Token::TypeInt32:
+        case frontend::Token::TypeInt32:
             return YAL_TOKEN_TYPE_INT32;
-        case Token::TypeUInt32:
+        case frontend::Token::TypeUInt32:
             return YAL_TOKEN_TYPE_UINT32;
-        case Token::TypeInt64:
+        case frontend::Token::TypeInt64:
             return YAL_TOKEN_TYPE_INT64;
-        case Token::TypeUInt64:
+        case frontend::Token::TypeUInt64:
             return YAL_TOKEN_TYPE_UINT64;
-        case Token::TypeFloat32:
+        case frontend::Token::TypeFloat32:
             return YAL_TOKEN_TYPE_FLOAT;
-        case Token::TypeFloat64:
+        case frontend::Token::TypeFloat64:
             return YAL_TOKEN_TYPE_DOUBLE;
-        case Token::Mod:
+        case frontend::Token::Mod:
             return YAL_TOKEN_MOD;
-        case Token::Dot:
+        case frontend::Token::Dot:
             return YAL_TOKEN_DOT;
-        case Token::BitXor:
+        case frontend::Token::BitXor:
             return YAL_TOKEN_BIT_XOR;
-        case Token::BitOr:
+        case frontend::Token::BitOr:
             return YAL_TOKEN_BIT_OR;
-        case Token::CompareGe:
+        case frontend::Token::CompareGe:
             return YAL_TOKEN_GE;
-        case Token::CompareGt:
+        case frontend::Token::CompareGt:
             return YAL_TOKEN_GT;
-        case Token::CompareLe:
+        case frontend::Token::CompareLe:
             return YAL_TOKEN_LE;
-        case Token::CompareLt:
+        case frontend::Token::CompareLt:
             return YAL_TOKEN_LT;
-        case Token::CompareEq:
+        case frontend::Token::CompareEq:
             return YAL_TOKEN_EQ;
-        case Token::CompareNe:
+        case frontend::Token::CompareNe:
             return YAL_TOKEN_NE;
-        case Token::Assign:
+        case frontend::Token::Assign:
             return YAL_TOKEN_ASSIGN;
-        case Token::Plus:
+        case frontend::Token::Plus:
             return YAL_TOKEN_PLUS;
-        case Token::Minus:
+        case frontend::Token::Minus:
             return YAL_TOKEN_MINUS;
-        case Token::Mult:
+        case frontend::Token::Mult:
             return YAL_TOKEN_MULT;
-        case Token::Div:
+        case frontend::Token::Div:
             return YAL_TOKEN_DIV;
-        case Token::Identifier:
+        case frontend::Token::Identifier:
             return YAL_TOKEN_IDENTIFIER;
-        case Token::Colon:
+        case frontend::Token::Colon:
             return YAL_TOKEN_COLON;
-        case Token::SemiColon:
+        case frontend::Token::SemiColon:
             return YAL_TOKEN_SEMI_COLON;
-        case Token::Type:
+        case frontend::Token::Type:
             return YAL_TOKEN_TYPE;
-        case Token::BeginScope:
+        case frontend::Token::BeginScope:
             return YAL_TOKEN_SCOPE_BEGIN;
-        case Token::EndScope:
+        case frontend::Token::EndScope:
             return YAL_TOKEN_SCOPE_END;
-        case Token::BeginPar:
+        case frontend::Token::BeginPar:
             return YAL_TOKEN_PAR_BEGIN;
-        case Token::EndPar:
+        case frontend::Token::EndPar:
             return YAL_TOKEN_PAR_END;
-        case Token::IntegerLiteral:
+        case frontend::Token::IntegerLiteral:
             return YAL_TOKEN_INTEGER_LITERAL;
-        case Token::DecimalLiteral:
+        case frontend::Token::DecimalLiteral:
             return YAL_TOKEN_FLOAT_LITERAL;
-        case Token::Function:
+        case frontend::Token::Function:
             return YAL_TOKEN_FUNCTION;
-        case Token::Comma:
+        case frontend::Token::Comma:
             return YAL_TOKEN_COMMA;
-        case Token::Var:
+        case frontend::Token::Var:
             return YAL_TOKEN_VAR;
-        case Token::Let:
+        case frontend::Token::Let:
             return YAL_TOKEN_LET;
-        case Token::Struct:
+        case frontend::Token::Struct:
             return YAL_TOKEN_STRUCT;
-        case Token::Return:
+        case frontend::Token::Return:
             return YAL_TOKEN_RETURN;
-        case Token::True:
-        case Token::False:
+        case frontend::Token::True:
+        case frontend::Token::False:
             return YAL_TOKEN_BOOL_LITERAL;
-        case Token::Mutable:
+        case frontend::Token::Mutable:
             return YAL_TOKEN_MUT;
-        case Token::Reference:
+        case frontend::Token::Reference:
             return YAL_TOKEN_REFERENCE;
-        case Token::Self:
+        case frontend::Token::Self:
             return YAL_TOKEN_SELF;
-        case Token::RangeCast:
+        case frontend::Token::RangeCast:
             return YAL_TOKEN_RANGE_CAST;
         default:
             YAL_ASSERT_MESSAGE(false, "Shouldn't be reached!");
@@ -327,7 +329,7 @@ namespace yal{
     ExprIntegerLiteral*
     Parser::newIntegerLiteral(const TokenInfo& ti) {
         const StringRef& str = ti.tokenStr;
-        YAL_ASSERT(ti.token == Token::IntegerLiteral);
+        YAL_ASSERT(ti.token == frontend::Token::IntegerLiteral);
 
         uint64_t value = 0;
         IntegerType intType = IntegerType::U64;
@@ -382,7 +384,7 @@ namespace yal{
     ExprFloatLiteral*
     Parser::newFloatLiteral(const TokenInfo& ti) {
         const StringRef& str = ti.tokenStr;
-        YAL_ASSERT(ti.token == Token::DecimalLiteral);
+        YAL_ASSERT(ti.token == frontend::Token::DecimalLiteral);
 
         double value = 0;
 

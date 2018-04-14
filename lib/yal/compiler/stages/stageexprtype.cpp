@@ -88,7 +88,7 @@ namespace yal {
     public:
 
         ExprTypeAstVisitor(Compiler& compiler,
-                           Module& module,
+                           frontend::Module& module,
                            StackJump& jump):
             m_compiler(compiler),
             m_module(module),
@@ -117,7 +117,7 @@ namespace yal {
 
     public:
         Compiler& m_compiler;
-        Module& m_module;
+        frontend::Module& m_module;
         const DeclScope* m_activeScope;
         StackJump& m_stackJump;
         bool m_error;

@@ -23,7 +23,7 @@
 #include "yal/ast/reftype.h"
 namespace yal {
 
-    ExprVarRef::ExprVarRef(Module& module,
+    ExprVarRef::ExprVarRef(frontend::Module& module,
                            const AstType astType,
                            const DeclVar* decl):
         StmtExpression(module, astType),
@@ -31,7 +31,7 @@ namespace yal {
         m_qualType = decl->getQualType();
     }
 
-    ExprVarRef::ExprVarRef(Module &module,
+    ExprVarRef::ExprVarRef(frontend::Module &module,
                            const DeclVar *decl) :
         ExprVarRef(module, AstType::ExprVarRef, decl) {
     }
@@ -43,7 +43,7 @@ namespace yal {
     }
 
 
-    ExprVarRefSelf::ExprVarRefSelf(Module& module,
+    ExprVarRefSelf::ExprVarRefSelf(frontend::Module& module,
                                    const DeclVar* decl):
         ExprVarRef(module, AstType::ExprVarRefSelf, decl) {
         YAL_ASSERT(dyn_cast<DeclParamVarSelf>(decl) != nullptr);

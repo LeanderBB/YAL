@@ -27,14 +27,14 @@ namespace yal {
     class StmtExpression;
     class DeclVar : public DeclBase{
     public:
-        DeclVar(Module& module,
+        DeclVar(frontend::Module& module,
                 StringRef name,
                 const DeclScope* scope,
                 const Qualifier qualifier,
                 RefType* varType,
                 StmtExpression* expr);
 
-        DeclVar(Module& module,
+        DeclVar(frontend::Module& module,
                 StringRef name,
                 const DeclScope* scope,
                 const QualType qaulType,
@@ -57,7 +57,7 @@ namespace yal {
 
     protected:
 
-        DeclVar(Module& module,
+        DeclVar(frontend::Module& module,
                 const AstType type,
                 const Qualifier qualifier,
                 const DeclScope *scope,

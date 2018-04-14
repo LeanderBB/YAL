@@ -27,7 +27,7 @@ namespace yal {
     class ExprStructInit : public StmtExpression
     {
     public:
-        ExprStructInit(Module& module,
+        ExprStructInit(frontend::Module& module,
                        RefType* structType,
                        StructMemberInitList* memberInitList);
 

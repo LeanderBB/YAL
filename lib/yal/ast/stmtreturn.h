@@ -24,9 +24,9 @@ namespace yal{
     class StmtReturn : public Statement{
     public:
 
-        StmtReturn(Module& module);
+        StmtReturn(frontend::Module& module);
 
-        StmtReturn(Module& module,
+        StmtReturn(frontend::Module& module,
                    StmtExpression* expression);
 
         const StmtExpression* getExpression() const {

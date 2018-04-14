@@ -28,8 +28,10 @@ namespace yal {
     class QualType;
     class DeclFunctionBase;
     class DeclStruct;
+    namespace frontend{
     enum class UnaryOperatorType;
     enum class BinaryOperatorType;
+    }
     class GenTypesC {
     public:
 
@@ -56,9 +58,9 @@ namespace yal {
                                   const DeclStruct& decl);
 
         static void GenUnaryOperator(CodeWriter& writer,
-                                     const UnaryOperatorType op);
+                                     const frontend::UnaryOperatorType op);
 
         static void GenBinaryOperator(CodeWriter& writer,
-                                      const BinaryOperatorType op);
+                                      const frontend::BinaryOperatorType op);
     };
 }

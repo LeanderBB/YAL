@@ -26,7 +26,7 @@ namespace yal {
     class ExprStructVarRef : public StmtExpression
     {
     public:
-        ExprStructVarRef(Module& module,
+        ExprStructVarRef(frontend::Module& module,
                          StmtExpression* expression,
                          const StringRef& variableName);
 

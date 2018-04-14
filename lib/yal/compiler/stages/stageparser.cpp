@@ -34,7 +34,7 @@ namespace yal {
         return m_parser.parse();
     }
 
-    const STDeclModule*
+    const frontend::STDeclModule*
     StageParser::getSyntaxTree() const {
         return m_parser.getDeclModule();
     }

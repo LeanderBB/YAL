@@ -22,7 +22,7 @@
 
 namespace yal {
 
-    DeclFunctionBase::DeclFunctionBase(Module& module,
+    DeclFunctionBase::DeclFunctionBase(frontend::Module& module,
                                        const AstType type,
                                        const StringRef functionName,
                                        const DeclScope *scope,

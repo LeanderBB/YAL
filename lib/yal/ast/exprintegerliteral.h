@@ -36,7 +36,7 @@ namespace yal {
     {
     public:
 
-        ExprIntegerLiteral(Module& module,
+        ExprIntegerLiteral(frontend::Module& module,
                         const IntegerType integerType,
                         uint64_t value);
 

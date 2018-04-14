@@ -32,14 +32,14 @@ TEST(Lexer, BasicTokenError) {
     stream.attach(input.c_str(),input.size(), false);
 
     yal::Lexer lexer(stream);
-    yal::Lexer::Status status = lexer.scan();
-    EXPECT_EQ(status, yal::Lexer::Status::Ok);
+    yal::frontend::Lexer::Status status = lexer.scan();
+    EXPECT_EQ(status, yal::frontend::Lexer::Status::Ok);
     status = lexer.scan();
-    EXPECT_EQ(status, yal::Lexer::Status::Ok);
+    EXPECT_EQ(status, yal::frontend::Lexer::Status::Ok);
     status = lexer.scan();
-    EXPECT_EQ(status, yal::Lexer::Status::Error);
+    EXPECT_EQ(status, yal::frontend::Lexer::Status::Error);
     {
-        const yal::Lexer::TokenInfo& tk = lexer.getLastToken();
+        const yal::frontend::Lexer::TokenInfo& tk = lexer.getLastToken();
         EXPECT_EQ(tk.lineStart, 2u);
         EXPECT_EQ(tk.columnStart, 2u);
     }
@@ -52,14 +52,14 @@ TEST(Lexer, BasicTokenRead) {
 
     stream.attach(input.c_str(),input.size(), false);
 
-    yal::Lexer lexer(stream);
+    yal::frontend::Lexer lexer(stream);
 
-    yal::Lexer::Status status = lexer.scan();
+    yal::frontend::Lexer::Status status = lexer.scan();
 
     {
-        EXPECT_EQ(status, yal::Lexer::Status::Ok);
-        const yal::TokenInfo& tk = lexer.getLastToken();
-        EXPECT_EQ(tk.token, yal::Token::Let);
+        EXPECT_EQ(status, yal::frontend::Lexer::Status::Ok);
+        const yal::frontend::TokenInfo& tk = lexer.getLastToken();
+        EXPECT_EQ(tk.token, yal::frontend::Token::Let);
         EXPECT_EQ(tk.lineStart, 1u);
         EXPECT_EQ(tk.lineEnd, 1u);
         EXPECT_EQ(tk.columnStart, 1u);
@@ -71,9 +71,9 @@ TEST(Lexer, BasicTokenRead) {
 
     status = lexer.scan();
     {
-        EXPECT_EQ(status, yal::Lexer::Status::Ok);
-        const yal::TokenInfo& tk = lexer.getLastToken();
-        EXPECT_EQ(tk.token, yal::Token::Var);
+        EXPECT_EQ(status, yal::frontend::Lexer::Status::Ok);
+        const yal::frontend::TokenInfo& tk = lexer.getLastToken();
+        EXPECT_EQ(tk.token, yal::frontend::Token::Var);
         EXPECT_EQ(tk.lineStart, 1u);
         EXPECT_EQ(tk.lineEnd, 1u);
         EXPECT_EQ(tk.columnStart, 5u);
@@ -85,9 +85,9 @@ TEST(Lexer, BasicTokenRead) {
 
     status = lexer.scan();
     {
-        EXPECT_EQ(status, yal::Lexer::Status::Ok);
-        const yal::TokenInfo& tk = lexer.getLastToken();
-        EXPECT_EQ(tk.token, yal::Token::True);
+        EXPECT_EQ(status, yal::frontend::Lexer::Status::Ok);
+        const yal::frontend::TokenInfo& tk = lexer.getLastToken();
+        EXPECT_EQ(tk.token, yal::frontend::Token::True);
         EXPECT_EQ(tk.lineStart, 2u);
         EXPECT_EQ(tk.lineEnd, 2u);
         EXPECT_EQ(tk.columnStart, 2u);
@@ -99,9 +99,9 @@ TEST(Lexer, BasicTokenRead) {
 
     status = lexer.scan();
     {
-        EXPECT_EQ(status, yal::Lexer::Status::Ok);
-        const yal::TokenInfo& tk = lexer.getLastToken();
-        EXPECT_EQ(tk.token, yal::Token::False);
+        EXPECT_EQ(status, yal::frontend::Lexer::Status::Ok);
+        const yal::frontend::TokenInfo& tk = lexer.getLastToken();
+        EXPECT_EQ(tk.token, yal::frontend::Token::False);
         EXPECT_EQ(tk.lineStart, 2u);
         EXPECT_EQ(tk.lineEnd, 2u);
         EXPECT_EQ(tk.columnStart, 7u);
@@ -113,9 +113,9 @@ TEST(Lexer, BasicTokenRead) {
 
     status = lexer.scan();
     {
-        EXPECT_EQ(status, yal::Lexer::Status::Ok);
-        const yal::TokenInfo& tk = lexer.getLastToken();
-        EXPECT_EQ(tk.token, yal::Token::This);
+        EXPECT_EQ(status, yal::frontend::Lexer::Status::Ok);
+        const yal::frontend::TokenInfo& tk = lexer.getLastToken();
+        EXPECT_EQ(tk.token, yal::frontend::Token::This);
         EXPECT_EQ(tk.lineStart, 3u);
         EXPECT_EQ(tk.lineEnd, 3u);
         EXPECT_EQ(tk.columnStart, 1u);
@@ -127,9 +127,9 @@ TEST(Lexer, BasicTokenRead) {
 
     status = lexer.scan();
     {
-        EXPECT_EQ(status, yal::Lexer::Status::Ok);
-        const yal::TokenInfo& tk = lexer.getLastToken();
-        EXPECT_EQ(tk.token, yal::Token::And);
+        EXPECT_EQ(status, yal::frontend::Lexer::Status::Ok);
+        const yal::frontend::TokenInfo& tk = lexer.getLastToken();
+        EXPECT_EQ(tk.token, yal::frontend::Token::And);
         EXPECT_EQ(tk.lineStart, 3u);
         EXPECT_EQ(tk.lineEnd, 3u);
         EXPECT_EQ(tk.columnStart, 6u);
@@ -141,14 +141,14 @@ TEST(Lexer, BasicTokenRead) {
 
     status = lexer.scan();
     {
-        EXPECT_EQ(status, yal::Lexer::Status::Ok);
-        const yal::TokenInfo& tk = lexer.getLastToken();
-        EXPECT_EQ(tk.token, yal::Token::Identifier);
+        EXPECT_EQ(status, yal::frontend::Lexer::Status::Ok);
+        const yal::frontend::TokenInfo& tk = lexer.getLastToken();
+        EXPECT_EQ(tk.token, yal::frontend::Token::Identifier);
         EXPECT_EQ(yal::StringRef(tk.tokenStr),"varName91");
     }
 
     status = lexer.scan();
-    EXPECT_EQ(status, yal::Lexer::Status::EOS);
+    EXPECT_EQ(status, yal::frontend::Lexer::Status::EOS);
 }
 
 TEST(Lexer, TypeDeclTokens) {
@@ -156,68 +156,68 @@ TEST(Lexer, TypeDeclTokens) {
     yal::MemoryStream stream;
     stream.attach(input.c_str(),input.size(), false);
 
-    yal::Lexer lexer(stream);
-    yal::Lexer::Status status = lexer.scan();
+    yal::frontend::Lexer lexer(stream);
+    yal::frontend::Lexer::Status status = lexer.scan();
     {
-        EXPECT_EQ(status, yal::Lexer::Status::Ok);
-        const yal::TokenInfo& tk = lexer.getLastToken();
-        EXPECT_EQ(tk.token, yal::Token::Identifier);
+        EXPECT_EQ(status, yal::frontend::Lexer::Status::Ok);
+        const yal::frontend::TokenInfo& tk = lexer.getLastToken();
+        EXPECT_EQ(tk.token, yal::frontend::Token::Identifier);
     }
 
     status = lexer.scan();
     {
-        EXPECT_EQ(status, yal::Lexer::Status::Ok);
-        const yal::TokenInfo& tk = lexer.getLastToken();
-        EXPECT_EQ(tk.token, yal::Token::Colon);
+        EXPECT_EQ(status, yal::frontend::Lexer::Status::Ok);
+        const yal::frontend::TokenInfo& tk = lexer.getLastToken();
+        EXPECT_EQ(tk.token, yal::frontend::Token::Colon);
     }
 
     status = lexer.scan();
     {
-        EXPECT_EQ(status, yal::Lexer::Status::Ok);
-        const yal::TokenInfo& tk = lexer.getLastToken();
-        EXPECT_EQ(tk.token, yal::Token::Type);
+        EXPECT_EQ(status, yal::frontend::Lexer::Status::Ok);
+        const yal::frontend::TokenInfo& tk = lexer.getLastToken();
+        EXPECT_EQ(tk.token, yal::frontend::Token::Type);
     }
 
     status = lexer.scan();
     {
-        EXPECT_EQ(status, yal::Lexer::Status::Ok);
-        const yal::TokenInfo& tk = lexer.getLastToken();
-        EXPECT_EQ(tk.token, yal::Token::BeginScope);
+        EXPECT_EQ(status, yal::frontend::Lexer::Status::Ok);
+        const yal::frontend::TokenInfo& tk = lexer.getLastToken();
+        EXPECT_EQ(tk.token, yal::frontend::Token::BeginScope);
     }
 
     status = lexer.scan();
     {
-        EXPECT_EQ(status, yal::Lexer::Status::Ok);
-        const yal::TokenInfo& tk = lexer.getLastToken();
-        EXPECT_EQ(tk.token, yal::Token::Identifier);
+        EXPECT_EQ(status, yal::frontend::Lexer::Status::Ok);
+        const yal::frontend::TokenInfo& tk = lexer.getLastToken();
+        EXPECT_EQ(tk.token, yal::frontend::Token::Identifier);
     }
 
     status = lexer.scan();
     {
-        EXPECT_EQ(status, yal::Lexer::Status::Ok);
-        const yal::TokenInfo& tk = lexer.getLastToken();
-        EXPECT_EQ(tk.token, yal::Token::Colon);
+        EXPECT_EQ(status, yal::frontend::Lexer::Status::Ok);
+        const yal::frontend::TokenInfo& tk = lexer.getLastToken();
+        EXPECT_EQ(tk.token, yal::frontend::Token::Colon);
     }
 
     status = lexer.scan();
     {
-        EXPECT_EQ(status, yal::Lexer::Status::Ok);
-        const yal::TokenInfo& tk = lexer.getLastToken();
-        EXPECT_EQ(tk.token, yal::Token::Type);
+        EXPECT_EQ(status, yal::frontend::Lexer::Status::Ok);
+        const yal::frontend::TokenInfo& tk = lexer.getLastToken();
+        EXPECT_EQ(tk.token, yal::frontend::Token::Type);
     }
 
     status = lexer.scan();
     {
-        EXPECT_EQ(status, yal::Lexer::Status::Ok);
-        const yal::TokenInfo& tk = lexer.getLastToken();
-        EXPECT_EQ(tk.token, yal::Token::SemiColon);
+        EXPECT_EQ(status, yal::frontend::Lexer::Status::Ok);
+        const yal::frontend::TokenInfo& tk = lexer.getLastToken();
+        EXPECT_EQ(tk.token, yal::frontend::Token::SemiColon);
     }
 
     status = lexer.scan();
     {
-        EXPECT_EQ(status, yal::Lexer::Status::Ok);
-        const yal::TokenInfo& tk = lexer.getLastToken();
-        EXPECT_EQ(tk.token, yal::Token::EndScope);
+        EXPECT_EQ(status, yal::frontend::Lexer::Status::Ok);
+        const yal::frontend::TokenInfo& tk = lexer.getLastToken();
+        EXPECT_EQ(tk.token, yal::frontend::Token::EndScope);
     }
 }
 

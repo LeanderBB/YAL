@@ -19,7 +19,7 @@
 
 #pragma once
 
-namespace yal {
+namespace yal::frontend {
 
     enum class UnaryOperatorType {
         Not,

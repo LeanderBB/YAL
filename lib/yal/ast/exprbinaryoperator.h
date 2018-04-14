@@ -25,12 +25,12 @@ namespace yal {
     class ExprBinaryOperator : public StmtExpression {
     public:
 
-        ExprBinaryOperator(Module& module,
-                           const BinaryOperatorType opType,
+        ExprBinaryOperator(frontend::Module& module,
+                           const frontend::BinaryOperatorType opType,
                            StmtExpression* left,
                            StmtExpression* right);
 
-        BinaryOperatorType getOperatorType() const {
+        frontend::BinaryOperatorType getOperatorType() const {
             return m_opType;
         }
 
@@ -62,7 +62,7 @@ namespace yal {
         void updateQualType();
 
     private:
-        const BinaryOperatorType m_opType;
+        const frontend::BinaryOperatorType m_opType;
         StmtExpression* m_exprLeft;
         StmtExpression* m_exprRight;
     };

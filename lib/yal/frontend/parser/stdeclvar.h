@@ -21,7 +21,7 @@
 
 #include "yal/frontend/parser/syntaxtree.h"
 
-namespace yal {
+namespace yal::frontend {
 
     class STStmtExpression;
     class STDeclVar final : public STDecl {

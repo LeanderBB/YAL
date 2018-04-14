@@ -22,7 +22,7 @@
 
 namespace yal {
 
-    ExprStructVarRef::ExprStructVarRef(Module& module,
+    ExprStructVarRef::ExprStructVarRef(frontend::Module& module,
                                        StmtExpression* expression,
                                        const StringRef& variableName):
         StmtExpression(module, AstType::ExprStructVarRef),

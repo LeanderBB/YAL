@@ -24,7 +24,7 @@
 
 namespace yal{
 
-    ExprIntegerLiteral::ExprIntegerLiteral(Module& module,
+    ExprIntegerLiteral::ExprIntegerLiteral(frontend::Module& module,
                                            const IntegerType integerType,
                                            const uint64_t value) :
         StmtExpression(module, AstType::ExprIntegerLiteral),

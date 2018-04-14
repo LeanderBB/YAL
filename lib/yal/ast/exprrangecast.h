@@ -25,7 +25,7 @@ namespace yal {
     class RefType;
     class ExprRangeCast : public StmtExpression{
     public:
-        ExprRangeCast(Module& module,
+        ExprRangeCast(frontend::Module& module,
                       RefType* destType,
                       StmtExpression* expression);
 

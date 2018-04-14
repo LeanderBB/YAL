@@ -20,7 +20,7 @@
 #include "yal/frontend/parser/stdeclstruct.h"
 #include "yal/frontend/parser/syntaxtreevisitor.h"
 
-namespace yal {
+namespace yal::frontend {
 
     STStructMember::STStructMember(const STIdentifier* name,
                                    const STQualType* type):

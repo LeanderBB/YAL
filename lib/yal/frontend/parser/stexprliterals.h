@@ -20,7 +20,7 @@
 #pragma once
 #include "yal/frontend/parser/ststmtexpression.h"
 
-namespace yal {
+namespace yal::frontend {
 
     class STExprBoolLiteral final : public STStmtExpression {
     public:
