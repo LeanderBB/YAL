@@ -29,16 +29,19 @@
 #include "yal/compiler/stages/stagemovecheck.h"
 #include "yal/compiler/stages/stagesizecalc.h"
 #include "yal/compiler/stages/stageexprlistbreakdown.h"
+#include "yal/compiler/stages/stageparser.h"
 #include "yal/ast/declmodule.h"
 #include "yal/io/memorystream.h"
 
 namespace yal {
     Compiler::Compiler(Log& log,
+                       ErrorReporter& errorReporter,
                        SourceManager& srcManager,
                        ModuleManager& moduleManager):
         m_log(log),
         m_srcManager(srcManager),
-        m_moduleManager(moduleManager){
+        m_moduleManager(moduleManager),
+        m_errorReporter(errorReporter) {
 
     }
 
@@ -56,10 +59,9 @@ namespace yal {
             return nullptr;
         }
 
-        Lexer lexer(sourceItem->getByteStream());
-        STParser parser(lexer, m_log, *sourceItem);
+        StageParser stageParser(*this, *sourceItem);
 
-        if (!parser.parse()) {
+        if (!stageParser.execute()) {
             return nullptr;
         }
 

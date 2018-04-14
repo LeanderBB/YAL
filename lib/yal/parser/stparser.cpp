@@ -18,11 +18,15 @@
  */
 
 #include "yal/parser/stparser.h"
-#include "yal/parser/syntaxtreenodes.h"
-#define YYMALLOCARGTYPE size_t
+
+#include "yal/error/errorreporter.h"
 #include "yal/lexer/lexer.h"
 #include "yal/lexer/tokens.h"
+#include "yal/lexer/errorlexer.h"
+#include "yal/parser/errorparser.h"
+#define YYMALLOCARGTYPE size_t
 #include "yal/parser/stparserimpl.h"
+#include "yal/parser/syntaxtreenodes.h"
 #include "yal/util/log.h"
 #include "yal/util/prettyprint.h"
 
@@ -149,24 +153,19 @@ namespace yal {
     }
 
     void
-    STParser::OnParseError(const STParser& parser) {
+    STParser::OnParseError(STParser &parser) {
         const TokenInfo& ti = parser.m_lexer.getLastToken();
-        PrettyPrint::SourceErrorPrint(parser.m_sourceItem,
-                                      parser.m_log,
-                                      ti.lineStart,
-                                      ti.lineEnd,
-                                      ti.columnStart,
-                                      ti.columnEnd);
-        parser.m_log.error("Syntax Error\n");
+        auto error = std::make_unique<ErrorParser>(ti, parser.getSourceHandle());
+        parser.m_errorReporter.report(std::move(error));
     }
 
     STParser::STParser(Lexer& lexer,
-                       Log& log,
+                       ErrorReporter &reporter,
                        SourceItem& sourceItem):
         m_allocator(4096),
         m_parserImpl(nullptr, ParserDtor),
         m_lexer(lexer),
-        m_log(log),
+        m_errorReporter(reporter),
         m_sourceItem(sourceItem),
         m_declModule(nullptr){
 
@@ -180,11 +179,9 @@ namespace yal {
 
     bool
     STParser::parse() {
-
-        bool result = true;
         Lexer::Status status = Lexer::Status::Ok;
 
-        while (result) {
+        while (!m_errorReporter.hasErrors()) {
             status = m_lexer.scan();
             if (status == Lexer::Status::Ok) {
                 const TokenInfo& ti = m_lexer.getLastToken();
@@ -202,20 +199,12 @@ namespace yal {
                 break;
             } else {
                 const TokenInfo& ti = m_lexer.getLastToken();
-
-                PrettyPrint::SourceErrorPrint(m_sourceItem,
-                                              m_log,
-                                              ti.lineStart,
-                                              ti.lineEnd,
-                                              ti.columnStart,
-                                              ti.columnEnd);
-                m_log.error("Unknown token at line:%  column:%\n",
-                            ti.lineStart, ti.columnStart);
-                result = false;
+                auto error = std::make_unique<ErrorLexer>(ti, m_sourceItem.getHanlde());
+                m_errorReporter.report(std::move(error));
             }
         }
 
-        return result;
+        return !m_errorReporter.hasErrors();
     }
 
     SourceManager::Handle

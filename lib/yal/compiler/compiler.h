@@ -19,12 +19,16 @@
 #pragma once
 
 #include "yal/io/sourcemanager.h"
+
 namespace yal {
+
     class Log;
     class ModuleManager;
     class MemoryStream;
     class ByteStream;
     class Module;
+    class ErrorReporter;
+
     class Compiler {
     public:
 
@@ -33,6 +37,7 @@ namespace yal {
         };
 
         Compiler(Log& log,
+                 ErrorReporter& errorReporter,
                  SourceManager& srcManager,
                  ModuleManager& moduleManager);
 
@@ -48,15 +53,23 @@ namespace yal {
             return m_moduleManager;
         }
 
+        ErrorReporter& getErrorReporter() {
+            return m_errorReporter;
+        }
+
+        const ErrorReporter& getErrorReporter() const {
+            return m_errorReporter;
+        }
+
         void setFlags(const uint64_t flags);
 
         Module* compile(const SourceManager::Handle source);
-
 
     private:
         Log& m_log;
         SourceManager& m_srcManager;
         ModuleManager& m_moduleManager;
+        ErrorReporter& m_errorReporter;
         uint64_t m_flags;
     };
 

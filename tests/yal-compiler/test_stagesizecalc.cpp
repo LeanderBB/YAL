@@ -30,7 +30,7 @@ TEST_F(CompileFixture, struct_size_2_integer) {
 )R";
 
     auto handle = createSourceHanlde(str);
-    yal::Compiler compiler(*m_log, m_sourceManager, m_moduleManager);
+    yal::Compiler compiler(*m_log, m_errorReporter, m_sourceManager, m_moduleManager);
     yal::Module* module = compiler.compile(handle);
     EXPECT_NE(module, nullptr);
     if (module != nullptr) {
@@ -57,7 +57,7 @@ TEST_F(CompileFixture, struct_size_4i8_integer) {
 )R";
 
     auto handle = createSourceHanlde(str);
-    yal::Compiler compiler(*m_log, m_sourceManager, m_moduleManager);
+    yal::Compiler compiler(*m_log, m_errorReporter, m_sourceManager, m_moduleManager);
     yal::Module* module = compiler.compile(handle);
     EXPECT_NE(module, nullptr);
     if (module != nullptr) {
@@ -80,7 +80,7 @@ TEST_F(CompileFixture, struct_size_ref_and_integer) {
 )R";
 
     auto handle = createSourceHanlde(str);
-    yal::Compiler compiler(*m_log, m_sourceManager, m_moduleManager);
+    yal::Compiler compiler(*m_log, m_errorReporter, m_sourceManager, m_moduleManager);
     yal::Module* module = compiler.compile(handle);
     EXPECT_NE(module, nullptr);
     if (module != nullptr) {
@@ -103,7 +103,7 @@ TEST_F(CompileFixture, struct_size_integer_and_ref) {
 )R";
 
     auto handle = createSourceHanlde(str);
-    yal::Compiler compiler(*m_log, m_sourceManager, m_moduleManager);
+    yal::Compiler compiler(*m_log, m_errorReporter, m_sourceManager, m_moduleManager);
     yal::Module* module = compiler.compile(handle);
     EXPECT_NE(module, nullptr);
     if (module != nullptr) {

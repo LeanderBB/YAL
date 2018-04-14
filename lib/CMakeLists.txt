@@ -124,6 +124,15 @@ set(YAL_SOURCES
     yal/compiler/stages/stagesizecalc.h
     yal/compiler/stages/stageexprlistbreakdown.h
     yal/compiler/stages/stageexprlistbreakdown.cpp
+    yal/compiler/stages/stageparser.h
+    yal/compiler/stages/stageparser.cpp
+
+    yal/error/error.h
+    yal/error/error.cpp
+    yal/error/errorreporter.cpp
+    yal/error/errorreporter.h
+    yal/error/errorprinter.cpp
+    yal/error/errorprinter.h
 
     yal/io/memorystream.cpp
     yal/io/memorystream.h
@@ -135,6 +144,7 @@ set(YAL_SOURCES
     yal/io/sourcemanager.h
     yal/io/sourceitems.cpp
     yal/io/sourceitems.h
+    yal/io/ansicolorcodes.h
 
     yal/lexer/lexer.h
     yal/lexer/lexer.cpp
@@ -142,6 +152,8 @@ set(YAL_SOURCES
     yal/lexer/tokens.cpp
     yal/lexer/lexer_re2c.in
     yal/lexer/lexer_re2c.cpp
+    yal/lexer/errorlexer.cpp
+    yal/lexer/errorlexer.h
 
     yal/parser/parser.cpp
     yal/parser/parser.h
@@ -190,6 +202,8 @@ set(YAL_SOURCES
     yal/parser/stparserimpl.h
     yal/parser/sttype.h
     yal/parser/sttype.cpp
+    yal/parser/errorparser.cpp
+    yal/parser/errorparser.h
 
     yal/transpiler/transpiler.h
     yal/transpiler/c/transpilerc.h
@@ -209,7 +223,10 @@ set(YAL_SOURCES
     yal/util/stringref.h
     yal/util/cast.h
     yal/util/format.h
+    yal/util/format.cpp
     yal/util/formattypes.h
+    yal/util/formathex.h
+    yal/util/formathex.cpp
     yal/util/strconversions.h
     yal/util/strconversions.cpp
     yal/util/iteratorrange.h

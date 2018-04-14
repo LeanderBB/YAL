@@ -17,17 +17,32 @@
  *  License along with YAL. If not, see <http://www.gnu.org/licenses/>.
  */
 
-
-#include "yal/util/format.h"
-#include "yal/io/bytestream.h"
+#include "yal/util/formathex.h"
 
 namespace yal {
 
-    void FormatWrite(ByteStream& stream,
-                     const Formater& formater){
-        if (formater.bufferPos != 0) {
-            stream.write(formater.buffer, formater.bufferPos);
-        }
+    char ByteToHex(const uint8_t byte) {
+        YAL_ASSERT(byte < 16);
+
+        static const char kHexTable[16] = {
+            '0',
+            '1',
+            '2',
+            '3',
+            '4',
+            '5',
+            '6',
+            '7',
+            '8',
+            '9',
+            'A',
+            'B',
+            'C',
+            'D',
+            'E',
+            'F'
+        };
+        return kHexTable[byte];
     }
 
 }

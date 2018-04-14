@@ -18,22 +18,24 @@
  */
 #pragma once
 #include <gtest/gtest.h>
+
 #include <yal/yal.h>
+#include <yal/ast/astcontext.h>
+#include <yal/ast/astprinter.h>
+#include <yal/ast/modulemanager.h>
+#include <yal/compiler/compiler.h>
+#include <yal/error/errorreporter.h>
 #include <yal/lexer/lexer.h>
 #include <yal/lexer/tokens.h>
-#include <string>
-#include <iostream>
 #include <yal/parser/parser.h>
 #include <yal/io/filestream.h>
 #include <yal/io/memorystream.h>
-#include <yal/util/log.h>
-#include <yal/ast/modulemanager.h>
-#include <yal/io/sourcemanager.h>
-#include <yal/ast/astprinter.h>
-#include <yal/ast/astcontext.h>
 #include <yal/io/sourcemanager.h>
 #include <yal/io/sourceitems.h>
-#include <yal/compiler/compiler.h>
+#include <yal/util/log.h>
+
+#include <string>
+#include <iostream>
 
 class CompileFixture : public ::testing::Test {
 public:
@@ -53,6 +55,7 @@ public:
         m_stdstream.close();
         m_sourceManager.clear();
         m_moduleManager.clear();
+        m_errorReporter.clear();
     }
 
 public:
@@ -60,4 +63,5 @@ public:
     std::unique_ptr<yal::Log> m_log;
     yal::SourceManager m_sourceManager;
     yal::ModuleManager m_moduleManager;
+    yal::ErrorReporter m_errorReporter;
 };

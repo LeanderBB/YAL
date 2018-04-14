@@ -17,17 +17,47 @@
  *  License along with YAL. If not, see <http://www.gnu.org/licenses/>.
  */
 
-
+#include "yal/error/error.h"
+#include "yal/util/formattypes.h"
 #include "yal/util/format.h"
-#include "yal/io/bytestream.h"
 
 namespace yal {
 
-    void FormatWrite(ByteStream& stream,
-                     const Formater& formater){
-        if (formater.bufferPos != 0) {
-            stream.write(formater.buffer, formater.bufferPos);
-        }
+    Error::Error(const uint32_t code):
+        m_code(code),
+        m_isWarning(0),
+        m_isSuggestion(0),
+        m_isFatal(0){
+
     }
 
+    void
+    Error::flagAsWarning() {
+        m_isWarning = 1;
+    }
+
+    void
+    Error::flagAsSuggestion() {
+        m_isSuggestion = 1;
+    }
+
+    void
+    Error::flagAsFatal() {
+        m_isFatal = 1;
+    }
+
+    size_t
+    FormatType(FormatTypeArgs &args,
+               const Error *error){
+        YAL_ASSERT(error != nullptr);
+        return FormatType(args, *error);
+    }
+
+    size_t
+    FormatType(FormatTypeArgs& args,
+               const Error& error) {
+        FormaterFromFormatArgs formater(args);
+        error.printDetail(formater);
+        return formater.bufferPos;
+    }
 }

@@ -17,23 +17,26 @@
  *  License along with YAL. If not, see <http://www.gnu.org/licenses/>.
  */
 #include <yal/yal.h>
-#include <yal/lexer/lexer.h>
-#include <yal/lexer/tokens.h>
-#include <string>
-#include <iostream>
-#include <yal/parser/parser.h>
-#include <yal/io/filestream.h>
-#include <yal/io/memorystream.h>
-#include <yal/util/log.h>
+
 #include <yal/ast/modulemanager.h>
-#include <yal/io/sourcemanager.h>
 #include <yal/ast/astprinter.h>
 #include <yal/ast/astcontext.h>
+#include <yal/compiler/compiler.h>
+#include <yal/error/errorprinter.h>
+#include <yal/error/errorreporter.h>
+#include <yal/lexer/lexer.h>
+#include <yal/lexer/tokens.h>
+#include <yal/io/filestream.h>
+#include <yal/io/memorystream.h>
+#include <yal/io/sourcemanager.h>
 #include <yal/io/sourcemanager.h>
 #include <yal/io/sourceitems.h>
-#include <yal/compiler/compiler.h>
-
+#include <yal/parser/parser.h>
 #include <yal/transpiler/c/transpilerc.h>
+#include <yal/util/log.h>
+
+#include <string>
+#include <iostream>
 
 int main(const int argc,
          const char** argv) {
@@ -61,12 +64,19 @@ int main(const int argc,
 
     yal::SourceManager sourceManager;
     yal::ModuleManager moduleManager;
+    yal::ErrorReporter errorReporter;
 
     auto handle = sourceManager.add(std::move(sourceStream));
 
-    yal::Compiler compiler(log, sourceManager, moduleManager);
+    yal::Compiler compiler(log, errorReporter, sourceManager, moduleManager);
 
     yal::Module* module = compiler.compile(handle);
+
+    if (!errorReporter.empty()) {
+        yal::ErrorPrinter errPrinter(stdoutStream, sourceManager);
+        errPrinter.enableColorCodes(true);
+        errPrinter.print(errorReporter);
+    }
 
     if (module != nullptr) {
         yal::AstPrinter astPrinter(stdoutStream);

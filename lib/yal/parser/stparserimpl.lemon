@@ -43,6 +43,7 @@
     yal::STParser::OnParseError(*pParser);
     {
 #if defined(YAL_DEBUG)
+        /*
         yal::Log::MultiLineScope multiLineScope(pParser->getLog());
         pParser->getLog().error("Expected one of the following tokens:\n");
         int n = sizeof(yyTokenName) / sizeof(yyTokenName[0]);
@@ -51,7 +52,7 @@
             if (a < YYNSTATE + YYNRULE) {
                 pParser->getLog().error("%\n",yyTokenName[i]);
             }
-        }
+        }*/
 #endif
     }
 }

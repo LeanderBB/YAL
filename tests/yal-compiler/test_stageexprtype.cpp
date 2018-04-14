@@ -17,7 +17,6 @@
  *  License along with YAL. If not, see <http://www.gnu.org/licenses/>.
  */
 
-
 #include "fixture.h"
 
 TEST_F(CompileFixture, struct) {
@@ -29,7 +28,7 @@ TEST_F(CompileFixture, struct) {
 )R";
 
     auto handle = createSourceHanlde(str);
-    yal::Compiler compiler(*m_log, m_sourceManager, m_moduleManager);
+    yal::Compiler compiler(*m_log, m_errorReporter, m_sourceManager, m_moduleManager);
     yal::Module* module = compiler.compile(handle);
     EXPECT_NE(module, nullptr);
 }
@@ -43,7 +42,7 @@ TEST_F(CompileFixture, struct_unknown_member_type) {
 )R";
 
     auto handle = createSourceHanlde(str);
-    yal::Compiler compiler(*m_log, m_sourceManager, m_moduleManager);
+    yal::Compiler compiler(*m_log, m_errorReporter, m_sourceManager, m_moduleManager);
     yal::Module* module = compiler.compile(handle);
     EXPECT_EQ(module, nullptr);
 }
@@ -61,7 +60,7 @@ TEST_F(CompileFixture, type_function_static) {
 )R";
 
     auto handle = createSourceHanlde(str);
-    yal::Compiler compiler(*m_log, m_sourceManager, m_moduleManager);
+    yal::Compiler compiler(*m_log, m_errorReporter, m_sourceManager, m_moduleManager);
     yal::Module* module = compiler.compile(handle);
     EXPECT_NE(module, nullptr);
 }
@@ -80,7 +79,7 @@ TEST_F(CompileFixture, type_function_instance) {
 )R";
 
     auto handle = createSourceHanlde(str);
-    yal::Compiler compiler(*m_log, m_sourceManager, m_moduleManager);
+    yal::Compiler compiler(*m_log, m_errorReporter, m_sourceManager, m_moduleManager);
     yal::Module* module = compiler.compile(handle);
     EXPECT_NE(module, nullptr);
 }
@@ -97,7 +96,7 @@ TEST_F(CompileFixture, function_local_vars) {
 )R";
 
     auto handle = createSourceHanlde(str);
-    yal::Compiler compiler(*m_log, m_sourceManager, m_moduleManager);
+    yal::Compiler compiler(*m_log, m_errorReporter, m_sourceManager, m_moduleManager);
     yal::Module* module = compiler.compile(handle);
     EXPECT_NE(module, nullptr);
 }
@@ -113,7 +112,7 @@ TEST_F(CompileFixture, function_local_vars_undefined) {
 )R";
 
     auto handle = createSourceHanlde(str);
-    yal::Compiler compiler(*m_log, m_sourceManager, m_moduleManager);
+    yal::Compiler compiler(*m_log, m_errorReporter, m_sourceManager, m_moduleManager);
     yal::Module* module = compiler.compile(handle);
     EXPECT_EQ(module, nullptr);
 }
@@ -132,7 +131,7 @@ TEST_F(CompileFixture, function_duplicate) {
 )R";
 
     auto handle = createSourceHanlde(str);
-    yal::Compiler compiler(*m_log, m_sourceManager, m_moduleManager);
+    yal::Compiler compiler(*m_log, m_errorReporter, m_sourceManager, m_moduleManager);
     yal::Module* module = compiler.compile(handle);
     EXPECT_EQ(module, nullptr);
 }
@@ -154,7 +153,7 @@ TEST_F(CompileFixture, type_function_duplicate) {
 )R";
 
     auto handle = createSourceHanlde(str);
-    yal::Compiler compiler(*m_log, m_sourceManager, m_moduleManager);
+    yal::Compiler compiler(*m_log, m_errorReporter, m_sourceManager, m_moduleManager);
     yal::Module* module = compiler.compile(handle);
     EXPECT_EQ(module, nullptr);
 }
@@ -173,7 +172,7 @@ TEST_F(CompileFixture, struct_member_init_missing) {
 )R";
 
     auto handle = createSourceHanlde(str);
-    yal::Compiler compiler(*m_log, m_sourceManager, m_moduleManager);
+    yal::Compiler compiler(*m_log, m_errorReporter, m_sourceManager, m_moduleManager);
     yal::Module* module = compiler.compile(handle);
     EXPECT_EQ(module, nullptr);
 }
@@ -195,7 +194,7 @@ TEST_F(CompileFixture, reference_assign_fail) {
 )R";
 
     auto handle = createSourceHanlde(str);
-    yal::Compiler compiler(*m_log, m_sourceManager, m_moduleManager);
+    yal::Compiler compiler(*m_log, m_errorReporter, m_sourceManager, m_moduleManager);
     yal::Module* module = compiler.compile(handle);
     EXPECT_EQ(module, nullptr);
 }
@@ -225,7 +224,7 @@ TEST_F(CompileFixture, reference_missing_cast) {
 )R";
 
     auto handle = createSourceHanlde(str);
-    yal::Compiler compiler(*m_log, m_sourceManager, m_moduleManager);
+    yal::Compiler compiler(*m_log, m_errorReporter, m_sourceManager, m_moduleManager);
     yal::Module* module = compiler.compile(handle);
     EXPECT_EQ(module, nullptr);
 }
@@ -253,7 +252,7 @@ TEST_F(CompileFixture, reference_with_cast) {
 )R";
 
     auto handle = createSourceHanlde(str);
-    yal::Compiler compiler(*m_log, m_sourceManager, m_moduleManager);
+    yal::Compiler compiler(*m_log, m_errorReporter, m_sourceManager, m_moduleManager);
     yal::Module* module = compiler.compile(handle);
     EXPECT_NE(module, nullptr);
 }
@@ -277,7 +276,7 @@ TEST_F(CompileFixture, reference_replace_required) {
 )R";
 
     auto handle = createSourceHanlde(str);
-    yal::Compiler compiler(*m_log, m_sourceManager, m_moduleManager);
+    yal::Compiler compiler(*m_log, m_errorReporter, m_sourceManager, m_moduleManager);
     yal::Module* module = compiler.compile(handle);
     EXPECT_EQ(module, nullptr);
 }
@@ -302,7 +301,7 @@ TEST_F(CompileFixture, fntype_function_static_call) {
 )R";
 
     auto handle = createSourceHanlde(str);
-    yal::Compiler compiler(*m_log, m_sourceManager, m_moduleManager);
+    yal::Compiler compiler(*m_log, m_errorReporter, m_sourceManager, m_moduleManager);
     yal::Module* module = compiler.compile(handle);
     EXPECT_NE(module, nullptr);
 }
@@ -328,7 +327,7 @@ TEST_F(CompileFixture, fntype_function_static_call_on_instance) {
 )R";
 
     auto handle = createSourceHanlde(str);
-    yal::Compiler compiler(*m_log, m_sourceManager, m_moduleManager);
+    yal::Compiler compiler(*m_log, m_errorReporter, m_sourceManager, m_moduleManager);
     yal::Module* module = compiler.compile(handle);
     EXPECT_EQ(module, nullptr);
 }
@@ -359,7 +358,7 @@ TEST_F(CompileFixture, fntype_function_instance_call_as_static) {
 )R";
 
     auto handle = createSourceHanlde(str);
-    yal::Compiler compiler(*m_log, m_sourceManager, m_moduleManager);
+    yal::Compiler compiler(*m_log, m_errorReporter, m_sourceManager, m_moduleManager);
     yal::Module* module = compiler.compile(handle);
     EXPECT_EQ(module, nullptr);
 }
@@ -389,7 +388,7 @@ TEST_F(CompileFixture, fntype_instance_call) {
 )R";
 
     auto handle = createSourceHanlde(str);
-    yal::Compiler compiler(*m_log, m_sourceManager, m_moduleManager);
+    yal::Compiler compiler(*m_log, m_errorReporter, m_sourceManager, m_moduleManager);
     yal::Module* module = compiler.compile(handle);
     EXPECT_NE(module, nullptr);
 }
@@ -402,7 +401,7 @@ TEST_F(CompileFixture, lvalue_assign_check) {
 )R";
 
     auto handle = createSourceHanlde(str);
-    yal::Compiler compiler(*m_log, m_sourceManager, m_moduleManager);
+    yal::Compiler compiler(*m_log, m_errorReporter, m_sourceManager, m_moduleManager);
     yal::Module* module = compiler.compile(handle);
     EXPECT_EQ(module, nullptr);
 }
@@ -421,7 +420,7 @@ TEST_F(CompileFixture, lvalue_func_return_check) {
 )R";
 
     auto handle = createSourceHanlde(str);
-    yal::Compiler compiler(*m_log, m_sourceManager, m_moduleManager);
+    yal::Compiler compiler(*m_log, m_errorReporter, m_sourceManager, m_moduleManager);
     yal::Module* module = compiler.compile(handle);
     EXPECT_EQ(module, nullptr);
 }
@@ -434,7 +433,7 @@ TEST_F(CompileFixture, lvalue_mkref) {
 )R";
 
     auto handle = createSourceHanlde(str);
-    yal::Compiler compiler(*m_log, m_sourceManager, m_moduleManager);
+    yal::Compiler compiler(*m_log, m_errorReporter, m_sourceManager, m_moduleManager);
     yal::Module* module = compiler.compile(handle);
     EXPECT_EQ(module, nullptr);
 }
@@ -453,7 +452,7 @@ TEST_F(CompileFixture, lvalue_func_return_ref_check) {
 )R";
 
     auto handle = createSourceHanlde(str);
-    yal::Compiler compiler(*m_log, m_sourceManager, m_moduleManager);
+    yal::Compiler compiler(*m_log, m_errorReporter, m_sourceManager, m_moduleManager);
     yal::Module* module = compiler.compile(handle);
     EXPECT_EQ(module, nullptr);
 }
@@ -465,7 +464,7 @@ TEST_F(CompileFixture, type_function_unknown_type) {
 )R";
 
     auto handle = createSourceHanlde(str);
-    yal::Compiler compiler(*m_log, m_sourceManager, m_moduleManager);
+    yal::Compiler compiler(*m_log, m_errorReporter, m_sourceManager, m_moduleManager);
     yal::Module* module = compiler.compile(handle);
     EXPECT_EQ(module, nullptr);
 }
@@ -478,7 +477,7 @@ TEST_F(CompileFixture, function_unknown_type) {
 )R";
 
     auto handle = createSourceHanlde(str);
-    yal::Compiler compiler(*m_log, m_sourceManager, m_moduleManager);
+    yal::Compiler compiler(*m_log, m_errorReporter, m_sourceManager, m_moduleManager);
     yal::Module* module = compiler.compile(handle);
     EXPECT_EQ(module, nullptr);
 }

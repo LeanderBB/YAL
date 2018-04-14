@@ -17,13 +17,16 @@
  *  License along with YAL. If not, see <http://www.gnu.org/licenses/>.
  */
 #pragma once
+
+#include "yal/util/formattypes.h"
+
 #include <cstring>
 #include <cstddef>
 #include <string>
-#include "yal/util/formattypes.h"
+
 namespace yal{
 
-
+    class ByteStream;
 
     struct Formater {
         const char* string = nullptr;
@@ -63,6 +66,13 @@ namespace yal{
     struct FormaterString : Formater {
         FormaterString(std::string& str) :
             Formater(const_cast<char*>(str.data()), str.size()){
+        }
+    };
+
+
+    struct FormaterFromFormatArgs : Formater {
+        FormaterFromFormatArgs(FormatTypeArgs& args):
+            Formater(args.ptr, args.length){
         }
     };
 
@@ -146,8 +156,7 @@ namespace yal{
         return FormatImpl(formater,other...);
     }
 
-
-
-
+    void FormatWrite(ByteStream& stream,
+                     const Formater& formater);
 
 }

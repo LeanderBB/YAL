@@ -17,17 +17,32 @@
  *  License along with YAL. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#pragma once
 
-#include "yal/util/format.h"
-#include "yal/io/bytestream.h"
+#include "yal/error/error.h"
+#include "yal/io/sourcemanager.h"
 
 namespace yal {
 
-    void FormatWrite(ByteStream& stream,
-                     const Formater& formater){
-        if (formater.bufferPos != 0) {
-            stream.write(formater.buffer, formater.bufferPos);
-        }
-    }
+    struct TokenInfo;
+    class SourceItem;
+
+    class ErrorParser final : public Error  {
+    public:
+
+        static const ErrorCode kCode;
+
+        ErrorParser(const TokenInfo& tokenInfo,
+                   const SourceManager::Handle srcHandle);
+
+        StringRef getErrorName() const final override;
+
+        void printDetail(Formater& formater) const final override;
+
+        const SourceInfo& getSourceInfo() const final override;
+
+    private:
+        SourceInfo m_srcInfo;
+    };
 
 }

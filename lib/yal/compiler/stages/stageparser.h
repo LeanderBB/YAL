@@ -17,17 +17,27 @@
  *  License along with YAL. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#pragma once
 
-#include "yal/util/format.h"
-#include "yal/io/bytestream.h"
-
+#include "yal/parser/stparser.h"
+#include "yal/lexer/lexer.h"
 namespace yal {
 
-    void FormatWrite(ByteStream& stream,
-                     const Formater& formater){
-        if (formater.bufferPos != 0) {
-            stream.write(formater.buffer, formater.bufferPos);
-        }
-    }
+    class Compiler;
+    class SourceItem;
 
+    class StageParser {
+    public:
+
+        StageParser(Compiler& compiler,
+                    SourceItem& item);
+
+        bool execute();
+
+        const STDeclModule* getSyntaxTree() const;
+
+    private:
+        Lexer m_lexer;
+        STParser m_parser;
+    };
 }

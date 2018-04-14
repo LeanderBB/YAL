@@ -30,14 +30,15 @@ namespace yal {
     class STDeclModule;
     struct TokenInfo;
     class SourceItem;
+    class ErrorReporter;
 
     class STParser {
     public:
 
-        static void OnParseError(const STParser& parser);
+        static void OnParseError(STParser& parser);
 
         STParser(Lexer& lexer,
-                 Log& log,
+                 ErrorReporter& reporter,
                  SourceItem& sourceItem);
 
         STDeclModule* getDeclModule() const {
@@ -46,8 +47,8 @@ namespace yal {
 
         bool parse();
 
-        Log& getLog() {
-            return m_log;
+        ErrorReporter& getErrorReporter() {
+            return m_errorReporter;
         }
 
         template <typename T, typename... ARGS>
@@ -61,7 +62,7 @@ namespace yal {
         AllocatorStack m_allocator;
         std::unique_ptr<void, void(*)(void*)> m_parserImpl;
         Lexer& m_lexer;
-        Log& m_log;
+        ErrorReporter& m_errorReporter;
         SourceItem& m_sourceItem;
         STDeclModule* m_declModule;
     };

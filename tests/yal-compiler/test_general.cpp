@@ -28,7 +28,7 @@ TEST_F(CompileFixture, function_self_use) {
 )R";
 
     auto handle = createSourceHanlde(str);
-    yal::Compiler compiler(*m_log, m_sourceManager, m_moduleManager);
+    yal::Compiler compiler(*m_log, m_errorReporter, m_sourceManager, m_moduleManager);
     yal::Module* module = compiler.compile(handle);
     EXPECT_EQ(module, nullptr);
 }
@@ -50,7 +50,7 @@ TEST_F(CompileFixture, declscope_check_for_declvar) {
 )R";
 
     auto handle = createSourceHanlde(str);
-    yal::Compiler compiler(*m_log, m_sourceManager, m_moduleManager);
+    yal::Compiler compiler(*m_log, m_errorReporter, m_sourceManager, m_moduleManager);
     yal::Module* module = compiler.compile(handle);
     EXPECT_EQ(module, nullptr);
 }
@@ -63,7 +63,7 @@ TEST_F(CompileFixture, reference_sum_of_primitive_val) {
 )R";
 
     auto handle = createSourceHanlde(str);
-    yal::Compiler compiler(*m_log, m_sourceManager, m_moduleManager);
+    yal::Compiler compiler(*m_log, m_errorReporter, m_sourceManager, m_moduleManager);
     yal::Module* module = compiler.compile(handle);
     EXPECT_NE(module, nullptr);
 }
@@ -77,7 +77,7 @@ TEST_F(CompileFixture, reference_assing_to_const) {
 )R";
 
     auto handle = createSourceHanlde(str);
-    yal::Compiler compiler(*m_log, m_sourceManager, m_moduleManager);
+    yal::Compiler compiler(*m_log, m_errorReporter, m_sourceManager, m_moduleManager);
     yal::Module* module = compiler.compile(handle);
     EXPECT_EQ(module, nullptr);
 }

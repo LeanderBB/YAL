@@ -17,17 +17,25 @@
  *  License along with YAL. If not, see <http://www.gnu.org/licenses/>.
  */
 
-
-#include "yal/util/format.h"
-#include "yal/io/bytestream.h"
+#include "yal/compiler/stages/stageparser.h"
+#include "yal/compiler/compiler.h"
 
 namespace yal {
 
-    void FormatWrite(ByteStream& stream,
-                     const Formater& formater){
-        if (formater.bufferPos != 0) {
-            stream.write(formater.buffer, formater.bufferPos);
-        }
+    StageParser::StageParser(Compiler& compiler,
+                             SourceItem& item):
+     m_lexer(item.getByteStream()),
+     m_parser(m_lexer, compiler.getErrorReporter(), item){
+
     }
 
+    bool
+    StageParser::execute() {
+        return m_parser.parse();
+    }
+
+    const STDeclModule*
+    StageParser::getSyntaxTree() const {
+        return m_parser.getDeclModule();
+    }
 }
