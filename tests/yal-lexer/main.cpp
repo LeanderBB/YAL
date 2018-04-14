@@ -19,8 +19,8 @@
 #include <gtest/gtest.h>
 #include <yal/yal.h>
 #include <yal/io/memorystream.h>
-#include <yal/lexer/lexer.h>
-#include <yal/lexer/tokens.h>
+#include <yal/frontend/lexer/lexer.h>
+#include <yal/frontend/lexer/tokens.h>
 #include <string>
 #include <iostream>
 #include <yal/util/stringref.h>

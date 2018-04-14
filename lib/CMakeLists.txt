@@ -20,10 +20,6 @@ set(YAL_SOURCES
     yal/yal.h
     ${YAL_CONFIG_FILE}
 
-    yal/ast/module.h
-    yal/ast/module.cpp
-    yal/ast/modulemanager.h
-    yal/ast/modulemanager.cpp
     yal/ast/astcontext.h
     yal/ast/astcontext.cpp
     yal/ast/astnodes.h
@@ -61,7 +57,6 @@ set(YAL_SOURCES
     yal/ast/exprunaryoperator.h
     yal/ast/exprbinaryoperator.cpp
     yal/ast/exprbinaryoperator.h
-    yal/ast/operators.h
     yal/ast/declvar.h
     yal/ast/declvar.cpp
     yal/ast/declparamvar.cpp
@@ -146,14 +141,14 @@ set(YAL_SOURCES
     yal/io/sourceitems.h
     yal/io/ansicolorcodes.h
 
-    yal/lexer/lexer.h
-    yal/lexer/lexer.cpp
-    yal/lexer/tokens.h
-    yal/lexer/tokens.cpp
-    yal/lexer/lexer_re2c.in
-    yal/lexer/lexer_re2c.cpp
-    yal/lexer/errorlexer.cpp
-    yal/lexer/errorlexer.h
+    yal/frontend/lexer/lexer.h
+    yal/frontend/lexer/lexer.cpp
+    yal/frontend/lexer/tokens.h
+    yal/frontend/lexer/tokens.cpp
+    yal/frontend/lexer/lexer_re2c.in
+    yal/frontend/lexer/lexer_re2c.cpp
+    yal/frontend/lexer/errorlexer.cpp
+    yal/frontend/lexer/errorlexer.h
 
     yal/parser/parser.cpp
     yal/parser/parser.h
@@ -163,47 +158,55 @@ set(YAL_SOURCES
     yal/parser/parserimpl.h
     yal/parser/parserhelper.h
     yal/parser/parserhelper.cpp
-    yal/parser/syntaxtree.h
-    yal/parser/syntaxtree.cpp
-    yal/parser/syntaxtreetypes.def
-    yal/parser/syntaxtreevisitor.h
-    yal/parser/stdeclmodule.cpp
-    yal/parser/stdeclmodule.h
-    yal/parser/stdeclfunction.h
-    yal/parser/stdeclfunction.cpp
-    yal/parser/stdeclstruct.cpp
-    yal/parser/stdeclstruct.h
-    yal/parser/stdeclvar.h
-    yal/parser/stdeclvar.cpp
-    yal/parser/ststatement.h
-    yal/parser/ststmtexpression.h
-    yal/parser/ststmtreturn.h
-    yal/parser/ststmtreturn.cpp
-    yal/parser/ststmtdecl.cpp
-    yal/parser/ststmtdecl.h
-    yal/parser/ststmtassign.h
-    yal/parser/ststmtassign.cpp
-    yal/parser/stexprvarref.h
-    yal/parser/stexprvarref.cpp
-    yal/parser/stexproperators.cpp
-    yal/parser/stexproperators.h
-    yal/parser/stexprliterals.h
-    yal/parser/stexprliterals.cpp
-    yal/parser/stexprfncall.cpp
-    yal/parser/stexprfncall.h
-    yal/parser/stexprstructinit.cpp
-    yal/parser/stexprstructinit.h
-    yal/parser/stexprcasts.cpp
-    yal/parser/stexprcasts.h
-    yal/parser/stparserimpl.lemon
-    yal/parser/stparser.cpp
-    yal/parser/stparser.h
-    yal/parser/stparserimpl.cpp
-    yal/parser/stparserimpl.h
-    yal/parser/sttype.h
-    yal/parser/sttype.cpp
-    yal/parser/errorparser.cpp
-    yal/parser/errorparser.h
+
+    yal/frontend/parser/syntaxtree.h
+    yal/frontend/parser/syntaxtree.cpp
+    yal/frontend/parser/syntaxtreetypes.def
+    yal/frontend/parser/syntaxtreevisitor.h
+    yal/frontend/parser/stdeclmodule.cpp
+    yal/frontend/parser/stdeclmodule.h
+    yal/frontend/parser/stdeclfunction.h
+    yal/frontend/parser/stdeclfunction.cpp
+    yal/frontend/parser/stdeclstruct.cpp
+    yal/frontend/parser/stdeclstruct.h
+    yal/frontend/parser/stdeclvar.h
+    yal/frontend/parser/stdeclvar.cpp
+    yal/frontend/parser/ststatement.h
+    yal/frontend/parser/ststmtexpression.h
+    yal/frontend/parser/ststmtreturn.h
+    yal/frontend/parser/ststmtreturn.cpp
+    yal/frontend/parser/ststmtdecl.cpp
+    yal/frontend/parser/ststmtdecl.h
+    yal/frontend/parser/ststmtassign.h
+    yal/frontend/parser/ststmtassign.cpp
+    yal/frontend/parser/stexprvarref.h
+    yal/frontend/parser/stexprvarref.cpp
+    yal/frontend/parser/stexproperators.cpp
+    yal/frontend/parser/stexproperators.h
+    yal/frontend/parser/stexprliterals.h
+    yal/frontend/parser/stexprliterals.cpp
+    yal/frontend/parser/stexprfncall.cpp
+    yal/frontend/parser/stexprfncall.h
+    yal/frontend/parser/stexprstructinit.cpp
+    yal/frontend/parser/stexprstructinit.h
+    yal/frontend/parser/stexprcasts.cpp
+    yal/frontend/parser/stexprcasts.h
+    yal/frontend/parser/stparserimpl.lemon
+    yal/frontend/parser/stparser.cpp
+    yal/frontend/parser/stparser.h
+    yal/frontend/parser/stparserimpl.cpp
+    yal/frontend/parser/stparserimpl.h
+    yal/frontend/parser/sttype.h
+    yal/frontend/parser/sttype.cpp
+    yal/frontend/parser/errorparser.cpp
+    yal/frontend/parser/errorparser.h
+
+    yal/frontend/module.h
+    yal/frontend/module.cpp
+    yal/frontend/modulemanager.h
+    yal/frontend/modulemanager.cpp
+
+    yal/frontend/types/operators.h
 
     yal/transpiler/transpiler.h
     yal/transpiler/c/transpilerc.h
@@ -238,11 +241,11 @@ set(YAL_SOURCES
     )
 
 # include parser / lexer DSL's
-set_source_files_properties(yal/lexer/lexer_re2c.in
+set_source_files_properties(yal/frontend/lexer/lexer_re2c.in
     PROPERTIES HEADER_FILE_ONLY TRUE)
 set_source_files_properties(yal/parser/parserimpl.lemon
     PROPERTIES HEADER_FILE_ONLY TRUE)
-set_source_files_properties(yal/parser/stparserimpl.lemon
+set_source_files_properties(yal/frontend/parser/stparserimpl.lemon
     PROPERTIES HEADER_FILE_ONLY TRUE)
 
 # include .def files
@@ -252,15 +255,15 @@ set_source_files_properties(yal/parser/declbasetypes.def
     PROPERTIES HEADER_FILE_ONLY TRUE)
 set_source_files_properties(yal/parser/typelist.def
     PROPERTIES HEADER_FILE_ONLY TRUE)
-set_source_files_properties( yal/parser/syntaxtreetypes.def
+set_source_files_properties( yal/frontend/parser/syntaxtreetypes.def
     PROPERTIES HEADER_FILE_ONLY TRUE)
 
 
 #if re2c is availabe use custom targets
 if (${RE2C_TOOLS_FOUND})
     RE2C_GEN(
-        "${CMAKE_CURRENT_SOURCE_DIR}/yal/lexer/lexer_re2c.in"
-        "${CMAKE_CURRENT_SOURCE_DIR}/yal/lexer/lexer_re2c.cpp")
+        "${CMAKE_CURRENT_SOURCE_DIR}/yal/frontend/lexer/lexer_re2c.in"
+        "${CMAKE_CURRENT_SOURCE_DIR}/yal/frontend/lexer/lexer_re2c.cpp")
 endif()
 
 #if lemon is availabe use custom targets
@@ -271,7 +274,7 @@ if (${LEMON_TOOLS_FOUND})
         parserimpl.cpp)
 
     LEMON_GEN(
-        "${CMAKE_CURRENT_SOURCE_DIR}/yal/parser/"
+        "${CMAKE_CURRENT_SOURCE_DIR}/yal/frontend/parser/"
         stparserimpl.lemon
         stparserimpl.cpp)
 endif()
@@ -287,4 +290,4 @@ target_include_directories( ${YAL_LIB_NAME}
 
 YAL_APPLY_COMPILER_FLAGS_WERROR(${YAL_LIB_NAME})
 YAL_REMOVE_WERROR_FROM_SOURCE(yal/parser/parserimpl.cpp)
-YAL_REMOVE_WERROR_FROM_SOURCE(yal/parser/stparserimpl.cpp)
+YAL_REMOVE_WERROR_FROM_SOURCE(yal/frontend/parser/stparserimpl.cpp)

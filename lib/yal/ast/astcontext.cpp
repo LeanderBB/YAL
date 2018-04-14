@@ -21,7 +21,7 @@
 #include <cinttypes>
 #include "yal/ast/declbase.h"
 #include "yal/ast/declmodule.h"
-#include "yal/ast/module.h"
+#include "yal/frontend/module.h"
 namespace yal{
 
     enum {

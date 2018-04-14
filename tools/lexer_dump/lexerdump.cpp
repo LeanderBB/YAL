@@ -17,8 +17,8 @@
  *  License along with YAL. If not, see <http://www.gnu.org/licenses/>.
  */
 #include <yal/yal.h>
-#include <yal/lexer/lexer.h>
-#include <yal/lexer/tokens.h>
+#include <yal/frontend/lexer/lexer.h>
+#include <yal/frontend/lexer/tokens.h>
 #include <yal/io/filestream.h>
 #include <yal/io/memorystream.h>
 #include <string>

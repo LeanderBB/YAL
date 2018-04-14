@@ -18,7 +18,7 @@
  */
 
 #include "yal/ast/exprfloatliteral.h"
-#include "yal/ast/module.h"
+#include "yal/frontend/module.h"
 #include "yal/ast/typebuiltin.h"
 #include "yal/ast/astvisitor.h"
 #include <limits>

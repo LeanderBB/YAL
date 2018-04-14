@@ -19,8 +19,9 @@
 
 #pragma once
 
-#include "yal/parser/stparser.h"
-#include "yal/lexer/lexer.h"
+#include "yal/frontend/lexer/lexer.h"
+#include "yal/frontend/parser/stparser.h"
+
 namespace yal {
 
     class Compiler;

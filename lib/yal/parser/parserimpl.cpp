@@ -32,10 +32,10 @@
 #include "yal/parser/parserhelper.h"
 #include "yal/util/log.h"
 #include "yal/util/stringref.h"
-#include "yal/ast/module.h"
+#include "yal/frontend/module.h"
 #include "yal/ast/typebuiltin.h"
 #include "yal/ast/astnodes.h"
-#include "yal/lexer/lexer.h"
+#include "yal/frontend/lexer/lexer.h"
 #define YYMALLOCARGTYPE size_t
 #line 41 "parserimpl.c"
 #include "parserimpl.h"

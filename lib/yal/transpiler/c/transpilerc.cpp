@@ -19,7 +19,7 @@
 #include "yal/transpiler/c/transpilerc.h"
 #include "yal/transpiler/c/codegenc.h"
 #include "yal/io/filestream.h"
-#include "yal/ast/module.h"
+#include "yal/frontend/module.h"
 #include "yal/util/path.h"
 #include "yal/util/log.h"
 #include <string>

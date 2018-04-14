@@ -18,10 +18,10 @@
 
 #include "yal/compiler/compiler.h"
 #include "yal/util/log.h"
-#include "yal/ast/modulemanager.h"
-#include "yal/lexer/lexer.h"
+#include "yal/frontend/modulemanager.h"
+#include "yal/frontend/lexer/lexer.h"
 #include "yal/parser/parser.h"
-#include "yal/parser/stparser.h"
+#include "yal/frontend/parser/stparser.h"
 #include "yal/ast/astprinter.h"
 #include "yal/compiler/stages/stagedecls.h"
 #include "yal/compiler/stages/stageexprtype.h"

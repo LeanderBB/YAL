@@ -19,7 +19,7 @@
 
 #include "yal/ast/statement.h"
 #include "yal/ast/astcontext.h"
-#include "yal/ast/module.h"
+#include "yal/frontend/module.h"
 namespace yal {
 
     Statement::Statement(Module& module,

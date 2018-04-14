@@ -18,7 +18,7 @@
  */
 
 #include "yal/ast/stmtexpression.h"
-#include "yal/ast/operators.h"
+#include "yal/frontend/types/operators.h"
 
 namespace yal {
 

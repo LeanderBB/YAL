@@ -22,11 +22,11 @@
 #include <yal/yal.h>
 #include <yal/ast/astcontext.h>
 #include <yal/ast/astprinter.h>
-#include <yal/ast/modulemanager.h>
+#include <yal/frontend/modulemanager.h>
 #include <yal/compiler/compiler.h>
 #include <yal/error/errorreporter.h>
-#include <yal/lexer/lexer.h>
-#include <yal/lexer/tokens.h>
+#include <yal/frontend/lexer/lexer.h>
+#include <yal/frontend/lexer/tokens.h>
 #include <yal/parser/parser.h>
 #include <yal/io/filestream.h>
 #include <yal/io/memorystream.h>

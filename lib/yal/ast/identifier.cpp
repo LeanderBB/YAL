@@ -18,7 +18,7 @@
  */
 
 #include "yal/ast/identifier.h"
-#include "yal/ast/module.h"
+#include "yal/frontend/module.h"
 
 namespace yal {
 

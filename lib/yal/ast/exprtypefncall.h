@@ -20,7 +20,7 @@
 #pragma once
 
 #include "yal/ast/exprfncall.h"
-#include "yal/lexer/lexer.h"
+#include "yal/frontend/lexer/lexer.h"
 namespace yal {
 
 

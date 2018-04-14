@@ -39,7 +39,7 @@
 #include "yal/ast/reftype.h"
 #include "yal/ast/typebuiltin.h"
 #include "yal/ast/typedecl.h"
-#include "yal/ast/module.h"
+#include "yal/frontend/module.h"
 #include "yal/ast/exprrangecast.h"
 #include "yal/ast/exprstructinit.h"
 #include "yal/ast/structmemberinit.h"

@@ -18,7 +18,7 @@
  */
 
 #include "yal/ast/type.h"
-#include "yal/ast/module.h"
+#include "yal/frontend/module.h"
 #include "yal/util/stringref.h"
 #include "yal/ast/typedecl.h"
 namespace yal {

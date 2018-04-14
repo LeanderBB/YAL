@@ -18,7 +18,7 @@
  */
 
 #include "yal/ast/declparamvar.h"
-#include "yal/ast/module.h"
+#include "yal/frontend/module.h"
 #include "yal/ast/astcontext.h"
 #include "yal/ast/astvisitor.h"
 namespace yal {

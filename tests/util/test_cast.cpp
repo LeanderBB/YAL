@@ -20,8 +20,8 @@
 #include <yal/yal.h>
 #include <yal/util/allocatorstack.h>
 #include <limits>
-#include <yal/ast/module.h>
-#include <yal/ast/modulemanager.h>
+#include <yal/frontend/module.h>
+#include <yal/frontend/modulemanager.h>
 #include <yal/ast/declfunction.h>
 #include <yal/ast/declbase.h>
 #include <yal/ast/reftype.h>

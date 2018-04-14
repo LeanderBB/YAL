@@ -18,8 +18,8 @@
  */
 #pragma once
 #include <memory>
-#include <yal/ast/module.h>
-#include "yal/lexer/tokens.h"
+#include "yal/frontend/module.h"
+#include "yal/frontend/lexer/tokens.h"
 #include "yal/io/sourcemanager.h"
 namespace yal {
     class Log;

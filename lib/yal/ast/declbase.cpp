@@ -18,7 +18,7 @@
  */
 
 #include "yal/ast/declbase.h"
-#include "yal/ast/module.h"
+#include "yal/frontend/module.h"
 #include "yal/ast/astcontext.h"
 
 namespace yal{

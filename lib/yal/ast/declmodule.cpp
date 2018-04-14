@@ -17,7 +17,7 @@
  *  License along with YAL. If not, see <http://www.gnu.org/licenses/>.
  */
 #include "yal/ast/declmodule.h"
-#include "yal/ast/module.h"
+#include "yal/frontend/module.h"
 #include "yal/ast/astcontext.h"
 #include "yal/ast/astvisitor.h"
 

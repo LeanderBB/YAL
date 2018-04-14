@@ -18,10 +18,10 @@
  */
 #include "yal/parser/parser.h"
 #define YYMALLOCARGTYPE size_t
-#include "yal/lexer/lexer.h"
+#include "yal/frontend/lexer/lexer.h"
 #include "yal/parser/parserimpl.h"
-#include "yal/lexer/lexer.h"
-#include "yal/lexer/tokens.h"
+#include "yal/frontend/lexer/lexer.h"
+#include "yal/frontend/lexer/tokens.h"
 #include "yal/util/log.h"
 #include "yal/io/memorystream.h"
 #include "yal/util/prettyprint.h"

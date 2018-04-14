@@ -21,7 +21,7 @@
 #include "yal/ast/astvisitor.h"
 #include "yal/ast/reftype.h"
 #include "yal/ast/typedecl.h"
-#include "yal/ast/module.h"
+#include "yal/frontend/module.h"
 namespace yal {
 
     ExprTypeFnCallStatic::ExprTypeFnCallStatic(Module& module,

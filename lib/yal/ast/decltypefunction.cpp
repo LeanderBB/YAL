@@ -17,7 +17,7 @@
  *  License along with YAL. If not, see <http://www.gnu.org/licenses/>.
  */
 #include "yal/ast/decltypefunction.h"
-#include "yal/ast/module.h"
+#include "yal/frontend/module.h"
 #include "yal/ast/astvisitor.h"
 #include "yal/ast/declparamvar.h"
 #include "yal/ast/reftype.h"
