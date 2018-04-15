@@ -21,7 +21,7 @@
 
 #include "yal/yal.h"
 #include <vector>
-#include "yal/util/allocatorstack.h"
+#include "yal/util/allocator/allocatorstack.h"
 
 namespace yal {
     class DeclModule;

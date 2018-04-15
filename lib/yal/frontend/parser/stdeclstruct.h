@@ -18,6 +18,7 @@
  */
 
 #include "yal/frontend/parser/syntaxtree.h"
+#include "yal/util/allocator/allocatorstack.h"
 
 namespace yal::frontend {
 
@@ -50,10 +51,10 @@ namespace yal::frontend {
 
     class STDeclStruct final : public STDecl {
     public:
-        using Members = std::vector<const STStructMember*>;
+        using Members = STVector<const STStructMember*>;
 
         STDeclStruct(const STIdentifier* name,
-                    const Members* members);
+                     const Members* members);
 
         const STIdentifier* getName() const {
             return m_name;

@@ -54,7 +54,7 @@ namespace yal::frontend {
     class STExprStructInit final : public STStmtExpression {
     public:
 
-        using MemberInitList = std::vector<const STStructMemberInit*>;
+        using MemberInitList = STVector<const STStructMemberInit*>;
 
         STExprStructInit(const STType* structType,
                          const MemberInitList* members);

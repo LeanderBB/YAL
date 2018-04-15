@@ -22,7 +22,7 @@
 #include "yal/frontend/module.h"
 #include "yal/io/sourcemanager.h"
 #include <vector>
-#include "yal/util/allocatorstack.h"
+#include "yal/util/allocator/allocatorstack.h"
 
 namespace yal {
     class DeclModule;

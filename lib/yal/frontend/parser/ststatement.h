@@ -34,7 +34,7 @@ namespace yal::frontend {
         }
     };
 
-    using STStatementList = std::vector<const STStatement*>;
+    using STStatementList = STVector<const STStatement*>;
 }
 
 namespace yal {

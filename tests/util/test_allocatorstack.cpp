@@ -18,7 +18,7 @@
  */
 #include <gtest/gtest.h>
 #include <yal/yal.h>
-#include <yal/util/allocatorstack.h>
+#include <yal/util/allocator/allocatorstack.h>
 #include <limits>
 TEST(AllocatorStack, BasicAlloc) {
 
@@ -46,11 +46,6 @@ TEST(AllocatorStack, MultiStackAlloc) {
 
     enum {kStackSize = 32};
     yal::AllocatorStack allocator(kStackSize);
-
-    {
-        void* ptr = allocator.allocate(40);
-        EXPECT_EQ(ptr, nullptr);
-    }
 
     {
         void* ptr = allocator.allocate(16);
@@ -84,12 +79,22 @@ TEST(AllocatorStack, TestOverFlow) {
         EXPECT_NE(ptr, nullptr);
     }
 
-    {
-        void* ptr = allocator.allocate(std::numeric_limits<size_t>::max());
-        EXPECT_EQ(ptr, nullptr);
-    }
-
     EXPECT_EQ(allocator.getAllocatedSizeBytes(), size_t(20));
+    EXPECT_EQ(allocator.getMemorySizeBytes(), size_t(kStackSize));
+    EXPECT_EQ(allocator.getStackCount(), size_t(1));
+}
+
+TEST(AllocatorStack, VectorWrapper) {
+
+    enum {kStackSize = 32};
+
+    yal::AllocatorStack allocator(kStackSize);
+    yal::StdAllocatorWrapperStack<double> stdalloc(allocator);
+    std::vector<double, yal::StdAllocatorWrapperStack<double>> vector(stdalloc);
+
+    vector.resize(4);
+
+    EXPECT_EQ(allocator.getAllocatedSizeBytes(), size_t(32));
     EXPECT_EQ(allocator.getMemorySizeBytes(), size_t(kStackSize));
     EXPECT_EQ(allocator.getStackCount(), size_t(1));
 }

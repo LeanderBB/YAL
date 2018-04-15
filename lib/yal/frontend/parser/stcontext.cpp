@@ -24,7 +24,7 @@ namespace yal::frontend {
 
     STContext::STContext():
         m_allocator(4096) {
-        m_declModule = m_allocator.construct<STDeclModule>();
+        m_declModule = m_allocator.construct<STDeclModule>(*this);
     }
 
 }

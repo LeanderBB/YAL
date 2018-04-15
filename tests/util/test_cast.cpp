@@ -18,7 +18,7 @@
  */
 #include <gtest/gtest.h>
 #include <yal/yal.h>
-#include <yal/util/allocatorstack.h>
+#include <yal/util/allocator/allocatorstack.h>
 #include <limits>
 #include <yal/frontend/module.h>
 #include <yal/frontend/modulemanager.h>

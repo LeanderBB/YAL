@@ -20,7 +20,7 @@
 #pragma once
 
 #include "yal/yal.h"
-#include "yal/util/allocatorstack.h"
+#include "yal/util/allocator/allocatorstack.h"
 
 namespace yal::frontend {
 
@@ -35,11 +35,16 @@ namespace yal::frontend {
 
         template <typename T, typename... ARGS>
         T* create(ARGS&& ...args) {
-            return m_allocator.construct<T>(std::forward<ARGS>(args)...);
+            return m_allocator.constructNoDtor<T>(std::forward<ARGS>(args)...);
         }
 
         STDeclModule* getDeclModule() const {
             return m_declModule;
+        }
+
+        template<typename T>
+        StdAllocatorWrapperStack<T> getStdAllocatorWrapper() {
+            return StdAllocatorWrapperStack<T>(m_allocator);
         }
 
     private:

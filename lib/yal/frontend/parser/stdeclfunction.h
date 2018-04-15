@@ -52,8 +52,8 @@ namespace yal::frontend {
 
     class STDeclFunction final : public STDecl {
     public:
-        using Body = std::vector<const STStatement*>;
-        using Params = std::vector<const STDeclParam*>;
+        using Body = STVector<const STStatement*>;
+        using Params = STVector<const STDeclParam*>;
 
         STDeclFunction(const STIdentifier* functionName,
                        const STType* functionTarget,

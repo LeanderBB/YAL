@@ -222,8 +222,8 @@ set(YAL_SOURCES
     yal/util/log.cpp
     yal/util/prettyprint.cpp
     yal/util/prettyprint.h
-    yal/util/allocatorstack.cpp
-    yal/util/allocatorstack.h
+    yal/util/allocator/allocatorstack.cpp
+    yal/util/allocator/allocatorstack.h
     yal/util/stringref.cpp
     yal/util/stringref.h
     yal/util/cast.h

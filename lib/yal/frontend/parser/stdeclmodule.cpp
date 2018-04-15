@@ -19,11 +19,12 @@
 
 #include "yal/frontend/parser/stdeclmodule.h"
 #include "yal/frontend/parser/syntaxtreevisitor.h"
-
+#include "yal/frontend/parser/stcontext.h"
 namespace yal::frontend {
 
-    STDeclModule::STDeclModule():
-    SyntaxTree(SyntaxTreeType::STDeclModule){
+    STDeclModule::STDeclModule(STContext& ctx):
+    SyntaxTree(SyntaxTreeType::STDeclModule),
+    m_decls(ctx.getStdAllocatorWrapper<const STDecl*>()){
 
     }
 

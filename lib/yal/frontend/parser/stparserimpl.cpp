@@ -1536,7 +1536,7 @@ static void yy_reduce(
       case 31: /* struct_decl_vars ::= struct_decl_var */
 #line 255 "stparserimpl.lemon"
 {
-    yylhsminor.yy140 = pParser->createNode<yal::frontend::STDeclStruct::Members>();
+    yylhsminor.yy140 = pParser->createVector<const yal::frontend::STStructMember*>();
     yylhsminor.yy140->push_back(yymsp[0].minor.yy77);
 }
 #line 1543 "stparserimpl.c"
@@ -1589,7 +1589,7 @@ static void yy_reduce(
       case 37: /* function_args_decl ::= function_arg_decl */
 #line 294 "stparserimpl.lemon"
 {
-    yylhsminor.yy42 = pParser->createNode<yal::frontend::STDeclFunction::Params>();
+    yylhsminor.yy42 = pParser->createVector<const yal::frontend::STDeclParam*>();
     yylhsminor.yy42->push_back(yymsp[0].minor.yy93);
 }
 #line 1596 "stparserimpl.c"
@@ -1655,7 +1655,7 @@ static void yy_reduce(
       case 46: /* statement_list ::= statement */
 #line 327 "stparserimpl.lemon"
 {
-    yylhsminor.yy129 = pParser->createNode<yal::frontend::STStatementList>();
+    yylhsminor.yy129 = pParser->createVector<const yal::frontend::STStatement*>();
     yylhsminor.yy129->push_back(yymsp[0].minor.yy100);
 }
 #line 1662 "stparserimpl.c"
@@ -2008,7 +2008,7 @@ static void yy_reduce(
       case 85: /* function_call_args ::= expression */
 #line 538 "stparserimpl.lemon"
 {
-    yylhsminor.yy101 = pParser->createNode<yal::frontend::STExprFnCall::ParamList>();
+    yylhsminor.yy101 = pParser->createVector<const yal::frontend::STStmtExpression*>();
     yylhsminor.yy101->push_back(yymsp[0].minor.yy88);
 }
 #line 2015 "stparserimpl.c"
@@ -2048,7 +2048,7 @@ static void yy_reduce(
       case 90: /* struct_member_init_list ::= struct_member_init */
 #line 560 "stparserimpl.lemon"
 {
-        yylhsminor.yy32 = pParser->createNode<yal::frontend::STExprStructInit::MemberInitList>();
+        yylhsminor.yy32 = pParser->createVector<const yal::frontend::STStructMemberInit*>();
         yylhsminor.yy32->push_back(yymsp[0].minor.yy169);
 }
 #line 2055 "stparserimpl.c"

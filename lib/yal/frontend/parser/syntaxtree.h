@@ -21,10 +21,14 @@
 
 #include "yal/io/sourcemanager.h"
 #include "yal/frontend/parser/sttype.h"
+#include "yal/util/allocator/allocatorstack.h"
 #include "yal/util/cast.h"
 #include "yal/util/stringref.h"
 
 namespace yal::frontend {
+
+    template<typename T>
+    using STVector = std::vector<T, StdAllocatorWrapperStack<T>>;
 
     enum class SyntaxTreeType {
 #define YAL_ST_NODE_TYPE(type) type,

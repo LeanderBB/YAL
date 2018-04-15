@@ -22,12 +22,13 @@
 
 namespace yal::frontend {
     class STDecl;
+    class STContext;
     class STDeclModule final : public SyntaxTree {
     public:
 
-        using Decls = std::vector<STDecl*>;
+        using Decls = STVector<const STDecl*>;
 
-        STDeclModule();
+        STDeclModule(STContext& ctx);
 
         void acceptVisitor(SyntaxTreeVisitor& visitor) const override final;
 

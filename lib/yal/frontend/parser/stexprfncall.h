@@ -26,7 +26,7 @@ namespace yal::frontend {
     class STStmtExpression;
     class STExprFnCall final : public STStmtExpression {
     public:
-        using ParamList = std::vector<const STStmtExpression*>;
+        using ParamList = STVector<const STStmtExpression*>;
 
         enum class FnType {
             Regular,

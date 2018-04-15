@@ -253,7 +253,7 @@ struct_decl_vars(A) ::= struct_decl_vars(B) COMMA struct_decl_var(C). {
     A->push_back(C);
 }
 struct_decl_vars(A) ::= struct_decl_var(B). {
-    A = pParser->createNode<yal::frontend::STDeclStruct::Members>();
+    A = pParser->createVector<const yal::frontend::STStructMember*>();
     A->push_back(B);
 }
 
@@ -292,7 +292,7 @@ function_args_decl(A) ::= function_args_decl(B) COMMA function_arg_decl(C). {
 }
 
 function_args_decl(A) ::= function_arg_decl(B). {
-    A = pParser->createNode<yal::frontend::STDeclFunction::Params>();
+    A = pParser->createVector<const yal::frontend::STDeclParam*>();
     A->push_back(B);
 }
 
@@ -325,7 +325,7 @@ statement_list(A) ::= statement_list(B) statement(C).{
     A=B;
 }
 statement_list(A) ::= statement(B). {
-    A = pParser->createNode<yal::frontend::STStatementList>();
+    A = pParser->createVector<const yal::frontend::STStatement*>();
     A->push_back(B);
 }
 
@@ -536,7 +536,7 @@ function_call_args(A) ::= function_call_args(B) COMMA expression(C). {
     A->push_back(C);
 }
 function_call_args(A)::= expression(B). {
-    A = pParser->createNode<yal::frontend::STExprFnCall::ParamList>();
+    A = pParser->createVector<const yal::frontend::STStmtExpression*>();
     A->push_back(B);
 }
 function_call_args(A) ::=. {
@@ -558,7 +558,7 @@ struct_member_init_list (A) ::= struct_member_init_list(B) COMMA struct_member_i
      A = B;
 }
 struct_member_init_list (A) ::= struct_member_init(B). {
-        A = pParser->createNode<yal::frontend::STExprStructInit::MemberInitList>();
+        A = pParser->createVector<const yal::frontend::STStructMemberInit*>();
         A->push_back(B);
 }
 

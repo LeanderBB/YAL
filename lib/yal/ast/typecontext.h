@@ -22,7 +22,7 @@
 #include <string>
 #include "yal/ast/type.h"
 #include "yal/util/stringref.h"
-#include "yal/util/allocatorstack.h"
+#include "yal/util/allocator/allocatorstack.h"
 namespace yal {
 
     class Type;
