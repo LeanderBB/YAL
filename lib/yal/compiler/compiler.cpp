@@ -59,7 +59,16 @@ namespace yal {
             return nullptr;
         }
 
-        StageParser stageParser(*this, *sourceItem);
+        yal::frontend::Module* module =
+                m_moduleManager.createNew(sourceItem->getPath(), source);
+        if (module == nullptr) {
+            m_log.error("Failed to create module with name '%'.\n",
+                        sourceItem->getPath());
+            return nullptr;
+        }
+
+
+        StageParser stageParser(*this, *module, *sourceItem);
 
         if (!stageParser.execute()) {
             return nullptr;
@@ -70,13 +79,6 @@ namespace yal {
             return nullptr;
         }
 
-        yal::frontend::Module* module =
-                m_moduleManager.createNew(sourceItem->getPath(), source);
-        if (module == nullptr) {
-            m_log.error("Failed to create module with name '%'.\n",
-                        sourceItem->getPath());
-            return nullptr;
-        }
 
         // Run Decl / Type Resolve
         {

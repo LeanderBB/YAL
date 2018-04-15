@@ -22,6 +22,7 @@
 #include "yal/io/sourcemanager.h"
 #include "yal/ast/astcontext.h"
 #include "yal/ast/typecontext.h"
+#include "yal/frontend/parser/stcontext.h"
 #include "yal/util/stringref.h"
 #include <string>
 
@@ -50,6 +51,10 @@ namespace yal::frontend {
 
         ASTContext& getASTContext() {
             return m_astContext;
+        }
+
+        STContext& getSTContext() {
+            return m_stcontext;
         }
 
         const DeclModule* getDeclNode() const {
@@ -94,6 +99,7 @@ namespace yal::frontend {
         ModuleManager& m_manager;
         const StringRef m_name;
         ASTContext m_astContext;
+        STContext m_stcontext;
         TypeContext m_typeContext;
         DeclModule* m_rootNode;
     };

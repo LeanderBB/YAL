@@ -19,13 +19,14 @@
 
 #include "yal/compiler/stages/stageparser.h"
 #include "yal/compiler/compiler.h"
-
+#include "yal/frontend/module.h"
 namespace yal {
 
     StageParser::StageParser(Compiler& compiler,
-                             SourceItem& item):
-     m_lexer(item.getByteStream()),
-     m_parser(m_lexer, compiler.getErrorReporter(), item){
+                             frontend::Module& module,
+                             SourceItem &srcItem):
+     m_lexer(srcItem.getByteStream()),
+     m_parser(m_lexer, module.getSTContext(), compiler.getErrorReporter(), srcItem){
 
     }
 

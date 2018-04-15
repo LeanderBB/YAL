@@ -26,12 +26,15 @@ namespace yal {
 
     class Compiler;
     class SourceItem;
-
+    namespace frontend {
+        class Module;
+    }
     class StageParser {
     public:
 
         StageParser(Compiler& compiler,
-                    SourceItem& item);
+                    frontend::Module& module,
+                    SourceItem& srcItem);
 
         bool execute();
 

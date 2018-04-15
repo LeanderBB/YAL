@@ -18,11 +18,13 @@
  */
 
 #include "yal/frontend/parser/stcontext.h"
+#include "yal/frontend/parser/stdeclmodule.h"
 
-namespace yal {
+namespace yal::frontend {
 
-    STContext::STContext() {
-
+    STContext::STContext():
+        m_allocator(4096) {
+        m_declModule = m_allocator.construct<STDeclModule>();
     }
 
 }

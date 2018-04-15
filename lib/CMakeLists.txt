@@ -200,6 +200,8 @@ set(YAL_SOURCES
     yal/frontend/parser/sttype.cpp
     yal/frontend/parser/errorparser.cpp
     yal/frontend/parser/errorparser.h
+    yal/frontend/parser/stcontext.cpp
+    yal/frontend/parser/stcontext.h
 
     yal/frontend/module.h
     yal/frontend/module.cpp

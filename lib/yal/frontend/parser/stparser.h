@@ -20,7 +20,7 @@
 #pragma once
 
 #include "yal/io/sourcemanager.h"
-#include "yal/util/allocatorstack.h"
+#include "yal/frontend/parser/stcontext.h"
 #include <memory>
 
 
@@ -32,7 +32,6 @@ namespace yal {
 namespace yal::frontend {
 
     class Lexer;
-    class STDeclModule;
     struct TokenInfo;
 
     class STParser {
@@ -41,11 +40,12 @@ namespace yal::frontend {
         static void OnParseError(STParser& parser);
 
         STParser(Lexer& lexer,
+                 STContext& stcontext,
                  ErrorReporter& reporter,
                  SourceItem& sourceItem);
 
         STDeclModule* getDeclModule() const {
-            return m_declModule;
+            return m_stcontext.getDeclModule();
         }
 
         bool parse();
@@ -56,18 +56,17 @@ namespace yal::frontend {
 
         template <typename T, typename... ARGS>
         T* createNode(ARGS&& ...args) {
-            return m_allocator.construct<T>(std::forward<ARGS>(args)...);
+            return m_stcontext.create<T>(std::forward<ARGS>(args)...);
         }
 
         SourceManager::Handle getSourceHandle() const;
 
     private:
-        AllocatorStack m_allocator;
         std::unique_ptr<void, void(*)(void*)> m_parserImpl;
+        STContext& m_stcontext;
         Lexer& m_lexer;
         ErrorReporter& m_errorReporter;
         SourceItem& m_sourceItem;
-        STDeclModule* m_declModule;
     };
 
     SourceInfo CreateSourceInfo(const TokenInfo& start,

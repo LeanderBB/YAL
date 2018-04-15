@@ -19,12 +19,32 @@
 
 #pragma once
 
-namespace yal {
+#include "yal/yal.h"
+#include "yal/util/allocatorstack.h"
 
-class STContext
-{
-public:
-    STContext();
-};
+namespace yal::frontend {
+
+    class STDeclModule;
+
+    class STContext {
+    public:
+
+        STContext();
+
+        YAL_NO_COPY_CLASS(STContext);
+
+        template <typename T, typename... ARGS>
+        T* create(ARGS&& ...args) {
+            return m_allocator.construct<T>(std::forward<ARGS>(args)...);
+        }
+
+        STDeclModule* getDeclModule() const {
+            return m_declModule;
+        }
+
+    private:
+        AllocatorStack m_allocator;
+        STDeclModule* m_declModule;
+    };
 
 }

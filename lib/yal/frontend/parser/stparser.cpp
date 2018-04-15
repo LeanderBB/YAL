@@ -160,20 +160,17 @@ namespace yal::frontend {
     }
 
     STParser::STParser(Lexer& lexer,
+                       STContext& stcontext,
                        ErrorReporter &reporter,
                        SourceItem& sourceItem):
-        m_allocator(4096),
         m_parserImpl(nullptr, ParserDtor),
+        m_stcontext(stcontext),
         m_lexer(lexer),
         m_errorReporter(reporter),
-        m_sourceItem(sourceItem),
-        m_declModule(nullptr){
-
+        m_sourceItem(sourceItem){
         void*(*fnAlloc)(size_t) = ::malloc;
         void* ptr = YALSTParserAlloc(fnAlloc);
         m_parserImpl.reset(ptr);
-
-        m_declModule = m_allocator.construct<STDeclModule>();
     }
 
 
