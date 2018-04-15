@@ -119,8 +119,6 @@ set(YAL_SOURCES
     yal/compiler/stages/stagesizecalc.h
     yal/compiler/stages/stageexprlistbreakdown.h
     yal/compiler/stages/stageexprlistbreakdown.cpp
-    yal/compiler/stages/stageparser.h
-    yal/compiler/stages/stageparser.cpp
 
     yal/error/error.h
     yal/error/error.cpp
@@ -209,6 +207,19 @@ set(YAL_SOURCES
     yal/frontend/modulemanager.cpp
 
     yal/frontend/types/operators.h
+    yal/frontend/types/type.h
+    yal/frontend/types/type.cpp
+    yal/frontend/types/typelist.def
+    yal/frontend/types/typebuiltin.cpp
+    yal/frontend/types/typebuiltin.h
+    yal/frontend/types/typecontext.cpp
+    yal/frontend/types/typecontext.h
+    yal/frontend/types/typedecl.cpp
+    yal/frontend/types/typedecl.h
+
+
+    yal/frontend/passes/parser/passparser.h
+    yal/frontend/passes/parser/passparser.cpp
 
     yal/transpiler/transpiler.h
     yal/transpiler/c/transpilerc.h

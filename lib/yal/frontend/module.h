@@ -27,6 +27,7 @@
 #include <string>
 
 namespace yal::frontend {
+
     class ModuleManager;
     class Module {
     public:

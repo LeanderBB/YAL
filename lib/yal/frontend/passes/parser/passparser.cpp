@@ -17,26 +17,23 @@
  *  License along with YAL. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "yal/compiler/stages/stageparser.h"
+#include "yal/frontend/passes/parser/passparser.h"
 #include "yal/compiler/compiler.h"
 #include "yal/frontend/module.h"
-namespace yal {
+#include "yal/error/errorreporter.h"
+namespace yal::frontend {
 
-    StageParser::StageParser(Compiler& compiler,
-                             frontend::Module& module,
-                             SourceItem &srcItem):
-     m_lexer(srcItem.getByteStream()),
-     m_parser(m_lexer, module.getSTContext(), compiler.getErrorReporter(), srcItem){
+    PassParser::PassParser(ErrorReporter& errReporter,
+                           Module& module,
+                           SourceItem& item):
+    m_lexer(item.getByteStream()),
+    m_parser(m_lexer, module.getSTContext(), errReporter, item) {
 
     }
 
     bool
-    StageParser::execute() {
+    PassParser::execute() {
         return m_parser.parse();
     }
 
-    const frontend::STDeclModule*
-    StageParser::getSyntaxTree() const {
-        return m_parser.getDeclModule();
-    }
 }

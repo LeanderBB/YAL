@@ -29,7 +29,7 @@
 #include "yal/compiler/stages/stagemovecheck.h"
 #include "yal/compiler/stages/stagesizecalc.h"
 #include "yal/compiler/stages/stageexprlistbreakdown.h"
-#include "yal/compiler/stages/stageparser.h"
+#include "yal/frontend/passes/parser/passparser.h"
 #include "yal/ast/declmodule.h"
 #include "yal/io/memorystream.h"
 
@@ -68,7 +68,7 @@ namespace yal {
         }
 
 
-        StageParser stageParser(*this, *module, *sourceItem);
+        frontend::PassParser stageParser(this->getErrorReporter(), *module, *sourceItem);
 
         if (!stageParser.execute()) {
             return nullptr;

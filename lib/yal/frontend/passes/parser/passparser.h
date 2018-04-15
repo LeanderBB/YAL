@@ -23,25 +23,26 @@
 #include "yal/frontend/parser/stparser.h"
 
 namespace yal {
-
-    class Compiler;
+    class ErrorReporter;
     class SourceItem;
-    namespace frontend {
-        class Module;
-    }
-    class StageParser {
-    public:
+}
 
-        StageParser(Compiler& compiler,
-                    frontend::Module& module,
-                    SourceItem& srcItem);
+namespace yal::frontend {
+
+    class Module;
+
+    class PassParser
+    {
+    public:
+        PassParser(ErrorReporter& errReporter,
+                   Module& module,
+                   SourceItem& item);
 
         bool execute();
 
-        const frontend::STDeclModule* getSyntaxTree() const;
-
     private:
-        frontend::Lexer m_lexer;
-        frontend::STParser m_parser;
+        Lexer m_lexer;
+        STParser m_parser;
     };
+
 }
