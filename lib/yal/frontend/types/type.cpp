@@ -20,7 +20,7 @@
 #include "yal/frontend/types/type.h"
 #include "yal/frontend/module.h"
 #include "yal/util/stringref.h"
-#include "yal/frontend/types/typedecl.h"
+#include "yal/frontend/types/typefunction.h"
 namespace yal::frontend {
 
     size_t
@@ -68,12 +68,12 @@ namespace yal::frontend {
 
     bool
     Type::isFunction() const {
-        return m_kind == Kind::TypeDecl && m_function == 1;
+        return m_kind == Kind::TypeFunction && m_function == 1;
     }
 
     bool
     Type::isTypeFunction() const {
-        return m_kind == Kind::TypeDecl && m_typefunction == 1;
+        return m_kind == Kind::TypeFunction && m_typefunction == 1;
     }
 
     bool
@@ -83,7 +83,7 @@ namespace yal::frontend {
 
     bool
     Type::isStruct() const {
-        return m_kind == Kind::TypeDecl && m_struct == 1;
+        return m_kind == Kind::TypeStruct && m_struct == 1;
     }
 
     bool
@@ -127,7 +127,7 @@ namespace yal::frontend {
         return m_functionTargetable == 1;
     }
 
-    const TypeDecl*
+    const TypeFunction*
     Type::getFunctionWithName(const StringRef name) const {
         std::string functionName = m_identifier.getAsString().toString();
         functionName +="::";
@@ -136,14 +136,14 @@ namespace yal::frontend {
         return it != m_typeFunctions.end() ? it->second : nullptr;
     }
 
-    const TypeDecl*
+    const TypeFunction*
     Type::getFunctionWithIdentifier(const Identifier& id) const {
         auto it = m_typeFunctions.find(id.getAsString());
         return it != m_typeFunctions.end() ? it->second : nullptr;
     }
 
     void
-    Type::addFunction(TypeDecl* function) {
+    Type::addFunction(TypeFunction* function) {
         YAL_ASSERT(function->isTypeFunction());
         YAL_ASSERT_MESSAGE(m_typeFunctions.find(function->getIdentifier().getAsString()) == m_typeFunctions.end(),
                            "Adding duplicate function to type");
@@ -158,103 +158,5 @@ namespace yal::frontend {
         } else {
             return isCastableToDetail(other);
         }
-    }
-
-    // Qualifier ------------------------------------------------------------
-
-    Qualifier:: Qualifier():
-        m_mutable(0),
-        m_reference(0),
-        m_pointer(0),
-        m_reqReplace(0),
-        m_lvalue(0){
-    }
-
-    void
-    Qualifier::setMutable() {
-        m_mutable = 1;
-    }
-
-    void
-    Qualifier::setImmutable() {
-        m_mutable = 0;
-    }
-
-    void
-    Qualifier::setReference() {
-        m_reference = 1;
-        m_pointer = 0;
-        m_lvalue = 1;
-    }
-
-    void
-    Qualifier::setPointer() {
-        m_pointer = 1;
-        m_reference = 0;
-    }
-
-    void
-    Qualifier::setRequiresReplace(const bool v) {
-        m_reqReplace = v == true ? 1 : 0;
-    }
-
-    void
-    Qualifier::setLValue(const bool v) {
-        m_lvalue = v == true ? 1 : 0;
-    }
-
-    bool
-    Qualifier::isMutable() const {
-        return m_mutable == 1;
-    }
-
-    bool
-    Qualifier::isImmutable() const {
-        return m_mutable == 0;
-    }
-
-    bool
-    Qualifier::isReference() const {
-        return m_reference == 1;
-    }
-
-    bool
-    Qualifier::isPointer() const {
-        return m_pointer == 1;
-    }
-
-    bool
-    Qualifier::requiresReplace() const {
-        return m_reqReplace == 1;
-    }
-
-    bool
-    Qualifier::isLValue() const {
-        return m_lvalue == 1;
-    }
-
-    bool
-    Qualifier::isRValue() const {
-        return m_lvalue == 0;
-    }
-
-    QualType
-    QualType::Create(const Qualifier& qualifier,
-                     const Type* type) {
-        QualType qt;
-        qt.m_qualifier = qualifier;
-        qt.m_type = type;
-        return qt;
-    }
-
-    bool
-    QualType::isTriviallyCopiable() const {
-        YAL_ASSERT(m_type != nullptr);
-        return m_type->isTriviallyCopiable();
-    }
-
-    bool
-    QualType::isMovedType() const {
-        return !isReference() && !isTriviallyCopiable();
     }
 }

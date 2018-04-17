@@ -36,7 +36,7 @@ TEST_F(CompileFixture, struct_size_2_integer) {
     if (module != nullptr) {
 
         const yal::Type* structType
-                = module->getTypeContext().getByIdentifier(yal::Identifier("Foo", *module));
+                = module->getAstTypeContext().getByIdentifier(yal::Identifier("Foo", *module));
         EXPECT_NE(structType, nullptr);
         if (structType != nullptr) {
             EXPECT_EQ(structType->getSizeBytes(), 8);
@@ -63,7 +63,7 @@ TEST_F(CompileFixture, struct_size_4i8_integer) {
     if (module != nullptr) {
 
         const yal::Type* structType
-                = module->getTypeContext().getByIdentifier(yal::Identifier("Foo", *module));
+                = module->getAstTypeContext().getByIdentifier(yal::Identifier("Foo", *module));
         EXPECT_NE(structType, nullptr);
         if (structType != nullptr) {
             EXPECT_EQ(structType->getSizeBytes(), 8);
@@ -86,7 +86,7 @@ TEST_F(CompileFixture, struct_size_ref_and_integer) {
     if (module != nullptr) {
 
         const yal::Type* structType
-                = module->getTypeContext().getByIdentifier(yal::Identifier("Foo", *module));
+                = module->getAstTypeContext().getByIdentifier(yal::Identifier("Foo", *module));
         EXPECT_NE(structType, nullptr);
         if (structType != nullptr) {
             EXPECT_EQ(structType->getSizeBytes(), 16);
@@ -109,7 +109,7 @@ TEST_F(CompileFixture, struct_size_integer_and_ref) {
     if (module != nullptr) {
 
         const yal::Type* structType
-                = module->getTypeContext().getByIdentifier(yal::Identifier("Foo", *module));
+                = module->getAstTypeContext().getByIdentifier(yal::Identifier("Foo", *module));
         EXPECT_NE(structType, nullptr);
         if (structType != nullptr) {
             EXPECT_EQ(structType->getSizeBytes(), 16);

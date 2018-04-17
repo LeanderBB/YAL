@@ -17,34 +17,29 @@
  *  License along with YAL. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#pragma once
-
-#include "yal/error/error.h"
-#include "yal/io/sourcemanager.h"
-
-namespace yal {
-    class SourceItem;
-}
+#include "yal/frontend/passes/decl/passdecl.h"
+#include "yal/error/errorreporter.h"
+#include "yal/frontend/module.h"
+#include "yal/frontend/parser/stdeclmodule.h"
+#include "yal/frontend/passes/passes.h"
+#include "yal/frontend/passes/decl/stpredeclvisitor.h"
 
 namespace yal::frontend {
-    struct TokenInfo;
 
-    class ErrorLexer final : public Error {
-    public:
+    PassDecl::PassDecl() {
 
-        static const ErrorCode kCode;
+    }
 
-        ErrorLexer(const TokenInfo& tokenInfo,
-                   const SourceManager::Handle srcHandle);
 
-        StringRef getErrorName() const final override;
+    bool
+    PassDecl::execute(PassOptions &options) {
+        // Pre-declare root scope types
+        STPreDeclVisitor preDeclVisitor(options.errReporter, options.module);
+        const STDeclModule* stDeclModule =
+                options.module.getSTContext().getDeclModule();
+        stDeclModule->acceptVisitor(preDeclVisitor);
 
-        void printDetail(ErrorPrinter& printer) const final override;
-
-        const SourceInfo& getSourceInfo() const final override;
-
-    private:
-        SourceInfo m_srcInfo;
-    };
+        return !options.errReporter.hasErrors();
+    }
 
 }

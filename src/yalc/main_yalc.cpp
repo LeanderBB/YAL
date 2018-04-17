@@ -18,21 +18,18 @@
  */
 #include <yal/yal.h>
 
-#include <yal/frontend/modulemanager.h>
-#include <yal/ast/astprinter.h>
-#include <yal/ast/astcontext.h>
-#include <yal/compiler/compiler.h>
+
 #include <yal/error/errorprinter.h>
 #include <yal/error/errorreporter.h>
-#include <yal/frontend/lexer/lexer.h>
-#include <yal/frontend/lexer/tokens.h>
+#include <yal/frontend/passes/passes.h>
+#include <yal/frontend/passes/parser/passparser.h>
+#include <yal/frontend/passes/decl/passdecl.h>
+#include <yal/frontend/modulemanager.h>
 #include <yal/io/filestream.h>
 #include <yal/io/memorystream.h>
 #include <yal/io/sourcemanager.h>
 #include <yal/io/sourcemanager.h>
 #include <yal/io/sourceitems.h>
-#include <yal/parser/parser.h>
-#include <yal/transpiler/c/transpilerc.h>
 #include <yal/util/log.h>
 
 #include <string>
@@ -55,12 +52,12 @@ int main(const int argc,
     stdoutStream.open(yal::FileStream::StdStream::Out);
     yal::Log log(stdoutStream);
 
-   auto sourceStream = std::make_unique<yal::SourceItemFile>();
+    auto sourceStream = std::make_unique<yal::SourceItemFile>();
 
-   if (!sourceStream->open(stream, (argc < 2) ? "stdin" : argv[1])) {
-       std::cerr << "Failed to create source stream" << std::endl;
-       return EXIT_FAILURE;
-   }
+    if (!sourceStream->open(stream, (argc < 2) ? "stdin" : argv[1])) {
+        std::cerr << "Failed to create source stream" << std::endl;
+        return EXIT_FAILURE;
+    }
 
     yal::SourceManager sourceManager;
     yal::frontend::ModuleManager moduleManager;
@@ -68,17 +65,46 @@ int main(const int argc,
 
     auto handle = sourceManager.add(std::move(sourceStream));
 
-    yal::Compiler compiler(log, errorReporter, sourceManager, moduleManager);
+    yal::SourceItem* sourceItem = sourceManager.getItem(handle);
+    if (sourceItem == nullptr) {
+        log.error("Could not locate item from source handle.\n");
+        return EXIT_FAILURE;
+    }
 
-    yal::frontend::Module* module = compiler.compile(handle);
+    yal::frontend::Module* module =
+            moduleManager.createNew(sourceItem->getPath(), handle);
+    if (module == nullptr) {
+        log.error("Failed to create module with name '%'.\n",
+                  sourceItem->getPath());
+        return EXIT_FAILURE;
+    }
 
+    yal::frontend::PassOptions passOptions(errorReporter,
+                                       sourceManager,
+                                       *module);
+
+    yal::frontend::PassParser passParser(errorReporter, *module, *sourceItem);
+    yal::frontend::PassDecl passDecl;
+
+    if (!passParser.execute(passOptions)) {
+        goto exit_print;
+    }
+
+    if (!passDecl.execute(passOptions)) {
+        goto exit_print;
+    }
+
+
+
+
+exit_print:
     if (!errorReporter.empty()) {
         yal::ErrorPrinter errPrinter(stdoutStream, sourceManager);
         errPrinter.enableColorCodes(true);
         errPrinter.print(errorReporter);
     }
 
-    if (module != nullptr) {
+    /* if (module != nullptr) {
         yal::AstPrinter astPrinter(stdoutStream);
         astPrinter.visit(*module->getDeclNode());
 
@@ -89,7 +115,7 @@ int main(const int argc,
             transpiler.transpile(options, log, *module, sourceManager);
         }
 
-    }
+    }*/
 
-    return module != nullptr ? EXIT_SUCCESS : EXIT_FAILURE;
+    return EXIT_SUCCESS;
 }

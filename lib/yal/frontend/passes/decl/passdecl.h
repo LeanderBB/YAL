@@ -17,34 +17,22 @@
  *  License along with YAL. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#pragma once
-
-#include "yal/error/error.h"
-#include "yal/io/sourcemanager.h"
-
 namespace yal {
-    class SourceItem;
+    class ErrorReporter;
 }
 
 namespace yal::frontend {
-    struct TokenInfo;
 
-    class ErrorLexer final : public Error {
+    class Module;
+    struct PassOptions;
+    class PassDecl
+    {
     public:
+        PassDecl();
 
-        static const ErrorCode kCode;
-
-        ErrorLexer(const TokenInfo& tokenInfo,
-                   const SourceManager::Handle srcHandle);
-
-        StringRef getErrorName() const final override;
-
-        void printDetail(ErrorPrinter& printer) const final override;
-
-        const SourceInfo& getSourceInfo() const final override;
+        bool execute(PassOptions& options);
 
     private:
-        SourceInfo m_srcInfo;
     };
 
 }

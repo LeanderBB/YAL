@@ -18,6 +18,7 @@
  */
 
 #include "yal/frontend/lexer/errorlexer.h"
+#include "yal/error/errorprinter.h"
 #include "yal/frontend/lexer/tokens.h"
 #include "yal/util/format.h"
 
@@ -50,8 +51,8 @@ namespace yal::frontend {
     }
 
     void
-    ErrorLexer::printDetail(Formater& formater) const {
-        Format(formater, "Unknown token\n");
+    ErrorLexer::printDetail(ErrorPrinter &printer) const {
+        FormatAppend(printer.getFormater(), "Unknown token\n");
     }
 
     const SourceInfo&

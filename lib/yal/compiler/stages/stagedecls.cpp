@@ -68,7 +68,7 @@ namespace yal {
     Type*
     StageDecls::resolveType(const TokenInfo &ti) {
         Identifier identifier(ti.tokenStr, m_module);
-        TypeContext& typeCtx = m_module.getTypeContext();
+        TypeContext& typeCtx = m_module.getAstTypeContext();
         Type* result = typeCtx.getByIdentifier(identifier);
 
         if (result == nullptr) {
@@ -122,7 +122,7 @@ namespace yal {
         }
         m_activeScope->addDecl(decl);
         pushDeclScope(decl->getFunctionDeclScope());
-        m_module.getTypeContext().addType(decl);
+        m_module.getAstTypeContext().addType(decl);
         return true;
     }
 
@@ -166,7 +166,7 @@ the same identifier declared here:\n",
 
         m_activeScope->addDecl(decl);
         pushDeclScope(decl->getFunctionDeclScope());
-        m_module.getTypeContext().addType(decl);
+        m_module.getAstTypeContext().addType(decl);
         return true;
     }
 
@@ -179,7 +179,7 @@ the same identifier declared here:\n",
         }
         m_activeScope->addDecl(decl);
         pushDeclScope(decl->getStructDeclScope());
-        m_module.getTypeContext().addType(decl);
+        m_module.getAstTypeContext().addType(decl);
         return true;
     }
 

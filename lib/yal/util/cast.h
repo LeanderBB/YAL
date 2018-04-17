@@ -27,6 +27,8 @@ namespace yal
     template <typename A>
     constexpr typename cast_typeid<A>::type get_typeid();
 
+    template <typename A>
+    typename cast_typeid<A>::type get_typeid_instance(const A& type);
 
 
     template <typename A, typename B,
@@ -40,7 +42,7 @@ namespace yal
         static_assert(std::is_same<typename cast_typeid<A>::type,typename cast_typeid<B>::type>::value,
                       "dyn_cast only works for classes with same cast type");
 
-        if (get_typeid<A>() == get_typeid(*other)) {
+        if (yal::get_typeid<A>() == yal::get_typeid_instance<B>(*other)) {
             return static_cast<const A*>(other);
         }
         return nullptr;

@@ -57,26 +57,28 @@ namespace yal {
                 const char* errorTypeText = getErrorTypeString(error);
                 Format(m_formater,
                        m_useColorCodes
-                       ? YAL_CLRCD_BEGIN YAL_CLRCD_BOLD \
-                         YAL_CLRCD_END "[%]" YAL_CLRCD_RESET " % %\n"
-                       :"[%] % %\n",
-                       FormatHex<ErrorCode>(error.getCode()),
+                       ? "% " YAL_CLRCD_BEGIN YAL_CLRCD_BOLD \
+                         YAL_CLRCD_END "[%]" YAL_CLRCD_RESET " %\n"
+                       :"% [%] %\n",
                        errorTypeText,
+                       FormatHex<ErrorCode>(error.getCode()),
                        error.getErrorName());
                 FormatWrite(m_errStream, m_formater);
             }
 
+            FormatReset(m_formater);
             const SourceInfo& srcInfo = error.getSourceInfo();
             SourceItem* item =  m_srcManager.getItem(srcInfo.handle);
             if (item != nullptr) {
                 printSourceInfo(m_errStream, *item, srcInfo);
             }
 
-            Format(m_formater, "  |> %", error);
+            Format(m_formater, "> ");
+            error.printDetail(*this);
+            FormatWriteWithLinePrefix(m_errStream, m_formater, "  | ");
         };
 
         reporter.forEarchError(callable);
-        FormatWrite(m_errStream, m_formater);
     }
 
     void
@@ -88,40 +90,11 @@ namespace yal {
     ErrorPrinter::printSourceInfo(ByteStream& output,
                                   SourceItem& item,
                                   const SourceInfo& srcInfo) {
-
-        MemoryStream& stream = item.getByteStream();
-        if (stream.isSeekable())
-        {
-            // print item location
-            Format(m_formater,"  | %:%:%\n  | \n",
-                   item.getPath(),
-                   srcInfo.begin.line,
-                   srcInfo.begin.column);
-            FormatWrite(output, m_formater);
-
-            // print line info
-            stream.seek(0);
-            for(size_t i= 1; i < srcInfo.begin.line;++i) {
-                stream.skipLine();
-            }
-            const std::string line = stream.readLine();
-            Format(m_formater,"  | %\n", line.c_str());
-            FormatWrite(output, m_formater);
-            if (srcInfo.begin.line != srcInfo.end.line) {
-                Format(m_formater,
-                       m_useColorCodes
-                       ? "  | " YAL_CLRCD_BEGIN YAL_CLRCD_BOLD YAL_CLRCD_END "%" YAL_CLRCD_RESET
-                       : "  | %",
-                       FormatIdent<const char*>(srcInfo.begin.column-1,' ',"^^^^\n"));
-            } else {
-                Format(m_formater,
-                       m_useColorCodes
-                       ? "  | " YAL_CLRCD_BEGIN YAL_CLRCD_BOLD YAL_CLRCD_END "%%" YAL_CLRCD_RESET
-                       : "  | %%",
-                       FormatIdent<const char*>(srcInfo.begin.column-1,' ',"^"),
-                       FormatIdent<const char*>(srcInfo.end.column-srcInfo.begin.column,'^',"\n"));
-            }
-            FormatWrite(output, m_formater);
+        const size_t bytesWritten = printSourceInfo(m_formater,
+                                                    item,
+                                                    srcInfo);
+        if (bytesWritten != 0) {
+            FormatWriteWithLinePrefix(output, m_formater, "  | ");
         }
     }
 
@@ -148,5 +121,50 @@ namespace yal {
         }
         YAL_ASSERT_MESSAGE(false, "Unknown error type");
         return "unknown: ";
+    }
+
+
+    size_t
+    ErrorPrinter::printSourceInfo(Formater& formater,
+                                  SourceItem& item,
+                                  const SourceInfo& srcInfo)
+    {
+        size_t bytesWritten =0;
+        MemoryStream& stream = item.getByteStream();
+        if (stream.isSeekable())
+        {
+            // print item location
+            bytesWritten += FormatAppend(formater,"%:%:%\n\n",
+                                         item.getPath(),
+                                         srcInfo.begin.line,
+                                         srcInfo.begin.column);
+
+            // print line info
+            stream.seek(0);
+            for(size_t i= 1; i < srcInfo.begin.line;++i) {
+                stream.skipLine();
+            }
+            const std::string line = stream.readLine();
+            bytesWritten += FormatAppend(formater,"%\n", line.c_str());
+
+            if (srcInfo.begin.line != srcInfo.end.line) {
+                bytesWritten +=  FormatAppend(formater,
+                                              m_useColorCodes
+                                              ? YAL_CLRCD_BEGIN YAL_CLRCD_BOLD YAL_CLRCD_END "%%" YAL_CLRCD_RESET
+                                              : "%%",
+                                              FormatIdent<const char*>(srcInfo.begin.column-1,' ',"^"),
+                                              FormatIdent<const char*>(line.size() - srcInfo.begin.column,'^',"\n"));
+            } else {
+                bytesWritten += FormatAppend(formater,
+                                             m_useColorCodes
+                                             ? YAL_CLRCD_BEGIN YAL_CLRCD_BOLD YAL_CLRCD_END "%%" YAL_CLRCD_RESET
+                                             : "%%",
+                                             FormatIdent<const char*>(srcInfo.begin.column-1,' ',"^"),
+                                             FormatIdent<const char*>(srcInfo.end.column-srcInfo.begin.column,'^',"\n"));
+            }
+            FormatAppend(formater, "\n");
+        }
+
+        return bytesWritten;
     }
 }

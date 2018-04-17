@@ -27,11 +27,12 @@ namespace yal {
     struct Formater;
     struct FormatTypeArgs;
     struct SourceInfo;
+    class ErrorPrinter;
 
     typedef uint32_t ErrorCode;
 
     constexpr ErrorCode MakeErrorCode(const uint16_t category,
-                                     const uint16_t errorType) {
+                                      const uint16_t errorType) {
         return (static_cast<uint32_t>(errorType) << 16)
                 | static_cast<uint32_t>(category);
     }
@@ -45,7 +46,7 @@ namespace yal {
 
         virtual StringRef getErrorName() const = 0;
 
-        virtual void printDetail(Formater& formater) const = 0;
+        virtual void printDetail(ErrorPrinter& printer) const = 0;
 
         virtual const SourceInfo& getSourceInfo() const = 0;
 
@@ -83,11 +84,5 @@ namespace yal {
         unsigned m_isSuggestion:1;
         unsigned m_isFatal: 1;
     };
-
-    size_t FormatType(FormatTypeArgs &args,
-                      const Error *error);
-
-    size_t FormatType(FormatTypeArgs& args,
-                      const Error& error);
 
 }

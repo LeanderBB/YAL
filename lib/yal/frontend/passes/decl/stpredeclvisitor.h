@@ -19,32 +19,34 @@
 
 #pragma once
 
-#include "yal/error/error.h"
-#include "yal/io/sourcemanager.h"
+#include "yal/frontend/parser/syntaxtreevisitor.h"
 
 namespace yal {
-    class SourceItem;
+    class ErrorReporter;
 }
 
 namespace yal::frontend {
-    struct TokenInfo;
 
-    class ErrorLexer final : public Error {
+    class STDeclFunction;
+    class STDeclStruct;
+    class STDeclModule;
+    class Module;
+
+    class STPreDeclVisitor final : public SyntaxTreeVisitor
+    {
     public:
+        STPreDeclVisitor(ErrorReporter& errReporter,
+                         Module& module);
 
-        static const ErrorCode kCode;
+        void visit(const STDeclFunction& declFunction) override final;
 
-        ErrorLexer(const TokenInfo& tokenInfo,
-                   const SourceManager::Handle srcHandle);
+        void visit(const STDeclStruct& declStruct) override final;
 
-        StringRef getErrorName() const final override;
-
-        void printDetail(ErrorPrinter& printer) const final override;
-
-        const SourceInfo& getSourceInfo() const final override;
+        void visit(const STDeclModule& declModule) override final;
 
     private:
-        SourceInfo m_srcInfo;
+        ErrorReporter& m_errReporter;
+        Module& m_module;
     };
 
 }

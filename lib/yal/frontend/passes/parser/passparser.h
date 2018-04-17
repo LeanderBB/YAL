@@ -30,7 +30,7 @@ namespace yal {
 namespace yal::frontend {
 
     class Module;
-
+    struct PassOptions;
     class PassParser
     {
     public:
@@ -38,7 +38,7 @@ namespace yal::frontend {
                    Module& module,
                    SourceItem& item);
 
-        bool execute();
+        bool execute(PassOptions&);
 
     private:
         Lexer m_lexer;

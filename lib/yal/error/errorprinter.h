@@ -47,10 +47,22 @@ namespace yal {
             return m_srcManager;
         }
 
+        Formater& getFormater() {
+            return m_formater;
+        }
+
         void print(const ErrorReporter& reporter);
 
         void enableColorCodes(const bool value);
 
+        bool areColorCodesEnabled() const {
+            return m_useColorCodes == 1;
+        }
+
+        size_t printSourceInfo(Formater& formater,
+                               SourceItem& item,
+                               const SourceInfo& srcInfo);
+    private:
         void printSourceInfo(ByteStream& output,
                              SourceItem &item,
                              const SourceInfo& srcInfo);
@@ -66,5 +78,7 @@ namespace yal {
         SourceManager& m_srcManager;
         unsigned m_useColorCodes:1;
     };
+
+
 
 }

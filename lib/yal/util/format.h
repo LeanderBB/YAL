@@ -159,4 +159,11 @@ namespace yal{
     void FormatWrite(ByteStream& stream,
                      const Formater& formater);
 
+    void FormatWriteWithLinePrefix(ByteStream& stream,
+                                   const Formater& formater,
+                                   const StringRef linePrefix);
+
+    inline void FormatReset(Formater& formater) {
+        formater.bufferPos = 0;
+    }
 }

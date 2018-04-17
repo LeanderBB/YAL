@@ -17,30 +17,27 @@
  *  License along with YAL. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "yal/frontend/types/typedecl.h"
-#include "yal/ast/declbase.h"
-#include "yal/ast/decltypefunction.h"
-#include "yal/ast/declstruct.h"
-#include "yal/ast/declfunction.h"
+#include "yal/frontend/types/qualtype.h"
 
 namespace yal::frontend {
 
-    TypeDecl::TypeDecl(yal::DeclFunction* decl):
-        Type(&decl->getModule(), Kind::TypeDecl, Identifier(decl->getName(), decl->getModule())),
-        m_decl(decl) {
-        m_function = 1;
+    QualType
+    QualType::Create(const Qualifier& qualifier,
+                     const Type* type) {
+        QualType qt;
+        qt.m_qualifier = qualifier;
+        qt.m_type = type;
+        return qt;
     }
 
-    TypeDecl::TypeDecl(yal::DeclTypeFunction* decl):
-        Type(&decl->getModule(), Kind::TypeDecl, Identifier(decl->getName(), decl->getModule())),
-        m_decl(decl) {
-        m_typefunction = 1;
+    bool
+    QualType::isTriviallyCopiable() const {
+        YAL_ASSERT(m_type != nullptr);
+        return m_type->isTriviallyCopiable();
     }
 
-    TypeDecl::TypeDecl(yal::DeclStruct* decl):
-        Type(&decl->getModule(), Kind::TypeDecl, Identifier(decl->getName(), decl->getModule())),
-        m_decl(decl) {
-        m_struct = 1;
-        m_functionTargetable = 1;
+    bool
+    QualType::isMovedType() const {
+        return !isReference() && !isTriviallyCopiable();
     }
 }

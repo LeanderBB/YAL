@@ -40,6 +40,8 @@ namespace yal::frontend {
 
         bool hasType(const Identifier& identifier) const;
 
+        bool hasType (const Type& type) const;
+
         const Type* getByIdentifier(const Identifier& identifier) const;
 
         Type* getByIdentifier(const Identifier& identifier) {
@@ -90,6 +92,14 @@ namespace yal::frontend {
         const TypeBuiltin* getTypeBuiltinFloat64() const {
             return m_typeDouble;
         }
+
+        template<typename T,typename... ARGS>
+        T* allocateType(ARGS&& ...args) {
+            T* newType = m_allocator.construct<T>(std::forward<ARGS>(args)...);
+            return newType;
+        }
+
+        void registerType(Type* type);
 
     private:
         const TypeBuiltin* m_typeBool;

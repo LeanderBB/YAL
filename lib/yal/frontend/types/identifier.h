@@ -32,13 +32,15 @@ namespace yal::frontend {
 
         Identifier();
 
-        Identifier(StringRef idString,
+        Identifier(const StringRef idString);
+
+        Identifier(const StringRef idString,
                    const frontend::Module& module);
 
-        Identifier(StringRef idString);
+        Identifier(const StringRef idString,
+                   const StringRef targetString,
+                   const frontend::Module& module);
 
-        Identifier(StringRef idString,
-                   const frontend::Module* module);
 
         StringRef getName() const {
             return m_name;
@@ -50,9 +52,13 @@ namespace yal::frontend {
             return m_idString;
         }
 
-        void setIdString(StringRef idString);
+        void setIdString(const StringRef idString);
 
-        void setIdString(StringRef idString,
+        void setIdString(const StringRef idString,
+                         const Module& module);
+
+        void setIdString(const StringRef idString,
+                         const StringRef targetString,
                          const Module& module);
 
         bool operator == (const Identifier& other) const;

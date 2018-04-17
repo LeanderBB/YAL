@@ -17,33 +17,37 @@
  *  License along with YAL. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#pragma once
-
-#include "yal/frontend/types/type.h"
+#include "yal/error/error.h"
 
 namespace yal {
-    class DeclBase;
-    class DeclFunction;
-    class DeclTypeFunction;
-    class DeclStruct;
+    class ErrorPrinter;
 }
 
 namespace yal::frontend {
 
-    class TypeDecl : public Type
-    {
+    class Module;
+    class Type;
+
+    class ErrorDuplicateDecl final : public Error {
     public:
-        TypeDecl(yal::DeclFunction* decl);
+        static const ErrorCode kCode;
 
-        TypeDecl(yal::DeclTypeFunction* decl);
+        ErrorDuplicateDecl(const Module& module,
+                           const Type& newType,
+                           const Type& oldType);
 
-        TypeDecl(yal::DeclStruct* decl);
+        StringRef getErrorName() const final override;
 
-        yal::DeclBase* getDecl() const {
-            return m_decl;
-        }
+        void printDetail(ErrorPrinter& printer) const final override;
+
+        const SourceInfo& getSourceInfo() const final override;
 
     private:
-        yal::DeclBase* m_decl;
+        const SourceInfo& getSourceInfoFromType(const Type& type) const;
+    private:
+        const Module& m_module;
+        const Type& m_newType;
+        const Type& m_oldType;
     };
 }
+

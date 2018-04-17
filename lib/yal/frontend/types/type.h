@@ -30,7 +30,7 @@
 namespace yal::frontend {
 
     class Module;
-    class TypeDecl;
+    class TypeFunction;
 
     class Type {
         friend class TypeContext;
@@ -80,9 +80,9 @@ namespace yal::frontend {
             return m_module;
         }
 
-        const TypeDecl* getFunctionWithIdentifier(const Identifier& id) const;
+        const TypeFunction* getFunctionWithIdentifier(const Identifier& id) const;
 
-        const TypeDecl* getFunctionWithName(const StringRef name) const;
+        const TypeFunction* getFunctionWithName(const StringRef name) const;
 
         Kind getKind() const {
             return m_kind;
@@ -101,10 +101,10 @@ namespace yal::frontend {
 
     protected:
 
-        void addFunction(TypeDecl* function);
+        void addFunction(TypeFunction* function);
 
     protected:
-        using FunctionMap = std::unordered_map<StringRef,TypeDecl*>;
+        using FunctionMap = std::unordered_map<StringRef,TypeFunction*>;
         uint64_t m_typeId;
         const Module* m_module;
         const Kind m_kind;
@@ -122,92 +122,7 @@ namespace yal::frontend {
         unsigned m_struct:1;
     };
 
-    class Qualifier {
-    public:
-        Qualifier();
 
-        void setMutable();
-        void setImmutable();
-        void setReference();
-        void setPointer();
-        void setRequiresReplace(const bool v);
-        void setLValue(const bool v);
-
-        bool isMutable() const;
-        bool isImmutable() const;
-        bool isReference() const;
-        bool isPointer() const;
-        bool requiresReplace() const;
-        bool isLValue() const;
-        bool isRValue() const;
-
-    private:
-        unsigned m_mutable:1;
-        unsigned m_reference:1;
-        unsigned m_pointer:1;
-        unsigned m_reqReplace:1;
-        unsigned m_lvalue:1;
-    };
-
-    class QualType {
-    public:
-
-        static QualType Create(const Qualifier& qualifier,
-                               const Type* type);
-
-        bool isValid() const {
-            return  m_type != nullptr;
-        }
-
-        const Qualifier& getQualifier() const {
-            return m_qualifier;
-        }
-
-        void setQualifier(const Qualifier qual) {
-            m_qualifier = qual;
-        }
-
-        const Type* getType() const {
-            return m_type;
-        }
-
-
-        bool isMutable() const {
-            return m_qualifier.isMutable();
-        }
-
-        bool isImmutable() const {
-            return m_qualifier.isImmutable();
-        }
-
-        bool isReference() const {
-            return m_qualifier.isReference();
-        }
-
-        bool isPointer() const {
-            return m_qualifier.isPointer();
-        }
-
-        bool requiresReplace() const {
-            return m_qualifier.requiresReplace();
-        }
-
-        bool isLValue() const {
-            return m_qualifier.isLValue();
-        }
-
-        bool isRValue() const {
-            return m_qualifier.isRValue();
-        }
-
-        bool isTriviallyCopiable() const;
-
-        bool isMovedType() const;
-
-    private:
-        Qualifier m_qualifier;
-        const Type* m_type = nullptr;
-    };
 }
 
 namespace yal {
@@ -218,7 +133,9 @@ namespace yal {
         typedef frontend::Type::Kind type;
     };
 
-    inline frontend::Type::Kind get_typeid(const frontend::Type& type) {
+    template<>
+    inline yal::frontend::Type::Kind
+    get_typeid_instance<yal::frontend::Type>(const yal::frontend::Type& type) {
         return type.getKind();
     }
 
@@ -230,9 +147,8 @@ namespace yal {
     }
 
 #define YAL_TYPE_MACRO(TYPE) \
-    class TYPE;\
-    template<> struct cast_typeid< frontend::TYPE >{typedef frontend::Type::Kind type;}; \
-    template<> constexpr cast_typeid< frontend::TYPE >::type get_typeid< frontend::TYPE >() {return frontend::Type::Kind::TYPE ;}
+    template<> struct cast_typeid< yal::frontend::TYPE >{typedef yal::frontend::Type::Kind type;}; \
+    template<> constexpr cast_typeid< yal::frontend::TYPE >::type get_typeid< yal::frontend::TYPE >() {return yal::frontend::Type::Kind::TYPE ;}
 #include "yal/frontend/types/typelist.def"
 #undef YAL_TYPE_MACRO
 
@@ -241,31 +157,4 @@ namespace yal {
         return FormatType(loc, value.getIdentifier());
     }
 
-    inline size_t FormatType(FormatTypeArgs& loc,
-                             const frontend::Qualifier& value) {
-        size_t bytesWritten = 0;
-        FormatTypeArgs localArg = loc;
-        if (value.isMutable()) {
-            bytesWritten += FormatType(localArg, "mut");
-            localArg = FormatTypeArgsAdvance(loc, bytesWritten);
-        }
-
-        if (value.isReference()) {
-            bytesWritten += FormatType(localArg, "&");
-            localArg = FormatTypeArgsAdvance(loc, bytesWritten);
-        }
-        bytesWritten += FormatType(localArg, " ");
-        return bytesWritten;
-    }
-
-
-    inline size_t FormatType(FormatTypeArgs& loc,
-                             const frontend::QualType& value) {
-        const size_t bytesWritten = FormatType(loc, value.getQualifier());
-        loc.ptr += bytesWritten;
-        loc.length -= bytesWritten;
-        return bytesWritten + FormatType(loc, *value.getType());
-    }
-
-    \
 }

@@ -20,7 +20,6 @@
 #include "yal/frontend/types/typecontext.h"
 #include "yal/frontend/types/typebuiltin.h"
 #include "yal/frontend/types/identifier.h"
-#include "yal/frontend/types/typedecl.h"
 
 namespace yal::frontend {
 
@@ -128,6 +127,11 @@ namespace yal::frontend {
         return it != m_types.end();
     }
 
+    bool
+    TypeContext::hasType (const Type& type) const {
+        return hasType(type.getIdentifier());
+    }
+
     const Type*
     TypeContext::getByIdentifier(const Identifier& identifier) const{
         const auto it = m_types.find(identifier.getAsString());
@@ -136,6 +140,13 @@ namespace yal::frontend {
         } else {
             return nullptr;
         }
+    }
+
+    void
+    TypeContext::registerType(Type* type) {
+        YAL_ASSERT(hasType(type->getIdentifier()) == false);
+        type->m_typeId = m_typeIdCounter++;
+        m_types.insert(std::make_pair(type->getIdentifier().getAsString(), type));
     }
 
 }

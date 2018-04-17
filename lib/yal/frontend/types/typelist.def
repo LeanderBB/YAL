@@ -25,6 +25,7 @@
  */
 
 YAL_TYPE_MACRO(TypeBuiltin)
-YAL_TYPE_MACRO(TypeDecl)
+YAL_TYPE_MACRO(TypeFunction)
+YAL_TYPE_MACRO(TypeStruct)
 YAL_TYPE_MACRO(TypeAliasStrong)
 YAL_TYPE_MACRO(TypeAliasWeak)

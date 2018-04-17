@@ -1,5 +1,5 @@
 /*
- *  Copyright 2017 by Leander Beernaert (leanderbb@gmail.com)
+ *  Copyright 2018 by Leander Beernaert (leanderbb@gmail.com)
  *
  *  This file is part of YAL.
  *
@@ -17,24 +17,31 @@
  *  License along with YAL. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "yal/parser/parserhelper.h"
+#pragma once
 
-namespace yal {
+#include "yal/frontend/types/type.h"
 
-    Qualifier parser::MakeQualifierFromFlags(const uint32_t flags){
-        Qualifier qualifier;
+#include <string>
 
-        if (flags & kQualifierMutable) {
-            qualifier.setMutable();
-        } else {
-            qualifier.setImmutable();
+namespace yal::frontend {
+
+    class STDeclFunction;
+
+    class TypeFunction : public Type
+    {
+    public:
+
+        static Identifier CreateIdentitier(const Module& module,
+                                           const STDeclFunction* decl);
+
+        TypeFunction(const Module& module,
+                     const STDeclFunction* decl);
+
+        const STDeclFunction* getSTDecl() const {
+            return m_stdecl;
         }
 
-        if (flags & kQualifierReference) {
-            qualifier.setReference();
-        }
-
-        return qualifier;
-    }
-
+    private:
+        const STDeclFunction* m_stdecl;
+    };
 }

@@ -20,15 +20,17 @@
 #pragma once
 
 #include "yal/io/sourcemanager.h"
-#include "yal/ast/astcontext.h"
-#include "yal/ast/typecontext.h"
+#include "yal/frontend/ast/astcontext.h"
 #include "yal/frontend/parser/stcontext.h"
+#include "yal/frontend/types/typecontext.h"
 #include "yal/util/stringref.h"
 #include <string>
 
 namespace yal::frontend {
 
+    class DeclModule;
     class ModuleManager;
+
     class Module {
     public:
         typedef uint32_t Id;
@@ -80,8 +82,7 @@ namespace yal::frontend {
         }
 
         TypeContext& getTypeContext() {
-            const Module* cthis = this;
-            return const_cast<TypeContext&>(cthis->getTypeContext());
+            return m_typeContext;
         }
 
         const TypeContext& getTypeContext() const {

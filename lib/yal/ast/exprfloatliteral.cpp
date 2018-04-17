@@ -33,9 +33,9 @@ namespace yal {
         const Type* decimalType = nullptr;
         if (literalValue >= static_cast<double>(std::numeric_limits<float>::lowest())
                 && literalValue<= static_cast<double>(std::numeric_limits<float>::max())) {
-            decimalType = module.getTypeContext().getTypeBuiltinFloat32();
+            decimalType = module.getAstTypeContext().getTypeBuiltinFloat32();
         } else {
-            decimalType = module.getTypeContext().getTypeBuiltinFloat64();
+            decimalType = module.getAstTypeContext().getTypeBuiltinFloat64();
         }
 
         Qualifier qual = Qualifier();

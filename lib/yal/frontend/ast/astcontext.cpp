@@ -16,35 +16,21 @@
  *  You should have received a copy of the GNU Lesser General Public
  *  License along with YAL. If not, see <http://www.gnu.org/licenses/>.
  */
+#include "yal/ast/astcontext.h"
 
-#pragma once
+#include "yal/frontend/module.h"
 
-#include "yal/error/error.h"
-#include "yal/io/sourcemanager.h"
-
-namespace yal {
-    class SourceItem;
-}
+#include <cstdint>
+#include <cinttypes>
 
 namespace yal::frontend {
-    struct TokenInfo;
 
-    class ErrorLexer final : public Error {
-    public:
-
-        static const ErrorCode kCode;
-
-        ErrorLexer(const TokenInfo& tokenInfo,
-                   const SourceManager::Handle srcHandle);
-
-        StringRef getErrorName() const final override;
-
-        void printDetail(ErrorPrinter& printer) const final override;
-
-        const SourceInfo& getSourceInfo() const final override;
-
-    private:
-        SourceInfo m_srcInfo;
+    enum {
+        kStackSizeBytes = 1024 * 1024
     };
+
+    ASTContext::ASTContext() :
+        m_allocator(kStackSizeBytes){
+    }
 
 }

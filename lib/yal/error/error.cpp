@@ -45,19 +45,4 @@ namespace yal {
     Error::flagAsFatal() {
         m_isFatal = 1;
     }
-
-    size_t
-    FormatType(FormatTypeArgs &args,
-               const Error *error){
-        YAL_ASSERT(error != nullptr);
-        return FormatType(args, *error);
-    }
-
-    size_t
-    FormatType(FormatTypeArgs& args,
-               const Error& error) {
-        FormaterFromFormatArgs formater(args);
-        error.printDetail(formater);
-        return formater.bufferPos;
-    }
 }

@@ -1,5 +1,5 @@
 /*
- *  Copyright 2017 by Leander Beernaert (leanderbb@gmail.com)
+ *  Copyright 2018 by Leander Beernaert (leanderbb@gmail.com)
  *
  *  This file is part of YAL.
  *
@@ -16,19 +16,25 @@
  *  You should have received a copy of the GNU Lesser General Public
  *  License along with YAL. If not, see <http://www.gnu.org/licenses/>.
  */
+
 #pragma once
 
-#include "yal/ast/type.h"
+#include "yal/frontend/types/type.h"
 
-namespace yal {
+namespace yal::frontend {
 
-    namespace parser {
-        enum QualifierFlags {
-            kQualifierMutable = 1 << 0,
-            kQualifierReference = 1<< 1
-        };
+    class STDeclStruct;
+    class TypeStruct : public Type
+    {
+    public:
+        TypeStruct(const Module& module,
+                   const STDeclStruct* decl);
 
+        const STDeclStruct* getSTDecl() const {
+            return m_stdecl;
+        }
 
-        Qualifier MakeQualifierFromFlags(const uint32_t flags);
-    }
+    private:
+        const STDeclStruct* m_stdecl;
+    };
 }

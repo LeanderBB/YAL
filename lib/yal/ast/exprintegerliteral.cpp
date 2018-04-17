@@ -34,28 +34,28 @@ namespace yal{
         const Type* type= nullptr;
         switch (integerType) {
         case IntegerType::I8:
-            type = module.getTypeContext().getTypeBuiltinI8();
+            type = module.getAstTypeContext().getTypeBuiltinI8();
             break;
         case IntegerType::U8:
-            type = module.getTypeContext().getTypeBuiltinU8();
+            type = module.getAstTypeContext().getTypeBuiltinU8();
             break;
         case IntegerType::I16:
-            type = module.getTypeContext().getTypeBuiltinI16();
+            type = module.getAstTypeContext().getTypeBuiltinI16();
             break;
         case IntegerType::U16:
-            type = module.getTypeContext().getTypeBuiltinU16();
+            type = module.getAstTypeContext().getTypeBuiltinU16();
             break;
         case IntegerType::I32:
-            type = module.getTypeContext().getTypeBuiltinI32();
+            type = module.getAstTypeContext().getTypeBuiltinI32();
             break;
         case IntegerType::U32:
-            type = module.getTypeContext().getTypeBuiltinU32();
+            type = module.getAstTypeContext().getTypeBuiltinU32();
             break;
         case IntegerType::I64:
-            type = module.getTypeContext().getTypeBuiltinI64();
+            type = module.getAstTypeContext().getTypeBuiltinI64();
             break;
         case IntegerType::U64:
-            type = module.getTypeContext().getTypeBuiltinU64();
+            type = module.getAstTypeContext().getTypeBuiltinU64();
             break;
         default:
             YAL_ASSERT_MESSAGE(false, "Unknown integer type");

@@ -24,6 +24,7 @@
 
 namespace yal {
     class SourceItem;
+    class ErrorPinter;
 }
 
 namespace yal::frontend {
@@ -40,7 +41,7 @@ namespace yal::frontend {
 
         StringRef getErrorName() const final override;
 
-        void printDetail(Formater& formater) const final override;
+        void printDetail(ErrorPrinter& formater) const final override;
 
         const SourceInfo& getSourceInfo() const final override;
 

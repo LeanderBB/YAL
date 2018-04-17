@@ -35,6 +35,10 @@ namespace yal::frontend {
             return m_sourceInfo;
         }
 
+        StringRef getString() const {
+            return m_identifier;
+        }
+
     protected:
         const StringRef m_identifier;
         SourceInfo m_sourceInfo;

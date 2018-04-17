@@ -1,5 +1,5 @@
 /*
- *  Copyright 2017 by Leander Beernaert (leanderbb@gmail.com)
+ *  Copyright 2018 by Leander Beernaert (leanderbb@gmail.com)
  *
  *  This file is part of YAL.
  *
@@ -16,6 +16,18 @@
  *  You should have received a copy of the GNU Lesser General Public
  *  License along with YAL. If not, see <http://www.gnu.org/licenses/>.
  */
-#pragma once
-// basic wrapper around this file since it doesn't come with header guard
-#include "yal/parser/parserimpl.h"
+
+#include "yal/frontend/types/typestruct.h"
+#include "yal/frontend/parser/stdeclstruct.h"
+#include "yal/frontend/module.h"
+
+namespace yal::frontend {
+
+    TypeStruct::TypeStruct(const Module& module,
+                           const STDeclStruct* decl):
+        Type(&module, Kind::TypeStruct,
+             Identifier( decl->getName()->getString(), module)),
+        m_stdecl(decl){
+
+    }
+}

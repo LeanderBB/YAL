@@ -32,7 +32,7 @@ namespace yal::frontend {
     }
 
     bool
-    PassParser::execute() {
+    PassParser::execute(PassOptions &) {
         return m_parser.parse();
     }
 

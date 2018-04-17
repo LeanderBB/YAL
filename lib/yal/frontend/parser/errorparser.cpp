@@ -18,6 +18,7 @@
  */
 
 #include "yal/frontend/parser/errorparser.h"
+#include "yal/error/errorprinter.h"
 #include "yal/frontend/lexer/tokens.h"
 #include "yal/util/format.h"
 
@@ -51,8 +52,8 @@ namespace yal::frontend {
     }
 
     void
-    ErrorParser::printDetail(Formater& formater) const {
-        Format(formater, "Unexpected token\n");
+    ErrorParser::printDetail(ErrorPrinter& printer) const {
+        FormatAppend(printer.getFormater(), "Unexpected token\n");
     }
 
     const SourceInfo&

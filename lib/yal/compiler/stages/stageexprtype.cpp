@@ -493,7 +493,7 @@ namespace yal {
             }
 
             node.setQualType(QualType::Create(qual,
-                                              m_module.getTypeContext().getTypeBuiltinBool()));
+                                              m_module.getAstTypeContext().getTypeBuiltinBool()));
             break;
         }
 
@@ -521,7 +521,7 @@ namespace yal {
             }
 
             node.setQualType(QualType::Create(qual,
-                                              m_module.getTypeContext().getTypeBuiltinBool()));
+                                              m_module.getAstTypeContext().getTypeBuiltinBool()));
             break;
         }
 

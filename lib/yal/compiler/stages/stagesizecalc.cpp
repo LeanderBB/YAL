@@ -34,7 +34,7 @@ namespace yal {
         (void) m_compiler;
         DeclStruct* structDecl = dyn_cast<DeclStruct>(decl);
         if (structDecl != nullptr) {
-            decl->getModule().getTypeContext().updateTypeSize(structDecl);
+            decl->getModule().getAstTypeContext().updateTypeSize(structDecl);
         }
         return true;
     }

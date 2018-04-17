@@ -19,32 +19,25 @@
 
 #pragma once
 
-#include "yal/error/error.h"
-#include "yal/io/sourcemanager.h"
-
-namespace yal {
-    class SourceItem;
-}
+#include "yal/yal.h"
+#include <vector>
+#include "yal/util/allocator/allocatorstack.h"
 
 namespace yal::frontend {
-    struct TokenInfo;
 
-    class ErrorLexer final : public Error {
+    class ASTContext {
     public:
 
-        static const ErrorCode kCode;
+        ASTContext();
 
-        ErrorLexer(const TokenInfo& tokenInfo,
-                   const SourceManager::Handle srcHandle);
+        YAL_MOVE_ONLY_CLASS(ASTContext);
 
-        StringRef getErrorName() const final override;
+        AllocatorStack& getAllocator() {
+            return m_allocator;
+        }
 
-        void printDetail(ErrorPrinter& printer) const final override;
-
-        const SourceInfo& getSourceInfo() const final override;
 
     private:
-        SourceInfo m_srcInfo;
+        AllocatorStack m_allocator;
     };
-
 }

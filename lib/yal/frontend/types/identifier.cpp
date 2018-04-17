@@ -37,31 +37,48 @@ namespace yal::frontend {
         return result;
     }
 
+    static std::string
+    BuildTypeNameWithModule(const StringRef name,
+                            const StringRef target,
+                            const Module& module) {
+
+        std::string result;
+        StringRef moduleName = module.getName();
+
+        result.reserve(name.size() + moduleName.size() + 4 +  target.size());
+        result.append(moduleName.data(), moduleName.size());
+        result += "::";
+        result.append(target.data(), target.size());
+        result += "::";
+        result.append(name.data(), name.size());
+        return result;
+    }
+
     Identifier::Identifier() {
 
     }
 
-    Identifier::Identifier(StringRef idString):
+    Identifier::Identifier(const StringRef idString):
         m_name(idString),
         m_idString(idString.toString()) {
 
     }
 
-    Identifier::Identifier(StringRef idString,
-                           const Module* module):
-        m_name(idString){
-        if (module != nullptr) {
-            m_idString =BuildTypeNameWithModule(idString, *module);
-        } else {
-            m_idString = idString.toString();
-        }
+    Identifier::Identifier(const StringRef idString,
+                           const Module& module):
+        m_name(idString),
+        m_idString(BuildTypeNameWithModule(idString, module)){
+
     }
 
 
-    Identifier::Identifier(StringRef idString,
-                           const Module& module):
+    Identifier::Identifier(const StringRef idString,
+                           const StringRef targetString,
+                           const frontend::Module& module):
         m_name(idString),
-        m_idString(BuildTypeNameWithModule(idString, module))
+        m_idString(BuildTypeNameWithModule(idString,
+                                           targetString,
+                                           module))
     {
 
     }
@@ -72,14 +89,24 @@ namespace yal::frontend {
     }
 
     void
-    Identifier::setIdString(StringRef idString) {
+    Identifier::setIdString(const StringRef idString) {
+        m_name = idString;
         m_idString = idString.toString();
     }
 
     void
-    Identifier::setIdString(StringRef idString,
+    Identifier::setIdString(const StringRef idString,
                             const Module& module) {
+        m_name = idString;
         m_idString =BuildTypeNameWithModule(idString, module);
+    }
+
+    void
+    Identifier::setIdString(const StringRef idString,
+                            const StringRef targetString,
+                            const Module& module) {
+        m_name = idString;
+        m_idString =BuildTypeNameWithModule(idString, targetString, module);
     }
 
     bool
