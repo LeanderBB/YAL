@@ -45,7 +45,7 @@ public:
 
 
 
-
+/*
 TEST_F(CastTest, TestDynCast) {
    std::string fnName = "someFunction";
    yal::DeclBase* decl = m_module->newASTNode<yal::DeclFunction>(fnName,
@@ -63,3 +63,4 @@ TEST_F(CastTest, TestDynCast) {
 
    EXPECT_NE(sameCase, nullptr);
 }
+*/

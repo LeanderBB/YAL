@@ -139,6 +139,9 @@ set(YAL_SOURCES
     yal/io/sourceitems.h
     yal/io/ansicolorcodes.h
 
+    yal/frontend/frontend.cpp
+    yal/frontend/frontend.h
+
     yal/frontend/lexer/lexer.h
     yal/frontend/lexer/lexer.cpp
     yal/frontend/lexer/tokens.h

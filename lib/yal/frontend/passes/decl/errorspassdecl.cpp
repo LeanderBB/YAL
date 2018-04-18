@@ -83,4 +83,32 @@ namespace yal::frontend {
         return kNoSourceInfo;
     }
 
+    // ErrorUndefinedTypeRef ------------------------------------------------
+
+    const ErrorCode  ErrorUndefinedTypeRef::kCode =
+            MakeErrorCode(static_cast<uint16_t>(PassTypeCode::Decl), 2);
+
+    ErrorUndefinedTypeRef::ErrorUndefinedTypeRef(const StringRef& typeName,
+                                                 const SourceInfo& info):
+        Error(kCode),
+        m_typeName(typeName),
+        m_srcInfo(info) {
+
+    }
+
+    StringRef
+    ErrorUndefinedTypeRef::getErrorName() const {
+        return "Undefined Type Reference";
+    }
+
+    void
+    ErrorUndefinedTypeRef::printDetail(ErrorPrinter &printer) const {
+        FormatAppend(printer.getFormater(),
+                     "Reference to undefined type '%'\n", m_typeName);
+    };
+
+    const SourceInfo&
+    ErrorUndefinedTypeRef::getSourceInfo() const {
+        return m_srcInfo;
+    }
 }

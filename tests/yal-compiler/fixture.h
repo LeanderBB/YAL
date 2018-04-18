@@ -20,14 +20,10 @@
 #include <gtest/gtest.h>
 
 #include <yal/yal.h>
-#include <yal/ast/astcontext.h>
-#include <yal/ast/astprinter.h>
-#include <yal/frontend/modulemanager.h>
-#include <yal/compiler/compiler.h>
+#include <yal/error/errorprinter.h>
 #include <yal/error/errorreporter.h>
-#include <yal/frontend/lexer/lexer.h>
-#include <yal/frontend/lexer/tokens.h>
-#include <yal/parser/parser.h>
+#include <yal/frontend/frontend.h>
+#include <yal/frontend/modulemanager.h>
 #include <yal/io/filestream.h>
 #include <yal/io/memorystream.h>
 #include <yal/io/sourcemanager.h>
@@ -37,22 +33,35 @@
 #include <string>
 #include <iostream>
 
+using FrontendOptionsType = yal::frontend::FrontendOptions;
+using ModuleType = yal::frontend::Module;
+
 class CompileFixture : public ::testing::Test {
 public:
 
-    yal::SourceManager::Handle createSourceHanlde(const yal::StringRef str) {
+    CompileFixture():
+        m_stdstream(),
+        m_sourceManager(),
+        m_moduleManager(),
+        m_errorReporter(),
+        m_errorPrinter(m_stdstream, m_sourceManager),
+        m_frontEnd(m_errorReporter, m_sourceManager, m_moduleManager){
+        const bool result = m_stdstream.open(yal::FileStream::StdStream::Out);
+        if (!result) {
+            YAL_ASSERT_MESSAGE(false,"Failed to open stdout stream");
+        }
+    }
+
+    yal::SourceManager::Handle createSourceHandle(const yal::StringRef str) {
         return m_sourceManager.add(std::make_unique<yal::SourceItemStringRef>(str));
     }
 
     virtual void SetUp() override final{
-        m_stdstream.open(yal::FileStream::StdStream::Out);
-        m_log = std::make_unique<yal::Log>(m_stdstream);
+
     }
 
 
     virtual void TearDown() override final{
-        m_log.reset();
-        m_stdstream.close();
         m_sourceManager.clear();
         m_moduleManager.clear();
         m_errorReporter.clear();
@@ -60,8 +69,9 @@ public:
 
 public:
     yal::FileStream m_stdstream;
-    std::unique_ptr<yal::Log> m_log;
     yal::SourceManager m_sourceManager;
-    yal::ModuleManager m_moduleManager;
+    yal::frontend::ModuleManager m_moduleManager;
     yal::ErrorReporter m_errorReporter;
+    yal::ErrorPrinter m_errorPrinter;
+    yal::frontend::Frontend m_frontEnd;
 };

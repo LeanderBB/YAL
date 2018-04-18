@@ -41,16 +41,29 @@ namespace yal::frontend {
     void
     STPreDeclVisitor::visit(const STDeclFunction& declFunction) {
         TypeContext& typeCtx = m_module.getTypeContext();
+
+        // check if target type has beend declared
+        const STType* targetType = declFunction.getFunctionTarget();
+        if (targetType != nullptr ) {
+            const Identifier targetId(targetType->getIdentifier(),m_module);
+            if (!typeCtx.hasType(targetId)) {
+                auto errorPtr = std::make_unique<ErrorUndefinedTypeRef>(targetId.getName(),
+                                                                        targetType->getSourceInfo());
+                m_errReporter.report(std::move(errorPtr));
+                return;
+            }
+        }
+
+        // check if function has already been declared
         TypeFunction* typeFn = typeCtx.allocateType<TypeFunction>(m_module, &declFunction);
         const Type* existingType = typeCtx.getByIdentifier(typeFn->getIdentifier());
-
         if (existingType == nullptr) {
             typeCtx.registerType(typeFn);
         } else {
             // report error
             auto errorPtr = std::make_unique<ErrorDuplicateDecl>(m_module,
                                                                  *typeFn,
-                                                                  *existingType);
+                                                                 *existingType);
             m_errReporter.report(std::move(errorPtr));
         }
     }
@@ -58,16 +71,17 @@ namespace yal::frontend {
     void
     STPreDeclVisitor::visit(const STDeclStruct& declStruct) {
         TypeContext& typeCtx = m_module.getTypeContext();
+
+        // check if struct has already been declared
         TypeStruct* typeStruct = typeCtx.allocateType<TypeStruct>(m_module, &declStruct);
         const Type* existingType = typeCtx.getByIdentifier(typeStruct->getIdentifier());
-
         if (existingType == nullptr) {
             typeCtx.registerType(typeStruct);
         } else {
             // report error
             auto errorPtr = std::make_unique<ErrorDuplicateDecl>(m_module,
                                                                  *typeStruct,
-                                                                  *existingType);
+                                                                 *existingType);
             m_errReporter.report(std::move(errorPtr));
         }
     }

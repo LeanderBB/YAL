@@ -1,0 +1,80 @@
+/*
+ *  Copyright 2018 by Leander Beernaert (leanderbb@gmail.com)
+ *
+ *  This file is part of YAL.
+ *
+ *  YAL is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU Lesser General Public License as
+ *  published by the Free Software Foundation, either version 3
+ *  of the License, or (at your option) any later version.
+ *
+ *  YAL is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ *  GNU Lesser General Public License for more details.
+ *
+ *  You should have received a copy of the GNU Lesser General Public
+ *  License along with YAL. If not, see <http://www.gnu.org/licenses/>.
+ */
+
+#include "yal/frontend/frontend.h"
+
+#include "yal/error/errorreporter.h"
+#include "yal/frontend/module.h"
+#include "yal/frontend/modulemanager.h"
+#include <yal/frontend/passes/passes.h>
+#include <yal/frontend/passes/parser/passparser.h>
+#include <yal/frontend/passes/decl/passdecl.h>
+#include "yal/io/sourceitems.h"
+
+namespace yal::frontend {
+
+    Frontend::Frontend(ErrorReporter &errReporter,
+                       SourceManager &srcManager,
+                       ModuleManager &moduleManager):
+        m_errReporter(errReporter),
+        m_srcManager(srcManager),
+        m_moduleManager(moduleManager) {
+
+    }
+
+
+    Module*
+    Frontend::compile(const SourceManager::Handle item,
+                      const FrontendOptions& options) {
+        (void) options;
+
+        yal::SourceItem* sourceItem = m_srcManager.getItem(item);
+        if (sourceItem == nullptr) {
+            return nullptr;
+        }
+
+        yal::frontend::Module* module =
+                m_moduleManager.createNew(sourceItem->getPath(), item);
+        if (module == nullptr) {
+            return nullptr;
+        }
+
+        // setup pass options
+        PassOptions passOptions(m_errReporter,
+                                m_srcManager,
+                                *module);
+        // create passes
+        PassParser passParser(m_errReporter, *module, *sourceItem);
+        PassDecl passDecl;
+
+        if (!passParser.execute(passOptions)) {
+            goto exit;
+        }
+
+        if (!passDecl.execute(passOptions)) {
+            goto exit;
+        }
+
+exit:
+        return m_errReporter.hasErrors()
+                ? nullptr
+                : module;
+    }
+
+}

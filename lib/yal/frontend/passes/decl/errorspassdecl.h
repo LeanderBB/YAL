@@ -49,5 +49,24 @@ namespace yal::frontend {
         const Type& m_newType;
         const Type& m_oldType;
     };
+
+
+    class ErrorUndefinedTypeRef final : public Error {
+    public:
+        static const ErrorCode kCode;
+
+        ErrorUndefinedTypeRef(const StringRef& typeName,
+                              const SourceInfo& info);
+
+        StringRef getErrorName() const final override;
+
+        void printDetail(ErrorPrinter& printer) const final override;
+
+        const SourceInfo& getSourceInfo() const final override;
+
+    private:
+        const StringRef& m_typeName;
+        const SourceInfo& m_srcInfo;
+    };
 }
 

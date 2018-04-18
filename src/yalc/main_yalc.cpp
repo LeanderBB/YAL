@@ -21,9 +21,7 @@
 
 #include <yal/error/errorprinter.h>
 #include <yal/error/errorreporter.h>
-#include <yal/frontend/passes/passes.h>
-#include <yal/frontend/passes/parser/passparser.h>
-#include <yal/frontend/passes/decl/passdecl.h>
+#include <yal/frontend/frontend.h>
 #include <yal/frontend/modulemanager.h>
 #include <yal/io/filestream.h>
 #include <yal/io/memorystream.h>
@@ -65,39 +63,13 @@ int main(const int argc,
 
     auto handle = sourceManager.add(std::move(sourceStream));
 
-    yal::SourceItem* sourceItem = sourceManager.getItem(handle);
-    if (sourceItem == nullptr) {
-        log.error("Could not locate item from source handle.\n");
-        return EXIT_FAILURE;
-    }
+    yal::frontend::Frontend frontend(errorReporter,
+                                     sourceManager,
+                                     moduleManager);
 
-    yal::frontend::Module* module =
-            moduleManager.createNew(sourceItem->getPath(), handle);
-    if (module == nullptr) {
-        log.error("Failed to create module with name '%'.\n",
-                  sourceItem->getPath());
-        return EXIT_FAILURE;
-    }
+    yal::frontend::FrontendOptions options;
+    yal::frontend::Module* module = frontend.compile(handle,options);
 
-    yal::frontend::PassOptions passOptions(errorReporter,
-                                       sourceManager,
-                                       *module);
-
-    yal::frontend::PassParser passParser(errorReporter, *module, *sourceItem);
-    yal::frontend::PassDecl passDecl;
-
-    if (!passParser.execute(passOptions)) {
-        goto exit_print;
-    }
-
-    if (!passDecl.execute(passOptions)) {
-        goto exit_print;
-    }
-
-
-
-
-exit_print:
     if (!errorReporter.empty()) {
         yal::ErrorPrinter errPrinter(stdoutStream, sourceManager);
         errPrinter.enableColorCodes(true);
@@ -117,5 +89,6 @@ exit_print:
 
     }*/
 
-    return EXIT_SUCCESS;
+    return module != nullptr && !errorReporter.hasErrors()
+            ? EXIT_SUCCESS : EXIT_FAILURE;
 }
