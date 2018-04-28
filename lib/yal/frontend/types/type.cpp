@@ -53,6 +53,7 @@ namespace yal::frontend {
         m_functionTargetable(0),
         m_function(0),
         m_typefunction(0),
+        m_typefunctionStatic(0),
         m_struct(0){
 
         if (module != nullptr) {
