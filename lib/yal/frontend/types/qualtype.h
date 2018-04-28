@@ -31,6 +31,8 @@ namespace yal::frontend {
         static QualType Create(const Qualifier& qualifier,
                                const Type* type);
 
+        static QualType Create();
+
         bool isValid() const {
             return  m_type != nullptr;
         }

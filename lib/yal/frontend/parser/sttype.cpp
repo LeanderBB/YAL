@@ -35,6 +35,7 @@ namespace yal::frontend {
         m_type(type),
         m_identifier(){
         YAL_ASSERT(m_type != Type::Custom);
+
     }
 
     STType::STType(const StringRef type):
@@ -50,8 +51,8 @@ namespace yal::frontend {
 
     STQualType::STQualType(const STType* type,
                            const uint32_t qualifiers):
-    m_type(type),
-    m_qualifiers(qualifiers) {
+        m_type(type),
+        m_qualifiers(qualifiers) {
 
     }
 }

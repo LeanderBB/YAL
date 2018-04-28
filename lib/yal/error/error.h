@@ -21,6 +21,7 @@
 
 #include "yal/yal.h"
 #include "yal/util/stringref.h"
+#include "yal/util/cast.h"
 
 namespace yal {
 
@@ -29,12 +30,23 @@ namespace yal {
     struct SourceInfo;
     class ErrorPrinter;
 
-    typedef uint32_t ErrorCode;
+    class ErrorCode {
+    public:
+        ErrorCode();
+        explicit ErrorCode(const uint16_t category,
+                           const uint16_t errorType);
 
-    constexpr ErrorCode MakeErrorCode(const uint16_t category,
-                                      const uint16_t errorType) {
-        return (static_cast<uint32_t>(errorType) << 16)
-                | static_cast<uint32_t>(category);
+        bool operator == (const ErrorCode& code) const;
+        bool operator != (const ErrorCode& code) const;
+
+    public:
+        uint16_t m_category;
+        uint16_t m_errorType;
+    };
+
+    inline ErrorCode MakeErrorCode(const uint16_t category,
+                                   const uint16_t errorType) {
+        return ErrorCode(category, errorType);
     }
 
     class Error {

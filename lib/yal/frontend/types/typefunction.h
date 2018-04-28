@@ -26,6 +26,7 @@
 namespace yal::frontend {
 
     class STDeclFunction;
+    class DeclFunction;
 
     class TypeFunction : public Type
     {
@@ -41,7 +42,14 @@ namespace yal::frontend {
             return m_stdecl;
         }
 
+        DeclFunction* getDecl() {
+            return m_decl;
+        }
+
+        void setDecl(DeclFunction* decl);
+
     private:
         const STDeclFunction* m_stdecl;
+        DeclFunction* m_decl;
     };
 }

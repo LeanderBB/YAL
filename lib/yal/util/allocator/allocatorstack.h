@@ -110,7 +110,10 @@ namespace yal{
 
         }
 
-        inline explicit StdAllocatorWrapperStack(StdAllocatorWrapperStack&& other) = delete;
+        inline explicit StdAllocatorWrapperStack(StdAllocatorWrapperStack&& other):
+            m_allocator(other.m_allocator) {
+
+        }
 
         inline T* allocate(std::size_t n) {
             return static_cast<T*>(m_allocator.allocate(n * sizeof(T)));

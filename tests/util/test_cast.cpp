@@ -22,9 +22,8 @@
 #include <limits>
 #include <yal/frontend/module.h>
 #include <yal/frontend/modulemanager.h>
-#include <yal/ast/declfunction.h>
-#include <yal/ast/declbase.h>
-#include <yal/ast/reftype.h>
+#include <yal/frontend/ast/declfunction.h>
+#include <yal/frontend/ast/declbase.h>
 #include <yal/io/sourcemanager.h>
 
 

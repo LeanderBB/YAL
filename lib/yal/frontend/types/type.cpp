@@ -76,6 +76,12 @@ namespace yal::frontend {
         return m_kind == Kind::TypeFunction && m_typefunction == 1;
     }
 
+    bool Type::isTypeFunctionStatic() const {
+        return m_kind == Kind::TypeFunction
+                && m_typefunction == 1
+                && m_typefunctionStatic ==1;
+    }
+
     bool
     Type::isBuilitin() const {
         return m_kind == Kind::TypeBuiltin;

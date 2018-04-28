@@ -40,9 +40,29 @@ namespace yal::frontend {
     TypeFunction::TypeFunction(const Module& module,
                                const STDeclFunction* decl):
         Type(&module, Kind::TypeFunction, CreateIdentitier(module, decl)),
-        m_stdecl(decl) {
+        m_stdecl(decl),
+        m_decl(nullptr) {
 
+        m_moduleType = 1;
 
+        if (decl->getFunctionTarget() == nullptr) {
+            m_function = 1;
+        } else {
+            m_typefunction = 1;
 
+            const STDeclFunction::Params* params = decl->getParams();
+            if (params == nullptr || params->empty()) {
+                m_typefunctionStatic = 1;
+            } else {
+                if ((*params)[0]->getName()->getString() != "self") {
+                     m_typefunctionStatic = 1;
+                }
+            }
+        }
+    }
+
+    void
+    TypeFunction::setDecl(DeclFunction* decl) {
+        m_decl = decl;
     }
 }

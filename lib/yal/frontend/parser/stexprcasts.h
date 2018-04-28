@@ -23,17 +23,17 @@
 
 namespace yal::frontend {
 
-    class STStmtExpression;
-    class STExprRangeCast final : public STStmtExpression {
+    class STExpression;
+    class STExprRangeCast final : public STExpression {
     public:
         STExprRangeCast(const STQualType* targetType,
-                        const STStmtExpression* expr);
+                        const STExpression* expr);
 
         const STQualType* getTargetType() const {
             return m_targetType;
         }
 
-        const STStmtExpression* getExpr() const {
+        const STExpression* getExpr() const {
             return m_expr;
         }
 
@@ -41,7 +41,7 @@ namespace yal::frontend {
 
     private:
         const STQualType* m_targetType;
-        const STStmtExpression* m_expr;
+        const STExpression* m_expr;
     };
 
 }

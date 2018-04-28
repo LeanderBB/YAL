@@ -132,6 +132,13 @@ namespace yal::frontend {
         return hasType(type.getIdentifier());
     }
 
+    bool
+    TypeContext::hasType(const StringRef name,
+                         const Module& module) const {
+        Identifier id(name, module);
+        return hasType(id);
+    }
+
     const Type*
     TypeContext::getByIdentifier(const Identifier& identifier) const{
         const auto it = m_types.find(identifier.getAsString());
@@ -140,6 +147,20 @@ namespace yal::frontend {
         } else {
             return nullptr;
         }
+    }
+
+    const Type*
+    TypeContext::getByName(const StringRef name,
+                           const Module& module) const {
+        Identifier id(name, module);
+        return getByIdentifier(id);
+    }
+
+    Type*
+    TypeContext::getByName(const StringRef name,
+                           const Module& module) {
+        Identifier id(name, module);
+        return getByIdentifier(id);
     }
 
     void

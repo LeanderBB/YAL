@@ -22,8 +22,8 @@
 
 namespace yal::frontend {
 
-    STStmtAssign::STStmtAssign(const STStmtExpression* leftExpr,
-                               const STStmtExpression* rightExpr) :
+    STStmtAssign::STStmtAssign(const STExpression* leftExpr,
+                               const STExpression* rightExpr) :
         STStatement(SyntaxTreeType::STStmtAssign),
         m_leftExpr(leftExpr),
         m_rightExpr(rightExpr){

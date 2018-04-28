@@ -18,6 +18,7 @@
  */
 
 #include "yal/frontend/module.h"
+#include "yal/frontend/ast/declmodule.h"
 #include "yal/util/path.h"
 
 namespace yal::frontend {
@@ -41,8 +42,8 @@ namespace yal::frontend {
         m_typeContext(),
         m_rootNode(nullptr){
 
-        //m_rootNode = newASTNode<DeclModule>(m_name);
-        //YAL_ASSERT_MESSAGE(m_rootNode != nullptr, "Failed to allocate root node");
+        m_rootNode = newASTNode<DeclModule>(m_name);
+        YAL_ASSERT_MESSAGE(m_rootNode != nullptr, "Failed to allocate root node");
     }
 
 }

@@ -35,7 +35,7 @@ namespace yal::frontend {
 
         template <typename T, typename... ARGS>
         T* create(ARGS&& ...args) {
-            return m_allocator.constructNoDtor<T>(std::forward<ARGS>(args)...);
+            return m_allocator.construct<T>(std::forward<ARGS>(args)...);
         }
 
         STDeclModule* getDeclModule() const {

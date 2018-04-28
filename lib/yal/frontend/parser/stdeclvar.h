@@ -23,31 +23,26 @@
 
 namespace yal::frontend {
 
-    class STStmtExpression;
+    class STExpression;
     class STDeclVar final : public STDecl {
     public:
         STDeclVar(const STIdentifier* name,
                   const STQualType* type,
-                  const STStmtExpression* initExpr);
-
-        const STIdentifier* getName() const {
-            return m_name;
-        }
+                  const STExpression* initExpr);
 
         const STQualType* getType() const {
             return m_type;
         }
 
-        const STStmtExpression* getExpression() const {
+        const STExpression* getExpression() const {
             return m_expr;
         }
 
         void acceptVisitor(SyntaxTreeVisitor& visitor) const override final;
 
     protected:
-        const STIdentifier* m_name;
         const STQualType* m_type;
-        const STStmtExpression* m_expr;
+        const STExpression* m_expr;
     };
 
 }

@@ -23,10 +23,10 @@
 
 namespace yal::frontend {
 
-    class STStmtExpression;
-    class STExprFnCall final : public STStmtExpression {
+    class STExpression;
+    class STExprFnCall final : public STExpression {
     public:
-        using ParamList = STVector<const STStmtExpression*>;
+        using ParamList = STVector<const STExpression*>;
 
         enum class FnType {
             Regular,
@@ -42,7 +42,7 @@ namespace yal::frontend {
                      const ParamList *params);
 
         STExprFnCall(const STIdentifier* name,
-                     const STStmtExpression* expr,
+                     const STExpression* expr,
                      const ParamList *params);
 
         const STIdentifier* getName() const {
@@ -53,7 +53,7 @@ namespace yal::frontend {
             return m_targetType;
         }
 
-        const STStmtExpression* getExpr() const {
+        const STExpression* getExpr() const {
             return m_expr;
         }
 
@@ -70,7 +70,7 @@ namespace yal::frontend {
     private:
         const STIdentifier* m_name;
         const STType* m_targetType;
-        const STStmtExpression* m_expr;
+        const STExpression* m_expr;
         const ParamList* m_params;
         const FnType m_type;
     };

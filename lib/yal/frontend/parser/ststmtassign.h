@@ -23,26 +23,26 @@
 
 namespace yal::frontend {
 
-    class STStmtExpression;
+    class STExpression;
     class STStmtAssign final : public STStatement{
     public:
 
-        STStmtAssign(const STStmtExpression* leftExpr,
-                     const STStmtExpression* rightExpr);
+        STStmtAssign(const STExpression* leftExpr,
+                     const STExpression* rightExpr);
 
         void acceptVisitor(SyntaxTreeVisitor& visitor) const override final;
 
-        const STStmtExpression* getLeftExpr() const {
+        const STExpression* getLeftExpr() const {
             return m_leftExpr;
         }
 
-        const STStmtExpression* getRightExpr() const {
+        const STExpression* getRightExpr() const {
             return m_rightExpr;
         }
 
     private:
-        const STStmtExpression* m_leftExpr;
-        const STStmtExpression* m_rightExpr;
+        const STExpression* m_leftExpr;
+        const STExpression* m_rightExpr;
     };
 
 }

@@ -62,7 +62,7 @@ namespace yal::frontend {
                        const Body* statements);
 
         const STIdentifier* getFunctionName() const {
-            return m_functionName;
+            return getName();
         }
 
         const STType* getFunctionTarget() const{
@@ -84,7 +84,6 @@ namespace yal::frontend {
         void acceptVisitor(SyntaxTreeVisitor& visitor) const override final;
 
     protected:
-        const STIdentifier* m_functionName;
         const STType* m_functionTarget;
         const STQualType* m_returnType;
         const Params* m_params;

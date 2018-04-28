@@ -20,7 +20,6 @@
 #pragma once
 
 #include "yal/yal.h"
-#include <vector>
 #include "yal/util/allocator/allocatorstack.h"
 
 namespace yal::frontend {

@@ -22,8 +22,8 @@
 
 namespace yal::frontend {
     STExprUnaryOperator::STExprUnaryOperator(const UnaryOperatorType op,
-                                             const STStmtExpression* expr):
-        STStmtExpression(SyntaxTreeType::STExprUnaryOperator),
+                                             const STExpression* expr):
+        STExpression(SyntaxTreeType::STExprUnaryOperator),
         m_op(op),
         m_expr(expr) {
 
@@ -37,9 +37,9 @@ namespace yal::frontend {
     // -----------------------------------------------------------------------
 
     STExprBinaryOperator::STExprBinaryOperator(const BinaryOperatorType op,
-                                               const STStmtExpression* exprLeft,
-                                               const STStmtExpression* exprRight):
-        STStmtExpression(SyntaxTreeType::STExprBinaryOperator),
+                                               const STExpression* exprLeft,
+                                               const STExpression* exprRight):
+        STExpression(SyntaxTreeType::STExprBinaryOperator),
         m_op(op),
         m_exprLeft(exprLeft),
         m_exprRight(exprRight) {

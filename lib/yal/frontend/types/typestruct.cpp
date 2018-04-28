@@ -27,7 +27,16 @@ namespace yal::frontend {
                            const STDeclStruct* decl):
         Type(&module, Kind::TypeStruct,
              Identifier( decl->getName()->getString(), module)),
-        m_stdecl(decl){
+        m_stdecl(decl),
+        m_decl(nullptr) {
 
+        m_moduleType = 1;
+        m_struct = 1;
+        m_functionTargetable = 1;
+    }
+
+    void
+    TypeStruct::setDecl(DeclStruct* decl) {
+        m_decl = decl;
     }
 }

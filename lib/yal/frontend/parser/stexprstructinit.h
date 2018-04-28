@@ -23,19 +23,19 @@
 
 namespace yal::frontend {
 
-    class STStmtExpression;
+    class STExpression;
 
     class STStructMemberInit {
     public:
 
         STStructMemberInit(const STIdentifier* name,
-                           const STStmtExpression* expr);
+                           const STExpression* expr);
 
         const STIdentifier* getName() const {
             return m_name;
         }
 
-        const STStmtExpression* getExpr() const {
+        const STExpression* getExpr() const {
             return m_expr;
         }
 
@@ -47,11 +47,11 @@ namespace yal::frontend {
 
     protected:
         const STIdentifier* m_name;
-        const STStmtExpression* m_expr;
+        const STExpression* m_expr;
         SourceInfo m_sourceInfo;
     };
 
-    class STExprStructInit final : public STStmtExpression {
+    class STExprStructInit final : public STExpression {
     public:
 
         using MemberInitList = STVector<const STStructMemberInit*>;

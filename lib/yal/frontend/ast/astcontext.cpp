@@ -16,10 +16,10 @@
  *  You should have received a copy of the GNU Lesser General Public
  *  License along with YAL. If not, see <http://www.gnu.org/licenses/>.
  */
-#include "yal/ast/astcontext.h"
+
+#include "yal/frontend/ast/astcontext.h"
 
 #include "yal/frontend/module.h"
-
 #include <cstdint>
 #include <cinttypes>
 

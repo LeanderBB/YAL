@@ -23,8 +23,8 @@
 namespace yal::frontend {
 
     STExprRangeCast::STExprRangeCast(const STQualType *targetType,
-                                     const STStmtExpression* expr):
-        STStmtExpression(SyntaxTreeType::STExprRangeCast),
+                                     const STExpression* expr):
+        STExpression(SyntaxTreeType::STExprRangeCast),
         m_targetType(targetType),
         m_expr(expr) {
 

@@ -172,7 +172,6 @@ typedef union {
   yal::frontend::STDeclStruct* yy61;
   yal::StringRefPod yy70;
   yal::frontend::STStructMember* yy77;
-  yal::frontend::STStmtExpression* yy88;
   yal::frontend::STDeclParam* yy93;
   yal::frontend::STQualType* yy97;
   yal::frontend::STDeclVar* yy98;
@@ -187,6 +186,7 @@ typedef union {
   yal::frontend::STExprUnaryOperator* yy150;
   yal::frontend::STExprBinaryOperator* yy156;
   yal::frontend::STStructMemberInit* yy169;
+  yal::frontend::STExpression* yy176;
 } YYMINORTYPE;
 #ifndef YYSTACKDEPTH
 #define YYSTACKDEPTH 100
@@ -1664,8 +1664,8 @@ static void yy_reduce(
       case 47: /* statement ::= expression ASSIGN expression SEMI_COLON */
 #line 333 "stparserimpl.lemon"
 {
-   yylhsminor.yy100 = pParser->createNode<yal::frontend::STStmtAssign>(yymsp[-3].minor.yy88,yymsp[-1].minor.yy88);
-   yylhsminor.yy100->setSourceInfo(yal::frontend::CreateSourceInfo(yymsp[-3].minor.yy88->getSourceInfo(), yymsp[-1].minor.yy88->getSourceInfo(), pParser->getSourceHandle()));
+   yylhsminor.yy100 = pParser->createNode<yal::frontend::STStmtAssign>(yymsp[-3].minor.yy176,yymsp[-1].minor.yy176);
+   yylhsminor.yy100->setSourceInfo(yal::frontend::CreateSourceInfo(yymsp[-3].minor.yy176->getSourceInfo(), yymsp[-1].minor.yy176->getSourceInfo(), pParser->getSourceHandle()));
 }
 #line 1671 "stparserimpl.c"
   yymsp[-3].minor.yy100 = yylhsminor.yy100;
@@ -1682,417 +1682,418 @@ static void yy_reduce(
       case 49: /* statement ::= expression SEMI_COLON */
 #line 342 "stparserimpl.lemon"
 {
-       yylhsminor.yy100 = yymsp[-1].minor.yy88;
+    yylhsminor.yy100 = pParser->createNode<yal::frontend::STStmtExpression>(yymsp[-1].minor.yy176);
+    yylhsminor.yy100->setSourceInfo(yymsp[-1].minor.yy176->getSourceInfo());
 }
-#line 1688 "stparserimpl.c"
+#line 1689 "stparserimpl.c"
   yymsp[-1].minor.yy100 = yylhsminor.yy100;
         break;
       case 50: /* statement ::= RETURN expression SEMI_COLON */
-#line 346 "stparserimpl.lemon"
+#line 347 "stparserimpl.lemon"
 {
-    yylhsminor.yy100 = pParser->createNode<yal::frontend::STStmtReturn>(yymsp[-1].minor.yy88);
-    auto srcInfo = yal::frontend::CreateSourceInfo(yymsp[-2].minor.yy0, yymsp[-1].minor.yy88->getSourceInfo(), pParser->getSourceHandle());
+    yylhsminor.yy100 = pParser->createNode<yal::frontend::STStmtReturn>(yymsp[-1].minor.yy176);
+    auto srcInfo = yal::frontend::CreateSourceInfo(yymsp[-2].minor.yy0, yymsp[-1].minor.yy176->getSourceInfo(), pParser->getSourceHandle());
     yylhsminor.yy100->setSourceInfo(srcInfo);
 }
-#line 1698 "stparserimpl.c"
+#line 1699 "stparserimpl.c"
   yymsp[-2].minor.yy100 = yylhsminor.yy100;
         break;
       case 51: /* statement ::= RETURN SEMI_COLON */
-#line 352 "stparserimpl.lemon"
+#line 353 "stparserimpl.lemon"
 {
     yylhsminor.yy100 = pParser->createNode<yal::frontend::STStmtReturn>(nullptr);
     auto srcInfo = yal::frontend::CreateSourceInfo(yymsp[-1].minor.yy0, yymsp[-1].minor.yy0, pParser->getSourceHandle());
     yylhsminor.yy100->setSourceInfo(srcInfo);
 }
-#line 1708 "stparserimpl.c"
+#line 1709 "stparserimpl.c"
   yymsp[-1].minor.yy100 = yylhsminor.yy100;
         break;
       case 52: /* decl_var ::= VAR identifier var_type_spec ASSIGN expression */
       case 53: /* decl_var ::= LET identifier var_type_spec ASSIGN expression */ yytestcase(yyruleno==53);
-#line 360 "stparserimpl.lemon"
+#line 361 "stparserimpl.lemon"
 {
-    yylhsminor.yy98 = pParser->createNode<yal::frontend::STDeclVar>(yymsp[-3].minor.yy99, yymsp[-2].minor.yy97, yymsp[0].minor.yy88);
-    auto srcInfo = yal::frontend::CreateSourceInfo(yymsp[-4].minor.yy0, yymsp[0].minor.yy88->getSourceInfo(), pParser->getSourceHandle());
+    yylhsminor.yy98 = pParser->createNode<yal::frontend::STDeclVar>(yymsp[-3].minor.yy99, yymsp[-2].minor.yy97, yymsp[0].minor.yy176);
+    auto srcInfo = yal::frontend::CreateSourceInfo(yymsp[-4].minor.yy0, yymsp[0].minor.yy176->getSourceInfo(), pParser->getSourceHandle());
     yylhsminor.yy98->setSourceInfo(srcInfo);
 }
-#line 1719 "stparserimpl.c"
+#line 1720 "stparserimpl.c"
   yymsp[-4].minor.yy98 = yylhsminor.yy98;
         break;
       case 54: /* var_type_spec ::= COLON type_qualified */
-#line 372 "stparserimpl.lemon"
+#line 373 "stparserimpl.lemon"
 {yymsp[-1].minor.yy97 = yymsp[0].minor.yy97;}
-#line 1725 "stparserimpl.c"
+#line 1726 "stparserimpl.c"
         break;
       case 56: /* expression ::= PAR_BEGIN expression PAR_END */
-#line 378 "stparserimpl.lemon"
-{yymsp[-2].minor.yy88 = yymsp[-1].minor.yy88;}
-#line 1730 "stparserimpl.c"
+#line 379 "stparserimpl.lemon"
+{yymsp[-2].minor.yy176 = yymsp[-1].minor.yy176;}
+#line 1731 "stparserimpl.c"
         break;
       case 57: /* expression ::= literal */
-#line 379 "stparserimpl.lemon"
-{yylhsminor.yy88 = yymsp[0].minor.yy88;}
-#line 1735 "stparserimpl.c"
-  yymsp[0].minor.yy88 = yylhsminor.yy88;
+#line 380 "stparserimpl.lemon"
+{yylhsminor.yy176 = yymsp[0].minor.yy176;}
+#line 1736 "stparserimpl.c"
+  yymsp[0].minor.yy176 = yylhsminor.yy176;
         break;
       case 58: /* expression ::= unaryexp */
-#line 380 "stparserimpl.lemon"
-{yylhsminor.yy88 = yymsp[0].minor.yy150;}
-#line 1741 "stparserimpl.c"
-  yymsp[0].minor.yy88 = yylhsminor.yy88;
+#line 381 "stparserimpl.lemon"
+{yylhsminor.yy176 = yymsp[0].minor.yy150;}
+#line 1742 "stparserimpl.c"
+  yymsp[0].minor.yy176 = yylhsminor.yy176;
         break;
       case 59: /* expression ::= binaryexp */
-#line 381 "stparserimpl.lemon"
-{yylhsminor.yy88 = yymsp[0].minor.yy156;}
-#line 1747 "stparserimpl.c"
-  yymsp[0].minor.yy88 = yylhsminor.yy88;
+#line 382 "stparserimpl.lemon"
+{yylhsminor.yy176 = yymsp[0].minor.yy156;}
+#line 1748 "stparserimpl.c"
+  yymsp[0].minor.yy176 = yylhsminor.yy176;
         break;
       case 60: /* expression ::= struct_init */
-#line 382 "stparserimpl.lemon"
-{ yylhsminor.yy88 = yymsp[0].minor.yy36;}
-#line 1753 "stparserimpl.c"
-  yymsp[0].minor.yy88 = yylhsminor.yy88;
+#line 383 "stparserimpl.lemon"
+{ yylhsminor.yy176 = yymsp[0].minor.yy36;}
+#line 1754 "stparserimpl.c"
+  yymsp[0].minor.yy176 = yylhsminor.yy176;
         break;
       case 61: /* expression ::= RANGE_CAST LT type_qualified GT PAR_BEGIN expression PAR_END */
-#line 384 "stparserimpl.lemon"
+#line 385 "stparserimpl.lemon"
 {
-    yylhsminor.yy88 = pParser->createNode<yal::frontend::STExprRangeCast>(yymsp[-4].minor.yy97, yymsp[-1].minor.yy88);
+    yylhsminor.yy176 = pParser->createNode<yal::frontend::STExprRangeCast>(yymsp[-4].minor.yy97, yymsp[-1].minor.yy176);
     auto srcInfo = yal::frontend::CreateSourceInfo(yymsp[-6].minor.yy0, yymsp[0].minor.yy0, pParser->getSourceHandle());
-    yylhsminor.yy88->setSourceInfo(srcInfo);
+    yylhsminor.yy176->setSourceInfo(srcInfo);
 }
-#line 1763 "stparserimpl.c"
-  yymsp[-6].minor.yy88 = yylhsminor.yy88;
+#line 1764 "stparserimpl.c"
+  yymsp[-6].minor.yy176 = yylhsminor.yy176;
         break;
       case 62: /* expression ::= identifier_or_self */
-#line 390 "stparserimpl.lemon"
+#line 391 "stparserimpl.lemon"
 {
-    yylhsminor.yy88 = pParser->createNode<yal::frontend::STExprVarRef>(yymsp[0].minor.yy99);
-    yylhsminor.yy88->setSourceInfo(yymsp[0].minor.yy99->getSourceInfo());
+    yylhsminor.yy176 = pParser->createNode<yal::frontend::STExprVarRef>(yymsp[0].minor.yy99);
+    yylhsminor.yy176->setSourceInfo(yymsp[0].minor.yy99->getSourceInfo());
 }
-#line 1772 "stparserimpl.c"
-  yymsp[0].minor.yy88 = yylhsminor.yy88;
+#line 1773 "stparserimpl.c"
+  yymsp[0].minor.yy176 = yylhsminor.yy176;
         break;
       case 63: /* expression ::= expression DOT identifier */
-#line 395 "stparserimpl.lemon"
+#line 396 "stparserimpl.lemon"
 {
-    yylhsminor.yy88 = pParser->createNode<yal::frontend::STExprStructVarRef>(yymsp[-2].minor.yy88, yymsp[0].minor.yy99);
-    auto srcInfo = yal::frontend::CreateSourceInfo(yymsp[-2].minor.yy88->getSourceInfo(), yymsp[0].minor.yy99->getSourceInfo(), pParser->getSourceHandle());
-    yylhsminor.yy88->setSourceInfo(srcInfo);
+    yylhsminor.yy176 = pParser->createNode<yal::frontend::STExprStructVarRef>(yymsp[-2].minor.yy176, yymsp[0].minor.yy99);
+    auto srcInfo = yal::frontend::CreateSourceInfo(yymsp[-2].minor.yy176->getSourceInfo(), yymsp[0].minor.yy99->getSourceInfo(), pParser->getSourceHandle());
+    yylhsminor.yy176->setSourceInfo(srcInfo);
 }
-#line 1782 "stparserimpl.c"
-  yymsp[-2].minor.yy88 = yylhsminor.yy88;
+#line 1783 "stparserimpl.c"
+  yymsp[-2].minor.yy176 = yylhsminor.yy176;
         break;
       case 64: /* expression ::= identifier PAR_BEGIN function_call_args PAR_END */
-#line 401 "stparserimpl.lemon"
+#line 402 "stparserimpl.lemon"
 {
-    yylhsminor.yy88 = pParser->createNode<yal::frontend::STExprFnCall>(yymsp[-3].minor.yy99,yymsp[-1].minor.yy101);
+    yylhsminor.yy176 = pParser->createNode<yal::frontend::STExprFnCall>(yymsp[-3].minor.yy99,yymsp[-1].minor.yy101);
     auto srcInfo = yal::frontend::CreateSourceInfo(yymsp[-3].minor.yy99->getSourceInfo(), yymsp[0].minor.yy0, pParser->getSourceHandle());
-    yylhsminor.yy88->setSourceInfo(srcInfo);
+    yylhsminor.yy176->setSourceInfo(srcInfo);
 }
-#line 1792 "stparserimpl.c"
-  yymsp[-3].minor.yy88 = yylhsminor.yy88;
+#line 1793 "stparserimpl.c"
+  yymsp[-3].minor.yy176 = yylhsminor.yy176;
         break;
       case 65: /* expression ::= expression DOT identifier PAR_BEGIN function_call_args PAR_END */
-#line 407 "stparserimpl.lemon"
+#line 408 "stparserimpl.lemon"
 {
-    yylhsminor.yy88 = pParser->createNode<yal::frontend::STExprFnCall>(yymsp[-3].minor.yy99,yymsp[-5].minor.yy88,yymsp[-1].minor.yy101);
-    auto srcInfo = yal::frontend::CreateSourceInfo(yymsp[-5].minor.yy88->getSourceInfo(), yymsp[0].minor.yy0, pParser->getSourceHandle());
-    yylhsminor.yy88->setSourceInfo(srcInfo);
+    yylhsminor.yy176 = pParser->createNode<yal::frontend::STExprFnCall>(yymsp[-3].minor.yy99,yymsp[-5].minor.yy176,yymsp[-1].minor.yy101);
+    auto srcInfo = yal::frontend::CreateSourceInfo(yymsp[-5].minor.yy176->getSourceInfo(), yymsp[0].minor.yy0, pParser->getSourceHandle());
+    yylhsminor.yy176->setSourceInfo(srcInfo);
 }
-#line 1802 "stparserimpl.c"
-  yymsp[-5].minor.yy88 = yylhsminor.yy88;
+#line 1803 "stparserimpl.c"
+  yymsp[-5].minor.yy176 = yylhsminor.yy176;
         break;
       case 66: /* expression ::= type_specifier COLON COLON identifier PAR_BEGIN function_call_args PAR_END */
-#line 413 "stparserimpl.lemon"
+#line 414 "stparserimpl.lemon"
 {
-    yylhsminor.yy88 = pParser->createNode<yal::frontend::STExprFnCall>(yymsp[-3].minor.yy99,yymsp[-6].minor.yy138,yymsp[-1].minor.yy101);
+    yylhsminor.yy176 = pParser->createNode<yal::frontend::STExprFnCall>(yymsp[-3].minor.yy99,yymsp[-6].minor.yy138,yymsp[-1].minor.yy101);
     auto srcInfo = yal::frontend::CreateSourceInfo(yymsp[-6].minor.yy138->getSourceInfo(), yymsp[0].minor.yy0, pParser->getSourceHandle());
-    yylhsminor.yy88->setSourceInfo(srcInfo);
+    yylhsminor.yy176->setSourceInfo(srcInfo);
 }
-#line 1812 "stparserimpl.c"
-  yymsp[-6].minor.yy88 = yylhsminor.yy88;
+#line 1813 "stparserimpl.c"
+  yymsp[-6].minor.yy176 = yylhsminor.yy176;
         break;
       case 67: /* binaryexp ::= expression AND expression */
-#line 421 "stparserimpl.lemon"
+#line 422 "stparserimpl.lemon"
 {
         yylhsminor.yy156 = pParser->createNode<yal::frontend::STExprBinaryOperator>(yal::frontend::BinaryOperatorType::And,
-                                                        yymsp[-2].minor.yy88, yymsp[0].minor.yy88);
-        auto srcInfo = yal::frontend::CreateSourceInfo(yymsp[-2].minor.yy88->getSourceInfo(), yymsp[0].minor.yy88->getSourceInfo(), pParser->getSourceHandle());
+                                                        yymsp[-2].minor.yy176, yymsp[0].minor.yy176);
+        auto srcInfo = yal::frontend::CreateSourceInfo(yymsp[-2].minor.yy176->getSourceInfo(), yymsp[0].minor.yy176->getSourceInfo(), pParser->getSourceHandle());
         yylhsminor.yy156->setSourceInfo(srcInfo);
 }
-#line 1823 "stparserimpl.c"
+#line 1824 "stparserimpl.c"
   yymsp[-2].minor.yy156 = yylhsminor.yy156;
         break;
       case 68: /* binaryexp ::= expression OR expression */
-#line 427 "stparserimpl.lemon"
+#line 428 "stparserimpl.lemon"
 {
         yylhsminor.yy156 = pParser->createNode<yal::frontend::STExprBinaryOperator>(yal::frontend::BinaryOperatorType::Or,
-                                                        yymsp[-2].minor.yy88, yymsp[0].minor.yy88);
-        auto srcInfo = yal::frontend::CreateSourceInfo(yymsp[-2].minor.yy88->getSourceInfo(), yymsp[0].minor.yy88->getSourceInfo(), pParser->getSourceHandle());
+                                                        yymsp[-2].minor.yy176, yymsp[0].minor.yy176);
+        auto srcInfo = yal::frontend::CreateSourceInfo(yymsp[-2].minor.yy176->getSourceInfo(), yymsp[0].minor.yy176->getSourceInfo(), pParser->getSourceHandle());
         yylhsminor.yy156->setSourceInfo(srcInfo);
 }
-#line 1834 "stparserimpl.c"
+#line 1835 "stparserimpl.c"
   yymsp[-2].minor.yy156 = yylhsminor.yy156;
         break;
       case 69: /* binaryexp ::= expression PLUS expression */
-#line 433 "stparserimpl.lemon"
+#line 434 "stparserimpl.lemon"
 {
         yylhsminor.yy156 = pParser->createNode<yal::frontend::STExprBinaryOperator>(yal::frontend::BinaryOperatorType::Plus,
-                                                        yymsp[-2].minor.yy88, yymsp[0].minor.yy88);
-        auto srcInfo = yal::frontend::CreateSourceInfo(yymsp[-2].minor.yy88->getSourceInfo(), yymsp[0].minor.yy88->getSourceInfo(), pParser->getSourceHandle());
+                                                        yymsp[-2].minor.yy176, yymsp[0].minor.yy176);
+        auto srcInfo = yal::frontend::CreateSourceInfo(yymsp[-2].minor.yy176->getSourceInfo(), yymsp[0].minor.yy176->getSourceInfo(), pParser->getSourceHandle());
         yylhsminor.yy156->setSourceInfo(srcInfo);
 }
-#line 1845 "stparserimpl.c"
+#line 1846 "stparserimpl.c"
   yymsp[-2].minor.yy156 = yylhsminor.yy156;
         break;
       case 70: /* binaryexp ::= expression MINUS expression */
-#line 439 "stparserimpl.lemon"
+#line 440 "stparserimpl.lemon"
 {
         yylhsminor.yy156 = pParser->createNode<yal::frontend::STExprBinaryOperator>(yal::frontend::BinaryOperatorType::Minus,
-                                                        yymsp[-2].minor.yy88, yymsp[0].minor.yy88);
-        auto srcInfo = yal::frontend::CreateSourceInfo(yymsp[-2].minor.yy88->getSourceInfo(), yymsp[0].minor.yy88->getSourceInfo(), pParser->getSourceHandle());
+                                                        yymsp[-2].minor.yy176, yymsp[0].minor.yy176);
+        auto srcInfo = yal::frontend::CreateSourceInfo(yymsp[-2].minor.yy176->getSourceInfo(), yymsp[0].minor.yy176->getSourceInfo(), pParser->getSourceHandle());
         yylhsminor.yy156->setSourceInfo(srcInfo);
 }
-#line 1856 "stparserimpl.c"
+#line 1857 "stparserimpl.c"
   yymsp[-2].minor.yy156 = yylhsminor.yy156;
         break;
       case 71: /* binaryexp ::= expression MULT expression */
-#line 445 "stparserimpl.lemon"
+#line 446 "stparserimpl.lemon"
 {
         yylhsminor.yy156 = pParser->createNode<yal::frontend::STExprBinaryOperator>(yal::frontend::BinaryOperatorType::Mult,
-                                                        yymsp[-2].minor.yy88, yymsp[0].minor.yy88);
-        auto srcInfo = yal::frontend::CreateSourceInfo(yymsp[-2].minor.yy88->getSourceInfo(), yymsp[0].minor.yy88->getSourceInfo(), pParser->getSourceHandle());
+                                                        yymsp[-2].minor.yy176, yymsp[0].minor.yy176);
+        auto srcInfo = yal::frontend::CreateSourceInfo(yymsp[-2].minor.yy176->getSourceInfo(), yymsp[0].minor.yy176->getSourceInfo(), pParser->getSourceHandle());
         yylhsminor.yy156->setSourceInfo(srcInfo);
 }
-#line 1867 "stparserimpl.c"
+#line 1868 "stparserimpl.c"
   yymsp[-2].minor.yy156 = yylhsminor.yy156;
         break;
       case 72: /* binaryexp ::= expression DIV expression */
-#line 451 "stparserimpl.lemon"
+#line 452 "stparserimpl.lemon"
 {
         yylhsminor.yy156 = pParser->createNode<yal::frontend::STExprBinaryOperator>(yal::frontend::BinaryOperatorType::Div,
-                                                        yymsp[-2].minor.yy88, yymsp[0].minor.yy88);
+                                                        yymsp[-2].minor.yy176, yymsp[0].minor.yy176);
 }
-#line 1876 "stparserimpl.c"
+#line 1877 "stparserimpl.c"
   yymsp[-2].minor.yy156 = yylhsminor.yy156;
         break;
       case 73: /* binaryexp ::= expression MOD expression */
-#line 455 "stparserimpl.lemon"
+#line 456 "stparserimpl.lemon"
 {
         yylhsminor.yy156 = pParser->createNode<yal::frontend::STExprBinaryOperator>(yal::frontend::BinaryOperatorType::Mod,
-                                                        yymsp[-2].minor.yy88, yymsp[0].minor.yy88);
-        auto srcInfo = yal::frontend::CreateSourceInfo(yymsp[-2].minor.yy88->getSourceInfo(), yymsp[0].minor.yy88->getSourceInfo(), pParser->getSourceHandle());
+                                                        yymsp[-2].minor.yy176, yymsp[0].minor.yy176);
+        auto srcInfo = yal::frontend::CreateSourceInfo(yymsp[-2].minor.yy176->getSourceInfo(), yymsp[0].minor.yy176->getSourceInfo(), pParser->getSourceHandle());
         yylhsminor.yy156->setSourceInfo(srcInfo);
 }
-#line 1887 "stparserimpl.c"
+#line 1888 "stparserimpl.c"
   yymsp[-2].minor.yy156 = yylhsminor.yy156;
         break;
       case 74: /* binaryexp ::= expression EQ expression */
-#line 462 "stparserimpl.lemon"
+#line 463 "stparserimpl.lemon"
 {
         yylhsminor.yy156 = pParser->createNode<yal::frontend::STExprBinaryOperator>(yal::frontend::BinaryOperatorType::Eq,
-                                                        yymsp[-2].minor.yy88, yymsp[0].minor.yy88);
-        auto srcInfo = yal::frontend::CreateSourceInfo(yymsp[-2].minor.yy88->getSourceInfo(), yymsp[0].minor.yy88->getSourceInfo(), pParser->getSourceHandle());
+                                                        yymsp[-2].minor.yy176, yymsp[0].minor.yy176);
+        auto srcInfo = yal::frontend::CreateSourceInfo(yymsp[-2].minor.yy176->getSourceInfo(), yymsp[0].minor.yy176->getSourceInfo(), pParser->getSourceHandle());
         yylhsminor.yy156->setSourceInfo(srcInfo);
 }
-#line 1898 "stparserimpl.c"
+#line 1899 "stparserimpl.c"
   yymsp[-2].minor.yy156 = yylhsminor.yy156;
         break;
       case 75: /* binaryexp ::= expression NE expression */
-#line 469 "stparserimpl.lemon"
+#line 470 "stparserimpl.lemon"
 {
         yylhsminor.yy156 = pParser->createNode<yal::frontend::STExprBinaryOperator>(yal::frontend::BinaryOperatorType::Ne,
-                                                        yymsp[-2].minor.yy88, yymsp[0].minor.yy88);
-        auto srcInfo = yal::frontend::CreateSourceInfo(yymsp[-2].minor.yy88->getSourceInfo(), yymsp[0].minor.yy88->getSourceInfo(), pParser->getSourceHandle());
+                                                        yymsp[-2].minor.yy176, yymsp[0].minor.yy176);
+        auto srcInfo = yal::frontend::CreateSourceInfo(yymsp[-2].minor.yy176->getSourceInfo(), yymsp[0].minor.yy176->getSourceInfo(), pParser->getSourceHandle());
         yylhsminor.yy156->setSourceInfo(srcInfo);
 }
-#line 1909 "stparserimpl.c"
+#line 1910 "stparserimpl.c"
   yymsp[-2].minor.yy156 = yylhsminor.yy156;
         break;
       case 76: /* binaryexp ::= expression LE expression */
-#line 476 "stparserimpl.lemon"
+#line 477 "stparserimpl.lemon"
 {
         yylhsminor.yy156 = pParser->createNode<yal::frontend::STExprBinaryOperator>(yal::frontend::BinaryOperatorType::Le,
-                                                        yymsp[-2].minor.yy88, yymsp[0].minor.yy88);
-        auto srcInfo = yal::frontend::CreateSourceInfo(yymsp[-2].minor.yy88->getSourceInfo(), yymsp[0].minor.yy88->getSourceInfo(), pParser->getSourceHandle());
+                                                        yymsp[-2].minor.yy176, yymsp[0].minor.yy176);
+        auto srcInfo = yal::frontend::CreateSourceInfo(yymsp[-2].minor.yy176->getSourceInfo(), yymsp[0].minor.yy176->getSourceInfo(), pParser->getSourceHandle());
         yylhsminor.yy156->setSourceInfo(srcInfo);
 }
-#line 1920 "stparserimpl.c"
+#line 1921 "stparserimpl.c"
   yymsp[-2].minor.yy156 = yylhsminor.yy156;
         break;
       case 77: /* binaryexp ::= expression LT expression */
-#line 483 "stparserimpl.lemon"
+#line 484 "stparserimpl.lemon"
 {
         yylhsminor.yy156 = pParser->createNode<yal::frontend::STExprBinaryOperator>(yal::frontend::BinaryOperatorType::Lt,
-                                                        yymsp[-2].minor.yy88, yymsp[0].minor.yy88);
-        auto srcInfo = yal::frontend::CreateSourceInfo(yymsp[-2].minor.yy88->getSourceInfo(), yymsp[0].minor.yy88->getSourceInfo(), pParser->getSourceHandle());
+                                                        yymsp[-2].minor.yy176, yymsp[0].minor.yy176);
+        auto srcInfo = yal::frontend::CreateSourceInfo(yymsp[-2].minor.yy176->getSourceInfo(), yymsp[0].minor.yy176->getSourceInfo(), pParser->getSourceHandle());
         yylhsminor.yy156->setSourceInfo(srcInfo);
 }
-#line 1931 "stparserimpl.c"
+#line 1932 "stparserimpl.c"
   yymsp[-2].minor.yy156 = yylhsminor.yy156;
         break;
       case 78: /* binaryexp ::= expression GE expression */
-#line 490 "stparserimpl.lemon"
+#line 491 "stparserimpl.lemon"
 {
         yylhsminor.yy156 = pParser->createNode<yal::frontend::STExprBinaryOperator>(yal::frontend::BinaryOperatorType::Ge,
-                                                        yymsp[-2].minor.yy88, yymsp[0].minor.yy88);
-        auto srcInfo = yal::frontend::CreateSourceInfo(yymsp[-2].minor.yy88->getSourceInfo(), yymsp[0].minor.yy88->getSourceInfo(), pParser->getSourceHandle());
+                                                        yymsp[-2].minor.yy176, yymsp[0].minor.yy176);
+        auto srcInfo = yal::frontend::CreateSourceInfo(yymsp[-2].minor.yy176->getSourceInfo(), yymsp[0].minor.yy176->getSourceInfo(), pParser->getSourceHandle());
         yylhsminor.yy156->setSourceInfo(srcInfo);
 }
-#line 1942 "stparserimpl.c"
+#line 1943 "stparserimpl.c"
   yymsp[-2].minor.yy156 = yylhsminor.yy156;
         break;
       case 79: /* binaryexp ::= expression GT expression */
-#line 497 "stparserimpl.lemon"
+#line 498 "stparserimpl.lemon"
 {
         yylhsminor.yy156 = pParser->createNode<yal::frontend::STExprBinaryOperator>(yal::frontend::BinaryOperatorType::Gt,
-                                                        yymsp[-2].minor.yy88, yymsp[0].minor.yy88);
-        auto srcInfo = yal::frontend::CreateSourceInfo(yymsp[-2].minor.yy88->getSourceInfo(), yymsp[0].minor.yy88->getSourceInfo(), pParser->getSourceHandle());
+                                                        yymsp[-2].minor.yy176, yymsp[0].minor.yy176);
+        auto srcInfo = yal::frontend::CreateSourceInfo(yymsp[-2].minor.yy176->getSourceInfo(), yymsp[0].minor.yy176->getSourceInfo(), pParser->getSourceHandle());
         yylhsminor.yy156->setSourceInfo(srcInfo);
 }
-#line 1953 "stparserimpl.c"
+#line 1954 "stparserimpl.c"
   yymsp[-2].minor.yy156 = yylhsminor.yy156;
         break;
       case 80: /* unaryexp ::= NOT expression */
-#line 506 "stparserimpl.lemon"
+#line 507 "stparserimpl.lemon"
 {
     yylhsminor.yy150 = pParser->createNode<yal::frontend::STExprUnaryOperator>(yal::frontend::UnaryOperatorType::Not,
-                                               yymsp[0].minor.yy88);
-    auto srcInfo = yal::frontend::CreateSourceInfo(yymsp[-1].minor.yy0, yymsp[0].minor.yy88->getSourceInfo(), pParser->getSourceHandle());
+                                               yymsp[0].minor.yy176);
+    auto srcInfo = yal::frontend::CreateSourceInfo(yymsp[-1].minor.yy0, yymsp[0].minor.yy176->getSourceInfo(), pParser->getSourceHandle());
     yylhsminor.yy150->setSourceInfo(srcInfo);
 }
-#line 1964 "stparserimpl.c"
+#line 1965 "stparserimpl.c"
   yymsp[-1].minor.yy150 = yylhsminor.yy150;
         break;
       case 81: /* unaryexp ::= BIT_NOT expression */
-#line 512 "stparserimpl.lemon"
+#line 513 "stparserimpl.lemon"
 {
     yylhsminor.yy150 = pParser->createNode<yal::frontend::STExprUnaryOperator>(yal::frontend::UnaryOperatorType::BitNot,
-                                               yymsp[0].minor.yy88);
-    auto srcInfo = yal::frontend::CreateSourceInfo(yymsp[-1].minor.yy0, yymsp[0].minor.yy88->getSourceInfo(), pParser->getSourceHandle());
+                                               yymsp[0].minor.yy176);
+    auto srcInfo = yal::frontend::CreateSourceInfo(yymsp[-1].minor.yy0, yymsp[0].minor.yy176->getSourceInfo(), pParser->getSourceHandle());
     yylhsminor.yy150->setSourceInfo(srcInfo);
 }
-#line 1975 "stparserimpl.c"
+#line 1976 "stparserimpl.c"
   yymsp[-1].minor.yy150 = yylhsminor.yy150;
         break;
       case 82: /* unaryexp ::= MINUS expression */
-#line 518 "stparserimpl.lemon"
+#line 519 "stparserimpl.lemon"
 {
     yylhsminor.yy150 = pParser->createNode<yal::frontend::STExprUnaryOperator>(yal::frontend::UnaryOperatorType::Negate,
-                                               yymsp[0].minor.yy88);
-    auto srcInfo = yal::frontend::CreateSourceInfo(yymsp[-1].minor.yy0, yymsp[0].minor.yy88->getSourceInfo(), pParser->getSourceHandle());
+                                               yymsp[0].minor.yy176);
+    auto srcInfo = yal::frontend::CreateSourceInfo(yymsp[-1].minor.yy0, yymsp[0].minor.yy176->getSourceInfo(), pParser->getSourceHandle());
     yylhsminor.yy150->setSourceInfo(srcInfo);
 }
-#line 1986 "stparserimpl.c"
+#line 1987 "stparserimpl.c"
   yymsp[-1].minor.yy150 = yylhsminor.yy150;
         break;
       case 83: /* unaryexp ::= REFERENCE expression */
-#line 525 "stparserimpl.lemon"
+#line 526 "stparserimpl.lemon"
 {
     yylhsminor.yy150 = pParser->createNode<yal::frontend::STExprUnaryOperator>(yal::frontend::UnaryOperatorType::Reference,
-                                               yymsp[0].minor.yy88);
-    auto srcInfo = yal::frontend::CreateSourceInfo(yymsp[-1].minor.yy0, yymsp[0].minor.yy88->getSourceInfo(), pParser->getSourceHandle());
+                                               yymsp[0].minor.yy176);
+    auto srcInfo = yal::frontend::CreateSourceInfo(yymsp[-1].minor.yy0, yymsp[0].minor.yy176->getSourceInfo(), pParser->getSourceHandle());
     yylhsminor.yy150->setSourceInfo(srcInfo);
 }
-#line 1997 "stparserimpl.c"
+#line 1998 "stparserimpl.c"
   yymsp[-1].minor.yy150 = yylhsminor.yy150;
         break;
       case 84: /* function_call_args ::= function_call_args COMMA expression */
-#line 534 "stparserimpl.lemon"
+#line 535 "stparserimpl.lemon"
 {
     yylhsminor.yy101 = yymsp[-2].minor.yy101;
-    yylhsminor.yy101->push_back(yymsp[0].minor.yy88);
+    yylhsminor.yy101->push_back(yymsp[0].minor.yy176);
 }
-#line 2006 "stparserimpl.c"
+#line 2007 "stparserimpl.c"
   yymsp[-2].minor.yy101 = yylhsminor.yy101;
         break;
       case 85: /* function_call_args ::= expression */
-#line 538 "stparserimpl.lemon"
+#line 539 "stparserimpl.lemon"
 {
-    yylhsminor.yy101 = pParser->createVector<const yal::frontend::STStmtExpression*>();
-    yylhsminor.yy101->push_back(yymsp[0].minor.yy88);
+    yylhsminor.yy101 = pParser->createVector<const yal::frontend::STExpression*>();
+    yylhsminor.yy101->push_back(yymsp[0].minor.yy176);
 }
-#line 2015 "stparserimpl.c"
+#line 2016 "stparserimpl.c"
   yymsp[0].minor.yy101 = yylhsminor.yy101;
         break;
       case 86: /* function_call_args ::= */
-#line 542 "stparserimpl.lemon"
+#line 543 "stparserimpl.lemon"
 {
     yymsp[1].minor.yy101= nullptr;
 }
-#line 2023 "stparserimpl.c"
+#line 2024 "stparserimpl.c"
         break;
       case 87: /* struct_init ::= type_specifier SCOPE_BEGIN struct_member_init_list SCOPE_END */
-#line 549 "stparserimpl.lemon"
+#line 550 "stparserimpl.lemon"
 {
     yylhsminor.yy36 = pParser->createNode<yal::frontend::STExprStructInit>(yymsp[-3].minor.yy138, yymsp[-1].minor.yy32);
     auto srcInfo = yal::frontend::CreateSourceInfo(yymsp[-3].minor.yy138->getSourceInfo(), yymsp[0].minor.yy0, pParser->getSourceHandle());
     yylhsminor.yy36->setSourceInfo(srcInfo);
 }
-#line 2032 "stparserimpl.c"
+#line 2033 "stparserimpl.c"
   yymsp[-3].minor.yy36 = yylhsminor.yy36;
         break;
       case 88: /* struct_member_init_list ::= */
-#line 555 "stparserimpl.lemon"
+#line 556 "stparserimpl.lemon"
 {yymsp[1].minor.yy32 = nullptr;}
-#line 2038 "stparserimpl.c"
+#line 2039 "stparserimpl.c"
         break;
       case 89: /* struct_member_init_list ::= struct_member_init_list COMMA struct_member_init */
-#line 556 "stparserimpl.lemon"
+#line 557 "stparserimpl.lemon"
 {
      yymsp[-2].minor.yy32->push_back(yymsp[0].minor.yy169);
      yylhsminor.yy32 = yymsp[-2].minor.yy32;
 }
-#line 2046 "stparserimpl.c"
+#line 2047 "stparserimpl.c"
   yymsp[-2].minor.yy32 = yylhsminor.yy32;
         break;
       case 90: /* struct_member_init_list ::= struct_member_init */
-#line 560 "stparserimpl.lemon"
+#line 561 "stparserimpl.lemon"
 {
         yylhsminor.yy32 = pParser->createVector<const yal::frontend::STStructMemberInit*>();
         yylhsminor.yy32->push_back(yymsp[0].minor.yy169);
 }
-#line 2055 "stparserimpl.c"
+#line 2056 "stparserimpl.c"
   yymsp[0].minor.yy32 = yylhsminor.yy32;
         break;
       case 91: /* struct_member_init ::= identifier COLON expression */
-#line 565 "stparserimpl.lemon"
+#line 566 "stparserimpl.lemon"
 {
-    yylhsminor.yy169 = pParser->createNode<yal::frontend::STStructMemberInit>(yymsp[-2].minor.yy99,yymsp[0].minor.yy88);
-    auto srcInfo = yal::frontend::CreateSourceInfo(yymsp[-2].minor.yy99->getSourceInfo(), yymsp[0].minor.yy88->getSourceInfo(), pParser->getSourceHandle());
+    yylhsminor.yy169 = pParser->createNode<yal::frontend::STStructMemberInit>(yymsp[-2].minor.yy99,yymsp[0].minor.yy176);
+    auto srcInfo = yal::frontend::CreateSourceInfo(yymsp[-2].minor.yy99->getSourceInfo(), yymsp[0].minor.yy176->getSourceInfo(), pParser->getSourceHandle());
     yylhsminor.yy169->setSourceInfo(srcInfo);
 }
-#line 2065 "stparserimpl.c"
+#line 2066 "stparserimpl.c"
   yymsp[-2].minor.yy169 = yylhsminor.yy169;
         break;
       case 92: /* literal ::= INTEGER_LITERAL */
-#line 573 "stparserimpl.lemon"
+#line 574 "stparserimpl.lemon"
 {
-        yylhsminor.yy88 = pParser->createNode<yal::frontend::STExprIntegerLiteral>(yymsp[0].minor.yy0.tokenStr);
+        yylhsminor.yy176 = pParser->createNode<yal::frontend::STExprIntegerLiteral>(yymsp[0].minor.yy0.tokenStr);
         auto srcInfo =yal::frontend::CreateSourceInfo(yymsp[0].minor.yy0, yymsp[0].minor.yy0, pParser->getSourceHandle());
-        yylhsminor.yy88->setSourceInfo(srcInfo);
+        yylhsminor.yy176->setSourceInfo(srcInfo);
    }
-#line 2075 "stparserimpl.c"
-  yymsp[0].minor.yy88 = yylhsminor.yy88;
+#line 2076 "stparserimpl.c"
+  yymsp[0].minor.yy176 = yylhsminor.yy176;
         break;
       case 93: /* literal ::= FLOAT_LITERAL */
-#line 578 "stparserimpl.lemon"
+#line 579 "stparserimpl.lemon"
 {
-        yylhsminor.yy88 = pParser->createNode<yal::frontend::STExprFloatLiteral>(yymsp[0].minor.yy0.tokenStr);
+        yylhsminor.yy176 = pParser->createNode<yal::frontend::STExprFloatLiteral>(yymsp[0].minor.yy0.tokenStr);
         auto srcInfo = yal::frontend::CreateSourceInfo(yymsp[0].minor.yy0, yymsp[0].minor.yy0, pParser->getSourceHandle());
-        yylhsminor.yy88->setSourceInfo(srcInfo);
+        yylhsminor.yy176->setSourceInfo(srcInfo);
 }
-#line 2085 "stparserimpl.c"
-  yymsp[0].minor.yy88 = yylhsminor.yy88;
+#line 2086 "stparserimpl.c"
+  yymsp[0].minor.yy176 = yylhsminor.yy176;
         break;
       case 94: /* literal ::= BOOL_LITERAL */
-#line 583 "stparserimpl.lemon"
+#line 584 "stparserimpl.lemon"
 {
-        yylhsminor.yy88 = pParser->createNode<yal::frontend::STExprBoolLiteral>(yymsp[0].minor.yy0.tokenStr);
+        yylhsminor.yy176 = pParser->createNode<yal::frontend::STExprBoolLiteral>(yymsp[0].minor.yy0.tokenStr);
         auto srcInfo = yal::frontend::CreateSourceInfo(yymsp[0].minor.yy0, yymsp[0].minor.yy0, pParser->getSourceHandle());
-        yylhsminor.yy88->setSourceInfo(srcInfo);
+        yylhsminor.yy176->setSourceInfo(srcInfo);
 }
-#line 2095 "stparserimpl.c"
-  yymsp[0].minor.yy88 = yylhsminor.yy88;
+#line 2096 "stparserimpl.c"
+  yymsp[0].minor.yy176 = yylhsminor.yy176;
         break;
       default:
       /* (95) module ::= decls END */ yytestcase(yyruleno==95);
@@ -2175,7 +2176,7 @@ static void yy_syntax_error(
         }*/
 #endif
     }
-#line 2179 "stparserimpl.c"
+#line 2180 "stparserimpl.c"
 /************ End %syntax_error code ******************************************/
   YALSTParserARG_STORE; /* Suppress warning about unused %extra_argument variable */
 }

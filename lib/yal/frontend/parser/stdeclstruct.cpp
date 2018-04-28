@@ -35,8 +35,7 @@ namespace yal::frontend {
 
     STDeclStruct::STDeclStruct(const STIdentifier *name,
                                const Members *members):
-        STDecl(SyntaxTreeType::STDeclStruct),
-        m_name(name),
+        STDecl(SyntaxTreeType::STDeclStruct, name),
         m_members(members) {
 
     }

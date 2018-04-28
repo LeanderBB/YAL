@@ -19,14 +19,6 @@
 
 #pragma once
 
-#include "yal/frontend/lexer/lexer.h"
-#include "yal/frontend/parser/stparser.h"
-
-namespace yal {
-    class ErrorReporter;
-    class SourceItem;
-}
-
 namespace yal::frontend {
 
     class Module;
@@ -34,15 +26,10 @@ namespace yal::frontend {
     class PassParser
     {
     public:
-        PassParser(ErrorReporter& errReporter,
-                   Module& module,
-                   SourceItem& item);
+        PassParser();
 
         bool execute(PassOptions&);
 
-    private:
-        Lexer m_lexer;
-        STParser m_parser;
     };
 
 }

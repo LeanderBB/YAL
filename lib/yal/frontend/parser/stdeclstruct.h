@@ -56,10 +56,6 @@ namespace yal::frontend {
         STDeclStruct(const STIdentifier* name,
                      const Members* members);
 
-        const STIdentifier* getName() const {
-            return m_name;
-        }
-
         const Members& getMembers() const {
             return *m_members;
         }
@@ -67,7 +63,6 @@ namespace yal::frontend {
         void acceptVisitor(SyntaxTreeVisitor& visitor) const override final;
 
     protected:
-        const STIdentifier* m_name;
         const Members* m_members;
     };
 

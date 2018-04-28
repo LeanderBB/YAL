@@ -38,8 +38,7 @@ namespace yal::frontend {
                                    const STQualType* returnType,
                                    const Params *params,
                                    const Body *statements):
-        STDecl(SyntaxTreeType::STDeclFunction),
-        m_functionName(functionName),
+        STDecl(SyntaxTreeType::STDeclFunction, functionName),
         m_functionTarget(functionTarget),
         m_returnType(returnType),
         m_params(params),

@@ -23,7 +23,7 @@
 
 namespace yal::frontend {
 
-    class STExprVarRef final : public STStmtExpression {
+    class STExprVarRef final : public STExpression {
     public:
         STExprVarRef(const STIdentifier* identitifer);
 
@@ -37,10 +37,10 @@ namespace yal::frontend {
         const STIdentifier* m_varRef;
     };
 
-    class STStmtExpression;
-    class STExprStructVarRef final : public STStmtExpression {
+    class STExpression;
+    class STExprStructVarRef final : public STExpression {
     public:
-        STExprStructVarRef( const STStmtExpression* expression,
+        STExprStructVarRef( const STExpression* expression,
                             const STIdentifier* identitifer);
 
         void acceptVisitor(SyntaxTreeVisitor& visitor) const override final;
@@ -49,12 +49,12 @@ namespace yal::frontend {
             return m_varRef;
         }
 
-        const STStmtExpression* getExpression() const {
+        const STExpression* getExpression() const {
             return m_expr;
         }
 
     private:
-        const STStmtExpression* m_expr;
+        const STExpression* m_expr;
         const STIdentifier* m_varRef;
     };
 }

@@ -24,9 +24,8 @@ namespace yal::frontend {
 
     STDeclVar::STDeclVar(const STIdentifier* name,
                          const STQualType* type,
-                         const STStmtExpression* initExpr):
-        STDecl(SyntaxTreeType::STDeclVar),
-        m_name(name),
+                         const STExpression* initExpr):
+        STDecl(SyntaxTreeType::STDeclVar, name),
         m_type(type),
         m_expr(initExpr) {
 

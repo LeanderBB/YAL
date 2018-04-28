@@ -23,18 +23,18 @@
 
 namespace yal::frontend {
 
-    class STStmtExpression;
+    class STExpression;
     class STStmtReturn final : public STStatement {
     public:
-        STStmtReturn(const STStmtExpression* expr);
+        STStmtReturn(const STExpression* expr);
 
-        const STStmtExpression* getExpr() const {
+        const STExpression* getExpr() const {
             return m_expr;
         }
 
         void acceptVisitor(SyntaxTreeVisitor& visitor) const override final;
     private:
-        const STStmtExpression* m_expr;
+        const STExpression* m_expr;
     };
 
 }

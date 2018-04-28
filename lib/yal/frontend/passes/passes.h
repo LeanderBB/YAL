@@ -20,6 +20,7 @@
 namespace yal {
     class ErrorReporter;
     class SourceManager;
+    class SourceItem;
 }
 
 namespace yal::frontend {
@@ -36,14 +37,17 @@ namespace yal::frontend {
     struct PassOptions {
         PassOptions(ErrorReporter& errReporter_,
                     SourceManager& srcManager_,
-                    Module& module_):
+                    Module& module_,
+                    SourceItem& srcItem_):
             errReporter(errReporter_),
             srcManager(srcManager_),
-            module(module_) {
+            module(module_),
+            srcItem(srcItem_){
         }
 
         ErrorReporter& errReporter;
         SourceManager& srcManager;
         Module& module;
+        SourceItem& srcItem;
     };
 };

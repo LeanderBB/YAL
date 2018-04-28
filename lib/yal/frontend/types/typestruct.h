@@ -24,6 +24,7 @@
 namespace yal::frontend {
 
     class STDeclStruct;
+    class DeclStruct;
     class TypeStruct : public Type
     {
     public:
@@ -34,7 +35,15 @@ namespace yal::frontend {
             return m_stdecl;
         }
 
+        void setDecl(DeclStruct* decl);
+
+        DeclStruct* getDecl() {
+            return m_decl;
+        }
+
     private:
         const STDeclStruct* m_stdecl;
+        DeclStruct* m_decl;
+
     };
 }

@@ -23,87 +23,65 @@ set(YAL_SOURCES
     yal/frontend/ast/astcontext.h
     yal/frontend/ast/astcontext.cpp
 
-    #    yal/ast/astnodes.h
-#    yal/ast/declbase.h
-#    yal/ast/declbase.cpp
-#    yal/ast/declbasetypes.def
-#   yal/ast/asttypes.h
-#    yal/ast/astnodes.def
-#    yal/ast/declfunctionbase.h
-#    yal/ast/declfunctionbase.cpp
-#    yal/ast/declfunction.h
-#    yal/ast/declfunction.cpp
-#    yal/ast/decltypefunction.h
-#    yal/ast/decltypefunction.cpp
-#    yal/ast/type.h
-#    yal/ast/type.cpp
-#    yal/ast/typelist.def
-#    yal/ast/typebuiltin.cpp
-#    yal/ast/typebuiltin.h
-#    yal/ast/typecontext.cpp
-#    yal/ast/typecontext.h
-#    yal/ast/declmodule.cpp
-#    yal/ast/declmodule.h
-#    yal/ast/reftype.cpp
-#    yal/ast/reftype.h
-#    yal/ast/identifier.cpp
-#    yal/ast/identifier.h
-#    yal/ast/statement.h
-#    yal/ast/statement.cpp
-#    yal/ast/stmtexpression.cpp
-#    yal/ast/stmtexpression.h
-#    yal/ast/stmtreturn.cpp
-#    yal/ast/stmtreturn.h
-#    yal/ast/exprunaryoperator.cpp
-#    yal/ast/exprunaryoperator.h
-#    yal/ast/exprbinaryoperator.cpp
-#    yal/ast/exprbinaryoperator.h
-#    yal/ast/declvar.cpp
-#    yal/ast/declparamvar.cpp
-#    yal/ast/declparamvar.h
-#    yal/ast/nodecontainer.h
-#    yal/ast/statementlist.h
-#    yal/ast/statementlist.cpp
-#    yal/ast/exprboolliteral.cpp
-#    yal/ast/exprboolliteral.h
-#    yal/ast/exprintegerliteral.h
-#   yal/ast/exprintegerliteral.cpp
-#   yal/ast/stmtdecl.cpp
-#    yal/ast/stmtdecl.h
-#    yal/ast/stmtassign.cpp
-#   yal/ast/stmtassign.h
-#    yal/ast/exprvarref.cpp
-#    yal/ast/exprvarref.h
-#    yal/ast/astvisitor.h
-#    yal/ast/astvisitor.cpp
-#    yal/ast/astprinter.cpp
-#    yal/ast/astprinter.h
-#    yal/ast/declstruct.h
-#    yal/ast/declstruct.cpp
-#    yal/ast/exprstructvarref.cpp
-#    yal/ast/exprstructvarref.h
-#    yal/ast/exprfncall.h
-#    yal/ast/exprfncall.cpp
-#    yal/ast/exprtypefncall.h
-#    yal/ast/exprtypefncall.cpp
-#    yal/ast/exprlist.h
-#    yal/ast/exprlist.cpp
-#    yal/ast/exprfloatliteral.cpp
-#    yal/ast/exprfloatliteral.h
-#    yal/ast/typedecl.h
-#    yal/ast/typedecl.cpp
-#   yal/ast/declscope.cpp
-#    yal/ast/declscope.h
-#    yal/ast/exprrangecast.h
-#    yal/ast/exprrangecast.cpp
-#    yal/ast/exprstructinit.cpp
-#    yal/ast/exprstructinit.h
-#    yal/ast/structmemberinit.h
-#    yal/ast/structmemberinit.cpp
-#   yal/ast/exprtypefncallstatic.h
-#    yal/ast/exprtypefncallstatic.cpp
-#    yal/ast/astsearch.cpp
-#    yal/ast/astsearch.h
+    yal/frontend/ast/astnodes.h
+    yal/frontend/ast/declbase.h
+    yal/frontend/ast/declbase.cpp
+    yal/frontend/ast/declbasetypes.def
+    yal/frontend/ast/asttypes.h
+    yal/frontend/ast/astnodes.def
+    yal/frontend/ast/declfunction.h
+    yal/frontend/ast/declfunction.cpp
+    yal/frontend/ast/decltypefunction.h
+    yal/frontend/ast/decltypefunction.cpp
+    yal/frontend/ast/declmodule.cpp
+    yal/frontend/ast/declmodule.h
+    yal/frontend/ast/statement.h
+    yal/frontend/ast/statement.cpp
+    yal/frontend/ast/stmtexpression.cpp
+    yal/frontend/ast/stmtexpression.h
+    yal/frontend/ast/stmtreturn.cpp
+    yal/frontend/ast/stmtreturn.h
+    yal/frontend/ast/exprunaryoperator.cpp
+    yal/frontend/ast/exprunaryoperator.h
+    yal/frontend/ast/exprbinaryoperator.cpp
+    yal/frontend/ast/exprbinaryoperator.h
+    yal/frontend/ast/declvar.cpp
+    yal/frontend/ast/declparamvar.cpp
+    yal/frontend/ast/declparamvar.h
+    yal/frontend/ast/exprboolliteral.cpp
+    yal/frontend/ast/exprboolliteral.h
+    yal/frontend/ast/exprintegerliteral.h
+    yal/frontend/ast/exprintegerliteral.cpp
+    yal/frontend/ast/stmtdecl.cpp
+    yal/frontend/ast/stmtdecl.h
+    yal/frontend/ast/stmtassign.cpp
+    yal/frontend/ast/stmtassign.h
+    yal/frontend/ast/exprvarref.cpp
+    yal/frontend/ast/exprvarref.h
+    yal/frontend/ast/astvisitor.h
+    yal/frontend/ast/astvisitor.cpp
+    yal/frontend/ast/astprinter.cpp
+    yal/frontend/ast/astprinter.h
+    yal/frontend/ast/declstruct.h
+    yal/frontend/ast/declstruct.cpp
+    yal/frontend/ast/exprstructvarref.cpp
+    yal/frontend/ast/exprstructvarref.h
+    yal/frontend/ast/exprfncall.h
+    yal/frontend/ast/exprfncall.cpp
+    yal/frontend/ast/exprtypefncall.h
+    yal/frontend/ast/exprtypefncall.cpp
+    yal/frontend/ast/exprfloatliteral.cpp
+    yal/frontend/ast/exprfloatliteral.h
+    yal/frontend/ast/declscope.cpp
+    yal/frontend/ast/declscope.h
+    yal/frontend/ast/exprrangecast.h
+    yal/frontend/ast/exprrangecast.cpp
+    yal/frontend/ast/exprstructinit.cpp
+    yal/frontend/ast/exprstructinit.h
+    yal/frontend/ast/structmemberinit.h
+    yal/frontend/ast/structmemberinit.cpp
+    yal/frontend/ast/astsearch.cpp
+    yal/frontend/ast/astsearch.h
 
 #   yal/compiler/compiler.cpp
 #   yal/compiler/compiler.h
@@ -165,6 +143,7 @@ set(YAL_SOURCES
     yal/frontend/parser/stdeclvar.h
     yal/frontend/parser/stdeclvar.cpp
     yal/frontend/parser/ststatement.h
+    yal/frontend/parser/ststmtexpression.cpp
     yal/frontend/parser/ststmtexpression.h
     yal/frontend/parser/ststmtreturn.h
     yal/frontend/parser/ststmtreturn.cpp
@@ -229,6 +208,8 @@ set(YAL_SOURCES
     yal/frontend/passes/decl/stpredeclvisitor.cpp
     yal/frontend/passes/decl/errorspassdecl.cpp
     yal/frontend/passes/decl/errorspassdecl.h
+    yal/frontend/passes/decl/astbuilder.cpp
+    yal/frontend/passes/decl/astbuilder.h
 
     #yal/transpiler/transpiler.h
     #yal/transpiler/c/transpilerc.h
@@ -260,6 +241,7 @@ set(YAL_SOURCES
     yal/util/path.cpp
     yal/util/codewriter.cpp
     yal/util/codewriter.h
+    yal/util/scopedstackelem.h
     )
 
 # include parser / lexer DSL's
@@ -269,7 +251,7 @@ set_source_files_properties(yal/frontend/parser/stparserimpl.lemon
     PROPERTIES HEADER_FILE_ONLY TRUE)
 
 # include .def files
-set_source_files_properties(yal/parser/astnodes.def
+set_source_files_properties(yal/frontend/ast/astnodes.def
     PROPERTIES HEADER_FILE_ONLY TRUE)
 set_source_files_properties(yal/parser/declbasetypes.def
     PROPERTIES HEADER_FILE_ONLY TRUE)

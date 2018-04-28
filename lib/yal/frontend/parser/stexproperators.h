@@ -23,11 +23,11 @@
 #include "yal/frontend/types/operators.h"
 namespace yal::frontend {
 
-    class STExprUnaryOperator final : public STStmtExpression {
+    class STExprUnaryOperator final : public STExpression {
     public:
 
         STExprUnaryOperator(const UnaryOperatorType op,
-                            const STStmtExpression* expr);
+                            const STExpression* expr);
 
         void acceptVisitor(SyntaxTreeVisitor& visitor) const override final;
 
@@ -35,22 +35,22 @@ namespace yal::frontend {
             return m_op;
         }
 
-        const STStmtExpression* getExpression() const {
+        const STExpression* getExpression() const {
             return m_expr;
         }
 
     private:
         const UnaryOperatorType m_op;
-        const STStmtExpression* m_expr;
+        const STExpression* m_expr;
     };
 
 
-    class STExprBinaryOperator final : public STStmtExpression {
+    class STExprBinaryOperator final : public STExpression {
     public:
 
         STExprBinaryOperator(const BinaryOperatorType op,
-                             const STStmtExpression* exprLeft,
-                             const STStmtExpression* exprRight);
+                             const STExpression* exprLeft,
+                             const STExpression* exprRight);
 
         void acceptVisitor(SyntaxTreeVisitor& visitor) const override final;
 
@@ -58,17 +58,17 @@ namespace yal::frontend {
             return m_op;
         }
 
-        const STStmtExpression* getExpressionLeft() const {
+        const STExpression* getExpressionLeft() const {
             return m_exprLeft;
         }
 
-        const STStmtExpression* getExpressionRight() const {
+        const STExpression* getExpressionRight() const {
             return m_exprRight;
         }
     private:
         const BinaryOperatorType m_op;
-        const STStmtExpression* m_exprLeft;
-        const STStmtExpression* m_exprRight;
+        const STExpression* m_exprLeft;
+        const STExpression* m_exprRight;
     };
 
 }

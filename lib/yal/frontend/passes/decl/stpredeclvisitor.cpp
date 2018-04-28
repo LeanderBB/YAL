@@ -42,13 +42,24 @@ namespace yal::frontend {
     STPreDeclVisitor::visit(const STDeclFunction& declFunction) {
         TypeContext& typeCtx = m_module.getTypeContext();
 
+        Type* target = nullptr;
         // check if target type has beend declared
         const STType* targetType = declFunction.getFunctionTarget();
         if (targetType != nullptr ) {
             const Identifier targetId(targetType->getIdentifier(),m_module);
-            if (!typeCtx.hasType(targetId)) {
+            target = typeCtx.getByIdentifier(targetId);
+
+            if (target == nullptr) {
                 auto errorPtr = std::make_unique<ErrorUndefinedTypeRef>(targetId.getName(),
                                                                         targetType->getSourceInfo());
+                m_errReporter.report(std::move(errorPtr));
+                return;
+            }
+
+            if (!target->isFunctionTargetable()) {
+                auto errorPtr = std::make_unique<ErrorFnOnNonTargetType>(declFunction.getFunctionName()->getString(),
+                                                                         declFunction.getFunctionName()->getSourceInfo(),
+                                                                         target);
                 m_errReporter.report(std::move(errorPtr));
                 return;
             }
@@ -61,10 +72,16 @@ namespace yal::frontend {
             typeCtx.registerType(typeFn);
         } else {
             // report error
-            auto errorPtr = std::make_unique<ErrorDuplicateDecl>(m_module,
+            auto errorPtr = std::make_unique<ErrorDuplicateTypeDecl>(m_module,
                                                                  *typeFn,
                                                                  *existingType);
             m_errReporter.report(std::move(errorPtr));
+            return;
+        }
+
+        // register function with type
+        if (target != nullptr) {
+            target->addFunction(typeFn);
         }
     }
 
@@ -79,7 +96,7 @@ namespace yal::frontend {
             typeCtx.registerType(typeStruct);
         } else {
             // report error
-            auto errorPtr = std::make_unique<ErrorDuplicateDecl>(m_module,
+            auto errorPtr = std::make_unique<ErrorDuplicateTypeDecl>(m_module,
                                                                  *typeStruct,
                                                                  *existingType);
             m_errReporter.report(std::move(errorPtr));

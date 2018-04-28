@@ -58,9 +58,10 @@ namespace yal::frontend {
         // setup pass options
         PassOptions passOptions(m_errReporter,
                                 m_srcManager,
-                                *module);
+                                *module,
+                                *sourceItem);
         // create passes
-        PassParser passParser(m_errReporter, *module, *sourceItem);
+        PassParser passParser;
         PassDecl passDecl;
 
         if (!passParser.execute(passOptions)) {

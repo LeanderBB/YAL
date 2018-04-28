@@ -56,6 +56,7 @@ namespace yal::frontend {
 
         bool isFunction() const;
         bool isTypeFunction() const;
+        bool isTypeFunctionStatic() const;
         bool isBuilitin() const;
         bool isStruct() const;
         bool isAlias() const;
@@ -94,14 +95,12 @@ namespace yal::frontend {
 
         bool isCastableTo(const Type* other) const;
 
+        void addFunction(TypeFunction* function);
+
     protected:
         virtual bool isCastableToDetail(const Type*) const {
             return false;
         }
-
-    protected:
-
-        void addFunction(TypeFunction* function);
 
     protected:
         using FunctionMap = std::unordered_map<StringRef,TypeFunction*>;
@@ -119,6 +118,7 @@ namespace yal::frontend {
         unsigned m_functionTargetable:1;
         unsigned m_function:1;
         unsigned m_typefunction:1;
+        unsigned m_typefunctionStatic:1;
         unsigned m_struct:1;
     };
 

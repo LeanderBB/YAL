@@ -22,6 +22,7 @@
 #include "yal/frontend/module.h"
 #include "yal/frontend/parser/stdeclmodule.h"
 #include "yal/frontend/passes/passes.h"
+#include "yal/frontend/passes/decl/astbuilder.h"
 #include "yal/frontend/passes/decl/stpredeclvisitor.h"
 
 namespace yal::frontend {
@@ -34,12 +35,28 @@ namespace yal::frontend {
     bool
     PassDecl::execute(PassOptions &options) {
         // Pre-declare root scope types
-        STPreDeclVisitor preDeclVisitor(options.errReporter, options.module);
+        ErrorReporter& errReporter = options.errReporter;
+        STPreDeclVisitor preDeclVisitor(errReporter, options.module);
+
+        // Run pre-decl pass
         const STDeclModule* stDeclModule =
                 options.module.getSTContext().getDeclModule();
         stDeclModule->acceptVisitor(preDeclVisitor);
+        if (errReporter.hasErrors()) {
+            return false;
+        }
 
-        return !options.errReporter.hasErrors();
+        // run Ast builder
+        {
+            AstBuilder astBuilder(errReporter, options.module);
+            if (!astBuilder.execute()) {
+                return false;
+            }
+        }
+
+        // run type size calculator now that everything is known
+
+        return !errReporter.hasErrors();
     }
 
 }

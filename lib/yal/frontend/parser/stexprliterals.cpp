@@ -23,7 +23,7 @@
 namespace yal::frontend {
 
     STExprBoolLiteral::STExprBoolLiteral(const StringRef value):
-        STStmtExpression(SyntaxTreeType::STExprBoolLiteral),
+        STExpression(SyntaxTreeType::STExprBoolLiteral),
         m_value(value) {
 
     }
@@ -36,7 +36,7 @@ namespace yal::frontend {
     // -----------------------------------------------------------------------
 
     STExprIntegerLiteral::STExprIntegerLiteral(const StringRef value):
-        STStmtExpression(SyntaxTreeType::STExprIntegerLiteral),
+        STExpression(SyntaxTreeType::STExprIntegerLiteral),
         m_value(value){
 
     }
@@ -49,7 +49,7 @@ namespace yal::frontend {
     // -----------------------------------------------------------------------
 
     STExprFloatLiteral::STExprFloatLiteral(const StringRef value):
-        STStmtExpression(SyntaxTreeType::STExprIntegerLiteral),
+        STExpression(SyntaxTreeType::STExprIntegerLiteral),
         m_value(value){
 
     }

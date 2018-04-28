@@ -25,7 +25,7 @@ namespace yal
     struct cast_typeid;
 
     template <typename A>
-    constexpr typename cast_typeid<A>::type get_typeid();
+    typename cast_typeid<A>::type get_typeid();
 
     template <typename A>
     typename cast_typeid<A>::type get_typeid_instance(const A& type);

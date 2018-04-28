@@ -22,7 +22,7 @@
 
 namespace yal::frontend {
 
-    STStmtReturn::STStmtReturn(const STStmtExpression* expr):
+    STStmtReturn::STStmtReturn(const STExpression* expr):
         STStatement(SyntaxTreeType::STStmtReturn),
         m_expr(expr){
     }

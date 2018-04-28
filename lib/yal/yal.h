@@ -31,6 +31,7 @@
 #include <cassert>
 #define YAL_ASSERT(x) assert(x)
 #define YAL_ASSERT_MESSAGE(x,y) assert((x) && y)
+#define YAL_ASSERT_ENABLED
 #else
 #define YAL_ASSERT(x)
 #define YAL_ASSERT_MESSAGE(x,y)

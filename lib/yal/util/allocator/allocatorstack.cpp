@@ -19,6 +19,12 @@
 #include "yal/util/allocator/allocatorstack.h"
 namespace yal {
 
+//#define ALLOCATOR_DEBUG
+#if defined(ALLOCATOR_DEBUG)
+    enum {
+        kMemMarker = 0xDEADBEEF
+    };
+#endif
 
     AllocatorStack::Stack::~Stack() {
         if (ptr != nullptr){
@@ -70,7 +76,12 @@ namespace yal {
             return nullptr;
         }
 
-        const size_t newOffset = m_activeStack->offsetBytes + bytes;
+#if defined(ALLOCATOR_DEBUG)
+        const size_t bytesDebug = 4;
+#else
+        const size_t bytesDebug = 0;
+#endif
+        const size_t newOffset = m_activeStack->offsetBytes + bytes + bytesDebug;
         YAL_ASSERT_MESSAGE(newOffset > m_activeStack->offsetBytes,
                            "Overflow detected");
 
@@ -82,15 +93,28 @@ namespace yal {
                 return nullptr;
             }
             result = m_activeStack->ptr;
-            m_activeStack->offsetBytes = bytes;
+            m_activeStack->offsetBytes = bytes + bytesDebug;
         } else {
             void* correctedPtr =
                     reinterpret_cast<unsigned char*>(m_activeStack->ptr) +
                     m_activeStack->offsetBytes;
+#if defined(ALLOCATOR_DEBUG)
+            uint32_t* ptr =  reinterpret_cast<uint32_t*>(correctedPtr);
+            YAL_ASSERT(*ptr != kMemMarker);
+            if (m_activeStack->offsetBytes !=0) {
+                --ptr;
+                YAL_ASSERT(*ptr == kMemMarker);
+            }
+#endif
             m_activeStack->offsetBytes = newOffset;
             result = correctedPtr;
         }
-
+#if defined(ALLOCATOR_DEBUG)
+        uint32_t* ptr = reinterpret_cast<uint32_t*>(reinterpret_cast<unsigned char*>(m_activeStack->ptr) +
+                                                    m_activeStack->offsetBytes);
+        --ptr;
+        *ptr = kMemMarker;
+#endif
         return result;
     }
 

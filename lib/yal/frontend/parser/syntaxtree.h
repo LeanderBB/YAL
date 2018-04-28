@@ -30,6 +30,9 @@ namespace yal::frontend {
     template<typename T>
     using STVector = std::vector<T, StdAllocatorWrapperStack<T>>;
 
+    //template<typename T>
+    //using STVector = std::vector<T>;
+
     enum class SyntaxTreeType {
 #define YAL_ST_NODE_TYPE(type) type,
 #include "yal/frontend/parser/syntaxtreetypes.def"
@@ -83,8 +86,16 @@ namespace yal::frontend {
     class STDecl : public SyntaxTree {
     public:
 
+        const STIdentifier* getName() const {
+            return m_name;
+        }
+
     protected:
-        STDecl(const SyntaxTreeType type);
+        STDecl(const SyntaxTreeType type,
+               const STIdentifier* name);
+
+    protected:
+        const STIdentifier* m_name;
     };
 }
 

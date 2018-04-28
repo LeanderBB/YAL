@@ -23,7 +23,7 @@
 namespace yal::frontend {
 
     STStructMemberInit::STStructMemberInit(const STIdentifier* name,
-                                           const STStmtExpression *expr):
+                                           const STExpression *expr):
         m_name(name),
         m_expr(expr) {
 
@@ -35,7 +35,7 @@ namespace yal::frontend {
 
     STExprStructInit::STExprStructInit(const STType *structName,
                                        const MemberInitList *members):
-        STStmtExpression(SyntaxTreeType::STExprStructInit),
+        STExpression(SyntaxTreeType::STExprStructInit),
         m_structType(structName),
         m_memberInits(std::move(members)) {
 

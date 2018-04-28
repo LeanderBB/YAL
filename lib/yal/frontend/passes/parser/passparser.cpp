@@ -18,22 +18,29 @@
  */
 
 #include "yal/frontend/passes/parser/passparser.h"
+
 #include "yal/compiler/compiler.h"
+#include "yal/frontend/lexer/lexer.h"
 #include "yal/frontend/module.h"
+#include "yal/frontend/parser/stparser.h"
+#include "yal/frontend/passes/passes.h"
 #include "yal/error/errorreporter.h"
+
 namespace yal::frontend {
 
-    PassParser::PassParser(ErrorReporter& errReporter,
-                           Module& module,
-                           SourceItem& item):
-    m_lexer(item.getByteStream()),
-    m_parser(m_lexer, module.getSTContext(), errReporter, item) {
+    PassParser::PassParser() {
 
     }
 
     bool
-    PassParser::execute(PassOptions &) {
-        return m_parser.parse();
+    PassParser::execute(PassOptions & options) {
+
+        Lexer lexer(options.srcItem.getByteStream());
+        STParser parser(lexer,
+                        options.module.getSTContext(),
+                        options.errReporter,
+                        options.srcItem);
+        return parser.parse();
     }
 
 }

@@ -24,7 +24,7 @@ namespace yal::frontend  {
 
     STExprFnCall::STExprFnCall(const STIdentifier* name,
                                const ParamList *params):
-        STStmtExpression(SyntaxTreeType::STExprFnCall),
+        STExpression(SyntaxTreeType::STExprFnCall),
         m_name(name),
         m_targetType(nullptr),
         m_expr(nullptr),
@@ -36,7 +36,7 @@ namespace yal::frontend  {
     STExprFnCall::STExprFnCall(const STIdentifier* name,
                                const STType *type,
                                const ParamList *params):
-        STStmtExpression(SyntaxTreeType::STExprFnCall),
+        STExpression(SyntaxTreeType::STExprFnCall),
         m_name(name),
         m_targetType(type),
         m_expr(nullptr),
@@ -46,9 +46,9 @@ namespace yal::frontend  {
     }
 
     STExprFnCall::STExprFnCall(const STIdentifier* name,
-                               const STStmtExpression* expr,
+                               const STExpression* expr,
                                const ParamList *params):
-        STStmtExpression(SyntaxTreeType::STExprFnCall),
+        STExpression(SyntaxTreeType::STExprFnCall),
         m_name(name),
         m_targetType(nullptr),
         m_expr(expr),

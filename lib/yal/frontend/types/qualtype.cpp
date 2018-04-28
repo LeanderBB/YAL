@@ -30,6 +30,14 @@ namespace yal::frontend {
         return qt;
     }
 
+    QualType
+    QualType::Create() {
+        QualType qt;
+        qt.m_qualifier = Qualifier();
+        qt.m_type = nullptr;
+        return qt;
+    }
+
     bool
     QualType::isTriviallyCopiable() const {
         YAL_ASSERT(m_type != nullptr);

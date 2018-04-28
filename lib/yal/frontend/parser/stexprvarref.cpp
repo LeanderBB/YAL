@@ -23,7 +23,7 @@
 namespace yal::frontend {
 
     STExprVarRef::STExprVarRef(const STIdentifier* identifier):
-        STStmtExpression(SyntaxTreeType::STExprVarRef),
+        STExpression(SyntaxTreeType::STExprVarRef),
         m_varRef(identifier) {
 
     }
@@ -35,9 +35,9 @@ namespace yal::frontend {
 
     // -----------------------------------------------------------------------
 
-    STExprStructVarRef::STExprStructVarRef(const STStmtExpression* expression,
+    STExprStructVarRef::STExprStructVarRef(const STExpression *expression,
                                            const STIdentifier* identitifer):
-        STStmtExpression(SyntaxTreeType::STExprStructVarRef),
+        STExpression(SyntaxTreeType::STExprStructVarRef),
         m_expr(expression),
         m_varRef(identitifer) {
 

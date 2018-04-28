@@ -61,11 +61,18 @@ namespace yal::frontend {
 
         SourceManager::Handle getSourceHandle() const;
 
+
         template<typename T>
         std::vector<T, StdAllocatorWrapperStack<T>>* createVector() {
             auto allocator = m_stcontext.getStdAllocatorWrapper<T>();
             return m_stcontext.create<std::vector<T, StdAllocatorWrapperStack<T>>>(allocator);
         }
+
+        /*
+        template<typename T>
+        std::vector<T>* createVector() {
+            return m_stcontext.create<std::vector<T>>();
+        }*/
 
     private:
         std::unique_ptr<void, void(*)(void*)> m_parserImpl;

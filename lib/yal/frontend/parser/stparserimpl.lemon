@@ -105,10 +105,10 @@
 %type statement_list_or_empty {yal::frontend::STStatementList*}
 %type statement {yal::frontend::STStatement*}
 // expressions
-%type expression {yal::frontend::STStmtExpression*}
+%type expression {yal::frontend::STExpression*}
 %type unaryexp {yal::frontend::STExprUnaryOperator*}
 %type binaryexp {yal::frontend::STExprBinaryOperator*}
-%type literal {yal::frontend::STStmtExpression*}
+%type literal {yal::frontend::STExpression*}
 %type function_call_args{yal::frontend::STExprFnCall::ParamList*}
 %type struct_init {yal::frontend::STExprStructInit* }
 %type struct_member_init_list {yal::frontend::STExprStructInit::MemberInitList*}
@@ -340,7 +340,8 @@ statement(A)::= decl_var(B) SEMI_COLON. {
 }
 
 statement(A) ::= expression(B) SEMI_COLON. {
-       A = B;
+    A = pParser->createNode<yal::frontend::STStmtExpression>(B);
+    A->setSourceInfo(B->getSourceInfo());
 }
 
 statement(A) ::= RETURN(Z) expression(B) SEMI_COLON. {
@@ -536,7 +537,7 @@ function_call_args(A) ::= function_call_args(B) COMMA expression(C). {
     A->push_back(C);
 }
 function_call_args(A)::= expression(B). {
-    A = pParser->createVector<const yal::frontend::STStmtExpression*>();
+    A = pParser->createVector<const yal::frontend::STExpression*>();
     A->push_back(B);
 }
 function_call_args(A) ::=. {

@@ -23,26 +23,37 @@
 
 namespace yal::frontend {
 
-    class STStmtExpression : public STStatement {
-    public:
-
-        virtual ~STStmtExpression() {}
+    class STExpression : public SyntaxTree  {
 
     protected:
-        STStmtExpression(const SyntaxTreeType type):
-            STStatement(type) {
-
+        STExpression(const SyntaxTreeType type):
+            SyntaxTree(type) {
         }
     };
+
+    class STStmtExpression final : public STStatement {
+    public:
+        STStmtExpression(const STExpression* expr);
+
+        const STExpression* getExpr() const {
+            return m_expr;
+        }
+
+        void acceptVisitor(SyntaxTreeVisitor& visitor) const override final;
+
+    private:
+        const STExpression* m_expr;
+    };
+
 }
 
 namespace yal {
     template<>
-    struct cast_typeid<frontend::STStmtExpression> {
+    struct cast_typeid<frontend::STExpression> {
         typedef frontend::SyntaxTreeType type;
     };
 
-    inline frontend::SyntaxTreeType get_typeid(const frontend::STStmtExpression& type) {
+    inline frontend::SyntaxTreeType get_typeid(const frontend::STExpression& type) {
         return type.getSyntaxTreeType();
     }
 }

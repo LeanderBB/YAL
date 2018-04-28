@@ -42,6 +42,9 @@ namespace yal::frontend {
 
         bool hasType (const Type& type) const;
 
+        bool hasType(const StringRef name,
+                     const Module& module) const;
+
         const Type* getByIdentifier(const Identifier& identifier) const;
 
         Type* getByIdentifier(const Identifier& identifier) {
@@ -49,47 +52,53 @@ namespace yal::frontend {
             return const_cast<Type*>(cthis->getByIdentifier(identifier));
         }
 
-        const TypeBuiltin* getTypeBuiltinBool() const {
+        const Type* getByName(const StringRef name,
+                              const Module& module) const;
+
+        Type* getByName(const StringRef name,
+                        const Module& module);
+
+        TypeBuiltin* getTypeBuiltinBool() const {
             return m_typeBool;
         }
 
-        const TypeBuiltin* getTypeBuiltinI8() const {
+        TypeBuiltin* getTypeBuiltinI8() const {
             return m_typeI8;
         }
 
-        const TypeBuiltin* getTypeBuiltinU8() const {
+        TypeBuiltin* getTypeBuiltinU8() const {
             return m_typeU8;
         }
 
-        const TypeBuiltin* getTypeBuiltinI16() const {
+        TypeBuiltin* getTypeBuiltinI16() const {
             return m_typeI16;
         }
 
-        const TypeBuiltin* getTypeBuiltinU16() const {
+        TypeBuiltin* getTypeBuiltinU16() const {
             return m_typeU16;
         }
 
-        const TypeBuiltin* getTypeBuiltinI32() const {
+        TypeBuiltin* getTypeBuiltinI32() const {
             return m_typeI32;
         }
 
-        const TypeBuiltin* getTypeBuiltinU32() const {
+        TypeBuiltin* getTypeBuiltinU32() const {
             return m_typeU32;
         }
 
-        const TypeBuiltin* getTypeBuiltinI64() const {
+        TypeBuiltin* getTypeBuiltinI64() const {
             return m_typeI64;
         }
 
-        const TypeBuiltin* getTypeBuiltinU64() const {
+        TypeBuiltin* getTypeBuiltinU64() const {
             return m_typeU64;
         }
 
-        const TypeBuiltin* getTypeBuiltinFloat32() const {
+        TypeBuiltin* getTypeBuiltinFloat32() const {
             return m_typeFloat;
         }
 
-        const TypeBuiltin* getTypeBuiltinFloat64() const {
+        TypeBuiltin* getTypeBuiltinFloat64() const {
             return m_typeDouble;
         }
 
@@ -102,17 +111,17 @@ namespace yal::frontend {
         void registerType(Type* type);
 
     private:
-        const TypeBuiltin* m_typeBool;
-        const TypeBuiltin* m_typeI8;
-        const TypeBuiltin* m_typeU8;
-        const TypeBuiltin* m_typeI16;
-        const TypeBuiltin* m_typeU16;
-        const TypeBuiltin* m_typeI32;
-        const TypeBuiltin* m_typeU32;
-        const TypeBuiltin* m_typeI64;
-        const TypeBuiltin* m_typeU64;
-        const TypeBuiltin* m_typeFloat;
-        const TypeBuiltin* m_typeDouble;
+        TypeBuiltin* m_typeBool;
+        TypeBuiltin* m_typeI8;
+        TypeBuiltin* m_typeU8;
+        TypeBuiltin* m_typeI16;
+        TypeBuiltin* m_typeU16;
+        TypeBuiltin* m_typeI32;
+        TypeBuiltin* m_typeU32;
+        TypeBuiltin* m_typeI64;
+        TypeBuiltin* m_typeU64;
+        TypeBuiltin* m_typeFloat;
+        TypeBuiltin* m_typeDouble;
         AllocatorStack m_allocator;
         std::unordered_map<StringRef, Type*> m_types;
         uint64_t m_typeIdCounter;

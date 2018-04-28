@@ -23,7 +23,33 @@
 
 namespace yal {
 
-    Error::Error(const uint32_t code):
+    ErrorCode::ErrorCode():
+        m_category(0),
+        m_errorType(0) {
+
+
+    }
+
+    ErrorCode::ErrorCode(const uint16_t category,
+                         const uint16_t errorType):
+        m_category(category),
+        m_errorType(errorType) {
+
+    }
+
+    bool
+    ErrorCode::operator == (const ErrorCode& code) const {
+        return m_category == code.m_category
+                && m_errorType == code.m_errorType;
+    }
+    bool
+    ErrorCode::operator != (const ErrorCode& code) const {
+        return m_category != code.m_category
+                || m_errorType != code.m_errorType;
+    }
+
+
+    Error::Error(const ErrorCode code):
         m_code(code),
         m_isWarning(0),
         m_isSuggestion(0),

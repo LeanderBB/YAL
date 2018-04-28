@@ -22,7 +22,7 @@
 
 namespace yal::frontend {
 
-    class STExprBoolLiteral final : public STStmtExpression {
+    class STExprBoolLiteral final : public STExpression {
     public:
 
         STExprBoolLiteral(const StringRef value);
@@ -37,7 +37,7 @@ namespace yal::frontend {
     };
 
 
-    class STExprIntegerLiteral final : public STStmtExpression {
+    class STExprIntegerLiteral final : public STExpression {
     public:
 
         STExprIntegerLiteral(const StringRef value);
@@ -52,7 +52,7 @@ namespace yal::frontend {
         const StringRef m_value;
     };
 
-    class STExprFloatLiteral final : public STStmtExpression {
+    class STExprFloatLiteral final : public STExpression {
     public:
 
         STExprFloatLiteral(const StringRef value);
