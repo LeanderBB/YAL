@@ -201,7 +201,7 @@ namespace yal::frontend {
 
     StringRef
     ErrorFnOnNonTargetType::getErrorName() const {
-        return "Invalid type function target";
+        return "Invalid function target type";
     }
 
     void
@@ -209,6 +209,14 @@ namespace yal::frontend {
         FormatAppend(printer.getFormater(),
                      "Can not target type '%' with function '%' as type is non-targetable.\n",
                      m_targetType->getIdentifier(), m_fnName);
+        SourceInfoOpt typeSrcInfo = m_targetType->getSourceInfo();
+        if (typeSrcInfo.has_value()){
+            FormatAppend(printer.getFormater(),
+                         "Type '%' declared here:\n",
+                         m_targetType->getIdentifier());
+            SourceItem* item = printer.getSourceManager().getItem(typeSrcInfo->handle);
+            printer.printSourceInfo(printer.getFormater(),* item, *typeSrcInfo);
+        }
     };
 
     const SourceInfo&
@@ -340,6 +348,14 @@ namespace yal::frontend {
         FormatAppend(printer.getFormater(),
                      "Type '%' used in the above context is not of type Struct\n",
                      m_type.getIdentifier().getName());
+        SourceInfoOpt typeSrcInfo = m_type.getSourceInfo();
+        if (typeSrcInfo.has_value()){
+            FormatAppend(printer.getFormater(),
+                         "Type '%' declared here:\n",
+                         m_type.getIdentifier());
+            SourceItem* item = printer.getSourceManager().getItem(typeSrcInfo->handle);
+            printer.printSourceInfo(printer.getFormater(),* item, *typeSrcInfo);
+        }
     };
 
     const SourceInfo&
@@ -370,6 +386,14 @@ namespace yal::frontend {
         FormatAppend(printer.getFormater(),
                      "Type '%' used in the above context is not a Function\n",
                      m_type.getIdentifier().getName());
+        SourceInfoOpt typeSrcInfo = m_type.getSourceInfo();
+        if (typeSrcInfo.has_value()){
+            FormatAppend(printer.getFormater(),
+                         "Type '%' declared here:\n",
+                         m_type.getIdentifier());
+            SourceItem* item = printer.getSourceManager().getItem(typeSrcInfo->handle);
+            printer.printSourceInfo(printer.getFormater(),* item, *typeSrcInfo);
+        }
     };
 
     const SourceInfo&
@@ -400,6 +424,14 @@ namespace yal::frontend {
         FormatAppend(printer.getFormater(),
                      "Type '%' used in the above context is not a TypeFunction\n",
                      m_type.getIdentifier().getName());
+        SourceInfoOpt typeSrcInfo = m_type.getSourceInfo();
+        if (typeSrcInfo.has_value()){
+            FormatAppend(printer.getFormater(),
+                         "Type '%' declared here:\n",
+                         m_type.getIdentifier());
+            SourceItem* item = printer.getSourceManager().getItem(typeSrcInfo->handle);
+            printer.printSourceInfo(printer.getFormater(),* item, *typeSrcInfo);
+        }
     };
 
     const SourceInfo&
@@ -463,6 +495,14 @@ namespace yal::frontend {
                      "Attempting to use function '%' as a static function call,\
                      function is not static.\n",
                      m_type.getIdentifier());
+        SourceInfoOpt typeSrcInfo = m_type.getSourceInfo();
+        if (typeSrcInfo.has_value()){
+            FormatAppend(printer.getFormater(),
+                         "Type '%' declared here:\n",
+                         m_type.getIdentifier());
+            SourceItem* item = printer.getSourceManager().getItem(typeSrcInfo->handle);
+            printer.printSourceInfo(printer.getFormater(),* item, *typeSrcInfo);
+        }
     };
 
     const SourceInfo&

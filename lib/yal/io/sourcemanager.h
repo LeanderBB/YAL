@@ -20,8 +20,9 @@
 #pragma once
 
 #include <yal/yal.h>
-#include <vector>
 #include "yal/util/stringref.h"
+#include <optional>
+#include <vector>
 namespace yal {
 
     class MemoryStream;
@@ -104,4 +105,6 @@ namespace yal {
         SourceLocation begin;
         SourceLocation end;
     };
+
+    using SourceInfoOpt = std::optional<SourceInfo>;
 }

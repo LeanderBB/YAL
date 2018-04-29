@@ -62,6 +62,11 @@ public:
 
 
     virtual void TearDown() override final{
+        if (!m_errorReporter.empty()) {
+            yal::ErrorPrinter printer(m_stdstream, m_sourceManager);
+            printer.enableColorCodes(true);
+            printer.print(m_errorReporter);
+        }
         m_sourceManager.clear();
         m_moduleManager.clear();
         m_errorReporter.clear();

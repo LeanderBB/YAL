@@ -158,6 +158,11 @@ namespace yal::frontend {
                                               function));
     }
 
+    SourceInfoOpt
+    Type::getSourceInfo() const {
+        return SourceInfoOpt();
+    }
+
     bool
     Type::isCastableTo(const Type* other) const {
         if (m_typeId == other->getTypeId()) {

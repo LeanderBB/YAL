@@ -21,6 +21,7 @@
 
 #include "yal/yal.h"
 #include "yal/frontend/types/identifier.h"
+#include "yal/io/sourcemanager.h"
 #include "yal/util/stringref.h"
 #include "yal/util/cast.h"
 #include "yal/util/formattypes.h"
@@ -96,6 +97,8 @@ namespace yal::frontend {
         bool isCastableTo(const Type* other) const;
 
         void addFunction(TypeFunction* function);
+
+        virtual SourceInfoOpt getSourceInfo() const;
 
     protected:
         virtual bool isCastableToDetail(const Type*) const {

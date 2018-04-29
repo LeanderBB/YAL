@@ -721,7 +721,7 @@ namespace yal::frontend {
 
             typeFn = dyn_cast<TypeFunction>(type);
             if (typeFn == nullptr) {
-                auto err = std::make_unique<ErrorTypeIsNotFunction>(*typeFn,
+                auto err = std::make_unique<ErrorTypeIsNotFunction>(*type,
                                                                     node.getName()->getSourceInfo());
                 m_errReporter.report(std::move(err));
                 getState().onError();

@@ -39,4 +39,9 @@ namespace yal::frontend {
     TypeStruct::setDecl(DeclStruct* decl) {
         m_decl = decl;
     }
+
+    SourceInfoOpt
+    TypeStruct::getSourceInfo() const {
+        return SourceInfoOpt(m_stdecl->getName()->getSourceInfo());
+    }
 }

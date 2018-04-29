@@ -41,6 +41,8 @@ namespace yal::frontend {
             return m_decl;
         }
 
+        virtual SourceInfoOpt getSourceInfo() const override;
+
     private:
         const STDeclStruct* m_stdecl;
         DeclStruct* m_decl;

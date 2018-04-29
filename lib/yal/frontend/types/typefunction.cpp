@@ -65,4 +65,9 @@ namespace yal::frontend {
     TypeFunction::setDecl(DeclFunction* decl) {
         m_decl = decl;
     }
+
+    SourceInfoOpt
+    TypeFunction::getSourceInfo() const {
+        return SourceInfoOpt(m_stdecl->getName()->getSourceInfo());
+    }
 }
