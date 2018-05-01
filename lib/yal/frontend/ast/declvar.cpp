@@ -45,7 +45,7 @@ namespace yal::frontend {
                      DeclScope *scope,
                      const QualType &varType,
                      StmtExpression *expr) :
-        DeclBase(module, type, name, sourceInfo, scope),
+        DeclBase(module, type, Identifier(name), sourceInfo, scope),
         m_qualType(varType),
         m_expression(expr){
 

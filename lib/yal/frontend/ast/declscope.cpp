@@ -80,16 +80,10 @@ namespace yal::frontend {
     bool
     DeclScope::hasDecl(const Identifier& identifier,
                        const bool local) const {
-        return hasDecl(identifier.getAsString(), local);
-    }
-
-    bool
-    DeclScope::hasDecl(const StringRef name,
-                       const bool local) const {
-        auto it = m_declMap.find(name);
+        auto it = m_declMap.find(&identifier);
         if (it == m_declMap.end()) {
             return (m_parentScope != nullptr && !local)
-                    ? m_parentScope->hasDecl(name, local)
+                    ? m_parentScope->hasDecl(identifier, local)
                     : false;
         }
         return true;
@@ -98,16 +92,10 @@ namespace yal::frontend {
     DeclBase*
     DeclScope::getDecl(const Identifier& identifier,
                        const bool local) const {
-        return getDecl(identifier.getAsString(), local);
-    }
-
-    DeclBase*
-    DeclScope::getDecl(const StringRef name,
-                       const bool local) const {
-        auto it = m_declMap.find(name);
+        auto it = m_declMap.find(&identifier);
         if (it == m_declMap.end()) {
             return (m_parentScope != nullptr && !local)
-                    ? m_parentScope->getDecl(name, local)
+                    ? m_parentScope->getDecl(identifier, local)
                     : nullptr;
         }
         return it->second;
@@ -117,7 +105,7 @@ namespace yal::frontend {
     DeclScope::addDecl(DeclBase* decl) {
         YAL_ASSERT(!hasDecl(decl, false));
         const Identifier& identifier = decl->getIdentifier();
-        m_declMap[identifier.getAsString()] = decl;
+        m_declMap[&identifier] = decl;
     }
 
     void

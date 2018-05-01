@@ -108,8 +108,10 @@ namespace yal::frontend {
         ASTContext& astCtx = m_module.getASTContext();
         DeclScope* parentScope = getState().stackScope.top();
 
+        const Identifier identifier(declName, m_module);
+
         // check if type has been declared
-        Type* type = typeCtx.getByName(declName, m_module);
+        Type* type = typeCtx.getByIdentifier(identifier);
         if (type == nullptr) {
             onUndefinedType(node);
         }
@@ -143,7 +145,8 @@ namespace yal::frontend {
             const STQualType* stqt = member->getType();
 
             // check for duplicate decl
-            const DeclBase* existingDecl = declScopeStruct->getDecl(name->getString(),false);
+            const Identifier memberId(name->getString());
+            const DeclBase* existingDecl = declScopeStruct->getDecl(memberId,false);
             if (existingDecl != nullptr ) {
                 onDuplicateSymbol(*name, *existingDecl);
             }
@@ -260,7 +263,7 @@ namespace yal::frontend {
                 const STQualType* stqt = param->getType();
 
                 // check for duplicate decl
-                const DeclBase* existingDecl = declScopeFn.getDecl(name->getString(),false);
+                const DeclBase* existingDecl = declScopeFn.getDecl(Identifier(name->getString()),false);
                 if (existingDecl != nullptr ) {
                     onDuplicateSymbol(*name, *existingDecl);
                 }
@@ -353,7 +356,7 @@ namespace yal::frontend {
         DeclScope* parentScope = getState().stackScope.top();
 
         // check duplicate symbol
-        const DeclBase* existingDecl = parentScope->getDecl(declName->getString(), false);
+        const DeclBase* existingDecl = parentScope->getDecl(Identifier(declName->getString()), false);
         if (existingDecl != nullptr ) {
             onDuplicateSymbol(node, *existingDecl);
         }
@@ -479,7 +482,7 @@ namespace yal::frontend {
         const STIdentifier* varName = node.getVarName();
         DeclScope* parentScope = getState().stackScope.top();
         // check for symbol
-        const DeclBase* existingDecl = parentScope->getDecl(varName->getString(), false);
+        const DeclBase* existingDecl = parentScope->getDecl(Identifier(varName->getString()), false);
         if (existingDecl == nullptr ) {
             onUndefinedSymbol(*varName);
         }
@@ -713,7 +716,8 @@ namespace yal::frontend {
         // else  - normal function
 
         else if (node.getFunctionType() == STExprFnCall::FnType::Regular) {
-            Type* type = typeCtx.getByName(node.getName()->getString(), m_module);
+            const Identifier id(node.getName()->getString(), m_module);
+            Type* type = typeCtx.getByIdentifier(id);
 
             if (type == nullptr) {
                 onUndefinedSymbol(*node.getName());
@@ -907,7 +911,7 @@ namespace yal::frontend {
                                   const DeclBase &existing) {
         auto error = std::make_unique<ErrorDuplicateSymbol>(decl.getName()->getString(),
                                                             decl.getSourceInfo(),
-                                                            existing.getIdentifier().getAsString(),
+                                                            existing.getIdentifier().getName(),
                                                             existing.getSourceInfo());
         m_errReporter.report(std::move(error));
         getState().onError();
@@ -918,7 +922,7 @@ namespace yal::frontend {
                                   const DeclBase& existing) {
         auto error = std::make_unique<ErrorDuplicateSymbol>(id.getString(),
                                                             id.getSourceInfo(),
-                                                            existing.getIdentifier().getAsString(),
+                                                            existing.getIdentifier().getName(),
                                                             existing.getSourceInfo());
         m_errReporter.report(std::move(error));
         getState().onError();
@@ -968,8 +972,10 @@ namespace yal::frontend {
             return typeCtx.getTypeBuiltinFloat32();
         case STType::Type::Float64:
             return typeCtx.getTypeBuiltinFloat64();
-        case STType::Type::Custom:
-            return typeCtx.getByName(stType.getIdentifier(), m_module);
+        case STType::Type::Custom:{
+            const Identifier id(stType.getIdentifier(), m_module);
+            return typeCtx.getByIdentifier(id);
+        }
         default:
             YAL_ASSERT(false);
             return nullptr;

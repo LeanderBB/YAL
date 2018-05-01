@@ -242,6 +242,8 @@ set(YAL_SOURCES
     yal/util/codewriter.cpp
     yal/util/codewriter.h
     yal/util/scopedstackelem.h
+    yal/util/hash.cpp
+    yal/util/hash.h
     )
 
 # include parser / lexer DSL's

@@ -136,25 +136,25 @@ namespace yal::frontend {
 
     const TypeFunction*
     Type::getFunctionWithName(const StringRef name) const {
-        std::string functionName = m_identifier.getAsString().toString();
-        functionName +="::";
-        functionName += name.toString();
-        auto it = m_typeFunctions.find(StringRef(functionName));
+        Identifier fnId(name,
+                        m_identifier.getName(),
+                        m_identifier.getModule());
+        auto it = m_typeFunctions.find(&fnId);
         return it != m_typeFunctions.end() ? it->second : nullptr;
     }
 
     const TypeFunction*
     Type::getFunctionWithIdentifier(const Identifier& id) const {
-        auto it = m_typeFunctions.find(id.getAsString());
+        auto it = m_typeFunctions.find(&id);
         return it != m_typeFunctions.end() ? it->second : nullptr;
     }
 
     void
     Type::addFunction(TypeFunction* function) {
         YAL_ASSERT(function->isTypeFunction());
-        YAL_ASSERT_MESSAGE(m_typeFunctions.find(function->getIdentifier().getAsString()) == m_typeFunctions.end(),
+        YAL_ASSERT_MESSAGE(m_typeFunctions.find(&function->getIdentifier()) == m_typeFunctions.end(),
                            "Adding duplicate function to type");
-        m_typeFunctions.insert(std::make_pair(function->getIdentifier().getAsString(),
+        m_typeFunctions.insert(std::make_pair(&function->getIdentifier(),
                                               function));
     }
 

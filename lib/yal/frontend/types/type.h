@@ -106,7 +106,7 @@ namespace yal::frontend {
         }
 
     protected:
-        using FunctionMap = std::unordered_map<StringRef,TypeFunction*>;
+        using FunctionMap = IdentifierPtrMap<TypeFunction*>;
         uint64_t m_typeId;
         const Module* m_module;
         const Kind m_kind;

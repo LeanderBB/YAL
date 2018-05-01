@@ -22,6 +22,7 @@
 #include "yal/util/stringref.h"
 #include "yal/util/formattypes.h"
 #include <string>
+#include <unordered_map>
 
 namespace yal::frontend {
 
@@ -32,25 +33,36 @@ namespace yal::frontend {
 
         Identifier();
 
-        Identifier(const StringRef idString);
+        explicit Identifier(const StringRef idString);
 
-        Identifier(const StringRef idString,
-                   const frontend::Module& module);
+        explicit Identifier(const StringRef idString,
+                            const frontend::Module& module);
 
-        Identifier(const StringRef idString,
-                   const StringRef targetString,
-                   const frontend::Module& module);
+        explicit Identifier(const StringRef idString,
+                            const StringRef targetString,
+                            const frontend::Module& module);
 
+        explicit Identifier(const StringRef idString,
+                            const StringRef targetString,
+                            const StringRef module);
 
         StringRef getName() const {
             return m_name;
         }
 
-        StringRef getAsString() const;
-
-        const std::string& getAsStdString() const {
-            return m_idString;
+        StringRef getTarget() const {
+            return m_target;
         }
+
+        StringRef getModule() const {
+            return m_module;
+        }
+
+        size_t getHash() const {
+            return m_hash;
+        }
+
+        std::string getFullIdentifier() const;
 
         void setIdString(const StringRef idString);
 
@@ -65,13 +77,49 @@ namespace yal::frontend {
         bool operator != (const Identifier& other) const;
 
     private:
+
+        void buildHash();
+
+    private:
+        size_t m_hash;
         StringRef m_name;
-        std::string m_idString;
+        StringRef m_target;
+        StringRef m_module;
     };
 
 
     inline size_t FormatType(FormatTypeArgs& loc,
                              const Identifier& value) {
-       return FormatType(loc, value.getAsString());
+        return FormatType(loc, value.getFullIdentifier());
     }
+
+
+    struct IdentifierPtrHasher {
+        std::size_t operator()(const Identifier* i) const {
+            return i->getHash();
+        }
+    };
+
+    struct IdentifierPtrKeyComp {
+        bool operator()(const Identifier* i1,
+                        const Identifier* i2) const {
+            return *i1 == *i2;
+        }
+    };
+
+    template<typename T>
+    using IdentifierPtrMap = std::unordered_map<const Identifier*, T,
+    IdentifierPtrHasher,
+    IdentifierPtrKeyComp>;
+}
+
+namespace std {
+    template<> struct hash<yal::frontend::Identifier> {
+        typedef yal::frontend::Identifier argument_type;
+        typedef std::size_t result_type;
+        result_type operator()(argument_type const& s) const noexcept
+        {
+            return s.getHash();
+        }
+    };
 }

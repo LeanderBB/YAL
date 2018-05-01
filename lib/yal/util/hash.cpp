@@ -1,6 +1,5 @@
 /*
- *
- *  Copyright 2017 by Leander Beernaert (leanderbb@gmail.com)
+ *  Copyright 2018 by Leander Beernaert (leanderbb@gmail.com)
  *
  *  This file is part of YAL.
  *
@@ -18,28 +17,28 @@
  *  License along with YAL. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "yal/frontend/ast/declmodule.h"
-#include "yal/frontend/module.h"
-#include "yal/frontend/ast/astcontext.h"
-#include "yal/frontend/ast/astvisitor.h"
+#include "yal/util/hash.h"
+#include "yal/util/stringref.h"
 
-namespace yal::frontend {
+namespace yal {
 
-    DeclModule::DeclModule(Module& module,
-                           StringRef name):
-        DeclBase(module, AstType::DeclModule, Identifier(name)),
-        m_declartions(StdAllocatorWrapperStack<DeclBase*>(module.getASTContext().getAllocator())),
-        m_declScope(this){
 
+    void
+    HashStr::begin() {
+        m_hash = 0;
     }
 
     void
-    DeclModule::setDecls(Decls&& decls) {
-        m_declartions = std::move(decls);
+    HashStr::consume(const StringRef& ref) {
+        //TODO: Improve hashing function
+        const size_t prime = 31;
+        for (size_t i = 0; i < ref.size(); ++i) {
+            m_hash = static_cast<size_t>(ref[i]) + (m_hash * prime);
+        }
     }
 
     void
-    DeclModule::acceptVisitor(AstVisitor &visitor) {
-        visitor.visit(*this);
+    HashStr::end() {
+        // do nothing
     }
 }

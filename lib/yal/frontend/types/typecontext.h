@@ -24,9 +24,6 @@
 #include "yal/util/allocator/allocatorstack.h"
 #include "yal/util/stringref.h"
 
-#include <unordered_map>
-#include <string>
-
 namespace yal::frontend {
 
     class Type;
@@ -42,21 +39,12 @@ namespace yal::frontend {
 
         bool hasType (const Type& type) const;
 
-        bool hasType(const StringRef name,
-                     const Module& module) const;
-
         const Type* getByIdentifier(const Identifier& identifier) const;
 
         Type* getByIdentifier(const Identifier& identifier) {
             const TypeContext* cthis = this;
             return const_cast<Type*>(cthis->getByIdentifier(identifier));
         }
-
-        const Type* getByName(const StringRef name,
-                              const Module& module) const;
-
-        Type* getByName(const StringRef name,
-                        const Module& module);
 
         TypeBuiltin* getTypeBuiltinBool() const {
             return m_typeBool;
@@ -111,6 +99,7 @@ namespace yal::frontend {
         void registerType(Type* type);
 
     private:
+        using TypeMap = IdentifierPtrMap<Type*>;
         TypeBuiltin* m_typeBool;
         TypeBuiltin* m_typeI8;
         TypeBuiltin* m_typeU8;
@@ -123,8 +112,9 @@ namespace yal::frontend {
         TypeBuiltin* m_typeFloat;
         TypeBuiltin* m_typeDouble;
         AllocatorStack m_allocator;
-        std::unordered_map<StringRef, Type*> m_types;
+        TypeMap m_types;
         uint64_t m_typeIdCounter;
     };
 
 }
+

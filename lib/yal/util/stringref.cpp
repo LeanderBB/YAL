@@ -286,4 +286,10 @@ namespace yal {
         }
         return result;
     }
+
+    void
+    StringRef::clear() {
+        m_str = nullptr;
+        m_size = 0;
+    }
 }

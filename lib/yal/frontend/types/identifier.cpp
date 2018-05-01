@@ -19,37 +19,24 @@
 
 #include "yal/frontend/types/identifier.h"
 #include "yal/frontend/module.h"
+#include "yal/util/hash.h"
 
 namespace yal::frontend {
 
 
     static std::string
-    BuildTypeNameWithModule(const StringRef name,
-                            const Module& module) {
+    BuildTypeNameWithModule(const StringRef& name,
+                            const StringRef& target,
+                            const StringRef& moduleName) {
 
         std::string result;
-        StringRef moduleName = module.getName();
-
-        result.reserve(name.size() + moduleName.size() + 2);
-        result.append(moduleName.data(), moduleName.size());
-        result += "::";
-        result.append(name.data(), name.size());
-        return result;
-    }
-
-    static std::string
-    BuildTypeNameWithModule(const StringRef name,
-                            const StringRef target,
-                            const Module& module) {
-
-        std::string result;
-        StringRef moduleName = module.getName();
-
         result.reserve(name.size() + moduleName.size() + 4 +  target.size());
         result.append(moduleName.data(), moduleName.size());
         result += "::";
-        result.append(target.data(), target.size());
-        result += "::";
+        if (target.length() != 0) {
+            result.append(target.data(), target.size());
+            result += "::";
+        }
         result.append(name.data(), name.size());
         return result;
     }
@@ -60,15 +47,17 @@ namespace yal::frontend {
 
     Identifier::Identifier(const StringRef idString):
         m_name(idString),
-        m_idString(idString.toString()) {
-
+        m_target(),
+        m_module() {
+        buildHash();
     }
 
     Identifier::Identifier(const StringRef idString,
                            const Module& module):
         m_name(idString),
-        m_idString(BuildTypeNameWithModule(idString, module)){
-
+        m_target(),
+        m_module(module.getName()){
+        buildHash();
     }
 
 
@@ -76,29 +65,35 @@ namespace yal::frontend {
                            const StringRef targetString,
                            const frontend::Module& module):
         m_name(idString),
-        m_idString(BuildTypeNameWithModule(idString,
-                                           targetString,
-                                           module))
-    {
-
+        m_target(targetString),
+        m_module(module.getName()) {
+        buildHash();
     }
 
-    StringRef
-    Identifier::getAsString() const {
-        return m_idString;
+    Identifier::Identifier(const StringRef idString,
+                           const StringRef targetString,
+                           const StringRef module):
+        m_name(idString),
+        m_target(targetString),
+        m_module(module) {
+        buildHash();
     }
 
     void
     Identifier::setIdString(const StringRef idString) {
         m_name = idString;
-        m_idString = idString.toString();
+        m_target.clear();
+        m_module.clear();
+        buildHash();
     }
 
     void
     Identifier::setIdString(const StringRef idString,
                             const Module& module) {
         m_name = idString;
-        m_idString =BuildTypeNameWithModule(idString, module);
+        m_target.clear();
+        m_module = module.getName();
+        buildHash();
     }
 
     void
@@ -106,17 +101,50 @@ namespace yal::frontend {
                             const StringRef targetString,
                             const Module& module) {
         m_name = idString;
-        m_idString =BuildTypeNameWithModule(idString, targetString, module);
+        m_target = targetString;
+        m_module = module.getName();
+        buildHash();
+    }
+
+    std::string
+    Identifier::getFullIdentifier() const {
+        return BuildTypeNameWithModule(m_name,
+                                       m_target,
+                                       m_module);
     }
 
     bool
     Identifier::operator == (const Identifier& other) const {
-        return m_idString == other.m_idString;
+
+        if (m_hash == other.m_hash) {
+            return m_name == other.m_name
+                    && m_target == other.m_target
+                    && m_module == other.m_module;
+        }
+        return false;
     }
 
     bool
     Identifier::operator != (const Identifier& other) const {
-        return m_idString != other.m_idString;
+        return !operator ==(other);
+    }
+
+    void
+    Identifier::buildHash() {
+        HashStr hash;
+        hash.begin();
+        if (m_module.size() != 0) {
+            hash.consume(m_module);
+            hash.consume("::");
+        }
+        hash.consume(m_module);
+        if (m_target.size() != 0) {
+            hash.consume(m_target);
+            hash.consume("::");
+        }
+        hash.consume(m_name);
+        hash.end();
+        m_hash = hash.get();
     }
 
 }

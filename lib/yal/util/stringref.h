@@ -18,8 +18,10 @@
  */
 #pragma once
 
+#include "yal/util/hash.h"
 #include <string>
 #include <iostream>
+
 namespace yal {
 
     // Only Exists so that it can be used in the parser
@@ -106,6 +108,8 @@ namespace yal {
         std::string replace(const StringRef pattern,
                             const StringRef with) const;
 
+        void clear();
+
     private:
         const char* m_str = nullptr;
         size_t m_size = 0;
@@ -118,13 +122,11 @@ namespace std {
         typedef std::size_t result_type;
         result_type operator()(argument_type const& s) const noexcept
         {
-            //TODO: Improve hashing function
-            size_t result = 0;
-            const size_t prime = 31;
-            for (size_t i = 0; i < s.size(); ++i) {
-                result = static_cast<size_t>(s[i]) + (result * prime);
-            }
-            return result;
+            yal::HashStr hash;
+            hash.begin();
+            hash.consume(s);
+            hash.end();
+            return hash.get();
         }
     };
 }

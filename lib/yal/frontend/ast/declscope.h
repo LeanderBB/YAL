@@ -19,9 +19,9 @@
 
 #pragma once
 
+#include "yal/frontend/types/identifier.h"
 #include "yal/util/stringref.h"
 #include "yal/util/iteratorrange.h"
-#include <unordered_map>
 
 namespace yal::frontend {
 
@@ -34,7 +34,7 @@ namespace yal::frontend {
 
     class DeclScope {
     private:
-        using DeclMap = std::unordered_map<StringRef, DeclBase*>;
+        using DeclMap = IdentifierPtrMap<DeclBase*>;
     public:
         using DeclRange= IteratorRange<DeclMap::iterator>;
         using DeclRangeConst= IteratorRange<DeclMap::const_iterator>;
@@ -66,13 +66,7 @@ namespace yal::frontend {
         bool hasDecl(const Identifier& identIteratorRangeifier,
                      const bool local) const;
 
-        bool hasDecl(const StringRef name,
-                     const bool local) const;
-
         DeclBase* getDecl(const Identifier &identifier,
-                          const bool local) const;
-
-        DeclBase* getDecl(const StringRef name,
                           const bool local) const;
 
         void addDecl(DeclBase* decl);
