@@ -13,6 +13,7 @@ add_executable(test_yal_compiler
     passes/test_passparser.cpp
     passes/decl/test_predecl.cpp
     passes/decl/test_astbuilder.cpp
+    passes/fnret/test_fnret.cpp
     main_test_compiler.cpp)
 
 target_include_directories(test_yal_compiler
@@ -20,6 +21,6 @@ target_include_directories(test_yal_compiler
     )
 
 target_link_libraries(test_yal_compiler
-        PRIVATE GTest::GTest yal
-    )
-YAL_APPLY_COMPILER_FLAGS_WERROR(test_yal_compiler)
+        PRIVATE GTest::GTest yal::libyal
+        PRIVATE compile_options compile_options_werror
+        )

@@ -17,38 +17,18 @@
  *  License along with YAL. If not, see <http://www.gnu.org/licenses/>.
  */
 
-namespace yal {
-    class ErrorReporter;
-    class SourceManager;
-    class SourceItem;
-}
+#pragma once
 
 namespace yal::frontend {
 
-
-    enum class PassTypeCode : uint16_t {
-        Parser = 2,
-        Decl = 3,
-        FnRet = 4,
-    };
-
-
     class Module;
+    struct PassOptions;
 
-    struct PassOptions {
-        PassOptions(ErrorReporter& errReporter_,
-                    SourceManager& srcManager_,
-                    Module& module_,
-                    SourceItem& srcItem_):
-            errReporter(errReporter_),
-            srcManager(srcManager_),
-            module(module_),
-            srcItem(srcItem_){
-        }
+    class PassFnRet {
+    public:
+        PassFnRet();
 
-        ErrorReporter& errReporter;
-        SourceManager& srcManager;
-        Module& module;
-        SourceItem& srcItem;
+        bool execute(PassOptions&);
     };
-};
+
+}

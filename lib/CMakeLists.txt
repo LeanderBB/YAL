@@ -2,11 +2,17 @@
 # YAL Source Files
 #
 
-include(lexerparsertools)
-
 set(YAL_VERSION_MAJOR 0)
 set(YAL_VERSION_MINOR 1)
 set(YAL_VERSION_PATCH 0)
+
+project(libyal
+    VERSION ${YAL_VERSION_MAJOR}.${YAL_VERSION_MINOR}.${YAL_VERSION_PATCH}
+    LANGUAGES CXX)
+
+include(lexerparsertools)
+
+
 set(YAL_VERSION_STR "\"${YAL_VERSION_MAJOR}.${YAL_VERSION_MINOR}.${YAL_VERSION_PATCH}\"")
 set(YAL_CONFIG_INCLUDE_DIR ${CMAKE_CURRENT_BINARY_DIR}/generated/)
 set(YAL_CONFIG_FILE ${YAL_CONFIG_INCLUDE_DIR}/yal/yalconfig.h)
@@ -210,6 +216,12 @@ set(YAL_SOURCES
     yal/frontend/passes/decl/errorspassdecl.h
     yal/frontend/passes/decl/astbuilder.cpp
     yal/frontend/passes/decl/astbuilder.h
+    yal/frontend/passes/fnret/passfnret.cpp
+    yal/frontend/passes/fnret/passfnret.h
+    yal/frontend/passes/fnret/returncheckvisitor.cpp
+    yal/frontend/passes/fnret/returncheckvisitor.h
+    yal/frontend/passes/fnret/errorspassfnret.cpp
+    yal/frontend/passes/fnret/errorspassfnret.h
 
     #yal/transpiler/transpiler.h
     #yal/transpiler/c/transpilerc.h
@@ -282,10 +294,15 @@ add_library(${YAL_LIB_NAME} STATIC
     ${YAL_SOURCES}
     )
 
+add_library(yal::libyal
+    ALIAS ${YAL_LIB_NAME})
 
 target_include_directories( ${YAL_LIB_NAME}
     PUBLIC ${CMAKE_CURRENT_SOURCE_DIR} ${YAL_CONFIG_INCLUDE_DIR}
     )
 
-YAL_APPLY_COMPILER_FLAGS_WERROR(${YAL_LIB_NAME})
+target_link_libraries(${YAL_LIB_NAME}
+    PRIVATE compile_options compile_options_werror)
+
+#YAL_APPLY_COMPILER_FLAGS_WERROR(${YAL_LIB_NAME})
 YAL_REMOVE_WERROR_FROM_SOURCE(yal/frontend/parser/stparserimpl.cpp)

@@ -62,31 +62,25 @@ endif()
 
 
 
-macro(YAL_APPLY_COMPILER_FLAGS_IMPL TARGET WERROR)
+add_library(compile_options INTERFACE)
 
-    target_compile_definitions( ${TARGET}
-        PUBLIC ${YAL_DEFINITIONS}
-        PUBLIC $<$<CONFIG:DEBUG>:${YAL_DEFINITIONS_DEBUG}>
-        PUBLIC $<$<CONFIG:RELEASE>:${YAL_DEFINITIONS_RELEASE}>
-        )
+target_compile_definitions(compile_options
+    INTERFACE ${YAL_DEFINITIONS}
+    $<$<CONFIG:DEBUG>:${YAL_DEFINITIONS_DEBUG}>
+    $<$<CONFIG:RELEASE>:${YAL_DEFINITIONS_RELEASE}>
+    )
 
-    target_compile_options(${TARGET}
-        PRIVATE ${YAL_CXX_FLAGS}
-        PRIVATE $<$<CONFIG:DEBUG>:${YAL_CXX_FLAGS_DEBUG}>
-        PRIVATE $<$<CONFIG:RELEASE>:${YAL_CXX_FLAGS_RELEASE}>
+target_compile_options(compile_options
+    INTERFACE ${YAL_CXX_FLAGS}
+    $<$<CONFIG:DEBUG>:${YAL_CXX_FLAGS_DEBUG}>
+    $<$<CONFIG:RELEASE>:${YAL_CXX_FLAGS_RELEASE}>
+    )
 
-        #PRIVATE $<$<COMPILE_LANGUAGE:C>:${YAL_C_FLAGS}>
-        #PRIVATE $<$<AND:$<COMPILE_LANGUAGE:C>,$<CONFIG:DEBUG>>:${YAL_C_FLAGS_DEBUG}>
-        #PRIVATE $<$<AND:$<COMPILE_LANGUAGE:C>,$<CONFIG:RELEASE>>:${YAL_C_FLAGS_RELEASE}>
-        )
+add_library(compile_options_werror INTERFACE)
 
-    if (${WERROR})
-        target_compile_options(${TARGET}
-            PRIVATE ${YAL_WERROR_FLAG}
-			)
-    endif()
-
-endmacro()
+target_compile_options(compile_options_werror
+    INTERFACE ${YAL_WERROR_FLAG}
+    )
 
 
 macro(YAL_APPLY_COMPILER_FLAGS_WERROR TARGET)

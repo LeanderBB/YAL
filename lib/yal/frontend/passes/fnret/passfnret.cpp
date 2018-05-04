@@ -17,38 +17,24 @@
  *  License along with YAL. If not, see <http://www.gnu.org/licenses/>.
  */
 
-namespace yal {
-    class ErrorReporter;
-    class SourceManager;
-    class SourceItem;
-}
+#include "yal/frontend/passes/fnret/passfnret.h"
+
+#include "yal/error/errorreporter.h"
+#include "yal/frontend/module.h"
+#include "yal/frontend/ast/declmodule.h"
+#include "yal/frontend/passes/fnret/returncheckvisitor.h"
+#include "yal/frontend/passes/passes.h"
 
 namespace yal::frontend {
 
+    PassFnRet::PassFnRet() {
 
-    enum class PassTypeCode : uint16_t {
-        Parser = 2,
-        Decl = 3,
-        FnRet = 4,
-    };
+    }
 
-
-    class Module;
-
-    struct PassOptions {
-        PassOptions(ErrorReporter& errReporter_,
-                    SourceManager& srcManager_,
-                    Module& module_,
-                    SourceItem& srcItem_):
-            errReporter(errReporter_),
-            srcManager(srcManager_),
-            module(module_),
-            srcItem(srcItem_){
-        }
-
-        ErrorReporter& errReporter;
-        SourceManager& srcManager;
-        Module& module;
-        SourceItem& srcItem;
-    };
-};
+    bool
+    PassFnRet::execute(PassOptions& options) {
+        ReturnCheckVisitor visitor(options);
+        visitor.execute();
+        return !options.errReporter.hasErrors();
+    }
+}

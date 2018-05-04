@@ -17,38 +17,33 @@
  *  License along with YAL. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#pragma once
+
+#include "yal/error/error.h"
+#include "yal/frontend/types/qualtype.h"
+#include "yal/io/sourcemanager.h"
+
 namespace yal {
-    class ErrorReporter;
-    class SourceManager;
-    class SourceItem;
+    class ErrorPrinter;
 }
 
 namespace yal::frontend {
 
+    class DeclFunction;
 
-    enum class PassTypeCode : uint16_t {
-        Parser = 2,
-        Decl = 3,
-        FnRet = 4,
+    class ErrorFnNotAllStmtReturn final : public Error {
+    public:
+        static const ErrorCode kCode;
+
+        ErrorFnNotAllStmtReturn(const DeclFunction& declFn);
+
+        StringRef getErrorName() const override final;
+
+        void printDetail(ErrorPrinter& printer)const override final;
+
+        const SourceInfo& getSourceInfo() const override final;
+
+    public:
+        const DeclFunction& m_decl;
     };
-
-
-    class Module;
-
-    struct PassOptions {
-        PassOptions(ErrorReporter& errReporter_,
-                    SourceManager& srcManager_,
-                    Module& module_,
-                    SourceItem& srcItem_):
-            errReporter(errReporter_),
-            srcManager(srcManager_),
-            module(module_),
-            srcItem(srcItem_){
-        }
-
-        ErrorReporter& errReporter;
-        SourceManager& srcManager;
-        Module& module;
-        SourceItem& srcItem;
-    };
-};
+}

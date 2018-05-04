@@ -54,8 +54,7 @@ namespace yal::frontend {
             }
         }
 
-        // run type size calculator now that everything is known
-
+        // TODO: run type size calculator now that everything is known
         return !errReporter.hasErrors();
     }
 

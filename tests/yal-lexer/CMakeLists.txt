@@ -6,6 +6,5 @@ add_executable(test_yal_lexer  main.cpp)
 
 target_link_libraries(test_yal_lexer
         PRIVATE GTest::GTest yal
+        PRIVATE compile_options compile_options_werror
     )
-
-YAL_APPLY_COMPILER_FLAGS_WERROR(test_yal_lexer)

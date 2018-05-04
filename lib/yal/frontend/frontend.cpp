@@ -25,6 +25,7 @@
 #include <yal/frontend/passes/passes.h>
 #include <yal/frontend/passes/parser/passparser.h>
 #include <yal/frontend/passes/decl/passdecl.h>
+#include <yal/frontend/passes/fnret/passfnret.h>
 #include "yal/io/sourceitems.h"
 
 namespace yal::frontend {
@@ -63,12 +64,17 @@ namespace yal::frontend {
         // create passes
         PassParser passParser;
         PassDecl passDecl;
+        PassFnRet passFnRet;
 
         if (!passParser.execute(passOptions)) {
             goto exit;
         }
 
         if (!passDecl.execute(passOptions)) {
+            goto exit;
+        }
+
+        if (!passFnRet.execute(passOptions)) {
             goto exit;
         }
 

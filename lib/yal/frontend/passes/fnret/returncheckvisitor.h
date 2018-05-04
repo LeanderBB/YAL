@@ -17,38 +17,41 @@
  *  License along with YAL. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#pragma once
+
+#include "yal/frontend/ast/astvisitor.h"
+#include "yal/util/stackjump.h"
+
+#include <optional>
+
 namespace yal {
-    class ErrorReporter;
-    class SourceManager;
-    class SourceItem;
+     class ErrorReporter;
 }
 
 namespace yal::frontend {
 
-
-    enum class PassTypeCode : uint16_t {
-        Parser = 2,
-        Decl = 3,
-        FnRet = 4,
-    };
-
-
+    struct PassOptions;
+    class DeclFunction;
     class Module;
+    class ReturnCheckVisitor final : public AstVisitor{
+    public:
+        ReturnCheckVisitor(PassOptions& options);
 
-    struct PassOptions {
-        PassOptions(ErrorReporter& errReporter_,
-                    SourceManager& srcManager_,
-                    Module& module_,
-                    SourceItem& srcItem_):
-            errReporter(errReporter_),
-            srcManager(srcManager_),
-            module(module_),
-            srcItem(srcItem_){
-        }
+        void execute();
 
-        ErrorReporter& errReporter;
-        SourceManager& srcManager;
-        Module& module;
-        SourceItem& srcItem;
+#define YAL_AST_NODE_TYPE(TYPE) void visit(TYPE&) override final;
+#include "yal/frontend/ast/astnodes.def"
+#undef YAL_AST_NODE_TYPE
+
+    private:
+
+        void fnReturnCheck(DeclFunction& decl);
+
+    protected:
+        Module& m_module;
+        ErrorReporter& m_errReporter;
+        StackJump m_jump;
+        bool m_hasReturnStmt;
     };
-};
+
+}

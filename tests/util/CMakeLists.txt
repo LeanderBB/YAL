@@ -13,7 +13,7 @@ set (SOURCES
 add_executable(test_util ${SOURCES})
 
 target_link_libraries(test_util
-        PRIVATE GTest::GTest GTest::Main yal gtest-util
+        PRIVATE GTest::GTest GTest::Main yal::libyal gtest-util
+        PRIVATE compile_options compile_options_werror
     )
 
-YAL_APPLY_COMPILER_FLAGS_WERROR(test_util)

@@ -880,7 +880,7 @@ namespace yal::frontend {
                 m_module.getSTContext().getDeclModule();
         state.jump.mark();
         visit(*stDeclModule);
-        return m_errReporter.hasErrors();
+        return !m_errReporter.hasErrors();
     }
 
     AstBuilder::State&

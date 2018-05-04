@@ -18,12 +18,12 @@
  */
 #include "yal/yal.h"
 #include "yal/io/memorystream.h"
-#include "yal/lexer/tokens.h"
-#include "yal/lexer/lexer.h"
+#include "yal/frontend/lexer/tokens.h"
+#include "yal/frontend/lexer/lexer.h"
 #include <iostream>
 /*!max:re2c*/
 
-namespace yal {
+namespace yal::frontend {
 
     enum {
         kMaxBufferSize = 4096

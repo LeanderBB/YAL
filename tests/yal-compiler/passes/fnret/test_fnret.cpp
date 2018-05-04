@@ -17,38 +17,27 @@
  *  License along with YAL. If not, see <http://www.gnu.org/licenses/>.
  */
 
-namespace yal {
-    class ErrorReporter;
-    class SourceManager;
-    class SourceItem;
-}
+#include <fixture.h>
 
-namespace yal::frontend {
+#include <yal/frontend/passes/fnret/errorspassfnret.h>
 
+class PassFnRet : public CompileFixture {
 
-    enum class PassTypeCode : uint16_t {
-        Parser = 2,
-        Decl = 3,
-        FnRet = 4,
-    };
-
-
-    class Module;
-
-    struct PassOptions {
-        PassOptions(ErrorReporter& errReporter_,
-                    SourceManager& srcManager_,
-                    Module& module_,
-                    SourceItem& srcItem_):
-            errReporter(errReporter_),
-            srcManager(srcManager_),
-            module(module_),
-            srcItem(srcItem_){
-        }
-
-        ErrorReporter& errReporter;
-        SourceManager& srcManager;
-        Module& module;
-        SourceItem& srcItem;
-    };
 };
+
+TEST_F(PassFnRet, FnReturnEmptyBody) {
+
+    const char* input =
+R"R(
+    fn foo() : bool {
+    }
+)R";
+
+    auto handle = createSourceHandle(input);
+    FrontendOptionsType options;
+    const ModuleType* module = m_frontEnd.compile(handle, options);
+    EXPECT_EQ(module, nullptr);
+    EXPECT_TRUE(m_errorReporter.hasErrors());
+    const yal::Error* err = m_errorReporter.getLastError();
+    EXPECT_EQ(err->getCode(), yal::frontend::ErrorFnNotAllStmtReturn::kCode);
+}

@@ -2,7 +2,13 @@
 # Exec sources
 #
 
+set(YAL_VERSION_MAJOR 0)
+set(YAL_VERSION_MINOR 1)
+set(YAL_VERSION_PATCH 0)
 
+project(yalc
+    VERSION ${YAL_VERSION_MAJOR}.${YAL_VERSION_MINOR}.${YAL_VERSION_PATCH}
+    LANGUAGES CXX)
 
 # Yal Compiler
 
@@ -12,8 +18,10 @@ set(YALC_SOURCES
 )
 
 add_executable(${YALC_BIN} ${YALC_SOURCES})
-YAL_APPLY_COMPILER_FLAGS_WERROR(${YALC_BIN})
+
+add_executable(yalc::yalc ALIAS yalc)
 
 target_link_libraries(${YALC_BIN}
-        PRIVATE yal
+        PRIVATE yal::libyal
+        PRIVATE compile_options compile_options_werror
     )
