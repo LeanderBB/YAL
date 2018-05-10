@@ -20,6 +20,10 @@
 #include <fixture.h>
 
 #include <yal/frontend/passes/decl/errorspassdecl.h>
+#include <yal/frontend/ast/astnodes.h>
+#include <yal/frontend/types/typecontext.h>
+#include <yal/frontend/types/typefunction.h>
+#include <yal/frontend/types/typestruct.h>
 
 class PassDecl_AstBuilder : public CompileFixture {
 
@@ -383,3 +387,139 @@ R"R(
     const yal::Error* err = m_errorReporter.getLastError();
     EXPECT_EQ(err->getCode(), yal::frontend::ErrorUndefinedStructMember::kCode);
 }
+
+
+TEST_F(PassDecl_AstBuilder, StructMemberOrder) {
+    const char* input =
+R"R(
+    type Foo : struct {
+        x:bool,
+        y:bool,
+        z:bool
+    }
+)R";
+    auto handle = createSourceHandle(input);
+    FrontendOptionsType options;
+    const ModuleType* module = m_frontEnd.compile(handle, options);
+    EXPECT_NE(module, nullptr);
+    EXPECT_FALSE(m_errorReporter.hasErrors());
+    const yal::frontend::TypeContext& typeCtx = module->getTypeContext();
+
+    yal::frontend::Identifier id("Foo",*module);
+    const yal::frontend::Type* type = typeCtx.getByIdentifier(id);
+    EXPECT_NE(nullptr, type);
+    if (type == nullptr) {
+        return;
+    }
+
+    const yal::frontend::TypeStruct* typeStruct =
+            yal::dyn_cast<yal::frontend::TypeStruct>(type);
+    EXPECT_NE(nullptr, typeStruct);
+
+    if (typeStruct == nullptr) {
+        return;
+    }
+
+    const yal::frontend::DeclStruct* decl = typeStruct->getDecl();
+    const yal::frontend::DeclStruct::Members& members = decl->getMembers();
+
+    EXPECT_EQ(3, members.size());
+
+    EXPECT_EQ(yal::StringRef("x"), members[0]->getName());
+    EXPECT_EQ(yal::StringRef("y"), members[1]->getName());
+    EXPECT_EQ(yal::StringRef("z"), members[2]->getName());
+}
+
+TEST_F(PassDecl_AstBuilder, FunctionParamOrder) {
+    const char* input =
+R"R(
+    fn foo(x:bool,
+        y:bool,
+        z:bool) {
+    }
+)R";
+    auto handle = createSourceHandle(input);
+    FrontendOptionsType options;
+    const ModuleType* module = m_frontEnd.compile(handle, options);
+    EXPECT_NE(module, nullptr);
+    EXPECT_FALSE(m_errorReporter.hasErrors());
+    const yal::frontend::TypeContext& typeCtx = module->getTypeContext();
+
+    yal::frontend::Identifier id("foo",*module);
+    const yal::frontend::Type* type = typeCtx.getByIdentifier(id);
+    EXPECT_NE(nullptr, type);
+    if (type == nullptr) {
+        return;
+    }
+
+    const yal::frontend::TypeFunction* typeFn =
+            yal::dyn_cast<yal::frontend::TypeFunction>(type);
+    EXPECT_NE(nullptr, typeFn);
+
+    if (typeFn == nullptr) {
+        return;
+    }
+
+    const yal::frontend::DeclFunction* decl = typeFn->getDecl();
+    const yal::frontend::DeclFunction::Params& params = decl->getParams();
+
+    EXPECT_EQ(3, params.size());
+
+    EXPECT_EQ(yal::StringRef("x"), params[0]->getName());
+    EXPECT_EQ(yal::StringRef("y"), params[1]->getName());
+    EXPECT_EQ(yal::StringRef("z"), params[2]->getName());
+}
+
+TEST_F(PassDecl_AstBuilder, FunctionStmtOrder) {
+    const char* input =
+R"R(
+    fn foo() : bool {
+        var y:bool = true;
+        var x:bool = false;
+        return y and x;
+    }
+)R";
+    auto handle = createSourceHandle(input);
+    FrontendOptionsType options;
+    const ModuleType* module = m_frontEnd.compile(handle, options);
+    EXPECT_NE(module, nullptr);
+    EXPECT_FALSE(m_errorReporter.hasErrors());
+    const yal::frontend::TypeContext& typeCtx = module->getTypeContext();
+
+    yal::frontend::Identifier id("foo",*module);
+    const yal::frontend::Type* type = typeCtx.getByIdentifier(id);
+    EXPECT_NE(nullptr, type);
+    if (type == nullptr) {
+        return;
+    }
+
+    const yal::frontend::TypeFunction* typeFn =
+            yal::dyn_cast<yal::frontend::TypeFunction>(type);
+    EXPECT_NE(nullptr, typeFn);
+
+    if (typeFn == nullptr) {
+        return;
+    }
+
+    const yal::frontend::DeclFunction* decl = typeFn->getDecl();
+    const yal::frontend::DeclFunction::Body& body = decl->getFunctionBody();
+
+    EXPECT_EQ(3, body.size());
+
+    EXPECT_EQ(yal::frontend::AstType::StmtDecl, body[0]->getAstType());
+    EXPECT_EQ(yal::frontend::AstType::StmtDecl, body[1]->getAstType());
+    EXPECT_EQ(yal::frontend::AstType::StmtReturn, body[2]->getAstType());
+
+    if (const yal::frontend::StmtDecl* stmt =
+            yal::dyn_cast<yal::frontend::StmtDecl>(body[0]);
+            stmt != nullptr) {
+        EXPECT_EQ(yal::StringRef("y"), stmt->getDecl()->getName());
+    }
+
+    if (const yal::frontend::StmtDecl* stmt =
+            yal::dyn_cast<yal::frontend::StmtDecl>(body[1]);
+            stmt != nullptr) {
+        EXPECT_EQ(yal::StringRef("x"), stmt->getDecl()->getName());
+    }
+}
+

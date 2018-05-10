@@ -59,7 +59,7 @@ namespace yal::frontend {
             }
         }
 
-        if (!m_hasReturnStmt) {
+        if (!m_hasReturnStmt && node.getReturnType().isValid()) {
             auto error = std::make_unique<ErrorFnNotAllStmtReturn>(node);
             m_errReporter.report(std::move(error));
             m_jump.trigger();
@@ -76,7 +76,7 @@ namespace yal::frontend {
             }
         }
 
-        if (!m_hasReturnStmt) {
+        if (!m_hasReturnStmt && node.getReturnType().isValid()) {
             auto error = std::make_unique<ErrorFnNotAllStmtReturn>(node);
             m_errReporter.report(std::move(error));
             m_jump.trigger();

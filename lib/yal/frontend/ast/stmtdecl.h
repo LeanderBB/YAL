@@ -45,5 +45,12 @@ namespace yal::frontend {
     private:
         DeclBase* m_decl;
     };
+}
 
+namespace yal {
+    template <>
+    inline yal::frontend::AstType
+    get_typeid_instance<yal::frontend::StmtDecl>(const yal::frontend::StmtDecl& node) {
+        return node.getAstType();
+    }
 }

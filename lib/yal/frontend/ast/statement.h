@@ -69,4 +69,10 @@ namespace yal {
     inline yal::frontend::AstType get_typeid(const yal::frontend::Statement& ref) {
         return ref.getAstType();
     }
+
+    template <>
+    inline yal::frontend::AstType
+    get_typeid_instance<yal::frontend::Statement>(const yal::frontend::Statement& node) {
+        return node.getAstType();
+    }
 }

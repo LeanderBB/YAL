@@ -171,6 +171,7 @@ namespace yal::frontend {
         }
 
         typeStruct->setDecl(declStruct);
+        declStruct->setMembers(std::move(members));
 
         // push to decl stack
         getState().stackDecls.push(declStruct);
@@ -316,8 +317,9 @@ namespace yal::frontend {
                 params.push_back(declVar);
                 ++idx;
             }
-        }
 
+            declFn->setParams(std::move(params));
+        }
         typeFn->setDecl(declFn);
 
         const STDeclFunction::Body* body = node.getBody();
@@ -338,8 +340,9 @@ namespace yal::frontend {
 
             // collect statements
             while (!stack.empty() && stack.size() >= currStmtStackSize) {
+                // TODO: Revise!
                 Statement* stmt = stack.top();
-                statements.push_back(stmt);
+                statements.insert(statements.begin(), stmt);
                 stack.pop();
             }
             YAL_ASSERT(statements.size() == body->size());
