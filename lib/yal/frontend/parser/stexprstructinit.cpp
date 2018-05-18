@@ -37,7 +37,7 @@ namespace yal::frontend {
                                        const MemberInitList *members):
         STExpression(SyntaxTreeType::STExprStructInit),
         m_structType(structName),
-        m_memberInits(std::move(members)) {
+        m_memberInits(members) {
 
     }
 

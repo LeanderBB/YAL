@@ -28,15 +28,15 @@ namespace yal::frontend {
 
     DeclStruct::DeclStruct(Module& module,
                            TypeStruct* type,
-                           DeclScope* scope,
+                           DeclScope& scope,
                            Members&& members):
         DeclBase(module,
                  AstType::DeclStruct,
                  type->getIdentifier(),
-                 type->getSTDecl()->getSourceInfo(),
+                 type->getSTDecl().getSourceInfo(),
                  scope),
         m_structType(type),
-        m_structDeclScope(this, scope),
+        m_structDeclScope(this, &scope),
         m_members(std::move(members)) {
 
         for (auto& member : members) {
@@ -46,31 +46,27 @@ namespace yal::frontend {
 
     DeclStruct::DeclStruct(Module& module,
                            TypeStruct* type,
-                           DeclScope* scope):
+                           DeclScope& scope):
         DeclBase(module,
                  AstType::DeclStruct,
                  type->getIdentifier(),
-                 type->getSTDecl()->getSourceInfo(),
+                 type->getSTDecl().getSourceInfo(),
                  scope),
         m_structType(type),
-        m_structDeclScope(this, scope),
+        m_structDeclScope(this, &scope),
         m_members(Members::allocator_type(module.getASTContext().getAllocator())) {
 
     }
 
-    const DeclVar*
+    std::optional<const DeclVar *>
     DeclStruct::getMemberByName(const StringRef name) const {
-        if (m_members.empty()) {
-            return nullptr;
-        }
-
         for(auto& decl : m_members) {
             if (decl->getName() == name) {
-                return decl;
+                return std::optional<const DeclVar *>(decl);
             }
         }
 
-        return nullptr;
+        return std::optional<const DeclVar *>();
     }
 
     size_t

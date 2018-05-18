@@ -222,6 +222,12 @@ set(YAL_SOURCES
     yal/frontend/passes/fnret/returncheckvisitor.h
     yal/frontend/passes/fnret/errorspassfnret.cpp
     yal/frontend/passes/fnret/errorspassfnret.h
+    yal/frontend/passes/type/passtype.cpp
+    yal/frontend/passes/type/passtype.h
+    yal/frontend/passes/type/astvisitorexprtype.cpp
+    yal/frontend/passes/type/astvisitorexprtype.h
+    yal/frontend/passes/type/errorspasstype.cpp
+    yal/frontend/passes/type/errorspasstype.h
 
     #yal/transpiler/transpiler.h
     #yal/transpiler/c/transpilerc.h

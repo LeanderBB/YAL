@@ -31,8 +31,10 @@ namespace yal::frontend {
 
         std::string result;
         result.reserve(name.size() + moduleName.size() + 4 +  target.size());
-        result.append(moduleName.data(), moduleName.size());
-        result += "::";
+        if (moduleName.length() != 0) {
+            result.append(moduleName.data(), moduleName.size());
+            result += "::";
+        }
         if (target.length() != 0) {
             result.append(target.data(), target.size());
             result += "::";

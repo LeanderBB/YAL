@@ -22,10 +22,11 @@
 #include "yal/error/errorreporter.h"
 #include "yal/frontend/module.h"
 #include "yal/frontend/modulemanager.h"
-#include <yal/frontend/passes/passes.h>
-#include <yal/frontend/passes/parser/passparser.h>
-#include <yal/frontend/passes/decl/passdecl.h>
-#include <yal/frontend/passes/fnret/passfnret.h>
+#include "yal/frontend/passes/passes.h"
+#include "yal/frontend/passes/parser/passparser.h"
+#include "yal/frontend/passes/decl/passdecl.h"
+#include "yal/frontend/passes/fnret/passfnret.h"
+#include "yal/frontend/passes/type/passtype.h"
 #include "yal/io/sourceitems.h"
 
 namespace yal::frontend {
@@ -65,6 +66,7 @@ namespace yal::frontend {
         PassParser passParser;
         PassDecl passDecl;
         PassFnRet passFnRet;
+        PassType passType;
 
         if (!passParser.execute(passOptions)) {
             goto exit;
@@ -78,6 +80,9 @@ namespace yal::frontend {
             goto exit;
         }
 
+        if (!passType.execute(passOptions)) {
+            goto exit;
+        }
 exit:
         return m_errReporter.hasErrors()
                 ? nullptr

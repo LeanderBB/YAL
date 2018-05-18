@@ -33,6 +33,7 @@ namespace yal::frontend {
                            StmtExpression* expression):
         Statement(module, AstType::StmtReturn, srcInfo),
         m_expr(expression) {
+        YAL_ASSERT(expression != nullptr);
     }
 
     void
@@ -42,7 +43,7 @@ namespace yal::frontend {
 
     bool
     StmtReturn::hasReturnExpression() const {
-        return m_expr != nullptr;
+        return m_expr.has_value();
     }
 
     void

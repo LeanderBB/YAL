@@ -83,7 +83,7 @@ namespace yal::frontend {
     AstBuilder::visit(const STDeclModule& node) {
         DeclModule* declModule = m_module.getDeclNode();
         ScopedStackElem<StackScope> sscope(getState().stackScope,
-                                           declModule->getModuleDeclScope());
+                                           &declModule->getModuleDeclScope());
         // process nodes
         for (auto& decl : node.getDecls()) {
             decl->acceptVisitor(*this);
@@ -131,9 +131,9 @@ namespace yal::frontend {
         DeclStruct* declStruct = astCtx.getAllocator()
                 .construct<DeclStruct>(m_module,
                                        typeStruct,
-                                       parentScope);
+                                       *parentScope);
 
-        DeclScope* declScopeStruct = declStruct->getStructDeclScope();
+        DeclScope& declScopeStruct = declStruct->getStructDeclScope();
 
         DeclStruct::Members members(DeclStruct::Members::allocator_type(astCtx.getAllocator()));
         members.reserve(node.getMembers().size());
@@ -146,7 +146,7 @@ namespace yal::frontend {
 
             // check for duplicate decl
             const Identifier memberId(name->getString());
-            const DeclBase* existingDecl = declScopeStruct->getDecl(memberId,false);
+            const DeclBase* existingDecl = declScopeStruct.getDecl(memberId,false);
             if (existingDecl != nullptr ) {
                 onDuplicateSymbol(*name, *existingDecl);
             }
@@ -166,11 +166,11 @@ namespace yal::frontend {
                                         declScopeStruct,
                                         qt,
                                         nullptr);
-            declScopeStruct->addDecl(declVar);
+            declScopeStruct.addDecl(declVar);
             members.push_back(declVar);
         }
 
-        typeStruct->setDecl(declStruct);
+        typeStruct->setDecl(*declStruct);
         declStruct->setMembers(std::move(members));
 
         // push to decl stack
@@ -234,14 +234,14 @@ namespace yal::frontend {
             declFn = astCtx.getAllocator()
                     .construct<DeclFunction>(m_module,
                                              typeFn,
-                                             getState().stackScope.top(),
+                                             *getState().stackScope.top(),
                                              returnType);
         } else {
             QualType targeQt = QualType::Create(Qualifier(), targetType);
             declFn = astCtx.getAllocator()
                     .construct<DeclTypeFunction>(m_module,
                                                  typeFn,
-                                                 getState().stackScope.top(),
+                                                 *getState().stackScope.top(),
                                                  returnType,
                                                  targeQt);
         }
@@ -294,7 +294,7 @@ namespace yal::frontend {
                     declVar = astCtx.getAllocator()
                             .construct<DeclParamVarSelf>(m_module,
                                                          name->getSourceInfo(),
-                                                         &declScopeFn,
+                                                         declScopeFn,
                                                          qt);
                 } else {
 
@@ -310,7 +310,7 @@ namespace yal::frontend {
                             .construct<DeclParamVar>(m_module,
                                                      name->getString(),
                                                      name->getSourceInfo(),
-                                                     &declScopeFn,
+                                                     declScopeFn,
                                                      qt);
                 }
                 declScopeFn.addDecl(declVar);
@@ -390,7 +390,7 @@ namespace yal::frontend {
                 .construct<DeclVar>(m_module,
                                     declName->getString(),
                                     node.getSourceInfo(),
-                                    parentScope,
+                                    *parentScope,
                                     qt,
                                     initExpr);
         parentScope->addDecl(decl);
@@ -490,10 +490,11 @@ namespace yal::frontend {
             onUndefinedSymbol(*varName);
         }
 
-        const DeclVar* declVar = dyn_cast<DeclVar>(existingDecl);
-        if (declVar == nullptr) {
+        if (!existingDecl->isVariableDecl()) {
             onSymbolNotDeclVar(*varName, *existingDecl);
         }
+
+        const DeclVar* declVar = static_cast<const DeclVar*>(existingDecl);
 
         ExprVarRef* expr = nullptr;
         if (varName->getString() == "self") {
@@ -829,40 +830,42 @@ namespace yal::frontend {
         }
 
         // process struct init members
-        const STExprStructInit::MemberInitList& stmembers = node.getMemeberInitExprs();
         ExprStructInit::MemberInitExprList members(ExprStructInit::MemberInitExprList::allocator_type(m_module.getASTContext().getAllocator()));
-        members.reserve(stmembers.size());
-        const STDeclStruct* declStruct= typeStruct->getSTDecl();
-        const STDeclStruct::Members& structMembers = declStruct->getMembers();
-        for (auto& stmember : stmembers) {
+        const STExprStructInit::MemberInitList* stmembers = node.getMemeberInitExprs();
+        if (stmembers != nullptr) {
+            members.reserve(stmembers->size());
+            const STDeclStruct& declStruct= typeStruct->getSTDecl();
+            const STDeclStruct::Members& structMembers = declStruct.getMembers();
+            for (auto& stmember : *stmembers) {
 
-            auto it = std::find_if(std::begin(structMembers),
-                                   std::end(structMembers),
-                                   [stmember](const STDeclStruct::Members::value_type& v) -> bool {
-                                                   return v->getName()->getString() == stmember->getName()->getString();
-                                               });
+                auto it = std::find_if(std::begin(structMembers),
+                                       std::end(structMembers),
+                                       [stmember](const STDeclStruct::Members::value_type& v) -> bool {
+                    return v->getName()->getString() == stmember->getName()->getString();
+                });
 
-            if (it == std::end(structMembers)) {
-                auto err = std::make_unique<ErrorUndefinedStructMember>(*typeStruct,
-                                                                        *stmember->getName());
-                m_errReporter.report(std::move(err));
-                getState().onError();
+                if (it == std::end(structMembers)) {
+                    auto err = std::make_unique<ErrorUndefinedStructMember>(*typeStruct,
+                                                                            *stmember->getName());
+                    m_errReporter.report(std::move(err));
+                    getState().onError();
+                }
+
+                const size_t stackSize = stackExpr.size();
+                const STExpression* stExpr = stmember->getExpr();
+                stExpr->acceptVisitor(*this);
+                YAL_ASSERT(!stackExpr.empty());
+                YAL_ASSERT(stackExpr.size() == stackSize + 1);
+                StmtExpression* expr = stackExpr.top();
+                stackExpr.pop();
+
+                StructMemberInit* initExpr = m_module.getASTContext().getAllocator()
+                        .construct<StructMemberInit>(m_module,
+                                                     node.getSourceInfo(),
+                                                     stmember->getName()->getString(),
+                                                     expr);
+                members.push_back(initExpr);
             }
-
-            const size_t stackSize = stackExpr.size();
-            const STExpression* stExpr = stmember->getExpr();
-            stExpr->acceptVisitor(*this);
-            YAL_ASSERT(!stackExpr.empty());
-            YAL_ASSERT(stackExpr.size() == stackSize + 1);
-            StmtExpression* expr = stackExpr.top();
-            stackExpr.pop();
-
-            StructMemberInit* initExpr = m_module.getASTContext().getAllocator()
-                    .construct<StructMemberInit>(m_module,
-                                                 node.getSourceInfo(),
-                                                 stmember->getName()->getString(),
-                                                 expr);
-            members.push_back(initExpr);
         }
 
         // push result

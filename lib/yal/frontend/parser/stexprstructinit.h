@@ -63,8 +63,8 @@ namespace yal::frontend {
             return m_structType;
         }
 
-        const MemberInitList& getMemeberInitExprs() const {
-            return *m_memberInits;
+        const MemberInitList* getMemeberInitExprs() const {
+            return m_memberInits;
         }
 
         void acceptVisitor(SyntaxTreeVisitor& visitor) const override final;

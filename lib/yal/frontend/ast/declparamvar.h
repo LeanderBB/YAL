@@ -29,13 +29,13 @@ namespace yal::frontend {
                      const AstType astType,
                      StringRef name,
                      const SourceInfo& sourceInfo,
-                     DeclScope *scope,
+                     DeclScope &scope,
                      const QualType &type);
     public:
         DeclParamVar(Module& module,
                      StringRef name,
                      const SourceInfo& sourceInfo,
-                     DeclScope *scope,
+                     DeclScope &scope,
                      const QualType& type);
 
         virtual void acceptVisitor(AstVisitor& visitor) override;
@@ -45,7 +45,7 @@ namespace yal::frontend {
     public:
         DeclParamVarSelf(Module& module,
                          const SourceInfo& sourceInfo,
-                         DeclScope* scope,
+                         DeclScope& scope,
                          const QualType& refType);
 
         virtual void acceptVisitor(AstVisitor& visitor) override;

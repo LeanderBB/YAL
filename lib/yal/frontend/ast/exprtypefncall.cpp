@@ -36,7 +36,9 @@ namespace yal::frontend {
                    srcInfo,
                    nullptr,
                    std::move(functionArgs)),
-        m_expression(expression),
+        m_expression(expression == nullptr
+                     ? StmtExpressionOpt() :
+                       StmtExpressionOpt(expression)),
         m_functionName(&functionName){
 
     }
@@ -50,7 +52,7 @@ namespace yal::frontend {
                    srcInfo,
                    functionType,
                    std::move(functionArgs)),
-        m_expression(nullptr),
+        m_expression(),
         m_functionName(nullptr) {
         YAL_ASSERT(functionType->isTypeFunctionStatic());
     }
@@ -63,7 +65,7 @@ namespace yal::frontend {
 
     bool
     ExprTypeFnCall::isStaticCall() const {
-        return m_expression == nullptr || m_functionName == nullptr;
+        return !m_expression.has_value() || m_functionName == nullptr;
     }
 
     void

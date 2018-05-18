@@ -48,12 +48,12 @@ namespace yal::frontend {
 
         void setDecls(Decls&& decls);
 
-        DeclScope* getModuleDeclScope() {
-            return &m_declScope;
+        DeclScope& getModuleDeclScope() {
+            return m_declScope;
         }
 
-        const DeclScope* getModuleDeclScope() const {
-            return &m_declScope;
+        const DeclScope& getModuleDeclScope() const {
+            return m_declScope;
         }
 
         virtual void acceptVisitor(AstVisitor& visitor) override;

@@ -21,6 +21,8 @@
 
 #include "yal/frontend/ast/exprfncall.h"
 
+#include <optional>
+
 namespace yal::frontend {
 
     class STIdentifier;
@@ -28,6 +30,7 @@ namespace yal::frontend {
 
     class ExprTypeFnCall : public ExprFnCall {
     public:
+        using StmtExpressionOpt = std::optional<StmtExpression*>;
 
         ExprTypeFnCall(Module& module,
                        const SourceInfo &srcInfo,
@@ -40,7 +43,7 @@ namespace yal::frontend {
                        const TypeFunction* functionType,
                        ExprList&& functionArgs);
 
-        StmtExpression* getExpression() const {
+        StmtExpressionOpt getExpression() const {
             return m_expression;
         }
 
@@ -55,7 +58,7 @@ namespace yal::frontend {
         virtual void acceptVisitor(AstVisitor& visitor) override;
 
     private:
-        StmtExpression* m_expression;
+        StmtExpressionOpt m_expression;
         const STIdentifier* m_functionName;
 
     };

@@ -33,12 +33,12 @@ namespace yal::frontend {
                    StmtExpression* valueExpr);
 
 
-        StmtExpression* getDestExpr() const {
+        StmtExpression* getLeftExpr() const {
             return m_destExpr;
         }
 
 
-        StmtExpression* getValueExpr() const {
+        StmtExpression* getRightExpr() const {
             return m_valueExpr;
         }
 

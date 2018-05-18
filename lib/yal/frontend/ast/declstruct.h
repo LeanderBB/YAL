@@ -22,6 +22,8 @@
 #include "yal/frontend/ast/declbase.h"
 #include "yal/frontend/ast/declscope.h"
 
+#include <optional>
+
 namespace yal::frontend {
 
     class DeclVar;
@@ -33,17 +35,17 @@ namespace yal::frontend {
 
         DeclStruct(Module& module,
                    TypeStruct* type,
-                   DeclScope *scope,
+                   DeclScope &scope,
                    Members&& members);
 
         DeclStruct(Module& module,
                    TypeStruct* type,
-                   DeclScope* scope);
+                   DeclScope& scope);
 
         size_t calculateMemSizeWithAlignment(const size_t alignment,
                                              const size_t sizeofPtr) const;
 
-        const DeclVar* getMemberByName(const StringRef name) const;
+        std::optional<const DeclVar*> getMemberByName(const StringRef name) const;
 
         virtual void acceptVisitor(AstVisitor& visitor) override;
 
@@ -57,12 +59,12 @@ namespace yal::frontend {
             return m_members;
         }
 
-        DeclScope* getStructDeclScope() {
-            return &m_structDeclScope;
+        DeclScope& getStructDeclScope() {
+            return m_structDeclScope;
         }
 
-        const DeclScope* getStructDeclScope() const {
-            return &m_structDeclScope;
+        const DeclScope& getStructDeclScope() const {
+            return m_structDeclScope;
         }
 
         const TypeStruct& getStructType() const {

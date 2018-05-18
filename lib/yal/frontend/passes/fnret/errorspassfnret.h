@@ -20,8 +20,6 @@
 #pragma once
 
 #include "yal/error/error.h"
-#include "yal/frontend/types/qualtype.h"
-#include "yal/io/sourcemanager.h"
 
 namespace yal {
     class ErrorPrinter;

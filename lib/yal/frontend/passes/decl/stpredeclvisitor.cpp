@@ -90,7 +90,7 @@ namespace yal::frontend {
         TypeContext& typeCtx = m_module.getTypeContext();
 
         // check if struct has already been declared
-        TypeStruct* typeStruct = typeCtx.allocateType<TypeStruct>(m_module, &declStruct);
+        TypeStruct* typeStruct = typeCtx.allocateType<TypeStruct>(m_module, declStruct);
         const Type* existingType = typeCtx.getByIdentifier(typeStruct->getIdentifier());
         if (existingType == nullptr) {
             typeCtx.registerType(typeStruct);

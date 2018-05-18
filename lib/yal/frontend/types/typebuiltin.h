@@ -65,7 +65,7 @@ namespace yal::frontend {
         }
 
     protected:
-        virtual bool isCastableToDetail(const Type* other) const override;
+        virtual bool isCastableToDetail(const Type& other) const override;
 
     private:
         const DataType m_builtinType;

@@ -164,8 +164,8 @@ namespace yal::frontend {
     }
 
     bool
-    Type::isCastableTo(const Type* other) const {
-        if (m_typeId == other->getTypeId()) {
+    Type::isCastableTo(const Type &other) const {
+        if (m_typeId == other.getTypeId()) {
             return true;
         } else {
             return isCastableToDetail(other);

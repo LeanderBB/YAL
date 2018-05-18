@@ -29,7 +29,7 @@ namespace yal::frontend {
 
         DeclTypeFunction(Module& module,
                          TypeFunction* fnType,
-                         DeclScope* scope,
+                         DeclScope& scope,
                          const QualType& returnType,
                          const QualType& targetType,
                          Params&& params,
@@ -37,7 +37,7 @@ namespace yal::frontend {
 
         DeclTypeFunction(Module& module,
                          TypeFunction* fnType,
-                         DeclScope* scope,
+                         DeclScope& scope,
                          const QualType& returnType,
                          const QualType& targetType);
 

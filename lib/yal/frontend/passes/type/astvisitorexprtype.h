@@ -22,18 +22,24 @@
 #include "yal/frontend/ast/astvisitor.h"
 #include "yal/util/stackjump.h"
 
+#include <memory>
+
 namespace yal {
      class ErrorReporter;
+     class Error;
+     struct SourceInfo;
 }
 
 namespace yal::frontend {
 
     struct PassOptions;
-    class DeclFunction;
     class Module;
-    class ReturnCheckVisitor final : public AstVisitor{
+    class DeclScope;
+    class QualType;
+
+    class AstVisitorExprType final : public AstVisitor {
     public:
-        ReturnCheckVisitor(PassOptions& options);
+        AstVisitorExprType(PassOptions& options);
 
         void execute();
 
@@ -42,14 +48,19 @@ namespace yal::frontend {
 #undef YAL_AST_NODE_TYPE
 
     private:
+        class DeclScopeGuard;
 
-        void fnReturnCheck(DeclFunction& decl);
+        void onError(std::unique_ptr<Error>&& error);
 
-    protected:
+        void isValidTypeConversion(const QualType qtFrom,
+                                   const QualType qtTo,
+                                   const SourceInfo& location);
+
+    private:
         Module& m_module;
         ErrorReporter& m_errReporter;
+        const DeclScope* m_activeScope;
         StackJump m_jump;
-        bool m_hasReturnStmt;
     };
 
 }

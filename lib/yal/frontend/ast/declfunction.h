@@ -41,7 +41,7 @@ namespace yal::frontend {
         DeclFunction(Module& module,
                      const AstType type,
                      TypeFunction* fnType,
-                     DeclScope* scope,
+                     DeclScope& scope,
                      const QualType& returnType,
                      Params&& params,
                      Body&& body);
@@ -49,21 +49,21 @@ namespace yal::frontend {
         DeclFunction(Module& module,
                      const AstType type,
                      TypeFunction* fnType,
-                     DeclScope* scope,
+                     DeclScope& scope,
                      const QualType& returnType);
 
     public:
 
         DeclFunction(Module& module,
                      TypeFunction* fnType,
-                     DeclScope* scope,
+                     DeclScope& scope,
                      const QualType& returnType,
                      Params&& params,
                      Body&& body);
 
         DeclFunction(Module& module,
                      TypeFunction* fnType,
-                     DeclScope* scope,
+                     DeclScope& scope,
                      const QualType& returnType);
 
         virtual ~DeclFunction() = default;
@@ -123,5 +123,13 @@ namespace yal::frontend {
         Params m_params;
         Body m_functionBody;
     };
+}
+
+namespace yal {
+    template <>
+    inline yal::frontend::AstType
+    get_typeid_instance<yal::frontend::DeclFunction>(const yal::frontend::DeclFunction& decl) {
+        return decl.getAstType();
+    }
 }
 

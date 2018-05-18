@@ -19,39 +19,17 @@
 
 #pragma once
 
-#include "yal/frontend/types/type.h"
-
 namespace yal::frontend {
 
-    class STDeclStruct;
-    class DeclStruct;
-    class TypeStruct : public Type
-    {
+    struct PassOptions;
+
+    class PassType {
     public:
-        TypeStruct(const Module& module,
-                   const STDeclStruct& decl);
 
-        const STDeclStruct& getSTDecl() const {
-            return m_stdecl;
-        }
+        PassType() = default;
 
-        void setDecl(DeclStruct& decl);
-
-        DeclStruct& getDecl() {
-            YAL_ASSERT(m_decl != nullptr);
-            return *m_decl;
-        }
-
-        const DeclStruct& getDecl() const {
-            YAL_ASSERT(m_decl != nullptr);
-            return *m_decl;
-        }
-
-        virtual SourceInfoOpt getSourceInfo() const override;
-
-    private:
-        const STDeclStruct& m_stdecl;
-        DeclStruct* m_decl;
+        bool execute(PassOptions& options);
 
     };
+
 }

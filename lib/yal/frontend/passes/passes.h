@@ -30,6 +30,7 @@ namespace yal::frontend {
         Parser = 2,
         Decl = 3,
         FnRet = 4,
+        Type = 5
     };
 
 

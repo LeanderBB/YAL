@@ -26,6 +26,8 @@
 #include "yal/util/cast.h"
 #include "yal/util/stringref.h"
 
+#include <optional>
+
 namespace yal::frontend {
 
     class Module;
@@ -36,12 +38,13 @@ namespace yal::frontend {
 
     class DeclBase {
     protected:
+        using DeclScopeOpt = std::optional<DeclScope*>;
 
         DeclBase(Module& module,
                  const AstType type,
                  const Identifier &identifier,
                  const SourceInfo& sourceInfo,
-                 DeclScope* scope);
+                 DeclScope& scope);
 
         DeclBase(Module& module,
                  const AstType type,
@@ -76,11 +79,11 @@ namespace yal::frontend {
             return m_module;
         }
 
-        const DeclScope* getScopeWhereDeclared() const {
+        const DeclScopeOpt getScopeWhereDeclared() const {
             return m_scopeWhereDecl;
         }
 
-        void setScopeWhereDeclared(DeclScope* scope);
+        void setScopeWhereDeclared(DeclScopeOpt scope);
 
         bool isVariableDecl() const;
 
@@ -88,7 +91,7 @@ namespace yal::frontend {
 
     protected:
         Module& m_module;
-        DeclScope* m_scopeWhereDecl;
+        DeclScopeOpt m_scopeWhereDecl;
         const AstType m_astType;
         const SourceInfo m_sourceInfo;
         Identifier m_identifier;

@@ -20,12 +20,15 @@
 #pragma once
 
 #include "yal/frontend/ast/statement.h"
+#include <optional>
 
 namespace yal::frontend {
 
     class StmtExpression;
     class StmtReturn : public Statement {
     public:
+
+        using StmtExpressionOpt = std::optional<StmtExpression*>;
 
         StmtReturn(frontend::Module& module,
                    const SourceInfo& srcInfo);
@@ -34,11 +37,11 @@ namespace yal::frontend {
                    const SourceInfo &srcInfo,
                    StmtExpression* expression);
 
-        const StmtExpression* getExpression() const {
+        const StmtExpressionOpt getExpression() const {
             return m_expr;
         }
 
-        StmtExpression* getExpression() {
+        StmtExpressionOpt getExpression() {
             return m_expr;
         }
 
@@ -49,7 +52,7 @@ namespace yal::frontend {
         virtual void acceptVisitor(AstVisitor &visitor) override;
 
     private:
-        StmtExpression* m_expr;
+        StmtExpressionOpt m_expr;
     };
 
 }

@@ -420,8 +420,8 @@ R"R(
         return;
     }
 
-    const yal::frontend::DeclStruct* decl = typeStruct->getDecl();
-    const yal::frontend::DeclStruct::Members& members = decl->getMembers();
+    const yal::frontend::DeclStruct& decl = typeStruct->getDecl();
+    const yal::frontend::DeclStruct::Members& members = decl.getMembers();
 
     EXPECT_EQ(3, members.size());
 

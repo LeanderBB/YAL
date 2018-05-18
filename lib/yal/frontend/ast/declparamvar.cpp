@@ -29,7 +29,7 @@ namespace yal::frontend {
                                const AstType astType,
                                StringRef name,
                                const SourceInfo &sourceInfo,
-                               DeclScope* scope,
+                               DeclScope& scope,
                                const QualType& type) :
         DeclVar(module,
                 astType,
@@ -43,7 +43,7 @@ namespace yal::frontend {
     DeclParamVar::DeclParamVar(Module &module,
                                StringRef name,
                                const SourceInfo &sourceInfo,
-                               DeclScope *scope,
+                               DeclScope& scope,
                                const QualType& type):
         DeclParamVar(module,
                      AstType::DeclParamVar,
@@ -62,7 +62,7 @@ namespace yal::frontend {
 
     DeclParamVarSelf::DeclParamVarSelf(Module& module,
                                        const SourceInfo &sourceInfo,
-                                       DeclScope *scope,
+                                       DeclScope &scope,
                                        const QualType &refType):
         DeclParamVar(module,
                      AstType::DeclParamVarSelf,

@@ -50,7 +50,6 @@ namespace yal::frontend {
             return m_decl;
         }
 
-
         void setDecl(DeclFunction* decl);
 
         virtual SourceInfoOpt getSourceInfo() const override;

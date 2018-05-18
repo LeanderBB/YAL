@@ -29,7 +29,7 @@ namespace yal::frontend {
     DeclFunction::DeclFunction(Module& module,
                                const AstType type,
                                TypeFunction* fnType,
-                               DeclScope* scope,
+                               DeclScope& scope,
                                const QualType& returnType,
                                Params&& params,
                                Body&& body):
@@ -40,7 +40,7 @@ namespace yal::frontend {
                  scope),
         m_fnType(fnType),
         m_returnType(returnType),
-        m_fnDeclScope(this, scope),
+        m_fnDeclScope(this, &scope),
         m_params(std::move(params)),
         m_functionBody(std::move(body)) {
 
@@ -49,7 +49,7 @@ namespace yal::frontend {
     DeclFunction::DeclFunction(Module& module,
                                const AstType type,
                                TypeFunction* fnType,
-                               DeclScope* scope,
+                               DeclScope& scope,
                                const QualType& returnType):
         DeclBase(module,
                  type,
@@ -58,7 +58,7 @@ namespace yal::frontend {
                  scope),
         m_fnType(fnType),
         m_returnType(returnType),
-        m_fnDeclScope(this, scope),
+        m_fnDeclScope(this, &scope),
         m_params(Params::allocator_type(module.getASTContext().getAllocator())),
         m_functionBody(Body::allocator_type(module.getASTContext().getAllocator())) {
 
@@ -67,7 +67,7 @@ namespace yal::frontend {
 
     DeclFunction::DeclFunction(Module& module,
                                TypeFunction* fnType,
-                               DeclScope* scope,
+                               DeclScope& scope,
                                const QualType& returnType,
                                Params&& params,
                                Body&& body):
@@ -82,7 +82,7 @@ namespace yal::frontend {
 
     DeclFunction::DeclFunction(Module& module,
                                TypeFunction* fnType,
-                               DeclScope* scope,
+                               DeclScope& scope,
                                const QualType& returnType):
        DeclFunction(module,
                     AstType::DeclFunction,

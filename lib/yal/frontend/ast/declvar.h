@@ -22,24 +22,28 @@
 #include "yal/frontend/ast/declbase.h"
 #include "yal/frontend/types/qualtype.h"
 
+#include <optional>
+
 namespace yal::frontend {
 
     class StmtExpression;
 
     class DeclVar : public DeclBase {
     public:
+        using StmtExpressionOpt = std::optional<StmtExpression*>;
+
         DeclVar(Module& module,
                 StringRef name,
                 const SourceInfo& sourceInfo,
-                DeclScope *scope,
+                DeclScope &scope,
                 const QualType& varType,
                 StmtExpression* expr);
 
-        const StmtExpression* getExpression() const {
+        const StmtExpressionOpt getExpression() const {
             return m_expression;
         }
 
-        StmtExpression* getExpression() {
+        StmtExpressionOpt getExpression() {
             return m_expression;
         }
 
@@ -55,13 +59,13 @@ namespace yal::frontend {
                 const AstType type,
                 StringRef name,
                 const SourceInfo& sourceInfo,
-                DeclScope *scope,
+                DeclScope &scope,
                 const QualType& varType,
                 StmtExpression* expr);
 
     protected:
         QualType m_qualType;
-        StmtExpression* m_expression;
+        StmtExpressionOpt m_expression;
     };
 
 }

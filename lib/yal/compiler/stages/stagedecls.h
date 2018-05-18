@@ -38,7 +38,6 @@ namespace yal {
     class DeclParamVar;
     class DeclParamVarSelf;
 
-    using namespace frontend;
 
     class StageDecls {
     public:

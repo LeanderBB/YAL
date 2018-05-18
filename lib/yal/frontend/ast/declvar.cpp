@@ -26,7 +26,7 @@ namespace yal::frontend {
     DeclVar::DeclVar(Module& module,
                      StringRef name,
                      const SourceInfo &sourceInfo,
-                     DeclScope *scope,
+                     DeclScope& scope,
                      const QualType&varType,
                      StmtExpression *expr):
         DeclVar(module,
@@ -42,12 +42,12 @@ namespace yal::frontend {
                      const AstType type,
                      StringRef name,
                      const SourceInfo &sourceInfo,
-                     DeclScope *scope,
+                     DeclScope &scope,
                      const QualType &varType,
                      StmtExpression *expr) :
         DeclBase(module, type, Identifier(name), sourceInfo, scope),
         m_qualType(varType),
-        m_expression(expr){
+        m_expression(expr == nullptr ? StmtExpressionOpt() : StmtExpressionOpt(expr)){
 
         Qualifier newQual = m_qualType.getQualifier();
         newQual.setLValue(true);

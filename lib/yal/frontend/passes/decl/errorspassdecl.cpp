@@ -79,7 +79,7 @@ namespace yal::frontend {
 
         const TypeStruct* typeStruct = dyn_cast<TypeStruct>(&type);
         if (typeStruct != nullptr) {
-            return typeStruct->getSTDecl()->getSourceInfo();
+            return typeStruct->getSTDecl().getSourceInfo();
         }
 
         return kNoSourceInfo;
@@ -250,7 +250,7 @@ namespace yal::frontend {
                      "Expected symbol '%' to be of type variable.\n",
                      m_symName);
         FormatAppend(printer.getFormater(),
-                     "Current reference of '%' linked to:\n",
+                     "'%' is defined here:\n",
                      m_symName);
 
         SourceItem* item = printer.getSourceManager()
@@ -412,6 +412,7 @@ namespace yal::frontend {
         Error(kCode),
         m_type(type) ,
         m_srcInfo(srcInfo) {
+        flagAsFatal();
     }
 
     StringRef
@@ -451,6 +452,8 @@ namespace yal::frontend {
         m_type(type) ,
         m_sym(name.getString()),
         m_srcInfo(name.getSourceInfo()) {
+
+        flagAsFatal();
     }
 
     StringRef
@@ -482,6 +485,8 @@ namespace yal::frontend {
         Error(kCode),
         m_type(type) ,
         m_srcInfo(srcInfo) {
+
+         flagAsFatal();
     }
 
     StringRef
@@ -492,8 +497,8 @@ namespace yal::frontend {
     void
     ErrorTypeFunctionIsNotStatic::printDetail(ErrorPrinter &printer) const {
         FormatAppend(printer.getFormater(),
-                     "Attempting to use function '%' as a static function call,\
-                     function is not static.\n",
+                     "Attempting to use function '%' as a static function call,"
+                     " function is not static.\n",
                      m_type.getIdentifier());
         SourceInfoOpt typeSrcInfo = m_type.getSourceInfo();
         if (typeSrcInfo.has_value()){
@@ -531,8 +536,8 @@ namespace yal::frontend {
     void
     ErrorInvalidUseOfSelf::printDetail(ErrorPrinter &printer) const {
         FormatAppend(printer.getFormater(),
-                     "Invalid use of 'self' in function %. Self can only be \
-                     use with non-static target functions.\n",
+                     "Invalid use of 'self' in function %. Self can only be "
+                     "use with non-static target functions.\n",
                      m_type.getIdentifier());
     };
 
@@ -562,8 +567,8 @@ namespace yal::frontend {
     void
     ErrorInvalidLocationForSelf::printDetail(ErrorPrinter &printer) const {
         FormatAppend(printer.getFormater(),
-                     "Invalid location for 'self' in function %. Self can only be \
-                     used as the first parameter to a function.\n",
+                     "Invalid location for 'self' in function %. Self can only be "
+                     "used as the first parameter to a function.\n",
                      m_type.getIdentifier());
     };
 
@@ -589,7 +594,7 @@ namespace yal::frontend {
     }
 
     ErrorUndefinedStructMember::ErrorUndefinedStructMember(const TypeStruct& type,
-                               const STIdentifier& id):
+                                                           const STIdentifier& id):
         ErrorUndefinedStructMember(type, id.getString(), id.getSourceInfo()) {
 
     }

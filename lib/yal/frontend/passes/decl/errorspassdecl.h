@@ -240,7 +240,7 @@ namespace yal::frontend {
     public:
         static const ErrorCode kCode;
 
-        ErrorTypeFunctionUndefined(const Type& expr,
+        ErrorTypeFunctionUndefined(const Type& type,
                                    const STIdentifier& name);
 
         StringRef getErrorName() const final override;
