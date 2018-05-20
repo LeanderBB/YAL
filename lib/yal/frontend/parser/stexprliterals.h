@@ -19,7 +19,7 @@
 
 #pragma once
 #include "yal/frontend/parser/ststmtexpression.h"
-
+#include "yal/frontend/lexer/tokens.h"
 namespace yal::frontend {
 
     class STExprBoolLiteral final : public STExpression {
@@ -40,29 +40,39 @@ namespace yal::frontend {
     class STExprIntegerLiteral final : public STExpression {
     public:
 
-        STExprIntegerLiteral(const StringRef value);
+        STExprIntegerLiteral(const TokenInfo& value);
 
         StringRef getValue() const {
-            return m_value;
+            return m_string;
+        }
+
+        Token getTokenType() const {
+            return m_value.token;
         }
 
         void acceptVisitor(SyntaxTreeVisitor& visitor) const override final;
 
     private:
-        const StringRef m_value;
+        const TokenInfo m_value;
+        StringRef m_string;
     };
 
     class STExprFloatLiteral final : public STExpression {
     public:
 
-        STExprFloatLiteral(const StringRef value);
+        STExprFloatLiteral(const TokenInfo& value);
 
         StringRef getValue() const {
-            return m_value;
+            return m_string;
+        }
+
+        Token getTokenType() const {
+            return m_value.token;
         }
 
         void acceptVisitor(SyntaxTreeVisitor& visitor) const override final;
     private:
-        const StringRef m_value;
+        const TokenInfo m_value;
+        StringRef m_string;
     };
 }

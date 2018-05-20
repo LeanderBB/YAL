@@ -23,12 +23,18 @@
 
 namespace yal::frontend {
 
+    enum class DecimalType {
+        Decimal32,
+        Decimal64
+    };
+
     class ExprFloatLiteral : public StmtExpression {
     public:
 
         ExprFloatLiteral(Module& module,
                          const SourceInfo &srcInfo,
-                         const double literalValue);
+                         const double literalValue,
+                         const DecimalType type);
 
         double getLiteralValueAsF64() const {
             return m_literalValue;
@@ -38,9 +44,14 @@ namespace yal::frontend {
             return static_cast<float>(m_literalValue);
         }
 
+        DecimalType getDecimalType() const {
+            return m_decimalType;
+        }
+
         virtual void acceptVisitor(AstVisitor& visitor) override;
     private:
         double m_literalValue;
+        DecimalType m_decimalType;
     };
 
 }

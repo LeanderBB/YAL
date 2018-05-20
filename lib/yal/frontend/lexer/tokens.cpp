@@ -87,15 +87,25 @@ namespace yal::frontend
             "Type",
             "BeginParentheses",
             "EndParentheses",
-            "IntegerLiteral",
-            "DecimalLiteral",
             "Comma",
             "Struct",
             "Mutable",
             "Self",
             "Reference",
             "RangeCast",
-            "Cast"
+            "Cast",
+            "IntegerLiteralI8",
+            "IntegerLiteralI16",
+            "IntegerLiteralI32",
+            "IntegerLiteralI64",
+            "IntegerLiteralU8",
+            "IntegerLiteralU16",
+            "IntegerLiteralU32",
+            "IntegerLiteralU64",
+            "DecimalLiteral32",
+            "DecimalLiteral64",
+            "IntegerLiteral",
+            "DecimalLiteral",
         };
 
         static_assert(sizeof(sLookupTable)/sizeof(sLookupTable[0]) ==

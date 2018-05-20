@@ -24,6 +24,23 @@
 
 namespace yal::frontend{
 
+
+    StringRef IntegerTypeToStr(const IntegerType type) {
+        static const char* sStrType[] = {
+            "i8",
+            "u8",
+            "i16",
+            "u16",
+            "i32",
+            "u32",
+            "i64",
+            "u64"
+        };
+        YAL_ASSERT(static_cast<size_t>(type)
+                   < (sizeof(sStrType)/sizeof(sStrType[0])));
+        return sStrType[static_cast<uint8_t>(type)];
+    }
+
     ExprIntegerLiteral::ExprIntegerLiteral(Module& module,
                                            const SourceInfo& srcInfo,
                                            const IntegerType integerType,

@@ -103,7 +103,7 @@ namespace yal {
         StringRef subStr(const size_t start,
                          const size_t len) const;
 
-        StringRef subStr(const size_t start) const;
+        StringRef subStr(const size_t length) const;
 
         std::string replace(const StringRef pattern,
                             const StringRef with) const;

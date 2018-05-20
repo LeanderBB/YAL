@@ -248,10 +248,9 @@ namespace yal {
     }
 
     StringRef
-    StringRef::subStr(const size_t start) const {
-        const size_t verifiedStart = std::min(start, m_size);
-        const  size_t verifiedLen = m_size - verifiedStart;
-        return StringRef(m_str + verifiedStart, verifiedLen);
+    StringRef::subStr(const size_t length) const {
+        const size_t verifiedLen = std::min(length, m_size);
+        return subStr(0,  verifiedLen);
     }
 
     std::string

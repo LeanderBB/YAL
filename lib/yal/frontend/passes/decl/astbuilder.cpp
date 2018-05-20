@@ -581,48 +581,77 @@ namespace yal::frontend {
         StackExpr& stack = getState().stackExpressions;
         // TODO: integer literals
         uint64_t value = 0;
-        IntegerType intType = IntegerType::U64;
+        IntegerType intType = IntegerType::I32;
         bool negative = false;
+        bool valid = false;
+
         if (StringRefToInteger(value, node.getValue(), negative)) {
-            if (negative) {
+
+            switch (node.getTokenType()) {
+            case Token::IntegerLiteralI8: {
                 const int64_t& negValue = reinterpret_cast<int64_t&>(value);
-                if (negValue >= static_cast<int64_t>(std::numeric_limits<int8_t>::lowest())) {
-                    intType = IntegerType::I8;
-                } else if (negValue >= static_cast<int64_t>(std::numeric_limits<int16_t>::lowest())) {
-                    intType = IntegerType::I16;
-                } else if (negValue >= static_cast<int64_t>(std::numeric_limits<int32_t>::lowest())) {
-                    intType = IntegerType::I32;
-                } else {
-                    intType = IntegerType::I64;
-                }
-            } else {
-                if (value <= static_cast<uint64_t>(std::numeric_limits<int8_t>::max())) {
-                    intType = IntegerType::I8;
-                } else if (value <= static_cast<uint64_t>(std::numeric_limits<uint8_t>::max())) {
-                    intType = IntegerType::U8;
-                } else if (value <= static_cast<uint64_t>(std::numeric_limits<int16_t>::max())) {
-                    intType = IntegerType::I16;
-                } else if (value <= static_cast<uint64_t>(std::numeric_limits<uint16_t>::max())) {
-                    intType = IntegerType::U16;
-                } else if (value <= static_cast<uint64_t>(std::numeric_limits<int32_t>::max())) {
-                    intType = IntegerType::I32;
-                } else if (value <= static_cast<uint64_t>(std::numeric_limits<uint32_t>::max())) {
-                    intType = IntegerType::U32;
-                } else if (value <= static_cast<uint64_t>(std::numeric_limits<int64_t>::max())) {
-                    intType = IntegerType::I64;
-                } else {
-                    intType = IntegerType::U64;
-                }
+                valid = negValue >= static_cast<int64_t>(std::numeric_limits<int8_t>::lowest())
+                        && negValue <= static_cast<int64_t>(std::numeric_limits<int8_t>::max());
+                intType = IntegerType::I8;
+                break;
+            }
+            case Token::IntegerLiteralI16: {
+                const int64_t& negValue = reinterpret_cast<int64_t&>(value);
+                valid = negValue >= static_cast<int64_t>(std::numeric_limits<int16_t>::lowest())
+                        && negValue <= static_cast<int64_t>(std::numeric_limits<int16_t>::max());
+                intType = IntegerType::I16;
+                break;
+            }
+            case Token::IntegerLiteral:
+            case Token::IntegerLiteralI32:{
+                const int64_t& negValue = reinterpret_cast<int64_t&>(value);
+                valid = negValue >= static_cast<int64_t>(std::numeric_limits<int32_t>::lowest())
+                        && negValue <= static_cast<int64_t>(std::numeric_limits<int32_t>::max());
+                intType = IntegerType::I32;
+                break;
+            }
+            case Token::IntegerLiteralI64:{
+                const int64_t& negValue = reinterpret_cast<int64_t&>(value);
+                valid = negValue >= static_cast<int64_t>(std::numeric_limits<int64_t>::lowest())
+                        && negValue <= static_cast<int64_t>(std::numeric_limits<int64_t>::max());
+                intType = IntegerType::I64;
+                break;
+            }
+            case Token::IntegerLiteralU8:
+                valid = !negative
+                        && value <= static_cast<uint8_t>(std::numeric_limits<uint8_t>::max());
+                intType = IntegerType::U8;
+                break;
+            case Token::IntegerLiteralU16:
+                valid = !negative
+                        && value <= static_cast<uint16_t>(std::numeric_limits<uint16_t>::max());
+                intType = IntegerType::U16;
+                break;
+            case Token::IntegerLiteralU32:
+                intType = IntegerType::U32;
+                valid = !negative
+                        && value <= static_cast<uint32_t>(std::numeric_limits<uint32_t>::max());
+                break;
+            case Token::IntegerLiteralU64:
+                intType = IntegerType::U64;
+                valid = !negative
+                        && value <= std::numeric_limits<uint64_t>::max();
+                break;
+            default:
+                YAL_ASSERT_MESSAGE(false, "Shouldn't be reached");
+                break;
             }
 
-            ExprIntegerLiteral* expr = m_module.getASTContext().getAllocator()
-                    .construct<ExprIntegerLiteral>(m_module,
-                                                   node.getSourceInfo(),
-                                                   intType,
-                                                   value);
-
-            stack.push(expr);
-        } else {
+            if (valid) {
+                ExprIntegerLiteral* expr = m_module.getASTContext().getAllocator()
+                        .construct<ExprIntegerLiteral>(m_module,
+                                                       node.getSourceInfo(),
+                                                       intType,
+                                                       value);
+                stack.push(expr);
+            }
+        }
+        if (!valid) {
             auto error = std::make_unique<ErrorInvalidIntLiteral>(node);
             m_errReporter.report(std::move(error));
             getState().onError();
@@ -632,16 +661,41 @@ namespace yal::frontend {
     void
     AstBuilder::visit(const STExprFloatLiteral& node) {
         StackExpr& stack = getState().stackExpressions;
-        // TODO: float literals
-        double value = 0;
 
+        double value = 0;
+        bool valid = false;
+        DecimalType decimalType = DecimalType::Decimal32;
         if (StringRefToDecimal(value, node.getValue())) {
-            ExprFloatLiteral* expr = m_module.getASTContext().getAllocator()
-                    .construct<ExprFloatLiteral>(m_module,
-                                                 node.getSourceInfo(),
-                                                 value);
-            stack.push(expr);
-        } else {
+
+            switch(node.getTokenType()) {
+
+            case Token::DecimalLiteral:
+            case Token::DecimalLiteral32: {
+                valid = value >= static_cast<double>(std::numeric_limits<float>::lowest())
+                        && value <= static_cast<double>(std::numeric_limits<float>::max());
+            }
+                break;
+            case Token::DecimalLiteral64:
+                decimalType = DecimalType::Decimal64;
+                valid = true;
+                break;
+
+            default:
+                YAL_ASSERT_MESSAGE(false, "Shouldn't be reached");
+                break;
+            }
+
+            if (valid) {
+                ExprFloatLiteral* expr = m_module.getASTContext().getAllocator()
+                        .construct<ExprFloatLiteral>(m_module,
+                                                     node.getSourceInfo(),
+                                                     value,
+                                                     decimalType);
+                stack.push(expr);
+            }
+        }
+
+        if (!valid) {
             auto error = std::make_unique<ErrorInvalidFloatLiteral>(node);
             m_errReporter.report(std::move(error));
             getState().onError();

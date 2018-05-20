@@ -572,12 +572,64 @@ struct_member_init(A) ::= identifier(B) COLON expression(C). {
 // Literals ------------------------------------------------------------------
 
 literal(A) ::= INTEGER_LITERAL(B). {
-        A = pParser->createNode<yal::frontend::STExprIntegerLiteral>(B.tokenStr);
+        A = pParser->createNode<yal::frontend::STExprIntegerLiteral>(B);
+        auto srcInfo =yal::frontend::CreateSourceInfo(B, B, pParser->getSourceHandle());
+        A->setSourceInfo(srcInfo);
+   }
+literal(A) ::= INTEGER_LITERAL_I8(B). {
+        A = pParser->createNode<yal::frontend::STExprIntegerLiteral>(B);
+        auto srcInfo =yal::frontend::CreateSourceInfo(B, B, pParser->getSourceHandle());
+        A->setSourceInfo(srcInfo);
+   }
+literal(A) ::= INTEGER_LITERAL_I16(B). {
+        A = pParser->createNode<yal::frontend::STExprIntegerLiteral>(B);
+        auto srcInfo =yal::frontend::CreateSourceInfo(B, B, pParser->getSourceHandle());
+        A->setSourceInfo(srcInfo);
+   }
+literal(A) ::= INTEGER_LITERAL_I32(B). {
+        A = pParser->createNode<yal::frontend::STExprIntegerLiteral>(B);
+        auto srcInfo =yal::frontend::CreateSourceInfo(B, B, pParser->getSourceHandle());
+        A->setSourceInfo(srcInfo);
+   }
+literal(A) ::= INTEGER_LITERAL_I64(B). {
+        A = pParser->createNode<yal::frontend::STExprIntegerLiteral>(B);
+        auto srcInfo =yal::frontend::CreateSourceInfo(B, B, pParser->getSourceHandle());
+        A->setSourceInfo(srcInfo);
+   }
+literal(A) ::= INTEGER_LITERAL_U8(B). {
+        A = pParser->createNode<yal::frontend::STExprIntegerLiteral>(B);
+        auto srcInfo =yal::frontend::CreateSourceInfo(B, B, pParser->getSourceHandle());
+        A->setSourceInfo(srcInfo);
+   }
+literal(A) ::= INTEGER_LITERAL_U16(B). {
+        A = pParser->createNode<yal::frontend::STExprIntegerLiteral>(B);
+        auto srcInfo =yal::frontend::CreateSourceInfo(B, B, pParser->getSourceHandle());
+        A->setSourceInfo(srcInfo);
+   }
+literal(A) ::= INTEGER_LITERAL_U32(B). {
+        A = pParser->createNode<yal::frontend::STExprIntegerLiteral>(B);
+        auto srcInfo =yal::frontend::CreateSourceInfo(B, B, pParser->getSourceHandle());
+        A->setSourceInfo(srcInfo);
+   }
+literal(A) ::= INTEGER_LITERAL_U64(B). {
+        A = pParser->createNode<yal::frontend::STExprIntegerLiteral>(B);
         auto srcInfo =yal::frontend::CreateSourceInfo(B, B, pParser->getSourceHandle());
         A->setSourceInfo(srcInfo);
    }
 literal(A) ::= FLOAT_LITERAL(B). {
-        A = pParser->createNode<yal::frontend::STExprFloatLiteral>(B.tokenStr);
+        A = pParser->createNode<yal::frontend::STExprFloatLiteral>(B);
+        auto srcInfo = yal::frontend::CreateSourceInfo(B, B, pParser->getSourceHandle());
+        A->setSourceInfo(srcInfo);
+}
+
+literal(A) ::= FLOAT_LITERAL_32(B). {
+        A = pParser->createNode<yal::frontend::STExprFloatLiteral>(B);
+        auto srcInfo = yal::frontend::CreateSourceInfo(B, B, pParser->getSourceHandle());
+        A->setSourceInfo(srcInfo);
+}
+
+literal(A) ::= FLOAT_LITERAL_64(B). {
+        A = pParser->createNode<yal::frontend::STExprFloatLiteral>(B);
         auto srcInfo = yal::frontend::CreateSourceInfo(B, B, pParser->getSourceHandle());
         A->setSourceInfo(srcInfo);
 }

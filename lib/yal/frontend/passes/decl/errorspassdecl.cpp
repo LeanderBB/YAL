@@ -285,9 +285,46 @@ namespace yal::frontend {
 
     void
     ErrorInvalidIntLiteral::printDetail(ErrorPrinter &printer) const {
+        StringRef str = "unknown";
+        switch(m_expr.getTokenType()) {
+        case Token::IntegerLiteralI8: {
+            str = "i8";
+            break;
+        }
+        case Token::IntegerLiteralI16: {
+            str = "i16";
+            break;
+        }
+        case Token::IntegerLiteral:
+        case Token::IntegerLiteralI32:{
+            str = "i32";
+            break;
+        }
+        case Token::IntegerLiteralI64:{
+            str = "i64";
+            break;
+        }
+        case Token::IntegerLiteralU8:
+            str = "u8";
+            break;
+        case Token::IntegerLiteralU16:
+            str = "u16";
+            break;
+        case Token::IntegerLiteralU32:
+            str = "u32";
+            break;
+        case Token::IntegerLiteralU64:
+            str = "u64";
+            break;
+        default:
+            YAL_ASSERT_MESSAGE(false, "Unknown integer token literal");
+            break;
+        }
         FormatAppend(printer.getFormater(),
-                     "Value of '%' is not a valid integer literal\n",
-                     m_expr.getValue());
+                     // TODO at integer type yo description
+                     "Value of '%' is not valid as a % literal \n",
+                     m_expr.getValue(),
+                     str);
     };
 
     const SourceInfo&
@@ -313,9 +350,21 @@ namespace yal::frontend {
 
     void
     ErrorInvalidFloatLiteral::printDetail(ErrorPrinter &printer) const {
+        StringRef str;
+        const Token tokenType= m_expr.getTokenType();
+        if ( tokenType == Token::DecimalLiteral
+             || tokenType == Token::DecimalLiteral32) {
+            str = "f32";
+        } else if (tokenType == Token::DecimalLiteral64) {
+            str = "f64";
+        } else {
+            str = "unknown";
+            YAL_ASSERT_MESSAGE(false, "Unknown decimal token literal");
+        }
         FormatAppend(printer.getFormater(),
-                     "Value of '%' is not a valid floating point literal\n",
-                     m_expr.getValue());
+                     "Value of '%' is not valid as a % literal\n",
+                     m_expr.getValue(),
+                     str);
     };
 
     const SourceInfo&

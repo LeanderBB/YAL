@@ -27,13 +27,14 @@ namespace yal::frontend {
 
     ExprFloatLiteral::ExprFloatLiteral(Module &module,
                                        const SourceInfo& srcInfo,
-                                       const double literalValue):
+                                       const double literalValue,
+                                       const DecimalType type):
         StmtExpression(module, AstType::ExprFloatLiteral, srcInfo),
-        m_literalValue(literalValue) {
+        m_literalValue(literalValue),
+        m_decimalType(type) {
 
         const Type* decimalType = nullptr;
-        if (literalValue >= static_cast<double>(std::numeric_limits<float>::lowest())
-                && literalValue<= static_cast<double>(std::numeric_limits<float>::max())) {
+        if (type == DecimalType::Decimal32) {
             decimalType = module.getTypeContext().getTypeBuiltinFloat32();
         } else {
             decimalType = module.getTypeContext().getTypeBuiltinFloat64();

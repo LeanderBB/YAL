@@ -21,6 +21,7 @@
 
 #include <yal/frontend/passes/decl/errorspassdecl.h>
 #include <yal/frontend/ast/astnodes.h>
+#include <yal/frontend/parser/stexprliterals.h>
 #include <yal/frontend/types/typecontext.h>
 #include <yal/frontend/types/typefunction.h>
 #include <yal/frontend/types/typestruct.h>
@@ -274,6 +275,92 @@ R"R(
     EXPECT_TRUE(m_errorReporter.hasErrors());
     const yal::Error* err = m_errorReporter.getLastError();
     EXPECT_EQ(err->getCode(), yal::frontend::ErrorInvalidIntLiteral::kCode);
+}
+
+TEST_F(PassDecl_AstBuilder, InvalidIntegerLiterali8) {
+    const char* input =
+R"R(
+    fn main() {
+        var x:i8 = 256i8;
+    }
+)R";
+    auto handle = createSourceHandle(input);
+    FrontendOptionsType options;
+    const ModuleType* module = m_frontEnd.compile(handle, options);
+    EXPECT_EQ(module, nullptr);
+    EXPECT_TRUE(m_errorReporter.hasErrors());
+    const yal::Error* err = m_errorReporter.getLastError();
+    EXPECT_EQ(err->getCode(), yal::frontend::ErrorInvalidIntLiteral::kCode);
+    const yal::frontend::ErrorInvalidIntLiteral* intError =
+            static_cast<const yal::frontend::ErrorInvalidIntLiteral*>(err);
+    EXPECT_EQ(yal::StringRef("256"), intError->m_expr.getValue());
+}
+
+TEST_F(PassDecl_AstBuilder, InvalidIntegerLiterali8Neg) {
+    const char* input =
+R"R(
+    fn main() {
+        var x:i8 = -256i8;
+    }
+)R";
+    auto handle = createSourceHandle(input);
+    FrontendOptionsType options;
+    const ModuleType* module = m_frontEnd.compile(handle, options);
+    EXPECT_EQ(module, nullptr);
+    EXPECT_TRUE(m_errorReporter.hasErrors());
+    const yal::Error* err = m_errorReporter.getLastError();
+    EXPECT_EQ(err->getCode(), yal::frontend::ErrorInvalidIntLiteral::kCode);
+    const yal::frontend::ErrorInvalidIntLiteral* intError =
+            static_cast<const yal::frontend::ErrorInvalidIntLiteral*>(err);
+    EXPECT_EQ(yal::StringRef("-256"), intError->m_expr.getValue());
+}
+
+
+TEST_F(PassDecl_AstBuilder, InvalidIntegerLiterali8Valid) {
+    const char* input =
+R"R(
+    fn main() {
+        var x:i8 = -16i8;
+    }
+)R";
+    auto handle = createSourceHandle(input);
+    FrontendOptionsType options;
+    const ModuleType* module = m_frontEnd.compile(handle, options);
+    EXPECT_NE(module, nullptr);
+    EXPECT_FALSE(m_errorReporter.hasErrors());
+}
+
+TEST_F(PassDecl_AstBuilder, InvalidIntegerLiteralu8Valid) {
+    const char* input =
+R"R(
+    fn main() {
+        var x:u8 = 255u8;
+    }
+)R";
+    auto handle = createSourceHandle(input);
+    FrontendOptionsType options;
+    const ModuleType* module = m_frontEnd.compile(handle, options);
+    EXPECT_NE(module, nullptr);
+    EXPECT_FALSE(m_errorReporter.hasErrors());
+}
+
+TEST_F(PassDecl_AstBuilder, InvalidIntegerLiteralu8InValid) {
+    const char* input =
+R"R(
+    fn main() {
+        var x:u8 = -20u8;
+    }
+)R";
+    auto handle = createSourceHandle(input);
+    FrontendOptionsType options;
+    const ModuleType* module = m_frontEnd.compile(handle, options);
+    EXPECT_EQ(module, nullptr);
+    EXPECT_TRUE(m_errorReporter.hasErrors());
+    const yal::Error* err = m_errorReporter.getLastError();
+    EXPECT_EQ(err->getCode(), yal::frontend::ErrorInvalidIntLiteral::kCode);
+    const yal::frontend::ErrorInvalidIntLiteral* intError =
+            static_cast<const yal::frontend::ErrorInvalidIntLiteral*>(err);
+    EXPECT_EQ(yal::StringRef("-20"), intError->m_expr.getValue());
 }
 
 TEST_F(PassDecl_AstBuilder, FunctionOnTargetNotDefined) {

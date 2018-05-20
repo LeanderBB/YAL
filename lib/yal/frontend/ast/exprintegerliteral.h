@@ -32,6 +32,8 @@ namespace yal::frontend {
         U64
     };
 
+    StringRef IntegerTypeToStr(const IntegerType type);
+
     class ExprIntegerLiteral : public StmtExpression
     {
     public:

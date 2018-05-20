@@ -140,6 +140,26 @@ namespace yal::frontend {
             return YAL_TOKEN_SELF;
         case Token::RangeCast:
             return YAL_TOKEN_RANGE_CAST;
+        case Token::IntegerLiteralI8:
+            return YAL_TOKEN_INTEGER_LITERAL_I8;
+        case Token::IntegerLiteralI16:
+            return YAL_TOKEN_INTEGER_LITERAL_U16;
+        case Token::IntegerLiteralI32:
+            return YAL_TOKEN_INTEGER_LITERAL_U32;
+        case Token::IntegerLiteralI64:
+            return YAL_TOKEN_INTEGER_LITERAL_U64;
+        case Token::IntegerLiteralU8:
+            return YAL_TOKEN_INTEGER_LITERAL_U8;
+        case Token::IntegerLiteralU16:
+            return YAL_TOKEN_INTEGER_LITERAL_U16;
+        case Token::IntegerLiteralU32:
+            return YAL_TOKEN_INTEGER_LITERAL_U32;
+        case Token::IntegerLiteralU64:
+            return YAL_TOKEN_INTEGER_LITERAL_U64;
+        case Token::DecimalLiteral32:
+            return YAL_TOKEN_FLOAT_LITERAL_32;
+        case Token::DecimalLiteral64:
+            return YAL_TOKEN_FLOAT_LITERAL_64;
         default:
             YAL_ASSERT_MESSAGE(false, "Shouldn't be reached!");
             return -1;

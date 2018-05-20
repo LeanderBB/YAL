@@ -165,7 +165,7 @@ namespace yal::frontend {
         void printDetail(ErrorPrinter& printer) const final override;
 
         const SourceInfo& getSourceInfo() const final override;
-    private:
+    public:
         const STExprIntegerLiteral& m_expr;
     };
 

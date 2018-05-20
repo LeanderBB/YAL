@@ -88,8 +88,6 @@ namespace yal::frontend {
         Type,
         BeginPar,
         EndPar,
-        IntegerLiteral,
-        DecimalLiteral,
         Comma,
         Struct,
         Mutable,
@@ -97,6 +95,18 @@ namespace yal::frontend {
         Self,
         RangeCast,
         Cast,
+        IntegerLiteralI8,
+        IntegerLiteralI16,
+        IntegerLiteralI32,
+        IntegerLiteralI64,
+        IntegerLiteralU8,
+        IntegerLiteralU16,
+        IntegerLiteralU32,
+        IntegerLiteralU64,
+        DecimalLiteral32,
+        DecimalLiteral64,
+        IntegerLiteral,
+        DecimalLiteral,
         TokenCount
     };
 

@@ -35,10 +35,29 @@ namespace yal::frontend {
 
     // -----------------------------------------------------------------------
 
-    STExprIntegerLiteral::STExprIntegerLiteral(const StringRef value):
+    STExprIntegerLiteral::STExprIntegerLiteral(const TokenInfo &value):
         STExpression(SyntaxTreeType::STExprIntegerLiteral),
-        m_value(value){
-
+        m_value(value),
+        m_string(value.tokenStr){
+        // remove suffix
+        switch (m_value.token) {
+            case Token::IntegerLiteral:
+            break;
+        case Token::IntegerLiteralI8:
+        case Token::IntegerLiteralU8:
+            m_string = m_string.subStr(m_string.length() - 2);
+            break;
+        case Token::IntegerLiteralI16:
+        case Token::IntegerLiteralU16:
+        case Token::IntegerLiteralI32:
+        case Token::IntegerLiteralU32:
+        case Token::IntegerLiteralI64:
+        case Token::IntegerLiteralU64:
+            m_string = m_string.subStr(m_string.length() - 3);
+            break;
+        default:
+            YAL_ASSERT_MESSAGE(false, "Shouldn't be reached");
+        }
     }
 
     void
@@ -48,10 +67,21 @@ namespace yal::frontend {
 
     // -----------------------------------------------------------------------
 
-    STExprFloatLiteral::STExprFloatLiteral(const StringRef value):
+    STExprFloatLiteral::STExprFloatLiteral(const TokenInfo &value):
         STExpression(SyntaxTreeType::STExprIntegerLiteral),
-        m_value(value){
-
+        m_value(value),
+        m_string(value.tokenStr){
+        // remove suffix
+        switch (m_value.token) {
+            case Token::DecimalLiteral:
+            break;
+        case Token::DecimalLiteral32:
+        case Token::DecimalLiteral64:
+            m_string = m_string.subStr(m_string.length() - 3);
+            break;
+        default:
+            YAL_ASSERT_MESSAGE(false, "Shouldn't be reached");
+        }
     }
 
     void

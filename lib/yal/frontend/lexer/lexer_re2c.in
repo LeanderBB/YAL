@@ -239,9 +239,20 @@ namespace yal::frontend {
             NE ="!=";
             SCM= "//" [^\n]* "\n";
 
-            INTEGER = [0-9][0-9]*;
+            INTEGER = '-'?[0-9][0-9]*;
             DECIMAL = [0-9]+ "." [0-9]+;
             IDENTIFIER = [a-zA-Z][a-zA-Z0-9_]*;
+
+            INTEGER_I8 = INTEGER TYPE_INT8;
+            INTEGER_I16 = INTEGER TYPE_INT16;
+            INTEGER_I32 = INTEGER TYPE_INT32;
+            INTEGER_I64 = INTEGER TYPE_INT64;
+            INTEGER_U8 = INTEGER TYPE_UINT8;
+            INTEGER_U16 = INTEGER TYPE_UINT16;
+            INTEGER_U32 = INTEGER TYPE_UINT32;
+            INTEGER_U64 = INTEGER TYPE_UINT64;
+            DECIMAL_32 = DECIMAL TYPE_FLOAT;
+            DECIMAL_64 = DECIMAL TYPE_DOUBLE;
 
             /* final rules */
             VAR { setToken(Token::Var, *m_lexerState); return Status::Ok; }
@@ -280,7 +291,17 @@ namespace yal::frontend {
             ASSIGN { setToken(Token::Assign, *m_lexerState); return Status::Ok;}
             STRUCT { setToken(Token::Struct, *m_lexerState); return Status::Ok;}
 
+            INTEGER_I8 { setToken(Token::IntegerLiteralI8, *m_lexerState); return Status::Ok;}
+            INTEGER_I16 { setToken(Token::IntegerLiteralI16, *m_lexerState); return Status::Ok;}
+            INTEGER_I32 { setToken(Token::IntegerLiteralI32, *m_lexerState); return Status::Ok;}
+            INTEGER_I64 { setToken(Token::IntegerLiteralI64, *m_lexerState); return Status::Ok;}
+            INTEGER_U8 { setToken(Token::IntegerLiteralU8, *m_lexerState); return Status::Ok;}
+            INTEGER_U16 { setToken(Token::IntegerLiteralU16, *m_lexerState); return Status::Ok;}
+            INTEGER_U32 { setToken(Token::IntegerLiteralU32, *m_lexerState); return Status::Ok;}
+            INTEGER_U64 { setToken(Token::IntegerLiteralU64, *m_lexerState); return Status::Ok;}
             INTEGER { setToken(Token::IntegerLiteral, *m_lexerState); return Status::Ok;}
+            DECIMAL_32 { setToken(Token::DecimalLiteral32, *m_lexerState); return Status::Ok;}
+            DECIMAL_64 { setToken(Token::DecimalLiteral64, *m_lexerState); return Status::Ok;}
             DECIMAL { setToken(Token::DecimalLiteral, *m_lexerState); return Status::Ok;}
 
             COLON { setToken(Token::Colon, *m_lexerState); return Status::Ok;}
