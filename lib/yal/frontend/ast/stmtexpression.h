@@ -51,4 +51,11 @@ namespace yal {
     struct cast_typeid<yal::frontend::StmtExpression> {
         typedef yal::frontend::AstType type;
     };
+
+    template <>
+    inline yal::frontend::AstType
+    get_typeid_instance<yal::frontend::StmtExpression>(const yal::frontend::StmtExpression& stmt) {
+        return stmt.getAstType();
+    }
+
 }

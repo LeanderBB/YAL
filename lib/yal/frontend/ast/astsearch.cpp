@@ -22,12 +22,10 @@
 
 namespace yal::frontend {
 
-    /*
     void
     AstExprLeafSearchBase::visit(DeclFunction&) {
         YAL_ASSERT(false);
     }
-
 
     void
     AstExprLeafSearchBase::visit(DeclTypeFunction&) {
@@ -56,11 +54,6 @@ namespace yal::frontend {
 
     void
     AstExprLeafSearchBase::visit(DeclWeakAlias&) {
-        YAL_ASSERT(false);
-    }
-
-    void
-    AstExprLeafSearchBase::visit(RefType& ) {
         YAL_ASSERT(false);
     }
 
@@ -139,31 +132,46 @@ namespace yal::frontend {
 
     void
     AstExprLeafSearchBase::visit(ExprFnCall& node) {
-        if (node.getFunctionArgs() != nullptr) {
+        if (node.getAstType() == m_nodeType) {
+            m_searchNode = &node;
+            return;
+        }
+
+        if (!node.getFunctionArgs().empty()) {
             m_searchNode = nullptr;
-            node.getFunctionArgs()->acceptVisitor(*this);
+            for (auto& arg : node.getFunctionArgs()) {
+                arg->acceptVisitor(*this);
+            }
         }
     }
 
     void
     AstExprLeafSearchBase::visit(ExprTypeFnCall& node) {
-        if (node.getFunctionArgs() != nullptr) {
+        if (node.getAstType() == m_nodeType) {
+            m_searchNode = &node;
+            return;
+        }
+
+        auto exprOpt = node.getExpression();
+        if (exprOpt.has_value()) {
             m_searchNode = nullptr;
-            node.getFunctionArgs()->acceptVisitor(*this);
+            StmtExpression* expr = exprOpt.value();
+            expr->acceptVisitor(*this);
+        }
+
+        if (!node.getFunctionArgs().empty()) {
+            m_searchNode = nullptr;
+            for (auto& arg : node.getFunctionArgs()) {
+                arg->acceptVisitor(*this);
+            }
         }
     }
 
     void
-    AstExprLeafSearchBase::visit(ExprTypeFnCallStatic& node) {
-        if (node.getFunctionArgs() != nullptr) {
-            m_searchNode = nullptr;
-            node.getFunctionArgs()->acceptVisitor(*this);
+    AstExprLeafSearchBase::visit(DeclParamVarSelf& node) {
+        if (node.getAstType() == m_nodeType) {
+            m_searchNode = &node;
         }
-    }
-
-    void
-    AstExprLeafSearchBase::visit(DeclParamVarSelf&) {
-        YAL_ASSERT(false);
     }
 
     void
@@ -180,9 +188,11 @@ namespace yal::frontend {
 
     void
     AstExprLeafSearchBase::visit(ExprStructInit& node) {
-        if (node.getMemberInitList() != nullptr) {
-            m_searchNode = nullptr;
-            node.getMemberInitList()->acceptVisitor(*this);
+        auto& memberInitList = node.getMemberInitExprList();
+        if (!memberInitList.empty()) {
+            for (auto& member: memberInitList) {
+                member->acceptVisitor(*this);
+            }
         }
     }
 
@@ -190,5 +200,5 @@ namespace yal::frontend {
     AstExprLeafSearchBase::visit(StructMemberInit& node) {
         m_searchNode = nullptr;
         node.getInitExpr()->acceptVisitor(*this);
-    }*/
+    }
 }

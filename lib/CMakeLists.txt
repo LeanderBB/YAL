@@ -228,6 +228,12 @@ set(YAL_SOURCES
     yal/frontend/passes/type/astvisitorexprtype.h
     yal/frontend/passes/type/errorspasstype.cpp
     yal/frontend/passes/type/errorspasstype.h
+    yal/frontend/passes/move/passmove.cpp
+    yal/frontend/passes/move/passmove.h
+    yal/frontend/passes/move/astvisitormovecheck.cpp
+    yal/frontend/passes/move/astvisitormovecheck.h
+    yal/frontend/passes/move/errorspassmove.cpp
+    yal/frontend/passes/move/errorspassmove.h
 
     #yal/transpiler/transpiler.h
     #yal/transpiler/c/transpilerc.h

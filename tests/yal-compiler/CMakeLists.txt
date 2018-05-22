@@ -15,6 +15,7 @@ add_executable(test_yal_compiler
     passes/decl/test_astbuilder.cpp
     passes/fnret/test_fnret.cpp
     passes/type/test_passtype.cpp
+    passes/move/test_passmove.cpp
     main_test_compiler.cpp)
 
 target_include_directories(test_yal_compiler

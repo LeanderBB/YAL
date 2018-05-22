@@ -34,6 +34,7 @@ namespace yal::frontend {
     class ExprStructVarRef;
     class ExprStructInit;
     class StmtExpression;
+    class StmtAssign;
     class Type;
 
     class ErrorTypeBase : public Error {
@@ -269,5 +270,21 @@ namespace yal::frontend {
 
     private:
         const ExprStructInit& m_expr;
+    };
+
+    class ErrorTypeAssignToImmutable final : public Error {
+    public:
+        static const ErrorCode kCode;
+
+        ErrorTypeAssignToImmutable(const StmtAssign& node);
+
+        StringRef getErrorName() const override final;
+
+        void printDetail(ErrorPrinter& printer)const override final;
+
+        const SourceInfo& getSourceInfo() const override final;
+
+    private:
+        const StmtAssign& m_stmt;
     };
 }

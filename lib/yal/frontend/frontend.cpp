@@ -26,6 +26,7 @@
 #include "yal/frontend/passes/parser/passparser.h"
 #include "yal/frontend/passes/decl/passdecl.h"
 #include "yal/frontend/passes/fnret/passfnret.h"
+#include "yal/frontend/passes/move/passmove.h"
 #include "yal/frontend/passes/type/passtype.h"
 #include "yal/io/sourceitems.h"
 
@@ -67,6 +68,7 @@ namespace yal::frontend {
         PassDecl passDecl;
         PassFnRet passFnRet;
         PassType passType;
+        PassMove passMove;
 
         if (!passParser.execute(passOptions)) {
             goto exit;
@@ -81,6 +83,10 @@ namespace yal::frontend {
         }
 
         if (!passType.execute(passOptions)) {
+            goto exit;
+        }
+
+        if (!passMove.execute(passOptions)) {
             goto exit;
         }
 exit:

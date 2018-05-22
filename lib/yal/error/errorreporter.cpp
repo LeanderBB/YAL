@@ -51,6 +51,13 @@ namespace yal {
     }
 
     const Error*
+    ErrorReporter::getFirstError() const {
+        return m_errors.empty()
+                ? nullptr
+                : m_errors.front().get();
+    }
+
+    const Error*
     ErrorReporter::getLastError() const {
         return m_errors.empty()
                 ? nullptr

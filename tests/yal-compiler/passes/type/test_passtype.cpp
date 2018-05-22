@@ -97,7 +97,7 @@ R"R(
     const ModuleType* module = m_frontEnd.compile(handle, options);
     EXPECT_EQ(module, nullptr);
     EXPECT_TRUE(m_errorReporter.hasErrors());
-    const yal::Error* err = m_errorReporter.getLastError();
+    const yal::Error* err = m_errorReporter.getFirstError();
     EXPECT_EQ(yal::frontend::ErrorTypeReference::kCode, err->getCode());
 }
 
@@ -220,7 +220,7 @@ R"R(
     const ModuleType* module = m_frontEnd.compile(handle, options);
     EXPECT_EQ(module, nullptr);
     EXPECT_TRUE(m_errorReporter.hasErrors());
-    const yal::Error* err = m_errorReporter.getLastError();
+    const yal::Error* err = m_errorReporter.getFirstError();
     EXPECT_EQ(yal::frontend::ErrorTypeExprUnassignable::kCode, err->getCode());
 }
 
@@ -260,6 +260,24 @@ R"R(
     const ModuleType* module = m_frontEnd.compile(handle, options);
     EXPECT_EQ(module, nullptr);
     EXPECT_TRUE(m_errorReporter.hasErrors());
-    const yal::Error* err = m_errorReporter.getLastError();
+    const yal::Error* err = m_errorReporter.getFirstError();
     EXPECT_EQ(yal::frontend::ErrorTypeReference::kCode, err->getCode());
+}
+
+TEST_F(PassType, AssignToImmutable) {
+    const char* input =
+R"R(
+    fn main() {
+       var i: i32 = 40;
+       i = 50;
+    }
+)R";
+
+    auto handle = createSourceHandle(input);
+    FrontendOptionsType options;
+    const ModuleType* module = m_frontEnd.compile(handle, options);
+    EXPECT_EQ(module, nullptr);
+    EXPECT_TRUE(m_errorReporter.hasErrors());
+    const yal::Error* err = m_errorReporter.getFirstError();
+    EXPECT_EQ(yal::frontend::ErrorTypeAssignToImmutable::kCode, err->getCode());
 }

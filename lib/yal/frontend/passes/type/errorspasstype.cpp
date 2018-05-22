@@ -456,4 +456,31 @@ namespace yal::frontend {
     ErrorTypeStructInitNumMembers::getSourceInfo() const {
         return m_expr.getSourceInfo();
     }
+
+    // ErrorTypeAssignToImmutable -------------------------------------------
+
+    const ErrorCode  ErrorTypeAssignToImmutable::kCode =
+            MakeErrorCode(static_cast<uint16_t>(PassTypeCode::Type), 15);
+
+    ErrorTypeAssignToImmutable::ErrorTypeAssignToImmutable(const StmtAssign& stmt):
+        Error(kCode),
+        m_stmt(stmt) {
+    }
+
+    StringRef
+    ErrorTypeAssignToImmutable::getErrorName() const {
+        return "Assign to Immutable";
+    }
+
+    void
+    ErrorTypeAssignToImmutable::printDetail(ErrorPrinter &printer) const {
+        auto& formater = printer.getFormater();
+        FormatAppend(formater,
+                     "Can't assign a new value to imutable immutable expression");
+    }
+
+    const SourceInfo&
+    ErrorTypeAssignToImmutable::getSourceInfo() const {
+        return m_stmt.getSourceInfo();
+    }
 }

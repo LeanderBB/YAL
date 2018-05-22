@@ -36,14 +36,14 @@ namespace yal::frontend {
                    const SourceInfo& srcInfo,
                    const DeclVar* decl);
 
-        const DeclVar* getDeclVar() const {
+        const DeclVar& getDeclVar() const {
             return m_declVar;
         }
 
         virtual void acceptVisitor(AstVisitor& visitor) override;
 
     private:
-        const DeclVar* m_declVar;
+        const DeclVar& m_declVar;
 
     };
 

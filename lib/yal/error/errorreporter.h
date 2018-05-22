@@ -40,6 +40,8 @@ namespace yal {
 
         void report(ErrorPtr&& error);
 
+        const Error* getFirstError() const;
+
         const Error* getLastError() const;
 
         void forEarchError(Callable callable) const;

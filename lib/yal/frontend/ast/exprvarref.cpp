@@ -28,7 +28,7 @@ namespace yal::frontend {
                            const SourceInfo& srcInfo,
                            const DeclVar* decl):
         StmtExpression(module, astType, srcInfo),
-        m_declVar(decl){
+        m_declVar(*decl){
         m_qualType = decl->getQualType();
     }
 

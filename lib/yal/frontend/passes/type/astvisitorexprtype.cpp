@@ -193,6 +193,11 @@ namespace yal::frontend {
 
         // check conversion type
         isValidTypeConversion(qtFrom, qtTo, node.getSourceInfo());
+
+        if (qtTo.isImmutable()) {
+            auto error = std::make_unique<ErrorTypeAssignToImmutable>(node);
+            onError(std::move(error));
+        }
     }
 
     void
