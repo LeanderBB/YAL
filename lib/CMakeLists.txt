@@ -88,6 +88,8 @@ set(YAL_SOURCES
     yal/frontend/ast/structmemberinit.cpp
     yal/frontend/ast/astsearch.cpp
     yal/frontend/ast/astsearch.h
+    yal/frontend/ast/stmtlistscoped.cpp
+    yal/frontend/ast/stmtlistscoped.h
 
 #   yal/compiler/compiler.cpp
 #   yal/compiler/compiler.h
@@ -180,6 +182,8 @@ set(YAL_SOURCES
     yal/frontend/parser/errorparser.h
     yal/frontend/parser/stcontext.cpp
     yal/frontend/parser/stcontext.h
+    yal/frontend/parser/ststmtlistscoped.cpp
+    yal/frontend/parser/ststmtlistscoped.h
 
     yal/frontend/module.h
     yal/frontend/module.cpp

@@ -31,6 +31,7 @@ namespace yal::frontend {
     class DeclTypeFunction;
     class DeclStruct;
     class DeclModule;
+    class StmtListScoped;
 
     class DeclScope {
     private:
@@ -44,6 +45,7 @@ namespace yal::frontend {
             Function,
             TypeFunction,
             Struct,
+            StmtList,
             Scope
         };
 
@@ -56,6 +58,9 @@ namespace yal::frontend {
                   DeclScope* parent);
 
         DeclScope(DeclStruct* decl,
+                  DeclScope* parent);
+
+        DeclScope(StmtListScoped* node,
                   DeclScope* parent);
 
         DeclScope(DeclModule* decl);
@@ -80,6 +85,8 @@ namespace yal::frontend {
         const DeclScope* getParentScope() const {
             return m_parentScope;
         }
+
+        const DeclScope* getFirstScopeOfTypeDecl() const;
 
         DeclRange getDecls() {
             return DeclRange(m_declMap.begin(), m_declMap.end());
@@ -107,6 +114,7 @@ namespace yal::frontend {
         bool isTypeFunctionScope() const;
         bool isScopedScope() const;
         bool isStructScope() const;
+        bool isStmtListScope() const;
 
 private:
         DeclScope* m_parentScope;

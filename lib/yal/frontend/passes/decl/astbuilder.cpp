@@ -470,6 +470,55 @@ namespace yal::frontend {
         StmtExpression* exprLeft = stack.top();
         stack.pop();
 
+        YAL_ASSERT(exprRight != nullptr && exprLeft != nullptr);
+        //TODO: Improve this approach. This won't catch hidden references
+        // or moving of references between variables
+        // check the scope of the varRef is the same if the
+        // right expression ends up in a var ref or struct var ref
+        if (IsExprVarRef(*exprLeft)) {
+            ExprVarRef* exprVarRefLeft = static_cast<ExprVarRef*>(exprLeft);
+            const DeclVar& declLeft = exprVarRefLeft->getDeclVar();
+            if (declLeft.getQualType().isReference()) {
+                if (ExprUnaryOperator* unaryOp = dyn_cast<ExprUnaryOperator>(exprRight);
+                        unaryOp != nullptr) {
+                    const StmtExpression* expr = unaryOp->getExpression();
+
+                    // & regular var
+                    if (IsExprVarRef(*expr)) {
+                        const ExprVarRef* exprVarRefRight= static_cast<const ExprVarRef*>(expr);
+                        const DeclVar& declRight= exprVarRefRight->getDeclVar();
+                        if (const DeclScope* scope = declLeft.getScopeWhereDeclared().value_or(nullptr);
+                                scope != nullptr && scope->getDecl(declRight.getIdentifier(),false) == nullptr) {
+                            // Error grabing reference out of this scope
+                            auto error = std::make_unique<ErrorAssignRefWithInvalidScope>(node,
+                                                                                          declLeft,
+                                                                                          declRight);
+                            m_errReporter.report(std::move(error));
+                            getState().onError();
+                        }
+                    }
+
+                    // & struct var
+                    if (const ExprStructVarRef* structVarRef = dyn_cast<ExprStructVarRef>(expr);
+                            structVarRef != nullptr) {
+                        if (IsExprVarRef(*structVarRef->getExpression())) {
+                            const ExprVarRef* exprVarRefRight= static_cast<const ExprVarRef*>(structVarRef->getExpression());
+                            const DeclVar& declRight= exprVarRefRight->getDeclVar();
+                            if (const DeclScope* scope = declLeft.getScopeWhereDeclared().value_or(nullptr);
+                                    scope != nullptr && scope->getDecl(declRight.getIdentifier(),false) == nullptr) {
+                                // Error grabing reference out of this scope
+                                auto error = std::make_unique<ErrorAssignRefWithInvalidScope>(node,
+                                                                                              declLeft,
+                                                                                              declRight);
+                                m_errReporter.report(std::move(error));
+                                getState().onError();
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
         StmtAssign* stmt = m_module.getASTContext().getAllocator()
                 .construct<StmtAssign>(m_module,
                                        node.getSourceInfo(),
@@ -929,6 +978,43 @@ namespace yal::frontend {
                                            typeStruct,
                                            std::move(members));
         stackExpr.push(structInit);
+    }
+
+    void
+    AstBuilder::visit(const STStmtListScoped& node) {
+        const STStatementList& scopedStatements = node.getStatements();
+        StatementList statements(StatementList::allocator_type(m_module.getASTContext().getAllocator()));
+        DeclScope* parentScope = getState().stackScope.top();
+        StmtListScoped* stmtList = m_module.getASTContext().getAllocator()
+                .construct<StmtListScoped>(m_module,
+                                           node.getSourceInfo(),
+                                           parentScope);
+
+        if (!scopedStatements.empty()) {
+            // set new scope for statements
+            ScopedStackElem<StackScope> sscope(getState().stackScope,
+                                               &stmtList->getListScope());
+
+            statements.reserve(scopedStatements.size());
+            StackStatement& stack = getState().stackStatements;
+            const size_t currStmtStackSize = stack.size();
+
+            // process statements
+            for(auto& stmt : scopedStatements) {
+                stmt->acceptVisitor(*this);
+            }
+
+            // collect statements
+            while (!stack.empty() && stack.size() > currStmtStackSize) {
+                // TODO: Revise!
+                Statement* stmt = stack.top();
+                statements.insert(statements.begin(), stmt);
+                stack.pop();
+            }
+            YAL_ASSERT(statements.size() ==scopedStatements.size());
+            stmtList->setStatements(std::move(statements));
+        }
+        getState().stackStatements.push(stmtList);
     }
 
     bool

@@ -152,6 +152,13 @@ namespace yal::frontend {
     void
     ReturnCheckVisitor::visit(StructMemberInit&) {}
 
+    void
+    ReturnCheckVisitor::visit(StmtListScoped& node) {
+        for (auto& stmt : node.getStatements()) {
+            m_hasReturnStmt = false;
+            stmt->acceptVisitor(*this);
+        }
+    }
 
     void
     ReturnCheckVisitor::fnReturnCheck(DeclFunction& decl) {

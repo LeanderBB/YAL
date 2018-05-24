@@ -371,6 +371,14 @@ namespace yal::frontend {
     }
 
     void
+    AstVisitorMoveCheck::visit(StmtListScoped& node) {
+        DeclScopeGuard guard(*this, node.getListScope());
+        for (auto& stmt : node.getStatements()) {
+            stmt->acceptVisitor(*this);
+        }
+    }
+
+    void
     AstVisitorMoveCheck::onError(std::unique_ptr<Error>&& error) {
         const bool isFatal = error->isFatal();
         m_errReporter.report(std::move(error));

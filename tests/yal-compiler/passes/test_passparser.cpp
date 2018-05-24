@@ -41,3 +41,26 @@ fn foo:(int:)
     const yal::Error* err = m_errorReporter.getLastError();
     EXPECT_EQ(err->getCode(), yal::frontend::ErrorParser::kCode);
 }
+
+
+TEST_F(PassParser, NestedScopes) {
+
+    const char* input =
+R"R(
+    fn foo() {
+       var x:i32 = 0;
+       {
+          var y:i32 = x;
+          {
+            var z:i32 = x + 23i32;
+          }
+       }
+    }
+)R";
+
+    auto handle = createSourceHandle(input);
+    FrontendOptionsType options;
+    const ModuleType* module = m_frontEnd.compile(handle, options);
+    EXPECT_NE(module, nullptr);
+    EXPECT_FALSE(m_errorReporter.hasErrors());
+}

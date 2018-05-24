@@ -281,3 +281,98 @@ R"R(
     const yal::Error* err = m_errorReporter.getFirstError();
     EXPECT_EQ(yal::frontend::ErrorTypeAssignToImmutable::kCode, err->getCode());
 }
+
+
+TEST_F(PassType, SelfVarRef) {
+    const char* input =
+R"R(
+    type Foo : struct {
+          x:i32
+    }
+
+    fn Foo::test(&self) : bool {
+        return self.x == 30;
+    }
+
+    fn Foo::stuff(&self) : bool {
+        return self.test();
+    }
+
+    fn main() {
+       var f:Foo = Foo{x:20};
+       f.stuff();
+    }
+)R";
+
+    auto handle = createSourceHandle(input);
+    FrontendOptionsType options;
+    const ModuleType* module = m_frontEnd.compile(handle, options);
+    EXPECT_NE(module, nullptr);
+    EXPECT_FALSE(m_errorReporter.hasErrors());
+}
+
+TEST_F(PassType, SelfVarRefScoped) {
+    const char* input =
+R"R(
+    type Foo : struct {
+          x:i32
+    }
+
+    fn Foo::test(&self) : bool {
+        {
+            return self.x == 30;
+        }
+    }
+
+    fn Foo::stuff(&self) : bool {
+        {
+            return self.test();
+        }
+    }
+
+    fn main() {
+       var f:Foo = Foo{x:20};
+       f.stuff();
+    }
+)R";
+
+    auto handle = createSourceHandle(input);
+    FrontendOptionsType options;
+    const ModuleType* module = m_frontEnd.compile(handle, options);
+    EXPECT_NE(module, nullptr);
+    EXPECT_FALSE(m_errorReporter.hasErrors());
+}
+
+TEST_F(PassType, SelfVarRefScopedIndirect) {
+    const char* input =
+R"R(
+    type Foo : struct {
+          x:i32
+    }
+
+    fn Foo::test(&self) : bool {
+        {
+            var f:&Foo  = self;
+            return f.x == 30;
+        }
+    }
+
+    fn Foo::stuff(&self) : bool {
+        {
+            var f:&Foo  = self;
+            return f.test();
+        }
+    }
+
+    fn main() {
+       var f:Foo = Foo{x:20};
+       f.stuff();
+    }
+)R";
+
+    auto handle = createSourceHandle(input);
+    FrontendOptionsType options;
+    const ModuleType* module = m_frontEnd.compile(handle, options);
+    EXPECT_NE(module, nullptr);
+    EXPECT_FALSE(m_errorReporter.hasErrors());
+}

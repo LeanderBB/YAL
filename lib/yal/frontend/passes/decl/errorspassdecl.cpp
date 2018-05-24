@@ -22,10 +22,12 @@
 #include "yal/error/errorreporter.h"
 #include "yal/error/errorprinter.h"
 #include "yal/frontend/ast/declbase.h"
+#include "yal/frontend/ast/declvar.h"
 #include "yal/frontend/module.h"
 #include "yal/frontend/parser/stdeclfunction.h"
 #include "yal/frontend/parser/stdeclstruct.h"
 #include "yal/frontend/parser/stexprliterals.h"
+#include "yal/frontend/parser/ststmtassign.h"
 #include "yal/frontend/passes/passes.h"
 #include "yal/frontend/types/type.h"
 #include "yal/frontend/types/typefunction.h"
@@ -535,7 +537,7 @@ namespace yal::frontend {
         m_type(type) ,
         m_srcInfo(srcInfo) {
 
-         flagAsFatal();
+        flagAsFatal();
     }
 
     StringRef
@@ -663,5 +665,58 @@ namespace yal::frontend {
     const SourceInfo&
     ErrorUndefinedStructMember::getSourceInfo() const {
         return m_symSrcInfo;
+    }
+
+    // ErrorAssignRefWithInvalidScope ----------------------------------------
+
+    const ErrorCode  ErrorAssignRefWithInvalidScope::kCode =
+            MakeErrorCode(static_cast<uint16_t>(PassTypeCode::Decl), 17);
+
+
+    ErrorAssignRefWithInvalidScope::ErrorAssignRefWithInvalidScope(const STStmtAssign& stmt,
+                                                                   const DeclVar& declLeft,
+                                                                   const DeclVar& declRight):
+        Error(kCode),
+        m_stmt(stmt),
+        m_declLeft(declLeft),
+        m_declRight(declRight) {
+
+    }
+
+    StringRef
+    ErrorAssignRefWithInvalidScope::getErrorName() const {
+        return "Assign of Invalid Scoped Reference ";
+    }
+
+    void
+    ErrorAssignRefWithInvalidScope::printDetail(ErrorPrinter &printer) const {
+        const StringRef varLeft = m_declLeft.getName();
+        const StringRef varRight = m_declRight.getName();
+        FormatAppend(printer.getFormater(),
+                     "Cannot assign reference of '%' to '%'. '%' has a longer lifetime "
+                     "than the scope where '%' is declared.\n",
+                     varRight, varLeft,
+                     varLeft, varRight);
+
+
+        const SourceInfo& srcInfoLeft = m_declLeft.getSourceInfo();
+        const SourceInfo& srcInfoRight = m_declRight.getSourceInfo();
+        SourceItem* itemLeft = printer.getSourceManager().getItem(srcInfoLeft.handle);
+        SourceItem* itemRight = printer.getSourceManager().getItem(srcInfoRight.handle);
+
+        if (itemLeft != nullptr && itemRight != nullptr) {
+            FormatAppend(printer.getFormater(),
+                         "'%' declared here:\n", varRight);
+            printer.printSourceInfo(printer.getFormater(),* itemRight, srcInfoRight);
+
+            FormatAppend(printer.getFormater(),
+                         "'%' declared here:\n", varLeft);
+            printer.printSourceInfo(printer.getFormater(),* itemLeft, srcInfoLeft);
+        }
+    };
+
+    const SourceInfo&
+    ErrorAssignRefWithInvalidScope::getSourceInfo() const {
+        return m_stmt.getRightExpr()->getSourceInfo();
     }
 }

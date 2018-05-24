@@ -19,19 +19,24 @@
 
 #pragma once
 
-#include "yal/frontend/parser/stdeclmodule.h"
-#include "yal/frontend/parser/stdeclfunction.h"
-#include "yal/frontend/parser/stdeclstruct.h"
-#include "yal/frontend/parser/stdeclvar.h"
 #include "yal/frontend/parser/ststatement.h"
-#include "yal/frontend/parser/ststmtassign.h"
-#include "yal/frontend/parser/ststmtdecl.h"
-#include "yal/frontend/parser/ststmtexpression.h"
-#include "yal/frontend/parser/ststmtreturn.h"
-#include "yal/frontend/parser/stexprcasts.h"
-#include "yal/frontend/parser/stexprfncall.h"
-#include "yal/frontend/parser/stexprliterals.h"
-#include "yal/frontend/parser/stexproperators.h"
-#include "yal/frontend/parser/stexprstructinit.h"
-#include "yal/frontend/parser/stexprvarref.h"
-#include "yal/frontend/parser/ststmtlistscoped.h"
+
+namespace yal::frontend {
+
+
+    class STStmtListScoped final : public STStatement
+    {
+    public:
+        STStmtListScoped(const STStatementList* statements);
+
+        const STStatementList& getStatements() const {
+            return *m_statements;
+        }
+
+        void acceptVisitor(SyntaxTreeVisitor& visitor) const override final;
+
+   protected:
+        const STStatementList* m_statements;
+    };
+
+}

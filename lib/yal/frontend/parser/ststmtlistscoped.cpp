@@ -17,21 +17,19 @@
  *  License along with YAL. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#pragma once
-
-#include "yal/frontend/parser/stdeclmodule.h"
-#include "yal/frontend/parser/stdeclfunction.h"
-#include "yal/frontend/parser/stdeclstruct.h"
-#include "yal/frontend/parser/stdeclvar.h"
-#include "yal/frontend/parser/ststatement.h"
-#include "yal/frontend/parser/ststmtassign.h"
-#include "yal/frontend/parser/ststmtdecl.h"
-#include "yal/frontend/parser/ststmtexpression.h"
-#include "yal/frontend/parser/ststmtreturn.h"
-#include "yal/frontend/parser/stexprcasts.h"
-#include "yal/frontend/parser/stexprfncall.h"
-#include "yal/frontend/parser/stexprliterals.h"
-#include "yal/frontend/parser/stexproperators.h"
-#include "yal/frontend/parser/stexprstructinit.h"
-#include "yal/frontend/parser/stexprvarref.h"
 #include "yal/frontend/parser/ststmtlistscoped.h"
+#include "yal/frontend/parser/syntaxtreevisitor.h"
+
+namespace yal::frontend {
+
+    STStmtListScoped::STStmtListScoped(const STStatementList* statements):
+        STStatement(SyntaxTreeType::STStmtListScoped),
+        m_statements(statements) {
+
+    }
+
+    void
+    STStmtListScoped::acceptVisitor(SyntaxTreeVisitor& visitor) const {
+        visitor.visit(*this);
+    }
+}

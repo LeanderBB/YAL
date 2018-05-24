@@ -62,6 +62,15 @@ namespace yal::frontend {
 
     }
 
+    DeclScope::DeclScope(StmtListScoped*,
+                         DeclScope* parent):
+        m_parentScope(parent),
+        m_declMap(),
+        m_scopeDecl(nullptr),
+        m_scopeKind(Kind::StmtList) {
+
+    }
+
     DeclScope::DeclScope(DeclModule* decl):
         m_parentScope(nullptr),
         m_declMap(),
@@ -113,6 +122,16 @@ namespace yal::frontend {
         m_parentScope = scope;
     }
 
+    const DeclScope*
+    DeclScope::getFirstScopeOfTypeDecl() const {
+        if (this->isScopePartOfDecl()) {
+            return this;
+        }
+        return m_parentScope != nullptr
+                ? m_parentScope->getFirstScopeOfTypeDecl()
+                : nullptr;
+    }
+
     bool
     DeclScope::isModuleScope() const {
         return m_scopeKind == Kind::Module;
@@ -141,5 +160,10 @@ namespace yal::frontend {
     bool
     DeclScope::isStructScope() const {
         return m_scopeKind == Kind::Struct;
+    }
+
+    bool
+    DeclScope::isStmtListScope() const {
+        return m_scopeKind == Kind::StmtList;
     }
 }

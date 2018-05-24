@@ -356,6 +356,12 @@ statement(A) ::= RETURN(Z) SEMI_COLON. {
     A->setSourceInfo(srcInfo);
 }
 
+statement(A) ::= SCOPE_BEGIN(X) statement_list_or_empty(B) SCOPE_END(Z). {
+    A = pParser->createNode<yal::frontend::STStmtListScoped>(B);
+    auto srcInfo = yal::frontend::CreateSourceInfo(X, Z, pParser->getSourceHandle());
+    A->setSourceInfo(srcInfo);
+}
+
 // Var Decls -----------------------------------------------------------------
 
 decl_var(A) ::= VAR(Z) identifier(B) var_type_spec(C) ASSIGN expression(D). {

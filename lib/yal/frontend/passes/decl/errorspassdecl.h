@@ -26,9 +26,11 @@ namespace yal {
 namespace yal::frontend {
 
     class Module;
-    class Type;
     class DeclBase;
+    class DeclVar;
     class STIdentifier;
+    class STStmtAssign;
+    class Type;
     class TypeFunction;
     class TypeStruct;
 
@@ -326,6 +328,26 @@ namespace yal::frontend {
         const TypeStruct& m_type;
         const StringRef m_sym;
         const SourceInfo m_symSrcInfo;
+    };
+
+    class ErrorAssignRefWithInvalidScope final : public Error {
+    public:
+        static const ErrorCode kCode;
+
+        ErrorAssignRefWithInvalidScope(const STStmtAssign& assign,
+                                       const DeclVar& declLeft,
+                                       const DeclVar& declRight);
+
+        StringRef getErrorName() const final override;
+
+        void printDetail(ErrorPrinter& printer) const final override;
+
+        const SourceInfo& getSourceInfo() const final override;
+
+    public:
+        const STStmtAssign& m_stmt;
+        const DeclVar& m_declLeft;
+        const DeclVar& m_declRight;
     };
 
 }

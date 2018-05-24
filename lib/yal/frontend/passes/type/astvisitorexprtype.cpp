@@ -146,8 +146,10 @@ namespace yal::frontend {
 
     void
     AstVisitorExprType::visit(StmtReturn& node) {
-        YAL_ASSERT(m_activeScope->isFunctionTypeScope());
-        YAL_ASSERT(m_activeScope->getScopeDecl() != nullptr);
+        const DeclScope* enclosingScope = m_activeScope->getFirstScopeOfTypeDecl();
+        YAL_ASSERT(enclosingScope->isFunctionTypeScope());
+        YAL_ASSERT(enclosingScope->getScopeDecl() != nullptr);
+
         StmtReturn::StmtExpressionOpt exprOpt = node.getExpression();
         if (exprOpt.has_value()) {
             // visit return expr
@@ -155,7 +157,7 @@ namespace yal::frontend {
             expr->acceptVisitor(*this);
 
             // Get function decl
-            const DeclBase* decl = m_activeScope->getScopeDecl();
+            const DeclBase* decl = enclosingScope->getScopeDecl();
             YAL_ASSERT(decl->getAstType() == AstType::DeclFunction
                        || decl->getAstType() == AstType::DeclTypeFunction);
             const DeclFunction* declFn = static_cast<const DeclFunction*>(decl);
@@ -164,7 +166,6 @@ namespace yal::frontend {
             isValidTypeConversion(expr->getQualType(),
                                   declFn->getReturnType(),
                                   node.getSourceInfo());
-
         }
     }
 
@@ -517,12 +518,13 @@ namespace yal::frontend {
         const ExprList& args = node.getFunctionArgs();
         const DeclFunction::Params& params = declFn->getParams();
 
+        const size_t argSize = args.size();
         const size_t countParam = isStaticFn
                 ? params.size()
                 : params.size() - 1;
 
         // Check arg number match
-        if (args.size() != countParam) {
+        if (argSize != countParam) {
             auto error = std::make_unique<ErrorTypeFnCallInvalidArgCount>(node);
             onError(std::move(error));
         }
@@ -598,6 +600,15 @@ namespace yal::frontend {
 
     void
     AstVisitorExprType::visit(StructMemberInit&) {}
+
+
+    void
+    AstVisitorExprType::visit(StmtListScoped& node) {
+        DeclScopeGuard guard(*this, node.getListScope());
+        for (auto& stmt : node.getStatements()) {
+            stmt->acceptVisitor(*this);
+        }
+    }
 
     void
     AstVisitorExprType::onError(std::unique_ptr<Error>&& error) {

@@ -393,6 +393,7 @@ namespace yal::frontend {
     ErrorTypeFnCallInvalidArgCount::ErrorTypeFnCallInvalidArgCount(const ExprFnCall& expr):
         Error(kCode),
         m_expr(expr) {
+        flagAsFatal();
     }
 
     StringRef

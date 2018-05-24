@@ -39,6 +39,7 @@
 #include "yal/frontend/ast/exprvarref.h"
 #include "yal/frontend/ast/stmtassign.h"
 #include "yal/frontend/ast/stmtdecl.h"
+#include "yal/frontend/ast/stmtlistscoped.h"
 #include "yal/frontend/ast/stmtreturn.h"
 #include "yal/frontend/ast/structmemberinit.h"
 #include "yal/frontend/module.h"

@@ -17,29 +17,28 @@
  *  License along with YAL. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "yal/frontend/ast/stmtlistscoped.h"
+#include "yal/frontend/ast/astvisitor.h"
+#include "yal/frontend/module.h"
 
-/* List of Syntax Tree Nodes in the compiler
- *
- * Define YAL_ST_NODE_TYPE(type) macro to use this list
- *
- */
+namespace yal::frontend {
 
-YAL_ST_NODE_TYPE(STDeclModule)
-YAL_ST_NODE_TYPE(STDeclStruct)
-YAL_ST_NODE_TYPE(STDeclFunction)
-YAL_ST_NODE_TYPE(STDeclVar)
-YAL_ST_NODE_TYPE(STStmtReturn)
-YAL_ST_NODE_TYPE(STStmtDecl)
-YAL_ST_NODE_TYPE(STStmtExpression)
-YAL_ST_NODE_TYPE(STStmtAssign)
-YAL_ST_NODE_TYPE(STStmtListScoped)
-YAL_ST_NODE_TYPE(STExprVarRef)
-YAL_ST_NODE_TYPE(STExprUnaryOperator)
-YAL_ST_NODE_TYPE(STExprBinaryOperator)
-YAL_ST_NODE_TYPE(STExprBoolLiteral)
-YAL_ST_NODE_TYPE(STExprIntegerLiteral)
-YAL_ST_NODE_TYPE(STExprFloatLiteral)
-YAL_ST_NODE_TYPE(STExprStructVarRef)
-YAL_ST_NODE_TYPE(STExprFnCall)
-YAL_ST_NODE_TYPE(STExprRangeCast)
-YAL_ST_NODE_TYPE(STExprStructInit)
+    StmtListScoped::StmtListScoped(Module& module,
+                                   const SourceInfo& info,
+                                   DeclScope *parentScope):
+        Statement(module, AstType::StmtListScoped, info),
+        m_statements(StatementList::allocator_type(module.getASTContext().getAllocator())),
+        m_scope(this, parentScope) {
+
+    }
+
+    void
+    StmtListScoped::setStatements(StatementList&& statements) {
+        m_statements = std::move(statements);
+    }
+
+    void
+    StmtListScoped::acceptVisitor(AstVisitor& visitor) {
+        visitor.visit(*this);
+    }
+}

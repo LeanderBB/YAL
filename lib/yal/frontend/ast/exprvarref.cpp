@@ -23,6 +23,11 @@
 
 namespace yal::frontend {
 
+    bool IsExprVarRef(const StmtExpression& expr) {
+        return expr.getAstType() == AstType::ExprVarRef
+                || expr.getAstType() == AstType::ExprVarRefSelf;
+    }
+
     ExprVarRef::ExprVarRef(Module& module,
                            const AstType astType,
                            const SourceInfo& srcInfo,

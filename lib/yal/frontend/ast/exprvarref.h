@@ -24,6 +24,8 @@
 namespace yal::frontend {
     class DeclVar;
 
+    bool IsExprVarRef(const StmtExpression& expr);
+
     class ExprVarRef : public StmtExpression {
     protected:
         ExprVarRef(Module& module,
@@ -46,7 +48,6 @@ namespace yal::frontend {
         const DeclVar& m_declVar;
 
     };
-
 
     class ExprVarRefSelf : public ExprVarRef {
     public:

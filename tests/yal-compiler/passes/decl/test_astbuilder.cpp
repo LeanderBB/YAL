@@ -610,3 +610,102 @@ R"R(
     }
 }
 
+
+TEST_F(PassDecl_AstBuilder, VarRefOutsideScope) {
+    const char* input =
+R"R(
+    fn main() {
+        {
+           var x:i32 = 20;
+        }
+
+        var y:i32 = x + 10;
+    }
+)R";
+    auto handle = createSourceHandle(input);
+    FrontendOptionsType options;
+    const ModuleType* module = m_frontEnd.compile(handle, options);
+    EXPECT_EQ(module, nullptr);
+    EXPECT_TRUE(m_errorReporter.hasErrors());
+    const yal::Error* err = m_errorReporter.getLastError();
+    EXPECT_EQ(err->getCode(), yal::frontend::ErrorUndefinedSymbol::kCode);
+    if (err->getCode() == yal::frontend::ErrorUndefinedSymbol::kCode) {
+        const yal::frontend::ErrorUndefinedSymbol* errImpl =
+                static_cast<const yal::frontend::ErrorUndefinedSymbol*>(err);
+        EXPECT_EQ(errImpl->m_sym, yal::StringRef("x"));
+    }
+}
+
+
+TEST_F(PassDecl_AstBuilder, AssignRefOutOfScopeVar) {
+    const char* input =
+R"R(
+    fn main() {
+        var z:i32 = 0;
+        var y:&i32 = &z;
+        {
+           var x:i32 = 20;
+           y = &x;
+        }
+    }
+)R";
+    auto handle = createSourceHandle(input);
+    FrontendOptionsType options;
+    const ModuleType* module = m_frontEnd.compile(handle, options);
+    EXPECT_EQ(module, nullptr);
+    EXPECT_TRUE(m_errorReporter.hasErrors());
+    const yal::Error* err = m_errorReporter.getLastError();
+    EXPECT_EQ(err->getCode(), yal::frontend::ErrorAssignRefWithInvalidScope::kCode);
+}
+
+TEST_F(PassDecl_AstBuilder, AssignRefOutOfScopeStruct) {
+    const char* input =
+R"R(
+    type Foo : struct {
+        x : i32
+    }
+
+    fn main() {
+
+        var z:i32 = 0;
+        var y:&i32 = &z;
+        {
+           var f:Foo = Foo {x:20};
+           y = &f.x;
+        }
+    }
+
+)R";
+    auto handle = createSourceHandle(input);
+    FrontendOptionsType options;
+    const ModuleType* module = m_frontEnd.compile(handle, options);
+    EXPECT_EQ(module, nullptr);
+    EXPECT_TRUE(m_errorReporter.hasErrors());
+    const yal::Error* err = m_errorReporter.getLastError();
+    EXPECT_EQ(err->getCode(), yal::frontend::ErrorAssignRefWithInvalidScope::kCode);
+}
+
+
+/* TODO: Can't handle hidden reference chains, improve this?
+TEST_F(PassDecl_AstBuilder, AssignRefOutOfScopeVarRefChained) {
+    const char* input =
+R"R(
+    fn main() {
+        var z: mut i32 = 0;
+        var y: mut& i32 = &z;
+        {
+           var x: mut i32 = 20;
+           var w: mut& i32 = &x;
+           y = w;
+        }
+    }
+)R";
+    auto handle = createSourceHandle(input);
+    FrontendOptionsType options;
+    const ModuleType* module = m_frontEnd.compile(handle, options);
+    EXPECT_EQ(module, nullptr);
+    EXPECT_TRUE(m_errorReporter.hasErrors());
+    const yal::Error* err = m_errorReporter.getLastError();
+    EXPECT_EQ(err->getCode(), yal::frontend::ErrorAssignRefWithInvalidScope::kCode);
+}
+*/
