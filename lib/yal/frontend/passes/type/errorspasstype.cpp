@@ -484,4 +484,45 @@ namespace yal::frontend {
     ErrorTypeAssignToImmutable::getSourceInfo() const {
         return m_stmt.getSourceInfo();
     }
+
+    // ErrorTypeTypeFnCallImmutable -------------------------------------------
+
+    const ErrorCode  ErrorTypeTypeFnCallImmutable::kCode =
+            MakeErrorCode(static_cast<uint16_t>(PassTypeCode::Type), 16);
+
+    ErrorTypeTypeFnCallImmutable::ErrorTypeTypeFnCallImmutable(const ExprTypeFnCall& expr,
+                                                               const DeclTypeFunction& decl):
+        Error(kCode),
+        m_expr(expr),
+        m_decl(decl) {
+    }
+
+    StringRef
+    ErrorTypeTypeFnCallImmutable::getErrorName() const {
+        return "Invalid Type Function Call Mutability";
+    }
+
+    void
+    ErrorTypeTypeFnCallImmutable::printDetail(ErrorPrinter &printer) const {
+        auto& formater = printer.getFormater();
+        const StmtExpression* fnExpr = m_expr.getExpression().value_or(nullptr);
+        YAL_ASSERT(fnExpr != nullptr);
+
+        FormatAppend(formater,
+                     "Can't call mutable type function '%' on immutable type '%'.\n",
+                     m_decl.getIdentifier().getName(),
+                     *fnExpr->getQualType().getType());
+        const SourceInfo& srcInfo = m_decl.getSourceInfo();
+        SourceItem* item = printer.getSourceManager().getItem(srcInfo.handle);
+        if (item != nullptr) {
+            FormatAppend(formater,
+                         "Function '%' defined here:\n", m_decl.getIdentifier());
+            printer.printSourceInfo(printer.getFormater(),* item, srcInfo);
+        }
+    }
+
+    const SourceInfo&
+    ErrorTypeTypeFnCallImmutable::getSourceInfo() const {
+        return m_expr.getSourceInfo();
+    }
 }

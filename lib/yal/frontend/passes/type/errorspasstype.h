@@ -29,10 +29,12 @@ namespace yal {
 
 namespace yal::frontend {
 
+    class DeclTypeFunction;
     class ExprFnCall;
-    class ExprUnaryOperator;
     class ExprStructVarRef;
     class ExprStructInit;
+    class ExprTypeFnCall;
+    class ExprUnaryOperator;
     class StmtExpression;
     class StmtAssign;
     class Type;
@@ -286,5 +288,23 @@ namespace yal::frontend {
 
     private:
         const StmtAssign& m_stmt;
+    };
+
+    class ErrorTypeTypeFnCallImmutable final : public Error {
+    public:
+        static const ErrorCode kCode;
+
+        ErrorTypeTypeFnCallImmutable(const ExprTypeFnCall& expr,
+                                     const DeclTypeFunction& decl);
+
+        StringRef getErrorName() const override final;
+
+        void printDetail(ErrorPrinter& printer)const override final;
+
+        const SourceInfo& getSourceInfo() const override final;
+
+    private:
+        const ExprTypeFnCall& m_expr;
+        const DeclTypeFunction& m_decl;
     };
 }

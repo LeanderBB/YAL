@@ -50,6 +50,9 @@ R"R(
     const ModuleType* module = m_frontEnd.compile(handle, options);
     EXPECT_EQ(module, nullptr);
     EXPECT_TRUE(m_errorReporter.hasErrors());
+    if (!m_errorReporter.hasErrors()) {
+        return;
+    }
     const yal::Error* err = m_errorReporter.getLastError();
     EXPECT_EQ(yal::frontend::ErrorTypeStructInitNumMembers::kCode, err->getCode());
 }
@@ -71,6 +74,9 @@ R"R(
     const ModuleType* module = m_frontEnd.compile(handle, options);
     EXPECT_EQ(module, nullptr);
     EXPECT_TRUE(m_errorReporter.hasErrors());
+    if (!m_errorReporter.hasErrors()) {
+        return;
+    }
     const yal::Error* err = m_errorReporter.getLastError();
     EXPECT_EQ(yal::frontend::ErrorTypeReference::kCode, err->getCode());
 }
@@ -97,38 +103,12 @@ R"R(
     const ModuleType* module = m_frontEnd.compile(handle, options);
     EXPECT_EQ(module, nullptr);
     EXPECT_TRUE(m_errorReporter.hasErrors());
+    if (!m_errorReporter.hasErrors()) {
+        return;
+    }
     const yal::Error* err = m_errorReporter.getFirstError();
     EXPECT_EQ(yal::frontend::ErrorTypeReference::kCode, err->getCode());
 }
-
-/* TODO: Move check test!
-
-TEST_F(PassType, RefReplaceRequired) {
-    const char* input =
-R"R(
-    type Bar : struct {
-        x : i32
-    }
-
-    type Foo : struct {
-        b: Bar
-    }
-
-    fn main() {
-       var f:mut Foo = Foo{b:Bar{x:20}};
-       f.b = Bar { x:10};
-       var other:Bar = f.b;
-    }
-)R";
-
-    auto handle = createSourceHandle(input);
-    FrontendOptionsType options;
-    const ModuleType* module = m_frontEnd.compile(handle, options);
-    EXPECT_EQ(module, nullptr);
-    EXPECT_TRUE(m_errorReporter.hasErrors());
-    const yal::Error* err = m_errorReporter.getLastError();
-    EXPECT_EQ(yal::frontend::ErrorTypeStructInitNumMembers::kCode, err->getCode());
-} */
 
 TEST_F(PassType, FnTypeStaticCallOnInstance) {
     const char* input =
@@ -152,6 +132,9 @@ R"R(
     const ModuleType* module = m_frontEnd.compile(handle, options);
     EXPECT_EQ(module, nullptr);
     EXPECT_TRUE(m_errorReporter.hasErrors());
+    if (!m_errorReporter.hasErrors()) {
+        return;
+    }
     const yal::Error* err = m_errorReporter.getLastError();
     EXPECT_EQ(yal::frontend::ErrorTypeIsNotTypeFunction::kCode, err->getCode());
 }
@@ -183,6 +166,9 @@ R"R(
     const ModuleType* module = m_frontEnd.compile(handle, options);
     EXPECT_EQ(module, nullptr);
     EXPECT_TRUE(m_errorReporter.hasErrors());
+    if (!m_errorReporter.hasErrors()) {
+        return;
+    }
     const yal::Error* err = m_errorReporter.getLastError();
     EXPECT_EQ(yal::frontend::ErrorTypeFunctionIsNotStatic::kCode, err->getCode());
 }
@@ -201,6 +187,9 @@ R"R(
     EXPECT_EQ(module, nullptr);
     EXPECT_TRUE(m_errorReporter.hasErrors());
     const yal::Error* err = m_errorReporter.getLastError();
+    if (!m_errorReporter.hasErrors()) {
+        return;
+    }
     EXPECT_EQ(yal::frontend::ErrorTypeExprUnassignable::kCode, err->getCode());
 }
 
@@ -220,6 +209,9 @@ R"R(
     const ModuleType* module = m_frontEnd.compile(handle, options);
     EXPECT_EQ(module, nullptr);
     EXPECT_TRUE(m_errorReporter.hasErrors());
+    if (!m_errorReporter.hasErrors()) {
+        return;
+    }
     const yal::Error* err = m_errorReporter.getFirstError();
     EXPECT_EQ(yal::frontend::ErrorTypeExprUnassignable::kCode, err->getCode());
 }
@@ -237,6 +229,9 @@ R"R(
     const ModuleType* module = m_frontEnd.compile(handle, options);
     EXPECT_EQ(module, nullptr);
     EXPECT_TRUE(m_errorReporter.hasErrors());
+    if (!m_errorReporter.hasErrors()) {
+        return;
+    }
     const yal::Error* err = m_errorReporter.getLastError();
     EXPECT_EQ(yal::frontend::ErrorTypeUnaryOpRefNonLValue::kCode, err->getCode());
 }
@@ -260,6 +255,9 @@ R"R(
     const ModuleType* module = m_frontEnd.compile(handle, options);
     EXPECT_EQ(module, nullptr);
     EXPECT_TRUE(m_errorReporter.hasErrors());
+    if (!m_errorReporter.hasErrors()) {
+        return;
+    }
     const yal::Error* err = m_errorReporter.getFirstError();
     EXPECT_EQ(yal::frontend::ErrorTypeReference::kCode, err->getCode());
 }
@@ -278,6 +276,9 @@ R"R(
     const ModuleType* module = m_frontEnd.compile(handle, options);
     EXPECT_EQ(module, nullptr);
     EXPECT_TRUE(m_errorReporter.hasErrors());
+    if (!m_errorReporter.hasErrors()) {
+        return;
+    }
     const yal::Error* err = m_errorReporter.getFirstError();
     EXPECT_EQ(yal::frontend::ErrorTypeAssignToImmutable::kCode, err->getCode());
 }
@@ -376,3 +377,39 @@ R"R(
     EXPECT_NE(module, nullptr);
     EXPECT_FALSE(m_errorReporter.hasErrors());
 }
+
+
+TEST_F(PassType, TypeFnCallMutability) {
+    const char* input =
+R"R(
+    type Foo : struct {
+          x:i32
+    }
+
+    fn Foo::stuff(&self) : bool {
+        return self.x != 0;
+    }
+
+    fn Foo::setX(mut& self, x:i32) {
+        self.x = x;
+    }
+
+    fn main() {
+       var f:Foo = Foo{x:20};
+       f.stuff();
+       f.setX(40);
+    }
+)R";
+
+    auto handle = createSourceHandle(input);
+    FrontendOptionsType options;
+    const ModuleType* module = m_frontEnd.compile(handle, options);
+    EXPECT_EQ(module, nullptr);
+    EXPECT_TRUE(m_errorReporter.hasErrors());
+    if (!m_errorReporter.hasErrors()) {
+        return;
+    }
+    const yal::Error* err = m_errorReporter.getFirstError();
+    EXPECT_EQ(yal::frontend::ErrorTypeTypeFnCallImmutable::kCode, err->getCode());
+}
+

@@ -44,6 +44,9 @@ R"R(
     const ModuleType* module = m_frontEnd.compile(handle, options);
     EXPECT_EQ(module, nullptr);
     EXPECT_TRUE(m_errorReporter.hasErrors());
+    if (!m_errorReporter.hasErrors()) {
+        return;
+    }
     const yal::Error* err = m_errorReporter.getLastError();
     EXPECT_EQ(err->getCode(), yal::frontend::ErrorDuplicateTypeDecl::kCode);
 }
@@ -70,6 +73,9 @@ R"R(
     const ModuleType* module = m_frontEnd.compile(handle, options);
     EXPECT_EQ(module, nullptr);
     EXPECT_TRUE(m_errorReporter.hasErrors());
+    if (!m_errorReporter.hasErrors()) {
+        return;
+    }
     const yal::Error* err = m_errorReporter.getLastError();
     EXPECT_EQ(err->getCode(), yal::frontend::ErrorDuplicateTypeDecl::kCode);
 }
@@ -87,6 +93,9 @@ R"R(
     const ModuleType* module = m_frontEnd.compile(handle, options);
     EXPECT_EQ(module, nullptr);
     EXPECT_TRUE(m_errorReporter.hasErrors());
+    if (!m_errorReporter.hasErrors()) {
+        return;
+    }
     const yal::Error* err = m_errorReporter.getLastError();
     EXPECT_EQ(err->getCode(), yal::frontend::ErrorUndefinedTypeRef::kCode);
 }
@@ -109,6 +118,9 @@ R"R(
     const ModuleType* module = m_frontEnd.compile(handle, options);
     EXPECT_EQ(module, nullptr);
     EXPECT_TRUE(m_errorReporter.hasErrors());
+    if (!m_errorReporter.hasErrors()) {
+        return;
+    }
     const yal::Error* err = m_errorReporter.getLastError();
     EXPECT_EQ(err->getCode(), yal::frontend::ErrorFnOnNonTargetType::kCode);
 }

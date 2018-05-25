@@ -409,6 +409,7 @@ namespace yal::frontend {
         }
 
         const QualType qtDecl = declOp.value()->getQualType();
+
         Qualifier qual = qtDecl.getQualifier();
 
         if (!qual.isReference()) {
@@ -419,6 +420,8 @@ namespace yal::frontend {
         // if struct is immutable, mark variable as immutable
         if (qtExpr.isImmutable()){
             qual.setImmutable();
+        } else if (qtExpr.isMutable()) {
+            qual.setMutable();
         }
 
         node.setQualType(QualType::Create(qual, qtDecl.getType()));
@@ -514,6 +517,15 @@ namespace yal::frontend {
 
         declTypeFn = dyn_cast<DeclTypeFunction>(declFn);
         YAL_ASSERT(declTypeFn != nullptr);
+
+        // check if type function mutability matches
+        if (qtTarget.isValid()
+                && qtTarget.isImmutable()
+                && !declTypeFn->isImmutable()) {
+            auto error = std::make_unique<ErrorTypeTypeFnCallImmutable>(node,
+                                                                        *declTypeFn);
+            onError(std::move(error));
+        }
 
         const ExprList& args = node.getFunctionArgs();
         const DeclFunction::Params& params = declFn->getParams();
