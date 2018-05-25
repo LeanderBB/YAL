@@ -49,13 +49,17 @@ namespace yal::frontend {
         auto& formater = printer.getFormater();
         const StringRef varName = m_expr.getDeclVar().getName();
         FormatAppend(formater,
-                     "Attempting to use moved '%' in the expression above.\n"
-                     "Variable '%' was moved here:\n",
-                     varName,varName);
+                     "Attempting to use moved '%' in the expression above.\n",
+                     varName);
 
         const SourceInfo& stmtSrcInfo = m_stmtWhereMoved.getSourceInfo();
-        SourceItem* item = printer.getSourceManager().getItem(stmtSrcInfo.handle);
-        printer.printSourceInfo(printer.getFormater(),*item, stmtSrcInfo);
+        SourceItemOpt item = printer.getSourceManager().getItem(stmtSrcInfo.handle);
+        if (item.has_value()) {
+            FormatAppend(formater,
+                         "Variable '%' was moved here:\n",
+                         varName);
+            printer.printSourceInfo(printer.getFormater(),*item.value(), stmtSrcInfo);
+        }
     };
 
     const SourceInfo&

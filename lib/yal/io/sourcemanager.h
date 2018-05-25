@@ -28,6 +28,7 @@ namespace yal {
     class MemoryStream;
 
     class SourceItem;
+    using SourceItemOpt = std::optional<SourceItem*>;
     class SourceManager
     {
     public:
@@ -52,18 +53,13 @@ namespace yal {
 
         Handle add(std::unique_ptr<SourceItem>&& item);
 
-        SourceItem* getItem(const Handle handle) const;
-
-        inline SourceItem* getItem(const Handle handle) {
-            const SourceManager* const_this = this;
-            return const_cast<SourceItem*>(const_this->getItem(handle));
-        }
+        SourceItemOpt getItem(const Handle handle) const;
 
         void clear();
 
     private:
         using SourceList = std::vector<std::unique_ptr<SourceItem>>;
-        SourceList m_sources;
+        mutable SourceList m_sources;
     };
 
     class SourceItem {

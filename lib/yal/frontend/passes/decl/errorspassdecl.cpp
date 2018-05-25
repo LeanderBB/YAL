@@ -57,13 +57,17 @@ namespace yal::frontend {
     void
     ErrorDuplicateTypeDecl::printDetail(ErrorPrinter &printer) const {
         FormatAppend(printer.getFormater(),
-                     "Can not re-declare '%', type previously declared here:\n",
+                     "Can not re-declare '%'.\n",
                      m_newType.getIdentifier());
         const SourceInfo& oldSrcInfo = getSourceInfoFromType(m_oldType);
 
         auto srcHandle = m_module.getSourceHandle();
-        SourceItem* item = printer.getSourceManager().getItem(srcHandle);
-        printer.printSourceInfo(printer.getFormater(),* item, oldSrcInfo);
+        SourceItemOpt item = printer.getSourceManager().getItem(srcHandle);
+        if (item.has_value()) {
+            FormatAppend(printer.getFormater(),
+                         "Type previously declared here:\n");
+            printer.printSourceInfo(printer.getFormater(),*item.value(), oldSrcInfo);
+        }
     };
 
     const SourceInfo&
@@ -143,10 +147,14 @@ namespace yal::frontend {
     void
     ErrorDuplicateSymbol::printDetail(ErrorPrinter &printer) const {
         FormatAppend(printer.getFormater(),
-                     "Duplicate symbol '%', previously declared here:\n",
+                     "Duplicate symbol '%'\n.",
                      m_sym1);
-        SourceItem* item = printer.getSourceManager().getItem(m_sym2SrcInfo.handle);
-        printer.printSourceInfo(printer.getFormater(),* item, m_sym2SrcInfo);
+        SourceItemOpt item = printer.getSourceManager().getItem(m_sym2SrcInfo.handle);
+        if (item.has_value()) {
+            FormatAppend(printer.getFormater(),
+                         "Previously declared here:\n");
+            printer.printSourceInfo(printer.getFormater(), *item.value(), m_sym2SrcInfo);
+        }
     };
 
     const SourceInfo&
@@ -212,12 +220,12 @@ namespace yal::frontend {
                      "Can not target type '%' with function '%' as type is non-targetable.\n",
                      m_targetType->getIdentifier(), m_fnName);
         SourceInfoOpt typeSrcInfo = m_targetType->getSourceInfo();
-        if (typeSrcInfo.has_value()){
+        SourceItemOpt item = printer.getSourceManager().getItem(typeSrcInfo->handle);
+        if (typeSrcInfo.has_value() && item.has_value()){
             FormatAppend(printer.getFormater(),
                          "Type '%' declared here:\n",
                          m_targetType->getIdentifier());
-            SourceItem* item = printer.getSourceManager().getItem(typeSrcInfo->handle);
-            printer.printSourceInfo(printer.getFormater(),* item, *typeSrcInfo);
+            printer.printSourceInfo(printer.getFormater(), *item.value(), *typeSrcInfo);
         }
     };
 
@@ -251,15 +259,15 @@ namespace yal::frontend {
         FormatAppend(printer.getFormater(),
                      "Expected symbol '%' to be of type variable.\n",
                      m_symName);
-        FormatAppend(printer.getFormater(),
-                     "'%' is defined here:\n",
-                     m_symName);
 
-        SourceItem* item = printer.getSourceManager()
+        SourceItemOpt item = printer.getSourceManager()
                 .getItem(m_decl.getSourceInfo().handle);
-        if (item != nullptr) {
+        if (item.has_value()) {
+            FormatAppend(printer.getFormater(),
+                         "'%' is defined here:\n",
+                         m_symName);
             printer.printSourceInfo(printer.getFormater(),
-                                    *item,
+                                    *item.value(),
                                     m_decl.getSourceInfo());
         }
     };
@@ -400,12 +408,12 @@ namespace yal::frontend {
                      "Type '%' used in the above context is not of type Struct\n",
                      m_type.getIdentifier().getName());
         SourceInfoOpt typeSrcInfo = m_type.getSourceInfo();
-        if (typeSrcInfo.has_value()){
+        SourceItemOpt item = printer.getSourceManager().getItem(typeSrcInfo->handle);
+        if (typeSrcInfo.has_value() && item.has_value()){
             FormatAppend(printer.getFormater(),
                          "Type '%' declared here:\n",
                          m_type.getIdentifier());
-            SourceItem* item = printer.getSourceManager().getItem(typeSrcInfo->handle);
-            printer.printSourceInfo(printer.getFormater(),* item, *typeSrcInfo);
+            printer.printSourceInfo(printer.getFormater(), *item.value(), *typeSrcInfo);
         }
     };
 
@@ -438,12 +446,13 @@ namespace yal::frontend {
                      "Type '%' used in the above context is not a Function\n",
                      m_type.getIdentifier().getName());
         SourceInfoOpt typeSrcInfo = m_type.getSourceInfo();
-        if (typeSrcInfo.has_value()){
+        SourceItemOpt item = printer.getSourceManager().getItem(typeSrcInfo->handle);
+        if (typeSrcInfo.has_value() && item.has_value()){
             FormatAppend(printer.getFormater(),
                          "Type '%' declared here:\n",
                          m_type.getIdentifier());
-            SourceItem* item = printer.getSourceManager().getItem(typeSrcInfo->handle);
-            printer.printSourceInfo(printer.getFormater(),* item, *typeSrcInfo);
+
+            printer.printSourceInfo(printer.getFormater(), *item.value(), *typeSrcInfo);
         }
     };
 
@@ -477,12 +486,12 @@ namespace yal::frontend {
                      "Type '%' used in the above context is not a TypeFunction\n",
                      m_type.getIdentifier().getName());
         SourceInfoOpt typeSrcInfo = m_type.getSourceInfo();
-        if (typeSrcInfo.has_value()){
+        SourceItemOpt item = printer.getSourceManager().getItem(typeSrcInfo->handle);
+        if (typeSrcInfo.has_value() && item.has_value()){
             FormatAppend(printer.getFormater(),
                          "Type '%' declared here:\n",
                          m_type.getIdentifier());
-            SourceItem* item = printer.getSourceManager().getItem(typeSrcInfo->handle);
-            printer.printSourceInfo(printer.getFormater(),* item, *typeSrcInfo);
+            printer.printSourceInfo(printer.getFormater(),* item.value(), *typeSrcInfo);
         }
     };
 
@@ -552,12 +561,12 @@ namespace yal::frontend {
                      " function is not static.\n",
                      m_type.getIdentifier());
         SourceInfoOpt typeSrcInfo = m_type.getSourceInfo();
-        if (typeSrcInfo.has_value()){
+        SourceItemOpt item = printer.getSourceManager().getItem(typeSrcInfo->handle);
+        if (typeSrcInfo.has_value() && item.has_value()){
             FormatAppend(printer.getFormater(),
                          "Type '%' declared here:\n",
                          m_type.getIdentifier());
-            SourceItem* item = printer.getSourceManager().getItem(typeSrcInfo->handle);
-            printer.printSourceInfo(printer.getFormater(),* item, *typeSrcInfo);
+            printer.printSourceInfo(printer.getFormater(),* item.value(), *typeSrcInfo);
         }
     };
 
@@ -701,17 +710,17 @@ namespace yal::frontend {
 
         const SourceInfo& srcInfoLeft = m_declLeft.getSourceInfo();
         const SourceInfo& srcInfoRight = m_declRight.getSourceInfo();
-        SourceItem* itemLeft = printer.getSourceManager().getItem(srcInfoLeft.handle);
-        SourceItem* itemRight = printer.getSourceManager().getItem(srcInfoRight.handle);
+        SourceItemOpt itemLeft = printer.getSourceManager().getItem(srcInfoLeft.handle);
+        SourceItemOpt itemRight = printer.getSourceManager().getItem(srcInfoRight.handle);
 
-        if (itemLeft != nullptr && itemRight != nullptr) {
+        if (itemLeft.has_value() && itemRight.has_value()) {
             FormatAppend(printer.getFormater(),
                          "'%' declared here:\n", varRight);
-            printer.printSourceInfo(printer.getFormater(),* itemRight, srcInfoRight);
+            printer.printSourceInfo(printer.getFormater(),* itemRight.value(), srcInfoRight);
 
             FormatAppend(printer.getFormater(),
                          "'%' declared here:\n", varLeft);
-            printer.printSourceInfo(printer.getFormater(),* itemLeft, srcInfoLeft);
+            printer.printSourceInfo(printer.getFormater(),* itemLeft.value(), srcInfoLeft);
         }
     };
 

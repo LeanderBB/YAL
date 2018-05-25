@@ -55,9 +55,9 @@ namespace yal {
     PrettyPrint::SourceErrorPrint( Log& log,
                                    const SourceInfo& info,
                                    const SourceManager &manager) {
-        SourceItem* item =  manager.getItem(info.handle);
-        if (item != nullptr) {
-            SourceErrorPrint(*item,
+        SourceItemOpt item =  manager.getItem(info.handle);
+        if (item.has_value()) {
+            SourceErrorPrint(*item.value(),
                              log,
                              info.begin.line,
                              info.end.line,

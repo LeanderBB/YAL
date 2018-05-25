@@ -47,10 +47,11 @@ namespace yal::frontend {
                       const FrontendOptions& options) {
         (void) options;
 
-        yal::SourceItem* sourceItem = m_srcManager.getItem(item);
-        if (sourceItem == nullptr) {
+        SourceItemOpt sourceItemOpt = m_srcManager.getItem(item);
+        if (!sourceItemOpt.has_value()) {
             return nullptr;
         }
+        SourceItem* sourceItem = sourceItemOpt.value();
 
         yal::frontend::Module* module =
                 m_moduleManager.createNew(sourceItem->getPath(), item);

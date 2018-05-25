@@ -58,11 +58,12 @@ namespace yal{
         m_sources.clear();
     }
 
-    SourceItem *SourceManager::getItem(const Handle handle) const {
+    SourceItemOpt
+    SourceManager::getItem(const Handle handle) const {
         const uint32_t idx = handle.m_id;
         return (idx < m_sources.size())
-                ? m_sources[idx].get()
-                : nullptr;
+                ? SourceItemOpt(m_sources[idx].get())
+                : SourceItemOpt();
     }
 
     SourceItem::~SourceItem() {

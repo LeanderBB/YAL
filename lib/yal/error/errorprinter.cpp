@@ -68,9 +68,9 @@ namespace yal {
 
             FormatReset(m_formater);
             const SourceInfo& srcInfo = error.getSourceInfo();
-            SourceItem* item =  m_srcManager.getItem(srcInfo.handle);
-            if (item != nullptr) {
-                printSourceInfo(m_errStream, *item, srcInfo);
+            SourceItemOpt item =  m_srcManager.getItem(srcInfo.handle);
+            if (item.has_value()) {
+                printSourceInfo(m_errStream, *item.value(), srcInfo);
             }
 
             Format(m_formater, "> ");

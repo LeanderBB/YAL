@@ -513,11 +513,11 @@ namespace yal::frontend {
                      m_decl.getIdentifier().getName(),
                      *fnExpr->getQualType().getType());
         const SourceInfo& srcInfo = m_decl.getSourceInfo();
-        SourceItem* item = printer.getSourceManager().getItem(srcInfo.handle);
-        if (item != nullptr) {
+        SourceItemOpt item = printer.getSourceManager().getItem(srcInfo.handle);
+        if (item.has_value()) {
             FormatAppend(formater,
                          "Function '%' defined here:\n", m_decl.getIdentifier());
-            printer.printSourceInfo(printer.getFormater(),* item, srcInfo);
+            printer.printSourceInfo(printer.getFormater(), *item.value(), srcInfo);
         }
     }
 
