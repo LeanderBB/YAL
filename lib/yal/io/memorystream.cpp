@@ -1,5 +1,5 @@
 /*
- *  Copyright 2017 by Leander Beernaert (leanderbb@gmail.com)
+ *  Copyright 2017 by Leander Beernaert (lbb-dev@pm.me)
  *
  *  This file is part of YAL.
  *
