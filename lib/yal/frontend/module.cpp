@@ -19,7 +19,7 @@
 
 #include "yal/frontend/module.h"
 #include "yal/frontend/ast/declmodule.h"
-#include "yal/util/path.h"
+#include "yal/os/path.h"
 
 namespace yal::frontend {
 

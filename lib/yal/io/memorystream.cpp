@@ -152,7 +152,7 @@ namespace yal {
         if (nBytesToRead != 0) {
             const u8* srcBuffer = reinterpret_cast<const u8*>(m_ptr.get()) + m_offset;
             ::memcpy(buffer,srcBuffer, nBytesToRead);
-            m_offset = newOffset;
+            m_offset += nBytesToRead;
             bytesRead = nBytesToRead;
         }
         return bytesRead;

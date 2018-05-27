@@ -17,7 +17,7 @@
  *  License along with YAL. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "yal/util/path.h"
+#include "yal/os/path.h"
 #include "yal/yal.h"
 #include <sys/stat.h>
 #include <array>

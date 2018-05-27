@@ -265,14 +265,29 @@ set(YAL_SOURCES
     yal/util/strconversions.cpp
     yal/util/iteratorrange.h
     yal/util/stackjump.h
-    yal/util/path.h
-    yal/util/path.cpp
+
     yal/util/codewriter.cpp
     yal/util/codewriter.h
     yal/util/scopedstackelem.h
     yal/util/hash.cpp
     yal/util/hash.h
+
+    yal/os/process.h
+    yal/os/process.cpp
+    yal/os/path.h
+    yal/os/path.cpp
     )
+
+if (${YAL_BUILD_UNIX})
+
+    set(YAL_SOURCES ${YAL_SOURCES}
+        yal/os/unix/processunix.cpp
+        yal/os/unix/processunix.h
+        yal/os/unix/bytestreamunixfd.cpp
+        yal/os/unix/bytestreamunixfd.h
+        )
+
+endif()
 
 # include parser / lexer DSL's
 set_source_files_properties(yal/frontend/lexer/lexer_re2c.in
