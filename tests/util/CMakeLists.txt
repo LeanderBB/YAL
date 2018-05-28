@@ -13,7 +13,8 @@ set (SOURCES
 add_executable(test_util ${SOURCES})
 
 target_link_libraries(test_util
-        PRIVATE GTest::GTest GTest::Main yal::libyal gtest-util
+        PRIVATE GTest::GTest GTest::Main yal::frontend gtest-util
         PRIVATE compile_options compile_options_werror
     )
 
+add_test(NAME "utilities" COMMAND "test_util")

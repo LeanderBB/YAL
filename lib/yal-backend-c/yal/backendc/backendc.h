@@ -1,5 +1,5 @@
 /*
- *  Copyright 2017 by Leander Beernaert (lbb-dev@pm.me)
+ *  Copyright 2018 by Leander Beernaert (lbb-dev@pm.me)
  *
  *  This file is part of YAL.
  *
@@ -19,19 +19,11 @@
 
 #pragma once
 
-namespace yal {
+namespace yal::backend::c {
 
-    class Module;
-    class Compiler;
-    class SourceItem;
-    class DeclBase;
-    class StageFnReturn {
+    class BackendC {
     public:
-        StageFnReturn(Compiler& compiler);
-
-        bool execute(DeclBase* decl);
-
-    private:
-        Compiler& m_compiler;
+        BackendC();
     };
+
 }

@@ -1,5 +1,5 @@
 /*
- *  Copyright 2017 by Leander Beernaert (lbb-dev@pm.me)
+ *  Copyright 2018 by Leander Beernaert (lbb-dev@pm.me)
  *
  *  This file is part of YAL.
  *
@@ -16,22 +16,11 @@
  *  You should have received a copy of the GNU Lesser General Public
  *  License along with YAL. If not, see <http://www.gnu.org/licenses/>.
  */
+#include "yal/backendc/backendc.h"
 
-#pragma once
+namespace yal::backend::c {
+BackendC::BackendC() {
 
-namespace yal {
+}
 
-    class Module;
-    class Compiler;
-    class SourceItem;
-    class DeclBase;
-    class StageSizeCalc {
-    public:
-        StageSizeCalc(Compiler& compiler);
-
-        bool execute(DeclBase* decl);
-
-    private:
-        Compiler& m_compiler;
-    };
 }

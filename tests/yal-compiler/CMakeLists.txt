@@ -1,7 +1,7 @@
 #
 # Simple Parser test
 #
-add_executable(test_yal_compiler
+add_executable(test_yal_frontend
     fixture.h
     #test_general.cpp
     #test_stageexprtype.cpp
@@ -18,11 +18,13 @@ add_executable(test_yal_compiler
     passes/move/test_passmove.cpp
     main_test_compiler.cpp)
 
-target_include_directories(test_yal_compiler
+target_include_directories(test_yal_frontend
     PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}"
     )
 
-target_link_libraries(test_yal_compiler
-        PRIVATE GTest::GTest yal::libyal
+target_link_libraries(test_yal_frontend
+        PRIVATE GTest::GTest yal::frontend
         PRIVATE compile_options compile_options_werror
         )
+
+add_test(NAME "frontend" COMMAND test_yal_frontend)

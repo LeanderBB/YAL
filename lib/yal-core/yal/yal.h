@@ -22,6 +22,11 @@
 #include <cstdlib>
 #include <cinttypes>
 #include <cstdint>
+#include <limits>
+#include <memory>
+#include <cstring>
+#include <string>
+#include <new>
 
 #if !defined(YAL_RELEASE_DEBUG) && defined(YAL_DEBUG)
     #define YAL_RELEASE_DEBUG
@@ -38,12 +43,6 @@
 #endif
 
 #define YAL_ASSERT_NOT_IMPLEMENTED() YAL_ASSERT_MESSAGE(false, "Not yet implemented")
-
-#include <limits>
-#include <memory>
-#include <cstring>
-#include <string>
-#include <new>
 
 #define YAL_NO_COPY_CLASS(CLASS) \
     CLASS(const CLASS& other) = delete; \

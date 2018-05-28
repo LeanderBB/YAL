@@ -1,5 +1,5 @@
 /*
- *  Copyright 2017 by Leander Beernaert (leanderbb@gmail.com)
+ *  Copyright 2017 by Leander Beernaert (lbb-dev@pm.me)
  *
  *  This file is part of YAL.
  *
@@ -27,22 +27,22 @@
 #pragma warning(disable: 4514 4711 4055 4244 4800 4820)
 #endif
 
-#cmakedefine YAL_VERSION_MAJOR @YAL_VERSION_MAJOR@
+#cmakedefine YAL_CORE_VERSION_MAJOR @YAL_CORE_VERSION_MAJOR@
 
-#if !defined(YAL_VERSION_MAJOR)
-#define YAL_VERSION_MAJOR 0
+#if !defined(YAL_CORE_VERSION_MAJOR)
+#define YAL_CORE_VERSION_MAJOR 0
 #endif
 
-#cmakedefine YAL_VERSION_MINOR @YAL_VERSION_MINOR@
+#cmakedefine YAL_CORE_VERSION_MINOR @YAL_CORE_VERSION_MINOR@
 
-#if !defined(YAL_VERSION_MINOR)
-#define YAL_VERSION_MINOR 0
+#if !defined(YAL_CORE_VERSION_MINOR)
+#define YAL_CORE_VERSION_MINOR 0
 #endif
 
-#cmakedefine YAL_VERSION_PATCH @YAL_VERSION_PATCH@
+#cmakedefine YAL_CORE_VERSION_PATCH @YAL_CORE_VERSION_PATCH@
 
-#if !defined(YAL_VERSION_PATCH)
-#define YAL_VERSION_PATCH 0
+#if !defined(YAL_CORE_VERSION_PATCH)
+#define YAL_CORE_VERSION_PATCH 0
 #endif
 
-#define YAL_VERSION_STR @YAL_VERSION_STR@
+#define YAL_CORE_VERSION_STR @YAL_CORE_VERSION_STR@

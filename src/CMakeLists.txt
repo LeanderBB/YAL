@@ -22,6 +22,6 @@ add_executable(${YALC_BIN} ${YALC_SOURCES})
 add_executable(yalc::yalc ALIAS yalc)
 
 target_link_libraries(${YALC_BIN}
-        PRIVATE yal::libyal
+        PRIVATE yal::frontend yal::backend-c
         PRIVATE compile_options compile_options_werror
     )

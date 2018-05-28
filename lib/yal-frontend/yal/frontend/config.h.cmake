@@ -1,5 +1,5 @@
 /*
- *  Copyright 2017 by Leander Beernaert (lbb-dev@pm.me)
+ *  Copyright 2018 by Leander Beernaert (lbb-dev@pm.me)
  *
  *  This file is part of YAL.
  *
@@ -17,25 +17,22 @@
  *  License along with YAL. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#pragma once
+#cmakedefine YAL_FRONTEND__VERSION_MAJOR @YAL_FRONTEND__VERSION_MAJOR@
 
-namespace yal {
+#if !defined(YAL_FRONTEND__VERSION_MAJOR)
+#define YAL_FRONTEND__VERSION_MAJOR 0
+#endif
 
-    namespace frontend {
-        class Module;
-    }
-    class Compiler;
-    class SourceItem;
-    class DeclBase;
-    class StageExprType {
-    public:
-        StageExprType(Compiler& compiler,
-                      frontend::Module& module);
+#cmakedefine YAL_FRONTEND__VERSION_MINOR @YAL_FRONTEND__VERSION_MINOR@
 
-        bool execute(DeclBase* decl);
+#if !defined(YAL_FRONTEND__VERSION_MINOR)
+#define YAL_FRONTEND__VERSION_MINOR 0
+#endif
 
-    private:
-        Compiler& m_compiler;
-        frontend::Module& m_module;
-    };
-}
+#cmakedefine YAL_FRONTEND__VERSION_PATCH @YAL_FRONTEND__VERSION_PATCH@
+
+#if !defined(YAL_FRONTEND__VERSION_PATCH)
+#define YAL_FRONTEND__VERSION_PATCH 0
+#endif
+
+#define YAL_FRONTEND__VERSION_STR @YAL_FRONTEND__VERSION_STR@

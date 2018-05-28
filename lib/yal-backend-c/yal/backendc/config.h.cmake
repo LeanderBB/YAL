@@ -17,25 +17,22 @@
  *  License along with YAL. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#pragma once
+#cmakedefine YAL_BACKEND_C_VERSION_MAJOR @YAL_BACKEND_C_VERSION_MAJOR@
 
-namespace yal {
-    namespace frontend {
-        class Module;
-    }
-    class Compiler;
-    class SourceItem;
-    class DeclBase;
+#if !defined(YAL_BACKEND_C_VERSION_MAJOR)
+#define YAL_BACKEND_C_VERSION_MAJOR 0
+#endif
 
-    class StageExprListBreakdown
-    {
-    public:
-        StageExprListBreakdown(Compiler& compiler,
-                               frontend::Module& module);
+#cmakedefine YAL_BACKEND_C_VERSION_MINOR @YAL_BACKEND_C_VERSION_MINOR@
 
-        bool execute(DeclBase* decl);
-    private:
-        Compiler& m_compiler;
-        frontend::Module& m_module;
-    };
-}
+#if !defined(YAL_BACKEND_C_VERSION_MINOR)
+#define YAL_BACKEND_C_VERSION_MINOR 0
+#endif
+
+#cmakedefine YAL_BACKEND_C_VERSION_PATCH @YAL_BACKEND_C_VERSION_PATCH@
+
+#if !defined(YAL_BACKEND_C_VERSION_PATCH)
+#define YAL_BACKEND_C_VERSION_PATCH 0
+#endif
+
+#define YAL_BACKEND_C_VERSION_STR @YAL_BACKEND_C_VERSION_STR@
