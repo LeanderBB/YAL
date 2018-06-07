@@ -17,10 +17,12 @@
  *  License along with YAL. If not, see <http://www.gnu.org/licenses/>.
  */
 #include "yal/io/filestream.h"
+#include "yal/os/path.h"
 #include <cstdio>
 #include <string>
 #include <memory>
 #include <cstring>
+
 namespace yal {
     static inline void fileDtor(FILE* file) {
         if (file != nullptr)
@@ -65,8 +67,14 @@ namespace yal {
     }
 
     bool
-    FileStream::open(const char* path,
+    FileStream::open(const StringRef path,
                      const uint32_t mode) {
+
+        OSPathBuffer osPath;
+        if (!Path::ToOsPath(osPath, path)) {
+            return false;
+        }
+
         const char* fmode = nullptr;
         if ((mode & kModeReadWrite) == kModeReadWrite){
             fmode = "rw+";
@@ -76,7 +84,7 @@ namespace yal {
             fmode = "w";
         }
 
-        FileType file(fopen(path, fmode), fileDtor);
+        FileType file(fopen(osPath.data(), fmode), fileDtor);
         if (file)
         {
             // NOTE: Use OS API Perhaps?

@@ -17,7 +17,10 @@
  *  License along with YAL. If not, see <http://www.gnu.org/licenses/>.
  */
 #pragma once
-#include <yal/io/bytestream.h>
+
+#include "yal/io/bytestream.h"
+#include "yal/util/stringref.h"
+
 namespace yal {
     class FileStream : public ByteStream {
     public:
@@ -33,7 +36,7 @@ namespace yal {
 
         bool open(const StdStream stream);
 
-        bool open(const char* path,
+        bool open(const StringRef path,
                   const uint32_t mode);
 
 

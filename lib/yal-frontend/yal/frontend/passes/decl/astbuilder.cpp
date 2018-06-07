@@ -95,7 +95,7 @@ namespace yal::frontend {
         decls.reserve(stackDecls.size());
         while(!stackDecls.empty()) {
             DeclBase* decl = stackDecls.top();
-            decls.push_back(decl);
+            decls.insert(decls.begin(),decl);
             stackDecls.pop();
         }
         declModule->setDecls(std::move(decls));

@@ -17,6 +17,7 @@
  *  License along with YAL. If not, see <http://www.gnu.org/licenses/>.
  */
 #include "yal/frontend/modulemanager.h"
+#include "yal/os/path.h"
 #include <algorithm>
 
 namespace yal::frontend {
@@ -34,13 +35,18 @@ namespace yal::frontend {
 
     Module*
     ModuleManager::createNew(const StringRef name,
-                             const SourceManager::Handle handle) {
+                             const SourceItem& item) {
+        SourceManager::Handle handle = item.getHanlde();
         if (getModuleBySourceHanlde(handle) == nullptr
                 && getModuleByName(name) == nullptr) {
+            const StringRef modulePath = item.getPath();
+            std::optional<std::string> fullPath = Path::GetRealPath(modulePath);
+            std::string fullModulePath = fullPath.value_or(modulePath.toString());
             const size_t moduleCount = m_modules.size();
             void* ptr = m_allocator.allocate(sizeof(Module));
-            Module* module = new (ptr) Module(name,
-                                              *this,
+            Module* module = new (ptr) Module(*this,
+                                              name,
+                                              std::move(fullModulePath),
                                               handle,
                                               static_cast<Module::Id>(moduleCount));
             m_modules.push_back(module);

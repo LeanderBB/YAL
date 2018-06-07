@@ -41,6 +41,7 @@ namespace yal::frontend {
     Type::Type(const Module* module,
                const Kind kind,
                const Identifier &identifier) :
+        m_typeId(std::numeric_limits<uint64_t>::max()),
         m_module(module),
         m_kind(kind),
         m_sizeBytes(0),

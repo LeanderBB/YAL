@@ -173,7 +173,7 @@ namespace yal {
     void
     StringRef::toCStr(char* dst,
                       const size_t size) const {
-        const size_t copySize = std::min(size, size - 1);
+        const size_t copySize = std::min(m_size, size - 1);
         memcpy(dst, m_str, copySize);
         dst[copySize] = '\0';
     }

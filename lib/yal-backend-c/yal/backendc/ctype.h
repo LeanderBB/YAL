@@ -20,37 +20,50 @@
 #pragma once
 
 #include "yal/util/stringref.h"
-#include "yal/backendc/config.h"
+#include <vector>
 
 namespace yal {
-    class ErrorReporter;
+    struct Formater;
 }
 
 namespace yal::frontend {
-    class Module;
+    class Type;
+    class TypeContext;
 }
 
 namespace yal::backend::c {
 
-    struct BackendOptions {
-        ErrorReporter& errReporter;
-        StringRef buildDir;
-        StringRef projectRootDir;
-        StringRef arch;
-        StringRef config;
-        unsigned rvo:1;
-        unsigned pragmaOnce:1;
-        unsigned optimize:1;
-        unsigned debugSymbols:1;
-
-        BackendOptions(ErrorReporter& errReporter);
-    };
-
-    class BackendC {
+    class CType {
     public:
 
-        bool execute(const BackendOptions& options,
-                     frontend::Module& module);
+        CType(const frontend::Type& type);
+
+        const frontend::Type& getFrontendType() const {
+            return m_type;
+        }
+
+        StringRef getCIdentifier() const {
+            return m_identifier;
+        }
+
+    private:
+        const frontend::Type& m_type;
+        const std::string m_identifier;
+    };
+
+    class CTypeCache {
+    public:
+        CTypeCache() = default;
+
+        YAL_NO_COPY_CLASS(CTypeCache);
+
+        void init(const frontend::TypeContext& ctx);
+
+        const CType* getCType(const frontend::Type& type) const;
+
+    private:
+        using TypeList = std::vector<CType>;
+        TypeList m_ctypes;
     };
 
 }

@@ -98,8 +98,24 @@ namespace yal::frontend {
 
         void registerType(Type* type);
 
+        size_t getTypeCount() const {
+            return m_types.size();
+        }
+
+        template<typename FN>
+        void forEachType(FN& fn) const {
+            for (auto& type : m_typeList) {
+                fn(*type);
+            }
+        }
+
     private:
         using TypeMap = IdentifierPtrMap<Type*>;
+        using TypeList = std::vector<Type*>;
+        uint64_t m_typeIdCounter;
+        AllocatorStack m_allocator;
+        TypeMap m_types;
+        TypeList m_typeList;
         TypeBuiltin* m_typeBool;
         TypeBuiltin* m_typeI8;
         TypeBuiltin* m_typeU8;
@@ -111,9 +127,7 @@ namespace yal::frontend {
         TypeBuiltin* m_typeU64;
         TypeBuiltin* m_typeFloat;
         TypeBuiltin* m_typeDouble;
-        AllocatorStack m_allocator;
-        TypeMap m_types;
-        uint64_t m_typeIdCounter;
+
     };
 
 }

@@ -24,7 +24,17 @@ set(LIB_NAME yal-backend-c)
 set(LIB_SOURCES
     ${YAL_BACKEND_C_CONFIG_FILE}
     yal/backendc/backendc.cpp
-    yal/backendc/backendc.cpp
+    yal/backendc/backendc.h
+    yal/backendc/ctype.cpp
+    yal/backendc/ctype.h
+    yal/backendc/errorsbackendc.cpp
+    yal/backendc/errorsbackendc.h
+    yal/backendc/astvisitorcheader.cpp
+    yal/backendc/astvisitorcheader.h
+    yal/backendc/astvisitorcsource.cpp
+    yal/backendc/astvisitorcsource.h
+    yal/backendc/ctypegen.cpp
+    yal/backendc/ctypegen.h
 )
 
 

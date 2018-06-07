@@ -18,7 +18,7 @@
  */
 #include <yal/yal.h>
 
-
+#include <yal/backendc/backendc.h>
 #include <yal/error/errorprinter.h>
 #include <yal/error/errorreporter.h>
 #include <yal/frontend/frontend.h>
@@ -28,6 +28,7 @@
 #include <yal/io/sourcemanager.h>
 #include <yal/io/sourcemanager.h>
 #include <yal/io/sourceitems.h>
+#include <yal/os/path.h>
 #include <yal/util/log.h>
 
 #include <string>
@@ -70,25 +71,30 @@ int main(const int argc,
     yal::frontend::FrontendOptions options;
     yal::frontend::Module* module = frontend.compile(handle,options);
 
+    if (module != nullptr) {
+        //yal::AstPrinter astPrinter(stdoutStream);
+        //astPrinter.visit(*module->getDeclNode());
+
+        if (argc > 2) {
+            yal::backend::c::BackendC backend;
+            yal::backend::c::BackendOptions optionsBackend(errorReporter);
+            optionsBackend.arch = "x86_64";
+            optionsBackend.buildDir = argv[2];
+            optionsBackend.config = "yalc";
+            auto realPath = yal::Path::GetRealPath("./");
+            const std::string realPathStr = realPath.value_or("./");
+            optionsBackend.projectRootDir = realPathStr;
+            backend.execute(optionsBackend, *module);
+
+        }
+
+    }
+
     if (!errorReporter.empty()) {
         yal::ErrorPrinter errPrinter(stdoutStream, sourceManager);
         errPrinter.enableColorCodes(true);
         errPrinter.print(errorReporter);
     }
-
-    /* if (module != nullptr) {
-        yal::AstPrinter astPrinter(stdoutStream);
-        astPrinter.visit(*module->getDeclNode());
-
-        if (argc > 2) {
-            yal::TranspilerC transpiler;
-            yal::TranspilerOptions options;
-            options.intermediatOuputDir = argv[2];
-            transpiler.transpile(options, log, *module, sourceManager);
-        }
-
-    }*/
-
     return module != nullptr && !errorReporter.hasErrors()
             ? EXIT_SUCCESS : EXIT_FAILURE;
 }

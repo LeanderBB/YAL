@@ -27,11 +27,11 @@ namespace yal::frontend {
 
 
     enum class PassTypeCode : uint16_t {
-        Parser = 2,
-        Decl = 3,
-        FnRet = 4,
-        Type = 5,
-        Move = 6,
+        Parser = 3,
+        Decl = 4,
+        FnRet = 5,
+        Type = 6,
+        Move = 7,
     };
 
 

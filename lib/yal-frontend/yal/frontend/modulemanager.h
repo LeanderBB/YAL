@@ -40,7 +40,7 @@ namespace yal::frontend {
         YAL_NO_COPY_CLASS(ModuleManager);
 
         Module* createNew(const StringRef name,
-                          const SourceManager::Handle handle);
+                          const SourceItem &item);
 
         const Module *getModuleById(const Module::Id id) const;
 

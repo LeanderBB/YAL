@@ -26,6 +26,7 @@
 #include <yal/frontend/ast/declbase.h>
 #include <yal/io/sourcemanager.h>
 
+/*
 
 class CastTest : public ::testing::Test{
 
@@ -39,7 +40,7 @@ public:
 
     yal::frontend::ModuleManager m_moduleManager;
     yal::frontend::Module* m_module;
-};
+};*/
 
 
 

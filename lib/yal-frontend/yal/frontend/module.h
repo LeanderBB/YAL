@@ -37,8 +37,9 @@ namespace yal::frontend {
 
         static StringRef ModuleNameFromPath(const StringRef str);
 
-        Module(const StringRef name,
-               ModuleManager &manager,
+        Module(ModuleManager &manager,
+               const StringRef name,
+               std::string&& path,
                const SourceManager::Handle handle,
                const Id id);
 
@@ -46,6 +47,10 @@ namespace yal::frontend {
 
         const StringRef getName() const {
             return m_name;
+        }
+
+        const StringRef getPath() const {
+            return m_path;
         }
 
         SourceManager::Handle getSourceHandle() const {
@@ -100,6 +105,7 @@ namespace yal::frontend {
         const SourceManager::Handle m_sourceHandle;
         ModuleManager& m_manager;
         const StringRef m_name;
+        const std::string m_path;
         ASTContext m_astContext;
         STContext m_stcontext;
         TypeContext m_typeContext;

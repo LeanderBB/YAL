@@ -19,7 +19,6 @@
 
 #include "yal/frontend/passes/parser/passparser.h"
 
-#include "yal/compiler/compiler.h"
 #include "yal/frontend/lexer/lexer.h"
 #include "yal/frontend/module.h"
 #include "yal/frontend/parser/stparser.h"

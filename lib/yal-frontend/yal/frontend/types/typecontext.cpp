@@ -28,16 +28,18 @@ namespace yal::frontend {
     };
 
     TypeContext::TypeContext() :
+        m_typeIdCounter(0),
         m_allocator(kAllocatorBlockSize),
         m_types(),
-        m_typeIdCounter(0){
-
+        m_typeList(){
+        m_typeList.reserve(128);
         {
             auto type = m_allocator.construct<TypeBuiltin>(TypeBuiltin::DataType::Boolean);
             type->m_typeId = m_typeIdCounter++;
             m_typeBool = type;
             m_types.insert(std::make_pair(&type->getIdentifier(),
                                           type));
+            m_typeList.push_back(type);
         }
 
         {
@@ -46,6 +48,7 @@ namespace yal::frontend {
             m_typeI8 = type;
             m_types.insert(std::make_pair(&type->getIdentifier(),
                                           type));
+            m_typeList.push_back(type);
         }
 
         {
@@ -54,6 +57,7 @@ namespace yal::frontend {
             m_typeU8 = type;
             m_types.insert(std::make_pair(&type->getIdentifier(),
                                           type));
+            m_typeList.push_back(type);
         }
 
         {
@@ -62,6 +66,7 @@ namespace yal::frontend {
             m_typeI16 = type;
             m_types.insert(std::make_pair(&type->getIdentifier(),
                                           type));
+            m_typeList.push_back(type);
         }
 
         {
@@ -70,6 +75,7 @@ namespace yal::frontend {
             m_typeU16 = type;
             m_types.insert(std::make_pair(&type->getIdentifier(),
                                           type));
+            m_typeList.push_back(type);
         }
 
         {
@@ -78,6 +84,7 @@ namespace yal::frontend {
             m_typeI32 = type;
             m_types.insert(std::make_pair(&type->getIdentifier(),
                                           type));
+            m_typeList.push_back(type);
         }
 
         {
@@ -86,6 +93,7 @@ namespace yal::frontend {
             m_typeU32 = type;
             m_types.insert(std::make_pair(&type->getIdentifier(),
                                           type));
+            m_typeList.push_back(type);
         }
         {
             auto type = m_allocator.construct<TypeBuiltin>(TypeBuiltin::DataType::Int64);
@@ -93,6 +101,7 @@ namespace yal::frontend {
             m_typeI64 = type;
             m_types.insert(std::make_pair(&type->getIdentifier(),
                                           type));
+            m_typeList.push_back(type);
         }
 
         {
@@ -101,6 +110,7 @@ namespace yal::frontend {
             m_typeU64 = type;
             m_types.insert(std::make_pair(&type->getIdentifier(),
                                           type));
+            m_typeList.push_back(type);
         }
 
         {
@@ -109,6 +119,7 @@ namespace yal::frontend {
             m_typeFloat = type;
             m_types.insert(std::make_pair(&type->getIdentifier(),
                                           type));
+            m_typeList.push_back(type);
         }
 
         {
@@ -117,6 +128,7 @@ namespace yal::frontend {
             m_typeDouble = type;
             m_types.insert(std::make_pair(&type->getIdentifier(),
                                           type));
+            m_typeList.push_back(type);
         }
 
     }
@@ -147,6 +159,7 @@ namespace yal::frontend {
         YAL_ASSERT(hasType(type->getIdentifier()) == false);
         type->m_typeId = m_typeIdCounter++;
         m_types.insert(std::make_pair(&type->getIdentifier(), type));
+        m_typeList.push_back(type);
     }
 
 }

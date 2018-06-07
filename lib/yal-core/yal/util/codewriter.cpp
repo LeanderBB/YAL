@@ -18,93 +18,65 @@
  */
 
 #include "yal/util/codewriter.h"
+
 #include "yal/io/bytestream.h"
-namespace yal{
 
-    CodeWriter::CodeWriter(ByteStream& output,
-                           const uint32_t identSpacing):
+namespace yal {
+
+    static const StringRef kIdentLevels[] = {
+        "",
+        "  ",
+        "    ",
+        "      ",
+        "        ",
+        "           ",
+        "             ",
+        "               ",
+        "                 ",
+        "                   ",
+        "                     ",
+        "                       ",
+        "                         ",
+        "                           ",
+        "                             ",
+        "                               ",
+    };
+
+    static const uint32_t kIdentLevelCount
+    = uint32_t(sizeof(kIdentLevels) / sizeof(StringRef));
+
+    CodeWriter::CodeWriter(ByteStream& output):
         m_stream(output),
-        m_formaterIdent(),
-        m_formaterText(),
-        m_identLevel(0),
-        m_identSpacing(identSpacing),
-        m_isNewLine(true) {
+        m_identLevel(0) {
 
+    }
+
+    void
+    CodeWriter::write(const StringRef ref) {
+        FormatWriteWithLinePrefix(m_stream, ref, kIdentLevels[m_identLevel]);
     }
 
     void
     CodeWriter::write() {
         const char ch = '\n';
         m_stream.write(&ch, 1);
-        m_isNewLine = true;
     }
 
     void
     CodeWriter::ident() {
-        m_identLevel += m_identSpacing;
+        m_identLevel ++;
+        YAL_ASSERT(m_identLevel < kIdentLevelCount);
     }
 
     void
-    CodeWriter::uindent() {
-        YAL_ASSERT(m_identLevel >= m_identSpacing);
-        m_identLevel -= m_identSpacing;
+    CodeWriter::unident() {
+        YAL_ASSERT(m_identLevel != 0);
+        m_identLevel --;
     }
 
     void
-    CodeWriter::writeToStream() {
-        // Write identation, if any
-        if (m_isNewLine) {
-            writeIdent();
-            m_isNewLine = false;
-        }
-
-        const StringRef text = m_formaterText.toStringRef();
-        size_t newLinePos = text.findFirstOf('\n');
-        size_t currPos = 0;
-        if (newLinePos == StringRef::npos) {
-            // If no newline found, write entire line
-            m_stream.write(text.data(), text.size());
-        } else {
-            // Incrementally write new line
-            while(newLinePos != StringRef::npos) {
-
-                // find consecutive \n characters and group them together
-                size_t nextNewLine = newLinePos + 1;
-                while(nextNewLine < text.size() && text[nextNewLine] == '\n') {
-                    ++nextNewLine;
-                }
-                newLinePos = std::max(newLinePos, nextNewLine - 1);
-
-                // write new line
-                const StringRef subStr = text.subStr(currPos, (newLinePos + 1) - currPos);
-
-                m_stream.write(subStr.data(), subStr.size());
-                if (newLinePos == text.size() -1) {
-                    // if \n is the last character, mark new line
-                    m_isNewLine = true;
-                } else {
-                    // if next character is not \n, write ident
-                    writeIdent();
-                }
-
-                currPos = newLinePos + 1;
-                newLinePos =  text.findFirstOf(newLinePos + 1, '\n');
-            }
-
-            // Write remaining text
-            if (currPos < text.size()) {
-                const StringRef subStr = text.subStr(currPos);
-                m_stream.write(subStr.data(), subStr.size());
-            }
-        }
-    }
-
-    void
-    CodeWriter::writeIdent() {
-        if (m_identLevel > 0) {
-            Format(m_formaterIdent, "%", FormatIdent<const char*>(m_identLevel,' ',""));
-            const StringRef identStr = m_formaterIdent.toStringRef();
-            m_stream.write(identStr.data(), identStr.size());
-        }
+    CodeWriter::write(Formater& formater) {
+        FormatWriteWithLinePrefix(m_stream, formater, kIdentLevels[m_identLevel]);
+        FormatReset(formater);
     }
 }

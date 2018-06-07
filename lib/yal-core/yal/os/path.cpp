@@ -42,18 +42,13 @@ namespace yal {
 #if defined(YAL_OS_UNIX)
     using OSPathCharType = char;
     static const char kPathSep = '/';
-
-    static constexpr size_t GetMaxPathSize() {
-        return PATH_MAX;
-    }
-
+    const char Path::kPathSep = '/';
+    const StringRef Path::kPathSepStr = "/";
 #elif defined(YAL_OS_WIN32)
     using OSPathCharType = wchar_t;
     static const char kPathSep = '\\';
-
-    static constexpr size_t GetMaxPathSize() {
-        return MAX_PATH;
-    }
+    const char Path::kPathSep = '\\';
+    const StringRef Path::kPathSepStr = "\\";
 
 #else
 #error "Unsupport OS paltform"
@@ -61,19 +56,18 @@ namespace yal {
 
     static const char kExtSep = '.';
 
-    using OSPathBuffer = std::array<OSPathCharType, GetMaxPathSize()>;
-
-    static bool ConvertToOSPath(OSPathBuffer& osPath,
-                                const StringRef& path){
+    bool
+    Path::ToOsPath(OSPathBuffer& osPath,
+                   const StringRef& path){
 #if defined(YAL_OS_UNIX)
         path.toCStr(osPath.data(), GetMaxPathSize());
         return true;
 #elif defined(YAL_OS_WIN32)
-        const int nLenWide = MultiByteToWideChar(CP_UTF8, 
-                                                 0, 
+        const int nLenWide = MultiByteToWideChar(CP_UTF8,
+                                                 0,
                                                  path.data(),
-                                                 path.length(), 
-                                                 NULL, 
+                                                 path.length(),
+                                                 NULL,
                                                  0);
 
         if (nLenWide == 0 || static_cast<size_t>(nLenWide) >= osPath.size()) {
@@ -97,13 +91,29 @@ namespace yal {
                const StringRef p2) {
         YAL_ASSERT(p1.data() != nullptr && p2.data() != nullptr);
         std::string result;
-        result.reserve(p1.size() + p2.size() + 1);
-        result.append(p1.data(), p1.size());
-        if (p1[p1.size() -1 ] != kPathSep) {
-            result += kPathSep;
-        }
-        result.append(p2.data(), p2.size());
+        Join(result, p1, p2);
         return result;
+    }
+
+    void
+    Path::Join(std::string& output,
+               const StringRef p1,
+               const StringRef p2) {
+        output.reserve(p1.size() + p2.size() + 1);
+        output.append(p1.data(), p1.size());
+        if (p1[p1.size() -1 ] != kPathSep) {
+            output += kPathSep;
+        }
+        output.append(p2.data(), p2.size());
+    }
+
+    void
+    Path::Join(std::string& output,
+               const StringRef p1) {
+        if (!output.empty() && output[output.size() -1 ] != kPathSep) {
+            output += kPathSep;
+        }
+        output.append(p1.data(), p1.size());
     }
 
     StringRef
@@ -134,6 +144,34 @@ namespace yal {
             return path.subStr(pos + 1);
         }
         return path;
+    }
+
+    StringRef
+    Path::GetPath(const StringRef path) {
+        YAL_ASSERT(path.data() != nullptr);
+        const size_t pos = path.findLastOf(kPathSep);
+        if (pos != StringRef::npos) {
+            return path.subStr(0, pos);
+        }
+        return path;
+    }
+
+    std::optional<std::string>
+    Path::GetRealPath(const StringRef path) {
+        OSPathBuffer osPath;
+        if (!ToOsPath(osPath, path)) {
+            return std::optional<std::string>();
+        }
+#if defined(YAL_OS_UNIX)
+        OSPathBuffer fullPath;
+        char* result = realpath(osPath.data(),fullPath.data());
+        if (result != nullptr) {
+            return std::optional<std::string>(fullPath.data());
+        }
+#else
+#error "GetRealPath not implemented for platform"
+#endif
+        return std::optional<std::string>();
     }
 
 
@@ -188,7 +226,7 @@ namespace yal {
     Path::MakeDirectory(const StringRef path) {
         YAL_ASSERT(path.data() != nullptr);
         OSPathBuffer osPath;
-        if (!ConvertToOSPath(osPath, path)) {
+        if (!ToOsPath(osPath, path)) {
             return false;
         }
         return MakeDirectoryRecursive(osPath.data(), osPath.data());
@@ -197,17 +235,17 @@ namespace yal {
 
 #if defined(YAL_OS_UNIX)
     typedef struct stat yal_stat;
-    #define yal_statfn stat
-    #define yal_remove remove
-    #define yal_rename rename
+#define yal_statfn stat
+#define yal_remove remove
+#define yal_rename rename
 #elif defined(YAL_OS_WIN32)
     typedef struct _stat64 yal_stat;
-    #define yal_statfn _wstat64
-    #define S_ISREG(m) (m & _S_IFREG == _S_IFREG)
-    #define S_ISDIR(m) (m & _S_IFDIR == _S_IFDIR)
-    #define S_ISLNK(m) (false)
-    #define yal_remove _wremove
-    #define yal_rename _wrename
+#define yal_statfn _wstat64
+#define S_ISREG(m) (m & _S_IFREG == _S_IFREG)
+#define S_ISDIR(m) (m & _S_IFDIR == _S_IFDIR)
+#define S_ISLNK(m) (false)
+#define yal_remove _wremove
+#define yal_rename _wrename
 #else
 #error "Unknown platform"
 #endif
@@ -216,7 +254,7 @@ namespace yal {
     Path::Exists(const StringRef path) {
         YAL_ASSERT(path.data() != nullptr);
         OSPathBuffer osPath;
-        if (!ConvertToOSPath(osPath, path)) {
+        if (!ToOsPath(osPath, path)) {
             return false;
         }
         yal_stat file_info;
@@ -227,7 +265,7 @@ namespace yal {
     Path::IsFile(const StringRef path) {
         YAL_ASSERT(path.data() != nullptr);
         OSPathBuffer osPath;
-        if (!ConvertToOSPath(osPath, path)) {
+        if (!ToOsPath(osPath, path)) {
             return false;
         }
 
@@ -244,7 +282,7 @@ namespace yal {
     Path::IsDirectory(const StringRef path) {
         YAL_ASSERT(path.data() != nullptr);
         OSPathBuffer osPath;
-        if (!ConvertToOSPath(osPath, path)) {
+        if (!ToOsPath(osPath, path)) {
             return false;
         }
         bool ret = false;
@@ -260,7 +298,7 @@ namespace yal {
     Path::IsSymlink(const StringRef path) {
         YAL_ASSERT(path.data() != nullptr);
         OSPathBuffer osPath;
-        if (!ConvertToOSPath(osPath, path)) {
+        if (!ToOsPath(osPath, path)) {
             return false;
         }
         bool ret = false;
@@ -276,7 +314,7 @@ namespace yal {
     Path::Remove(const StringRef path) {
         YAL_ASSERT(path.data() != nullptr);
         OSPathBuffer osPath;
-        if (!ConvertToOSPath(osPath, path)) {
+        if (!ToOsPath(osPath, path)) {
             return false;
         }
         return yal_remove(osPath.data()) == 0;
@@ -287,11 +325,11 @@ namespace yal {
                  const StringRef newPath) {
         YAL_ASSERT(oldPath.data() != nullptr && newPath != nullptr);
         OSPathBuffer osPathOld;
-        if (!ConvertToOSPath(osPathOld, oldPath)) {
+        if (!ToOsPath(osPathOld, oldPath)) {
             return false;
         }
         OSPathBuffer osPathNew;
-        if (!ConvertToOSPath(osPathNew, newPath)) {
+        if (!ToOsPath(osPathNew, newPath)) {
             return false;
         }
         return yal_rename(osPathOld.data(), osPathNew.data()) == 0;

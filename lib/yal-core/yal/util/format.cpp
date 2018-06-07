@@ -35,28 +35,39 @@ namespace yal {
     FormatWriteWithLinePrefix(ByteStream& stream,
                               const Formater& formater,
                               const StringRef linePrefix) {
+        const StringRef formatStr = formater.toStringRef();
+        FormatWriteWithLinePrefix(stream, formatStr, linePrefix);
+    }
+
+    void FormatWriteWithLinePrefix(ByteStream& stream,
+                                   const StringRef formatStr,
+                                   const StringRef linePrefix) {
         if (linePrefix.size() == 0) {
-            FormatWrite(stream, formater);
+            stream.write(formatStr.data(), formatStr.size());
+            return;
         }
 
-        const StringRef formatStr = formater.toStringRef();
         size_t prevLineLoc = 0;
         size_t newLineLoc = formatStr.findFirstOf('\n');
-
         while(newLineLoc != StringRef::npos) {
             newLineLoc++;
-            stream.write(linePrefix.data(), linePrefix.size());
             const StringRef substr = formatStr.subStr(prevLineLoc,
                                                       newLineLoc - prevLineLoc);
+            stream.write(linePrefix.data(), linePrefix.size());
             stream.write(substr.data(), substr.size());
+
             prevLineLoc = newLineLoc;
             newLineLoc = formatStr.findFirstOf(prevLineLoc,'\n');
         }
 
+        if (prevLineLoc == 0) {
+            stream.write(linePrefix.data(), linePrefix.size());
+        }
         if (prevLineLoc < formatStr.size())
         {
-            const StringRef substr = formatStr.subStr(prevLineLoc);
+            const StringRef substr = formatStr.subStr(prevLineLoc, formatStr.length() - prevLineLoc);
             stream.write(substr.data(), substr.size());
         }
     }
+
 }

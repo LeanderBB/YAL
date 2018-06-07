@@ -18,48 +18,41 @@
  */
 
 #pragma once
-
+#include "yal/yal.h"
 #include "yal/util/format.h"
 
 namespace yal {
 
+    struct Formater;
     class ByteStream;
 
     class CodeWriter {
     public:
 
-        CodeWriter(ByteStream& output,
-                   const uint32_t identSpacing);
+        CodeWriter(ByteStream& output);
 
-        template <typename ...Args>
-        void write(const char* format,
-                   const Args&... args) {
-            Format(m_formaterText, format, args...);
-            writeToStream();
-        }
+        void write(Formater& formater);
+
+        void write(const StringRef ref);
 
         void write();
 
         void ident();
 
-        void uindent();
+        void unident();
+
+        Formater& getFormater() {
+            return m_formater;
+        }
 
     private:
-
         void writeToStream();
 
-        void writeIdent();
     private:
-        enum {
-            kInternalBufferSizBytes = 2048,
-            kIdentBufferSize = 256};
-
+        static constexpr uint32_t kFormaterSize = 4096;
+        FormaterStack<kFormaterSize> m_formater;
         ByteStream& m_stream;
-        FormaterStack<kIdentBufferSize> m_formaterIdent;
-        FormaterStack<kInternalBufferSizBytes> m_formaterText;
         uint32_t m_identLevel;
-        const uint32_t m_identSpacing;
-        bool m_isNewLine;
     };
 
 }

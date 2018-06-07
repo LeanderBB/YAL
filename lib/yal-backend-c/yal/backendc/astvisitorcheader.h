@@ -19,12 +19,8 @@
 
 #pragma once
 
-#include "yal/util/stringref.h"
-#include "yal/backendc/config.h"
-
-namespace yal {
-    class ErrorReporter;
-}
+#include "yal/frontend/ast/astvisitor.h"
+#include "yal/util/codewriter.h"
 
 namespace yal::frontend {
     class Module;
@@ -32,25 +28,28 @@ namespace yal::frontend {
 
 namespace yal::backend::c {
 
-    struct BackendOptions {
-        ErrorReporter& errReporter;
-        StringRef buildDir;
-        StringRef projectRootDir;
-        StringRef arch;
-        StringRef config;
-        unsigned rvo:1;
-        unsigned pragmaOnce:1;
-        unsigned optimize:1;
-        unsigned debugSymbols:1;
+    class CTypeCache;
+    struct BackendOptions;
 
-        BackendOptions(ErrorReporter& errReporter);
-    };
-
-    class BackendC {
+    class AstVisitorCHeader final : public yal::frontend::AstVisitor {
     public:
+        AstVisitorCHeader(ByteStream& stream,
+                          yal::frontend::Module& module,
+                          const CTypeCache& cache);
 
-        bool execute(const BackendOptions& options,
-                     frontend::Module& module);
+        void visit(yal::frontend::DeclFunction& decl) override final;
+
+        void visit(yal::frontend::DeclTypeFunction& decl) override final;
+
+        void visit(yal::frontend::DeclStruct& decl) override final;
+
+        void visit(yal::frontend::DeclModule& decl) override final;
+
+        bool execute(const BackendOptions& options);
+    private:
+        CodeWriter m_writer;
+        yal::frontend::Module& m_module;
+        const CTypeCache& m_typeCache;
     };
 
 }
