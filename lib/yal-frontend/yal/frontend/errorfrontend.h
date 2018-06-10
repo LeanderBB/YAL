@@ -1,5 +1,5 @@
 /*
- *  Copyright 2017 by Leander Beernaert (lbb-dev@pm.me)
+ *  Copyright 2018 by Leander Beernaert (lbb-dev@pm.me)
  *
  *  This file is part of YAL.
  *
@@ -18,29 +18,26 @@
  */
 
 #pragma once
-#include "yal/util/stringref.h"
 
-namespace yal {
+#include "yal/error/error.h"
 
-    class Log;
-    namespace frontend {
-        class Module;
-    }
-    class SourceManager;
-    class ByteStream;
+namespace yal::frontend {
 
-
-    struct TranspilerOptions {
-        StringRef intermediatOuputDir;
-    };
-
-    class Transpiler {
+    class ErrorFrontend : public Error
+    {
     public:
-        virtual ~Transpiler() {}
 
-        virtual bool transpile(const TranspilerOptions& options,
-                               Log& log,
-                               frontend::Module& module,
-                               SourceManager& srcManager) = 0;
+        virtual ~ErrorFrontend() {}
+
+        void print(ErrorPrinter& printer) const override final;
+
+    protected:
+
+        ErrorFrontend(const ErrorCode code);
+
+        virtual void printDetail(ErrorPrinter& printer) const = 0;
+
+        virtual const SourceInfo& getSourceInfo() const = 0;
     };
+
 }

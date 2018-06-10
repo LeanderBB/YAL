@@ -143,7 +143,7 @@ R"R(
     }
 
     fn main() {
-       var b:Bar = Bar{x:4};
+       var b:mut Bar = Bar{x:4};
        var f:Foo = Foo{b:b};
        var i:i32 = b.x;
     }
@@ -173,7 +173,7 @@ R"R(
     }
 
     fn main() {
-       var b:Bar = Bar{x:4};
+       var b:mut Bar = Bar{x:4};
        var f:Foo = Foo{b:b};
        var c:Bar = f.b;
     }

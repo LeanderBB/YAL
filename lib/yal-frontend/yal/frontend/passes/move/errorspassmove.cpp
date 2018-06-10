@@ -33,7 +33,7 @@ namespace yal::frontend {
 
     ErrorMoveUseAfterMove::ErrorMoveUseAfterMove(const ExprVarRef& expr,
                                                  const Statement& stmtWhereMoved):
-        Error(kCode),
+        ErrorFrontend(kCode),
         m_expr(expr),
         m_stmtWhereMoved(stmtWhereMoved) {
         flagAsFatal();
@@ -73,7 +73,7 @@ namespace yal::frontend {
             MakeErrorCode(static_cast<uint16_t>(PassTypeCode::Move), 2);
 
     ErrorMoveStructVar::ErrorMoveStructVar(const ExprStructVarRef& expr):
-        Error(kCode),
+        ErrorFrontend(kCode),
         m_expr(expr) {
         flagAsFatal();
     }

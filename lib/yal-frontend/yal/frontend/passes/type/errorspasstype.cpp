@@ -31,7 +31,7 @@ namespace yal::frontend {
                                  const QualType& typeFrom,
                                  const QualType& typeTo,
                                  const SourceInfo& loc):
-        Error(code),
+        ErrorFrontend(code),
         m_typeFrom(typeFrom),
         m_typeTo(typeTo),
         m_srcInfo(loc) {
@@ -132,7 +132,7 @@ namespace yal::frontend {
             MakeErrorCode(static_cast<uint16_t>(PassTypeCode::Type), 4);
 
     ErrorTypeExprUnassignable::ErrorTypeExprUnassignable(const StmtExpression& expr):
-        Error(kCode),
+        ErrorFrontend(kCode),
         m_expr(expr) {
     }
 
@@ -161,7 +161,7 @@ namespace yal::frontend {
             MakeErrorCode(static_cast<uint16_t>(PassTypeCode::Type), 5);
 
     ErrorTypeBitOpNonUnsigned::ErrorTypeBitOpNonUnsigned(const StmtExpression& expr):
-        Error(kCode),
+        ErrorFrontend(kCode),
         m_expr(expr) {
     }
 
@@ -188,7 +188,7 @@ namespace yal::frontend {
             MakeErrorCode(static_cast<uint16_t>(PassTypeCode::Type), 6);
 
     ErrorTypeUnaryOpNegate::ErrorTypeUnaryOpNegate(const ExprUnaryOperator& expr):
-        Error(kCode),
+        ErrorFrontend(kCode),
         m_expr(expr) {
     }
 
@@ -217,7 +217,7 @@ namespace yal::frontend {
             MakeErrorCode(static_cast<uint16_t>(PassTypeCode::Type), 7);
 
     ErrorTypeBoolOpNonBool::ErrorTypeBoolOpNonBool(const StmtExpression& expr):
-        Error(kCode),
+        ErrorFrontend(kCode),
         m_expr(expr) {
     }
 
@@ -244,7 +244,7 @@ namespace yal::frontend {
             MakeErrorCode(static_cast<uint16_t>(PassTypeCode::Type), 8);
 
     ErrorTypeUnaryOpRefDoubleRef::ErrorTypeUnaryOpRefDoubleRef(const ExprUnaryOperator& expr):
-        Error(kCode),
+        ErrorFrontend(kCode),
         m_expr(expr) {
     }
 
@@ -273,7 +273,7 @@ namespace yal::frontend {
             MakeErrorCode(static_cast<uint16_t>(PassTypeCode::Type), 9);
 
     ErrorTypeUnaryOpRefNonLValue::ErrorTypeUnaryOpRefNonLValue(const ExprUnaryOperator& expr):
-        Error(kCode),
+        ErrorFrontend(kCode),
         m_expr(expr) {
     }
 
@@ -303,7 +303,7 @@ namespace yal::frontend {
 
     ErrorTypeMissingTrait::ErrorTypeMissingTrait(const Type& type,
                                                  const SourceInfo& srcInfo):
-        Error(kCode),
+        ErrorFrontend(kCode),
         m_type(type),
         m_srcInfo(srcInfo) {
     }
@@ -332,7 +332,7 @@ namespace yal::frontend {
             MakeErrorCode(static_cast<uint16_t>(PassTypeCode::Type), 11);
 
     ErrorTypeStructVarRefNonStruct::ErrorTypeStructVarRefNonStruct(const ExprStructVarRef& expr):
-        Error(kCode),
+        ErrorFrontend(kCode),
         m_expr(expr) {
     }
 
@@ -361,7 +361,7 @@ namespace yal::frontend {
             MakeErrorCode(static_cast<uint16_t>(PassTypeCode::Type), 12);
 
     ErrorTypeStructVarRefUndefinedMember::ErrorTypeStructVarRefUndefinedMember(const ExprStructVarRef& expr):
-        Error(kCode),
+        ErrorFrontend(kCode),
         m_expr(expr) {
     }
 
@@ -391,7 +391,7 @@ namespace yal::frontend {
             MakeErrorCode(static_cast<uint16_t>(PassTypeCode::Type), 13);
 
     ErrorTypeFnCallInvalidArgCount::ErrorTypeFnCallInvalidArgCount(const ExprFnCall& expr):
-        Error(kCode),
+        ErrorFrontend(kCode),
         m_expr(expr) {
         flagAsFatal();
     }
@@ -428,7 +428,7 @@ namespace yal::frontend {
             MakeErrorCode(static_cast<uint16_t>(PassTypeCode::Type), 14);
 
     ErrorTypeStructInitNumMembers::ErrorTypeStructInitNumMembers(const ExprStructInit& expr):
-        Error(kCode),
+        ErrorFrontend(kCode),
         m_expr(expr) {
     }
 
@@ -464,7 +464,7 @@ namespace yal::frontend {
             MakeErrorCode(static_cast<uint16_t>(PassTypeCode::Type), 15);
 
     ErrorTypeAssignToImmutable::ErrorTypeAssignToImmutable(const StmtAssign& stmt):
-        Error(kCode),
+        ErrorFrontend(kCode),
         m_stmt(stmt) {
     }
 
@@ -492,7 +492,7 @@ namespace yal::frontend {
 
     ErrorTypeTypeFnCallImmutable::ErrorTypeTypeFnCallImmutable(const ExprTypeFnCall& expr,
                                                                const DeclTypeFunction& decl):
-        Error(kCode),
+        ErrorFrontend(kCode),
         m_expr(expr),
         m_decl(decl) {
     }

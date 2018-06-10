@@ -58,9 +58,7 @@ namespace yal {
 
         virtual StringRef getErrorName() const = 0;
 
-        virtual void printDetail(ErrorPrinter& printer) const = 0;
-
-        virtual const SourceInfo& getSourceInfo() const = 0;
+        virtual void print(ErrorPrinter& printer) const = 0;
 
         bool isError() const {
             return !isWarning() && !isSuggestion();

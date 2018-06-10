@@ -32,7 +32,7 @@ namespace yal::frontend {
 
     ErrorParser::ErrorParser(const TokenInfo& tokenInfo,
                              const SourceManager::Handle srcHandle):
-        Error(ErrorParser::kCode),
+        ErrorFrontend (ErrorParser::kCode),
         m_srcInfo() {
         flagAsFatal();
         m_srcInfo.begin.line = tokenInfo.lineStart;

@@ -42,7 +42,7 @@ namespace yal::frontend {
     ErrorDuplicateTypeDecl::ErrorDuplicateTypeDecl(const Module& module,
                                                    const Type& newType,
                                                    const Type& oldType):
-        Error(kCode),
+        ErrorFrontend(kCode),
         m_module(module),
         m_newType(newType),
         m_oldType(oldType) {
@@ -98,7 +98,7 @@ namespace yal::frontend {
 
     ErrorUndefinedTypeRef::ErrorUndefinedTypeRef(const StringRef& typeName,
                                                  const SourceInfo& info):
-        Error(kCode),
+        ErrorFrontend(kCode),
         m_typeName(typeName),
         m_srcInfo(info) {
 
@@ -131,7 +131,7 @@ namespace yal::frontend {
                                                 const SourceInfo& sym1SrcInfo,
                                                 const StringRef& sym2,
                                                 const SourceInfo& sym2SrcInfo):
-        Error(kCode),
+        ErrorFrontend(kCode),
         m_sym1(sym1),
         m_sym1SrcInfo(sym1SrcInfo),
         m_sym2(sym2),
@@ -170,7 +170,7 @@ namespace yal::frontend {
 
     ErrorUndefinedSymbol:: ErrorUndefinedSymbol(const StringRef& sym,
                                                 const SourceInfo& symSrcInfo):
-        Error(kCode),
+        ErrorFrontend(kCode),
         m_sym(sym),
         m_symSrcInfo(symSrcInfo){
 
@@ -202,7 +202,7 @@ namespace yal::frontend {
     ErrorFnOnNonTargetType:: ErrorFnOnNonTargetType(const StringRef& sym,
                                                     const SourceInfo& symSrcInfo,
                                                     const Type* type):
-        Error(kCode),
+        ErrorFrontend(kCode),
         m_fnName(sym),
         m_fnSrcInfo(symSrcInfo),
         m_targetType(type) {
@@ -243,7 +243,7 @@ namespace yal::frontend {
     ErrorSymNotDeclVar:: ErrorSymNotDeclVar(const StringRef& sym,
                                             const SourceInfo& symSrcInfo,
                                             const DeclBase& decl):
-        Error(kCode),
+        ErrorFrontend(kCode),
         m_symName(sym),
         m_symSrcInfo(symSrcInfo),
         m_decl(decl) {
@@ -284,7 +284,7 @@ namespace yal::frontend {
 
 
     ErrorInvalidIntLiteral:: ErrorInvalidIntLiteral(const STExprIntegerLiteral& expr):
-        Error(kCode),
+        ErrorFrontend(kCode),
         m_expr(expr) {
     }
 
@@ -349,7 +349,7 @@ namespace yal::frontend {
 
 
     ErrorInvalidFloatLiteral:: ErrorInvalidFloatLiteral(const STExprFloatLiteral& expr):
-        Error(kCode),
+        ErrorFrontend(kCode),
         m_expr(expr) {
     }
 
@@ -392,7 +392,7 @@ namespace yal::frontend {
 
     ErrorTypeIsNotStruct:: ErrorTypeIsNotStruct(const Type& type,
                                                 const SourceInfo &srcInfo):
-        Error(kCode),
+        ErrorFrontend(kCode),
         m_type(type),
         m_srcInfo(srcInfo) {
     }
@@ -430,7 +430,7 @@ namespace yal::frontend {
 
     ErrorTypeIsNotFunction:: ErrorTypeIsNotFunction(const Type& type,
                                                     const SourceInfo &srcInfo):
-        Error(kCode),
+        ErrorFrontend(kCode),
         m_type(type) ,
         m_srcInfo(srcInfo) {
     }
@@ -469,7 +469,7 @@ namespace yal::frontend {
 
     ErrorTypeIsNotTypeFunction:: ErrorTypeIsNotTypeFunction(const Type& type,
                                                             const SourceInfo &srcInfo):
-        Error(kCode),
+        ErrorFrontend(kCode),
         m_type(type) ,
         m_srcInfo(srcInfo) {
         flagAsFatal();
@@ -508,7 +508,7 @@ namespace yal::frontend {
 
     ErrorTypeFunctionUndefined:: ErrorTypeFunctionUndefined(const Type& type,
                                                             const STIdentifier& name):
-        Error(kCode),
+        ErrorFrontend(kCode),
         m_type(type) ,
         m_sym(name.getString()),
         m_srcInfo(name.getSourceInfo()) {
@@ -542,7 +542,7 @@ namespace yal::frontend {
 
     ErrorTypeFunctionIsNotStatic:: ErrorTypeFunctionIsNotStatic(const TypeFunction& type,
                                                                 const SourceInfo &srcInfo):
-        Error(kCode),
+        ErrorFrontend(kCode),
         m_type(type) ,
         m_srcInfo(srcInfo) {
 
@@ -583,7 +583,7 @@ namespace yal::frontend {
 
     ErrorInvalidUseOfSelf:: ErrorInvalidUseOfSelf(const TypeFunction& type,
                                                   const SourceInfo &srcInfo):
-        Error(kCode),
+        ErrorFrontend(kCode),
         m_type(type) ,
         m_srcInfo(srcInfo) {
     }
@@ -614,7 +614,7 @@ namespace yal::frontend {
 
     ErrorInvalidLocationForSelf:: ErrorInvalidLocationForSelf(const TypeFunction& type,
                                                               const SourceInfo &srcInfo):
-        Error(kCode),
+        ErrorFrontend(kCode),
         m_type(type) ,
         m_srcInfo(srcInfo) {
     }
@@ -646,7 +646,7 @@ namespace yal::frontend {
     ErrorUndefinedStructMember::ErrorUndefinedStructMember(const TypeStruct& type,
                                                            const StringRef& sym,
                                                            const SourceInfo& symSrcInfo):
-        Error(kCode),
+        ErrorFrontend(kCode),
         m_type(type),
         m_sym(sym),
         m_symSrcInfo(symSrcInfo){
@@ -685,7 +685,7 @@ namespace yal::frontend {
     ErrorAssignRefWithInvalidScope::ErrorAssignRefWithInvalidScope(const STStmtAssign& stmt,
                                                                    const DeclVar& declLeft,
                                                                    const DeclVar& declRight):
-        Error(kCode),
+        ErrorFrontend(kCode),
         m_stmt(stmt),
         m_declLeft(declLeft),
         m_declRight(declRight) {

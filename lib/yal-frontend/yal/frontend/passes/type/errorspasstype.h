@@ -19,7 +19,7 @@
 
 #pragma once
 
-#include "yal/error/error.h"
+#include "yal/frontend/errorfrontend.h"
 #include "yal/frontend/types/qualtype.h"
 #include "yal/io/sourcemanager.h"
 
@@ -39,13 +39,14 @@ namespace yal::frontend {
     class StmtAssign;
     class Type;
 
-    class ErrorTypeBase : public Error {
+    class ErrorTypeBase : public ErrorFrontend {
     public:
         ErrorTypeBase(const ErrorCode code,
                       const QualType& typeFrom,
                       const QualType& typeTo,
                       const SourceInfo& loc);
 
+    protected:
         const SourceInfo& getSourceInfo() const override final;
 
     protected:
@@ -64,6 +65,7 @@ namespace yal::frontend {
 
         StringRef getErrorName() const override final;
 
+    protected:
         void printDetail(ErrorPrinter& printer)const override final;
 
     };
@@ -79,6 +81,7 @@ namespace yal::frontend {
 
         StringRef getErrorName() const override final;
 
+    protected:
         void printDetail(ErrorPrinter& printer)const override final;
     };
 
@@ -93,10 +96,11 @@ namespace yal::frontend {
 
         StringRef getErrorName() const override final;
 
+    protected:
         void printDetail(ErrorPrinter& printer)const override final;
     };
 
-    class ErrorTypeExprUnassignable final : public Error {
+    class ErrorTypeExprUnassignable final : public ErrorFrontend {
     public:
         static const ErrorCode kCode;
 
@@ -104,6 +108,7 @@ namespace yal::frontend {
 
         StringRef getErrorName() const override final;
 
+    protected:
         void printDetail(ErrorPrinter& printer)const override final;
 
         const SourceInfo& getSourceInfo() const override final;
@@ -112,7 +117,7 @@ namespace yal::frontend {
         const StmtExpression& m_expr;
     };
 
-    class ErrorTypeBitOpNonUnsigned final : public Error {
+    class ErrorTypeBitOpNonUnsigned final : public ErrorFrontend {
     public:
         static const ErrorCode kCode;
 
@@ -120,6 +125,8 @@ namespace yal::frontend {
 
         StringRef getErrorName() const override final;
 
+
+    protected:
         void printDetail(ErrorPrinter& printer)const override final;
 
         const SourceInfo& getSourceInfo() const override final;
@@ -128,7 +135,7 @@ namespace yal::frontend {
         const StmtExpression& m_expr;
     };
 
-    class ErrorTypeUnaryOpNegate final : public Error {
+    class ErrorTypeUnaryOpNegate final : public ErrorFrontend {
     public:
         static const ErrorCode kCode;
 
@@ -136,6 +143,7 @@ namespace yal::frontend {
 
         StringRef getErrorName() const override final;
 
+    protected:
         void printDetail(ErrorPrinter& printer)const override final;
 
         const SourceInfo& getSourceInfo() const override final;
@@ -144,7 +152,7 @@ namespace yal::frontend {
         const ExprUnaryOperator& m_expr;
     };
 
-    class ErrorTypeBoolOpNonBool final : public Error {
+    class ErrorTypeBoolOpNonBool final : public ErrorFrontend {
     public:
         static const ErrorCode kCode;
 
@@ -152,6 +160,7 @@ namespace yal::frontend {
 
         StringRef getErrorName() const override final;
 
+    protected:
         void printDetail(ErrorPrinter& printer)const override final;
 
         const SourceInfo& getSourceInfo() const override final;
@@ -160,7 +169,7 @@ namespace yal::frontend {
         const StmtExpression& m_expr;
     };
 
-    class ErrorTypeUnaryOpRefDoubleRef final : public Error {
+    class ErrorTypeUnaryOpRefDoubleRef final : public ErrorFrontend {
     public:
         static const ErrorCode kCode;
 
@@ -168,6 +177,7 @@ namespace yal::frontend {
 
         StringRef getErrorName() const override final;
 
+    protected:
         void printDetail(ErrorPrinter& printer)const override final;
 
         const SourceInfo& getSourceInfo() const override final;
@@ -176,7 +186,7 @@ namespace yal::frontend {
         const ExprUnaryOperator& m_expr;
     };
 
-    class ErrorTypeUnaryOpRefNonLValue final : public Error {
+    class ErrorTypeUnaryOpRefNonLValue final : public ErrorFrontend {
     public:
         static const ErrorCode kCode;
 
@@ -184,6 +194,7 @@ namespace yal::frontend {
 
         StringRef getErrorName() const override final;
 
+    protected:
         void printDetail(ErrorPrinter& printer)const override final;
 
         const SourceInfo& getSourceInfo() const override final;
@@ -192,7 +203,7 @@ namespace yal::frontend {
         const ExprUnaryOperator& m_expr;
     };
 
-    class ErrorTypeMissingTrait final : public Error {
+    class ErrorTypeMissingTrait final : public ErrorFrontend {
     public:
         static const ErrorCode kCode;
 
@@ -201,6 +212,7 @@ namespace yal::frontend {
 
         StringRef getErrorName() const override final;
 
+    protected:
         void printDetail(ErrorPrinter& printer)const override final;
 
         const SourceInfo& getSourceInfo() const override final;
@@ -210,7 +222,7 @@ namespace yal::frontend {
         const SourceInfo m_srcInfo;
     };
 
-    class ErrorTypeStructVarRefNonStruct final : public Error {
+    class ErrorTypeStructVarRefNonStruct final : public ErrorFrontend {
     public:
         static const ErrorCode kCode;
 
@@ -218,6 +230,7 @@ namespace yal::frontend {
 
         StringRef getErrorName() const override final;
 
+    protected:
         void printDetail(ErrorPrinter& printer)const override final;
 
         const SourceInfo& getSourceInfo() const override final;
@@ -226,7 +239,7 @@ namespace yal::frontend {
         const ExprStructVarRef& m_expr;
     };
 
-    class ErrorTypeStructVarRefUndefinedMember final : public Error {
+    class ErrorTypeStructVarRefUndefinedMember final : public ErrorFrontend {
     public:
         static const ErrorCode kCode;
 
@@ -234,6 +247,7 @@ namespace yal::frontend {
 
         StringRef getErrorName() const override final;
 
+    protected:
         void printDetail(ErrorPrinter& printer)const override final;
 
         const SourceInfo& getSourceInfo() const override final;
@@ -242,7 +256,7 @@ namespace yal::frontend {
         const ExprStructVarRef& m_expr;
     };
 
-    class ErrorTypeFnCallInvalidArgCount final : public Error {
+    class ErrorTypeFnCallInvalidArgCount final : public ErrorFrontend {
     public:
         static const ErrorCode kCode;
 
@@ -250,6 +264,7 @@ namespace yal::frontend {
 
         StringRef getErrorName() const override final;
 
+    protected:
         void printDetail(ErrorPrinter& printer)const override final;
 
         const SourceInfo& getSourceInfo() const override final;
@@ -258,7 +273,7 @@ namespace yal::frontend {
         const ExprFnCall& m_expr;
     };
 
-    class ErrorTypeStructInitNumMembers final : public Error {
+    class ErrorTypeStructInitNumMembers final : public ErrorFrontend {
     public:
         static const ErrorCode kCode;
 
@@ -266,6 +281,7 @@ namespace yal::frontend {
 
         StringRef getErrorName() const override final;
 
+    protected:
         void printDetail(ErrorPrinter& printer)const override final;
 
         const SourceInfo& getSourceInfo() const override final;
@@ -274,7 +290,7 @@ namespace yal::frontend {
         const ExprStructInit& m_expr;
     };
 
-    class ErrorTypeAssignToImmutable final : public Error {
+    class ErrorTypeAssignToImmutable final : public ErrorFrontend {
     public:
         static const ErrorCode kCode;
 
@@ -282,6 +298,7 @@ namespace yal::frontend {
 
         StringRef getErrorName() const override final;
 
+    protected:
         void printDetail(ErrorPrinter& printer)const override final;
 
         const SourceInfo& getSourceInfo() const override final;
@@ -290,7 +307,7 @@ namespace yal::frontend {
         const StmtAssign& m_stmt;
     };
 
-    class ErrorTypeTypeFnCallImmutable final : public Error {
+    class ErrorTypeTypeFnCallImmutable final : public ErrorFrontend {
     public:
         static const ErrorCode kCode;
 
@@ -299,6 +316,7 @@ namespace yal::frontend {
 
         StringRef getErrorName() const override final;
 
+    protected:
         void printDetail(ErrorPrinter& printer)const override final;
 
         const SourceInfo& getSourceInfo() const override final;

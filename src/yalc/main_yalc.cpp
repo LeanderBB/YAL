@@ -81,11 +81,11 @@ int main(const int argc,
             optionsBackend.arch = "x86_64";
             optionsBackend.buildDir = argv[2];
             optionsBackend.config = "yalc";
+            optionsBackend.compilerBin = "/usr/bin/clang";
             auto realPath = yal::Path::GetRealPath("./");
             const std::string realPathStr = realPath.value_or("./");
             optionsBackend.projectRootDir = realPathStr;
             backend.execute(optionsBackend, *module);
-
         }
 
     }

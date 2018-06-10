@@ -16,10 +16,12 @@
  *  You should have received a copy of the GNU Lesser General Public
  *  License along with YAL. If not, see <http://www.gnu.org/licenses/>.
  */
+
 #include "yal/backendc/errorsbackendc.h"
 #include "yal/error/errorprinter.h"
 #include "yal/io/bytestream.h"
 #include "yal/io/sourcemanager.h"
+#include "yal/os/process.h"
 
 namespace yal::backend::c {
     static const SourceInfo kNoInfo;
@@ -39,16 +41,11 @@ namespace yal::backend::c {
     }
 
     void
-    ErrorMkdir::printDetail(ErrorPrinter &printer) const {
+    ErrorMkdir::print(ErrorPrinter &printer) const {
         FormatAppend(printer.getFormater(),
                      "Could not create directory '%'\n",
                      m_path);
     };
-
-    const SourceInfo&
-    ErrorMkdir::getSourceInfo() const {
-        return kNoInfo;
-    }
 
     // ErrorOpenFile --------------------------------------------------------
 
@@ -69,7 +66,7 @@ namespace yal::backend::c {
     }
 
     void
-    ErrorOpenFile::printDetail(ErrorPrinter &printer) const {
+    ErrorOpenFile::print(ErrorPrinter &printer) const {
         StringRef flagStr;
         if ((m_flags & ByteStream::kModeReadWrite) == ByteStream::kModeReadWrite) {
             flagStr = "read & write";
@@ -84,11 +81,6 @@ namespace yal::backend::c {
                      "Could not open file '%' for %\n",
                      m_path, flagStr);
     };
-
-    const SourceInfo&
-    ErrorOpenFile::getSourceInfo() const {
-        return kNoInfo;
-    }
 
     // ErrorCCompile --------------------------------------------------------
 
@@ -107,14 +99,42 @@ namespace yal::backend::c {
     }
 
     void
-    ErrorCCompile::printDetail(ErrorPrinter &printer) const {
+    ErrorCCompile::print(ErrorPrinter &printer) const {
         FormatAppend(printer.getFormater(),
                      "%\n",
                      m_msg);
     };
 
-    const SourceInfo&
-    ErrorCCompile::getSourceInfo() const {
-        return kNoInfo;
+    // ErrorExecProcess --------------------------------------------------------
+
+    const ErrorCode ErrorExecProcess::kCode =
+            MakeErrorCode(10, 2);
+
+    ErrorExecProcess::ErrorExecProcess(const ProcessArgs& args):
+        Error(kCode),
+        m_command(args.binPath.toString()) {
+        flagAsFatal();
+
+        m_params.reserve(args.args.size());
+        for (auto& arg : args.args) {
+            m_params.push_back(arg.toString());
+        }
     }
+
+    StringRef
+    ErrorExecProcess::getErrorName() const {
+        return "Failed to execute process";
+    }
+
+    void
+    ErrorExecProcess::print(ErrorPrinter &printer) const {
+        Formater& formater = printer.getFormater();
+        FormatAppend(formater,
+                     "Failed to execute the following command:\n% ",
+                     m_command);
+        for (auto& param: m_params) {
+            FormatAppend(formater, "% ", param);
+        }
+        FormatAppend(formater, "\n");
+    };
 }

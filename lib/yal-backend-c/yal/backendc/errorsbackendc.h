@@ -22,6 +22,12 @@
 #include "yal/error/error.h"
 #include "yal/util/stringref.h"
 
+#include <vector>
+
+namespace yal {
+    struct ProcessArgs;
+}
+
 namespace yal::backend::c
 {
     class ErrorMkdir final : public Error {
@@ -32,9 +38,7 @@ namespace yal::backend::c
 
         StringRef getErrorName() const final override;
 
-        void printDetail(ErrorPrinter& printer) const final override;
-
-        const SourceInfo& getSourceInfo() const final override;
+        void print(ErrorPrinter& printer) const final override;
 
     public:
         const std::string m_path;
@@ -49,9 +53,7 @@ namespace yal::backend::c
 
         StringRef getErrorName() const final override;
 
-        void printDetail(ErrorPrinter& printer) const final override;
-
-        const SourceInfo& getSourceInfo() const final override;
+        void print(ErrorPrinter& printer) const final override;
 
     public:
         const std::string m_path;
@@ -67,11 +69,24 @@ namespace yal::backend::c
 
         StringRef getErrorName() const final override;
 
-        void printDetail(ErrorPrinter& printer) const final override;
-
-        const SourceInfo& getSourceInfo() const final override;
+        void print(ErrorPrinter& printer) const final override;
 
     public:
         const std::string m_msg;
+    };
+
+    class ErrorExecProcess final : public Error {
+    public:
+        static const ErrorCode kCode;
+
+        ErrorExecProcess(const ProcessArgs& args);
+
+        StringRef getErrorName() const final override;
+
+        void print(ErrorPrinter& printer) const final override;
+
+    private:
+        const std::string m_command;
+        std::vector<std::string> m_params;
     };
 }

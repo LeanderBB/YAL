@@ -38,11 +38,12 @@ namespace yal::backend::c {
         StringRef projectRootDir;
         StringRef arch;
         StringRef config;
+        StringRef compilerBin;
         unsigned rvo:1;
         unsigned pragmaOnce:1;
         unsigned optimize:1;
         unsigned debugSymbols:1;
-
+        unsigned isMSVC:1;
         BackendOptions(ErrorReporter& errReporter);
     };
 

@@ -28,7 +28,7 @@ namespace yal::frontend {
             MakeErrorCode(static_cast<uint16_t>(PassTypeCode::FnRet), 1);
 
     ErrorFnNotAllStmtReturn::ErrorFnNotAllStmtReturn(const DeclFunction& declFn):
-        Error(kCode),
+        ErrorFrontend(kCode),
         m_decl(declFn) {
 
     }

@@ -194,15 +194,8 @@ set(YAL_SOURCES
     yal/frontend/passes/move/astvisitormovecheck.h
     yal/frontend/passes/move/errorspassmove.cpp
     yal/frontend/passes/move/errorspassmove.h
-
-    #yal/transpiler/transpiler.h
-    #yal/transpiler/c/transpilerc.h
-    #yal/transpiler/c/transpilerc.cpp
-    #yal/transpiler/c/codegenc.cpp
-    #yal/transpiler/c/codegenc.h
-    #yal/transpiler/c/gentypesc.h
-    #yal/transpiler/c/gentypesc.cpp
-
+    yal/frontend/errorfrontend.cpp
+    yal/frontend/errorfrontend.h
     )
 
 

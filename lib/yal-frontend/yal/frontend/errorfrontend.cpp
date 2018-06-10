@@ -17,35 +17,29 @@
  *  License along with YAL. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#pragma once
-
 #include "yal/frontend/errorfrontend.h"
+#include "yal/error/errorprinter.h"
 #include "yal/io/sourcemanager.h"
 
-namespace yal {
-    class SourceItem;
-}
-
 namespace yal::frontend {
-    struct TokenInfo;
 
-    class ErrorLexer final : public ErrorFrontend {
-    public:
+    ErrorFrontend::ErrorFrontend(const ErrorCode code):
+        Error(code) {
 
-        static const ErrorCode kCode;
+    }
 
-        ErrorLexer(const TokenInfo& tokenInfo,
-                   const SourceManager::Handle srcHandle);
+    void
+    ErrorFrontend::print(ErrorPrinter& printer) const {
+        Formater& formater = printer.getFormater();
+        SourceManager& manager = printer.getSourceManager();
+        const SourceInfo& srcInfo = getSourceInfo();
+        SourceItemOpt item =  manager.getItem(srcInfo.handle);
+        if (item.has_value()) {
+            printer.printSourceInfo(formater, *item.value(), srcInfo);
+        }
 
-        StringRef getErrorName() const final override;
-
-    protected:
-        void printDetail(ErrorPrinter& printer) const final override;
-
-        const SourceInfo& getSourceInfo() const final override;
-
-    private:
-        SourceInfo m_srcInfo;
-    };
+        FormatAppend(formater, "> ");
+        printDetail(printer);
+    }
 
 }

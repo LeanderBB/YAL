@@ -27,7 +27,6 @@ namespace yal {
         m_category(0),
         m_errorType(0) {
 
-
     }
 
     ErrorCode::ErrorCode(const uint16_t category,

@@ -19,7 +19,7 @@
 
 #pragma once
 
-#include "yal/error/error.h"
+#include "yal/frontend/errorfrontend.h"
 
 namespace yal {
     class ErrorPrinter;
@@ -29,7 +29,7 @@ namespace yal::frontend {
 
     class DeclFunction;
 
-    class ErrorFnNotAllStmtReturn final : public Error {
+    class ErrorFnNotAllStmtReturn final : public ErrorFrontend {
     public:
         static const ErrorCode kCode;
 
@@ -37,6 +37,7 @@ namespace yal::frontend {
 
         StringRef getErrorName() const override final;
 
+    protected:
         void printDetail(ErrorPrinter& printer)const override final;
 
         const SourceInfo& getSourceInfo() const override final;

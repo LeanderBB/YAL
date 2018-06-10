@@ -67,14 +67,7 @@ namespace yal {
             }
 
             FormatReset(m_formater);
-            const SourceInfo& srcInfo = error.getSourceInfo();
-            SourceItemOpt item =  m_srcManager.getItem(srcInfo.handle);
-            if (item.has_value()) {
-                printSourceInfo(m_errStream, *item.value(), srcInfo);
-            }
-
-            Format(m_formater, "> ");
-            error.printDetail(*this);
+            error.print(*this);
             FormatWriteWithLinePrefix(m_errStream, m_formater, "  | ");
         };
 

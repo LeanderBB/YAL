@@ -19,7 +19,7 @@
 
 #pragma once
 
-#include "yal/error/error.h"
+#include "yal/frontend/errorfrontend.h"
 #include "yal/frontend/types/qualtype.h"
 #include "yal/io/sourcemanager.h"
 
@@ -34,7 +34,7 @@ namespace yal::frontend {
     class ExprStructVarRef;
     class Statement;
 
-    class ErrorMoveUseAfterMove final : public Error {
+    class ErrorMoveUseAfterMove final : public ErrorFrontend {
     public:
         static const ErrorCode kCode;
 
@@ -43,6 +43,7 @@ namespace yal::frontend {
 
         StringRef getErrorName() const override final;
 
+    protected:
         void printDetail(ErrorPrinter& printer)const override final;
 
         const SourceInfo& getSourceInfo() const override final;
@@ -52,7 +53,7 @@ namespace yal::frontend {
         const Statement& m_stmtWhereMoved;
     };
 
-    class ErrorMoveStructVar final : public Error {
+    class ErrorMoveStructVar final : public ErrorFrontend {
     public:
         static const ErrorCode kCode;
 
@@ -60,6 +61,7 @@ namespace yal::frontend {
 
         StringRef getErrorName() const override final;
 
+    protected:
         void printDetail(ErrorPrinter& printer)const override final;
 
         const SourceInfo& getSourceInfo() const override final;

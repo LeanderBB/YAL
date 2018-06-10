@@ -44,7 +44,8 @@ namespace yal::backend::c {
         rvo(1),
         pragmaOnce(1),
         optimize(0),
-        debugSymbols(0){
+        debugSymbols(0),
+        isMSVC(0) {
 
     }
 
@@ -139,9 +140,10 @@ namespace yal::backend::c {
 
         // compile source code
 
+        // TODO: conver to OSPath
         Process process;
         ProcessArgs pargs;
-        pargs.binPath = "/usr/bin/clang";
+        pargs.binPath = options.compilerBin;
         pargs.captureOutput = true;
         pargs.args = {
             "-std=c99",
@@ -157,6 +159,8 @@ namespace yal::backend::c {
         ProcessResult presult = process.run(pargs);
 
         if (presult.status != ProcessStatus::Ok) {
+            auto error = std::make_unique<ErrorExecProcess>(pargs);
+            options.errReporter.report(std::move(error));
             return false;
         }
 

@@ -19,7 +19,7 @@
 
 #pragma once
 
-#include "yal/error/error.h"
+#include "yal/frontend/errorfrontend.h"
 #include "yal/io/sourcemanager.h"
 
 namespace yal {
@@ -31,7 +31,7 @@ namespace yal::frontend {
 
     struct TokenInfo;
 
-    class ErrorParser final : public Error  {
+    class ErrorParser final : public ErrorFrontend {
     public:
 
         static const ErrorCode kCode;
@@ -41,6 +41,7 @@ namespace yal::frontend {
 
         StringRef getErrorName() const final override;
 
+    protected:
         void printDetail(ErrorPrinter& formater) const final override;
 
         const SourceInfo& getSourceInfo() const final override;

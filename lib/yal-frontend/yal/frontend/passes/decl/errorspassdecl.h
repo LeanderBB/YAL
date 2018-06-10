@@ -17,8 +17,9 @@
  *  License along with YAL. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "yal/error/error.h"
+#include "yal/frontend/errorfrontend.h"
 #include "yal/io/sourcemanager.h"
+
 namespace yal {
     class ErrorPrinter;
 }
@@ -34,7 +35,7 @@ namespace yal::frontend {
     class TypeFunction;
     class TypeStruct;
 
-    class ErrorDuplicateTypeDecl final : public Error {
+    class ErrorDuplicateTypeDecl final : public ErrorFrontend{
     public:
         static const ErrorCode kCode;
 
@@ -44,6 +45,7 @@ namespace yal::frontend {
 
         StringRef getErrorName() const final override;
 
+    protected:
         void printDetail(ErrorPrinter& printer) const final override;
 
         const SourceInfo& getSourceInfo() const final override;
@@ -57,7 +59,7 @@ namespace yal::frontend {
     };
 
 
-    class ErrorUndefinedTypeRef final : public Error {
+    class ErrorUndefinedTypeRef final : public ErrorFrontend{
     public:
         static const ErrorCode kCode;
 
@@ -66,6 +68,7 @@ namespace yal::frontend {
 
         StringRef getErrorName() const final override;
 
+    protected:
         void printDetail(ErrorPrinter& printer) const final override;
 
         const SourceInfo& getSourceInfo() const final override;
@@ -75,7 +78,7 @@ namespace yal::frontend {
         const SourceInfo m_srcInfo;
     };
 
-    class ErrorDuplicateSymbol final : public Error {
+    class ErrorDuplicateSymbol final : public ErrorFrontend{
     public:
         static const ErrorCode kCode;
 
@@ -86,6 +89,7 @@ namespace yal::frontend {
 
         StringRef getErrorName() const final override;
 
+    protected:
         void printDetail(ErrorPrinter& printer) const final override;
 
         const SourceInfo& getSourceInfo() const final override;
@@ -97,7 +101,7 @@ namespace yal::frontend {
         const SourceInfo m_sym2SrcInfo;
     };
 
-    class ErrorUndefinedSymbol final : public Error {
+    class ErrorUndefinedSymbol final : public ErrorFrontend{
     public:
         static const ErrorCode kCode;
 
@@ -106,6 +110,7 @@ namespace yal::frontend {
 
         StringRef getErrorName() const final override;
 
+    protected:
         void printDetail(ErrorPrinter& printer) const final override;
 
         const SourceInfo& getSourceInfo() const final override;
@@ -115,7 +120,7 @@ namespace yal::frontend {
         const SourceInfo m_symSrcInfo;
     };
 
-    class ErrorFnOnNonTargetType final : public Error {
+    class ErrorFnOnNonTargetType final : public ErrorFrontend{
     public:
         static const ErrorCode kCode;
 
@@ -123,6 +128,7 @@ namespace yal::frontend {
                                const SourceInfo& symSrcInfo,
                                const Type* type);
 
+    protected:
         StringRef getErrorName() const final override;
 
         void printDetail(ErrorPrinter& printer) const final override;
@@ -135,7 +141,7 @@ namespace yal::frontend {
     };
 
 
-    class ErrorSymNotDeclVar final : public Error {
+    class ErrorSymNotDeclVar final : public ErrorFrontend{
     public:
         static const ErrorCode kCode;
 
@@ -143,6 +149,7 @@ namespace yal::frontend {
                            const SourceInfo& symSrcInfo,
                            const DeclBase& decl);
 
+    protected:
         StringRef getErrorName() const final override;
 
         void printDetail(ErrorPrinter& printer) const final override;
@@ -156,7 +163,7 @@ namespace yal::frontend {
 
 
     class STExprIntegerLiteral;
-    class ErrorInvalidIntLiteral final : public Error {
+    class ErrorInvalidIntLiteral final : public ErrorFrontend{
     public:
         static const ErrorCode kCode;
 
@@ -164,6 +171,7 @@ namespace yal::frontend {
 
         StringRef getErrorName() const final override;
 
+    protected:
         void printDetail(ErrorPrinter& printer) const final override;
 
         const SourceInfo& getSourceInfo() const final override;
@@ -172,7 +180,7 @@ namespace yal::frontend {
     };
 
     class STExprFloatLiteral;
-    class ErrorInvalidFloatLiteral final : public Error {
+    class ErrorInvalidFloatLiteral final : public ErrorFrontend{
     public:
         static const ErrorCode kCode;
 
@@ -180,6 +188,7 @@ namespace yal::frontend {
 
         StringRef getErrorName() const final override;
 
+    protected:
         void printDetail(ErrorPrinter& printer) const final override;
 
         const SourceInfo& getSourceInfo() const final override;
@@ -187,7 +196,7 @@ namespace yal::frontend {
         const STExprFloatLiteral& m_expr;
     };
 
-    class ErrorTypeIsNotStruct final : public Error {
+    class ErrorTypeIsNotStruct final : public ErrorFrontend{
     public:
         static const ErrorCode kCode;
 
@@ -196,6 +205,7 @@ namespace yal::frontend {
 
         StringRef getErrorName() const final override;
 
+    protected:
         void printDetail(ErrorPrinter& printer) const final override;
 
         const SourceInfo& getSourceInfo() const final override;
@@ -204,7 +214,7 @@ namespace yal::frontend {
         const SourceInfo m_srcInfo;
     };
 
-    class ErrorTypeIsNotFunction final : public Error {
+    class ErrorTypeIsNotFunction final : public ErrorFrontend{
     public:
         static const ErrorCode kCode;
 
@@ -213,6 +223,7 @@ namespace yal::frontend {
 
         StringRef getErrorName() const final override;
 
+    protected:
         void printDetail(ErrorPrinter& printer) const final override;
 
         const SourceInfo& getSourceInfo() const final override;
@@ -221,7 +232,7 @@ namespace yal::frontend {
         const SourceInfo m_srcInfo;
     };
 
-    class ErrorTypeIsNotTypeFunction final : public Error {
+    class ErrorTypeIsNotTypeFunction final : public ErrorFrontend{
     public:
         static const ErrorCode kCode;
 
@@ -230,6 +241,7 @@ namespace yal::frontend {
 
         StringRef getErrorName() const final override;
 
+    protected:
         void printDetail(ErrorPrinter& printer) const final override;
 
         const SourceInfo& getSourceInfo() const final override;
@@ -238,7 +250,7 @@ namespace yal::frontend {
         const SourceInfo m_srcInfo;
     };
 
-    class ErrorTypeFunctionUndefined final : public Error {
+    class ErrorTypeFunctionUndefined final : public ErrorFrontend{
     public:
         static const ErrorCode kCode;
 
@@ -247,6 +259,7 @@ namespace yal::frontend {
 
         StringRef getErrorName() const final override;
 
+    protected:
         void printDetail(ErrorPrinter& printer) const final override;
 
         const SourceInfo& getSourceInfo() const final override;
@@ -256,7 +269,7 @@ namespace yal::frontend {
         const SourceInfo m_srcInfo;
     };
 
-    class ErrorTypeFunctionIsNotStatic final : public Error {
+    class ErrorTypeFunctionIsNotStatic final : public ErrorFrontend{
     public:
         static const ErrorCode kCode;
 
@@ -265,6 +278,7 @@ namespace yal::frontend {
 
         StringRef getErrorName() const final override;
 
+    protected:
         void printDetail(ErrorPrinter& printer) const final override;
 
         const SourceInfo& getSourceInfo() const final override;
@@ -273,7 +287,7 @@ namespace yal::frontend {
         const SourceInfo m_srcInfo;
     };
 
-    class ErrorInvalidUseOfSelf final : public Error {
+    class ErrorInvalidUseOfSelf final : public ErrorFrontend{
     public:
         static const ErrorCode kCode;
 
@@ -282,6 +296,7 @@ namespace yal::frontend {
 
         StringRef getErrorName() const final override;
 
+    protected:
         void printDetail(ErrorPrinter& printer) const final override;
 
         const SourceInfo& getSourceInfo() const final override;
@@ -290,7 +305,7 @@ namespace yal::frontend {
         const SourceInfo m_srcInfo;
     };
 
-    class ErrorInvalidLocationForSelf final : public Error {
+    class ErrorInvalidLocationForSelf final : public ErrorFrontend{
     public:
         static const ErrorCode kCode;
 
@@ -299,6 +314,7 @@ namespace yal::frontend {
 
         StringRef getErrorName() const final override;
 
+    protected:
         void printDetail(ErrorPrinter& printer) const final override;
 
         const SourceInfo& getSourceInfo() const final override;
@@ -307,7 +323,7 @@ namespace yal::frontend {
         const SourceInfo m_srcInfo;
     };
 
-    class ErrorUndefinedStructMember final : public Error {
+    class ErrorUndefinedStructMember final : public ErrorFrontend{
     public:
         static const ErrorCode kCode;
 
@@ -320,6 +336,7 @@ namespace yal::frontend {
 
         StringRef getErrorName() const final override;
 
+    protected:
         void printDetail(ErrorPrinter& printer) const final override;
 
         const SourceInfo& getSourceInfo() const final override;
@@ -330,7 +347,7 @@ namespace yal::frontend {
         const SourceInfo m_symSrcInfo;
     };
 
-    class ErrorAssignRefWithInvalidScope final : public Error {
+    class ErrorAssignRefWithInvalidScope final : public ErrorFrontend{
     public:
         static const ErrorCode kCode;
 
@@ -340,6 +357,7 @@ namespace yal::frontend {
 
         StringRef getErrorName() const final override;
 
+    protected:
         void printDetail(ErrorPrinter& printer) const final override;
 
         const SourceInfo& getSourceInfo() const final override;
