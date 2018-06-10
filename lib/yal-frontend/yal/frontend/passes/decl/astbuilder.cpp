@@ -157,7 +157,9 @@ namespace yal::frontend {
                 onUndefinedType(*stqt->m_type);
             }
 
-            QualType qt = QualType::Create(MakeQualifier(*stqt), memberType);
+            Qualifier qual = MakeQualifier(*stqt);
+            qual.setMutable();
+            QualType qt = QualType::Create(qual, memberType);
 
             DeclVar* declVar = astCtx.getAllocator()
                     .construct<DeclVar>(m_module,

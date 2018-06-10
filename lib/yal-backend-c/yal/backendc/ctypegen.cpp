@@ -99,7 +99,7 @@ namespace yal::backend::c {
             writer.write(formater);
         }
         writer.unident();
-        Format(formater, "} %;\n", ctypeStruct->getCIdentifier());
+        Format(formater, "} %", ctypeStruct->getCIdentifier());
         writer.write(formater);
     }
 
