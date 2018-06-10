@@ -56,11 +56,17 @@ namespace yal::backend::c {
         (void) module;
 
         // Module Path
-        const StringRef moduleFullPath = module.getPath();
         const StringRef moduleName = module.getName();
-        const StringRef modulePath = Path::GetPath(moduleFullPath);
-        const StringRef moduleRelativePath = modulePath.subStr(options.projectRootDir.size(),
-                                                               modulePath.size() - options.projectRootDir.size());
+        const StringRef moduleFullPath = module.getPath();
+        const StringRef pathToModule = Path::GetPath(moduleFullPath);
+
+        StringRef moduleRelativePath;
+        if (Path::IsAbsolute(pathToModule)) {
+            moduleRelativePath = pathToModule.subStr(options.projectRootDir.size(),
+                                                   pathToModule.size() - options.projectRootDir.size());
+        } else {
+            moduleRelativePath = pathToModule;
+        }
 
         // Directories
         const std::string buildRoot = Path::JoinV(options.buildDir,
@@ -75,9 +81,11 @@ namespace yal::backend::c {
         const std::string moduleDirSrc = Path::Join(buildRootSrc, moduleRelativePath);
         const std::string moduleDirObj = Path::Join(buildRootObj, moduleRelativePath);
 
+        std::string modulePathHeaderRelative = Path::Join(moduleRelativePath, moduleName);
         std::string modulePathHeader = Path::Join(moduleDirSrc, moduleName);
         std::string modulePathSource = modulePathHeader;
         modulePathHeader += kExtHeader;
+        modulePathHeaderRelative += kExtHeader;
         modulePathSource += kExtSource;
 
         std::string modulePathobject = Path::Join(moduleDirObj, moduleName);
@@ -133,7 +141,7 @@ namespace yal::backend::c {
             AstVisitorCSource visitorSource(streamSource,
                                             module,
                                             typeCache);
-            if (!visitorSource.execute(options, modulePathHeader)) {
+            if (!visitorSource.execute(options, modulePathHeaderRelative)) {
                 return false;
             }
         }
@@ -147,7 +155,7 @@ namespace yal::backend::c {
         pargs.captureOutput = true;
         pargs.args = {
             "-std=c99",
-            "-I","./",
+            "-I",buildRootSrc,
             "-o",
             modulePathobject,
             "-c",
@@ -170,7 +178,7 @@ namespace yal::backend::c {
             while (bytesRead != 0) {
                 bytesRead = presult.output->read(buffer, 512);
                 if (bytesRead != 0) {
-                   msg.append(buffer, bytesRead);
+                    msg.append(buffer, bytesRead);
                 }
             }
         }

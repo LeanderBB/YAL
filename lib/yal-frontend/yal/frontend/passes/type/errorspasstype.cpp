@@ -405,16 +405,15 @@ namespace yal::frontend {
     ErrorTypeFnCallInvalidArgCount::printDetail(ErrorPrinter &printer) const {
 
         const TypeFunction* typeFn = m_expr.getFunctionType();
-        const DeclFunction* declFn = typeFn->getDecl();
-        YAL_ASSERT(declFn != nullptr);
+        const DeclFunction& declFn = typeFn->getDecl();
         const ExprList& args = m_expr.getFunctionArgs();
-        const DeclFunction::Params& params = declFn->getParams();
+        const DeclFunction::Params& params = declFn.getParams();
 
         auto& formater = printer.getFormater();
         FormatAppend(formater,
                      "Function '%' requires % argument(s), but you have provided "
                      "% argument(s).",
-                     declFn->getIdentifier(), params.size(), args.size());
+                     declFn.getIdentifier(), params.size(), args.size());
     }
 
     const SourceInfo&

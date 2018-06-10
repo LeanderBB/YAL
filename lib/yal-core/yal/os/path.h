@@ -102,6 +102,7 @@ namespace yal {
         static bool Rename(const StringRef oldPath,
                            const StringRef newPath);
 
+        static bool IsAbsolute(const StringRef path);
     private:
 
         template <typename T>

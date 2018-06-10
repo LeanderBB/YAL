@@ -92,10 +92,10 @@ namespace yal::frontend {
         // collect ast decls
         StackDecl& stackDecls = getState().stackDecls;
         DeclModule::Decls decls(DeclModule::Decls::allocator_type(m_module.getASTContext().getAllocator()));
-        decls.reserve(stackDecls.size());
-        while(!stackDecls.empty()) {
+        decls.resize(stackDecls.size(), nullptr);
+        for(size_t idx = decls.size() -1 ; !stackDecls.empty(); --idx) {
             DeclBase* decl = stackDecls.top();
-            decls.insert(decls.begin(),decl);
+            decls[idx] = decl;
             stackDecls.pop();
         }
         declModule->setDecls(std::move(decls));
@@ -223,7 +223,10 @@ namespace yal::frontend {
                 onUndefinedType(*returnStType);
             }
 
-            returnType = QualType::Create(MakeQualifier(*stReturnType),
+            // Return values of function are treated as rvalues
+            Qualifier qualReturn = MakeQualifier(*stReturnType);
+            qualReturn.setLValue(false);
+            returnType = QualType::Create(qualReturn,
                                           returnTypePtr);
         }
 
@@ -328,7 +331,6 @@ namespace yal::frontend {
         if (body != nullptr) {
 
             StatementList statements(StatementList::allocator_type(m_module.getASTContext().getAllocator()));
-            statements.reserve(body->size());
             StackStatement& stack = getState().stackStatements;
             const size_t currStmtStackSize = stack.size();
 
@@ -341,10 +343,11 @@ namespace yal::frontend {
             }
 
             // collect statements
-            while (!stack.empty() && stack.size() >= currStmtStackSize) {
-                // TODO: Revise!
+            statements.resize(body->size(), nullptr);
+            for(size_t idx = statements.size() -1 ;
+                !stack.empty() && stack.size() >= currStmtStackSize; --idx) {
                 Statement* stmt = stack.top();
-                statements.insert(statements.begin(), stmt);
+                statements[idx] = stmt;
                 stack.pop();
             }
             YAL_ASSERT(statements.size() == body->size());
@@ -996,8 +999,6 @@ namespace yal::frontend {
             // set new scope for statements
             ScopedStackElem<StackScope> sscope(getState().stackScope,
                                                &stmtList->getListScope());
-
-            statements.reserve(scopedStatements.size());
             StackStatement& stack = getState().stackStatements;
             const size_t currStmtStackSize = stack.size();
 
@@ -1007,12 +1008,14 @@ namespace yal::frontend {
             }
 
             // collect statements
-            while (!stack.empty() && stack.size() > currStmtStackSize) {
-                // TODO: Revise!
+            statements.resize(scopedStatements.size(), nullptr);
+            for(size_t idx = statements.size() -1 ;
+                !stack.empty() && stack.size() > currStmtStackSize; --idx) {
                 Statement* stmt = stack.top();
-                statements.insert(statements.begin(), stmt);
+                statements[idx] = stmt;
                 stack.pop();
             }
+
             YAL_ASSERT(statements.size() ==scopedStatements.size());
             stmtList->setStatements(std::move(statements));
         }

@@ -20,6 +20,7 @@
 #include "yal/frontend/passes/move/errorspassmove.h"
 #include "yal/error/errorprinter.h"
 #include "yal/frontend/ast/declvar.h"
+#include "yal/frontend/ast/exprfncall.h"
 #include "yal/frontend/ast/exprstructvarref.h"
 #include "yal/frontend/ast/exprvarref.h"
 #include "yal/frontend/passes/passes.h"
@@ -95,6 +96,40 @@ namespace yal::frontend {
     const SourceInfo&
     ErrorMoveStructVar::getSourceInfo() const {
         return m_expr.getSourceInfo();
+    }
+
+    // ErrorMoveFnCallRValue ------------------------------------------------
+
+    const ErrorCode  ErrorMoveFnCallRValue::kCode =
+            MakeErrorCode(static_cast<uint16_t>(PassTypeCode::Move), 3);
+
+    ErrorMoveFnCallRValue::ErrorMoveFnCallRValue(const ExprFnCall& expr,
+                                                 const uint32_t argIndex):
+        ErrorFrontend(kCode),
+        m_expr(expr),
+        m_argIndex(argIndex){
+        flagAsFatal();
+    }
+
+    StringRef
+    ErrorMoveFnCallRValue::getErrorName() const {
+        return "move expression with a RValue.";
+    }
+
+    void
+    ErrorMoveFnCallRValue::printDetail(ErrorPrinter &printer) const {
+        auto& formater = printer.getFormater();
+        FormatAppend(formater,
+                     "Argument '%' for function call expects a movable type, "
+                     "yet the expression produces an RValue which can't be moved.\n",
+                     m_argIndex);
+    };
+
+    const SourceInfo&
+    ErrorMoveFnCallRValue::getSourceInfo() const {
+        auto& args = m_expr.getFunctionArgs();
+        YAL_ASSERT(m_argIndex < args.size());
+        return args[m_argIndex]->getSourceInfo();
     }
 
 }

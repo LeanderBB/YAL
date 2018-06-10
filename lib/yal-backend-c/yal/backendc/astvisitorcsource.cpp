@@ -30,6 +30,74 @@
 namespace yf = yal::frontend;
 namespace yal::backend::c {
 
+    /*
+    static const StringRef kTmpVariableList [] {
+        "yal_tmp_var_0",
+        "yal_tmp_var_1",
+        "yal_tmp_var_2",
+        "yal_tmp_var_3",
+        "yal_tmp_var_4",
+        "yal_tmp_var_5",
+        "yal_tmp_var_6",
+        "yal_tmp_var_7",
+        "yal_tmp_var_8",
+        "yal_tmp_var_9",
+        "yal_tmp_var_10",
+        "yal_tmp_var_11",
+        "yal_tmp_var_12",
+        "yal_tmp_var_13",
+        "yal_tmp_var_14",
+        "yal_tmp_var_15",
+        "yal_tmp_var_16",
+        "yal_tmp_var_17",
+        "yal_tmp_var_18",
+        "yal_tmp_var_19",
+        "yal_tmp_var_20",
+        "yal_tmp_var_21",
+        "yal_tmp_var_22",
+        "yal_tmp_var_23",
+        "yal_tmp_var_24",
+        "yal_tmp_var_25",
+        "yal_tmp_var_26",
+        "yal_tmp_var_27",
+        "yal_tmp_var_28",
+        "yal_tmp_var_29",
+        "yal_tmp_var_30",
+        "yal_tmp_var_31",
+        "yal_tmp_var_32",
+        "yal_tmp_var_33",
+        "yal_tmp_var_34",
+        "yal_tmp_var_35",
+        "yal_tmp_var_36",
+        "yal_tmp_var_37",
+        "yal_tmp_var_38",
+        "yal_tmp_var_39",
+        "yal_tmp_var_40",
+        "yal_tmp_var_41",
+        "yal_tmp_var_42",
+        "yal_tmp_var_43",
+        "yal_tmp_var_44",
+        "yal_tmp_var_45",
+        "yal_tmp_var_46",
+        "yal_tmp_var_47",
+        "yal_tmp_var_48",
+        "yal_tmp_var_49",
+    };
+
+    static const unsigned int kTmpVariableListCount
+        = sizeof(kTmpVariableList)/ sizeof(StringRef);
+*/
+
+    inline static void
+    WriteSourceInfo(CodeWriter& writer,
+                    const yal::frontend::Module& module,
+                    const SourceInfo& info) {
+        writer.write("// %.yal:%:%\n",
+                     module.getName(),
+                     info.begin.line,
+                     info.begin.column);
+    }
+
     struct AstVisitorCSource::ScopedState {
 
         ScopedState(AstVisitorCSource& visitor,
@@ -58,38 +126,34 @@ namespace yal::backend::c {
 
     void
     AstVisitorCSource::visit(yal::frontend::DeclFunction& node) {
+        WriteSourceInfo(m_writer, node.getModule(),node.getSourceInfo());
         CTypeGen::GenDelcFunction(m_writer, m_typeCache, node);
-        Formater& formater = m_writer.getFormater();
-        Format(formater, " {\n\n");
-        m_writer.write(formater);
+        m_writer.write("{");
         m_writer.ident();
+        m_writer.write();
         auto& body = node.getFunctionBody();
         for (auto& statment : body) {
             statment->acceptVisitor(*this);
-            Format(formater, ";\n");
-            m_writer.write(formater);
+            m_writer.write(";\n");
         }
         m_writer.unident();
-        Format(formater, "\n}\n\n");
-        m_writer.write(formater);
+        m_writer.write("}\n\n");
     }
 
     void
     AstVisitorCSource::visit(yal::frontend::DeclTypeFunction& node) {
+        WriteSourceInfo(m_writer, node.getModule(),node.getSourceInfo());
         CTypeGen::GenDelcFunction(m_writer, m_typeCache, node);
-        Formater& formater = m_writer.getFormater();
-        Format(formater, " {\n\n");
-        m_writer.write(formater);
+        m_writer.write("{");
         m_writer.ident();
+        m_writer.write();
         auto& body = node.getFunctionBody();
         for (auto& statment : body) {
             statment->acceptVisitor(*this);
-            Format(formater, ";\n");
-            m_writer.write(formater);
+            m_writer.write(";\n");
         }
         m_writer.unident();
-        Format(formater, "\n}\n\n");
-        m_writer.write(formater);
+        m_writer.write("}\n\n");
     }
 
     void
@@ -99,21 +163,15 @@ namespace yal::backend::c {
 
     void
     AstVisitorCSource::visit(yal::frontend::DeclVar& node) {
-        Formater& formater = m_writer.getFormater();
-        FormatReset(formater);
-
         const yf::QualType qt = node.getQualType();
         const CType* ctype = m_typeCache.getCType(*qt.getType());
         YAL_ASSERT(ctype != nullptr);
-        CTypeGen::GenQualType(formater, qt, *ctype);
-        FormatAppend(formater, "%", node.getName());
+        CTypeGen::GenQualType(m_writer, qt, *ctype);
+        m_writer.write("%", node.getName());
         auto exprOpt = node.getExpression();
         if (exprOpt.has_value()) {
-            FormatAppend(formater, " = ");
-            m_writer.write(formater);
+            m_writer.write(" = ");
             exprOpt.value()->acceptVisitor(*this);
-        } else {
-            m_writer.write(formater);
         }
     }
 
@@ -148,15 +206,12 @@ namespace yal::backend::c {
 
     void
     AstVisitorCSource::visit(yal::frontend::StmtReturn& node) {
-        Formater& formater = m_writer.getFormater();
         auto exprOpt = node.getExpression();
         if (exprOpt.has_value()) {
-            Format(formater, "return ");
-            m_writer.write(formater);
+            m_writer.write("return ");
             exprOpt.value()->acceptVisitor(*this);
         } else {
-            Format(formater, "return");
-            m_writer.write(formater);
+            m_writer.write("return");
         }
     }
 
@@ -168,9 +223,7 @@ namespace yal::backend::c {
     void
     AstVisitorCSource::visit(yal::frontend::StmtAssign& node) {
         node.getLeftExpr()->acceptVisitor(*this);
-        Formater& formater = m_writer.getFormater();
-        Format(formater, " = ");
-        m_writer.write(formater);
+        m_writer.write(" = ");
         node.getRightExpr()->acceptVisitor(*this);
     }
 
@@ -182,23 +235,23 @@ namespace yal::backend::c {
                 || decl.getAstType() == yf::AstType::DeclParamVarSelf;
 
         //TODO:: improve!!!
-        Formater& formater = m_writer.getFormater();
         if (m_state.varRefMakeReference) {
             const yf::QualType qt = node.getQualType();
             if (!qt.isReference()
                     && !qt.isTriviallyCopiable()
                     && !isMovedDeclParm) {
-                FormatAppend(formater, "&");
+                m_writer.write("&");
             }
         }
 
-        if (isMovedDeclParm
+        const bool shouldDeref = isMovedDeclParm
                 && decl.getQualType().isMovedType()
-                && !m_state.varRefMakeReference) {
-            FormatAppend(formater, "*");
+                && !m_state.varRefMakeReference;
+        if (shouldDeref) {
+            m_writer.write("(*%)", decl.getName());
+        } else {
+            m_writer.write("%", decl.getName());
         }
-        FormatAppend(formater, "%", decl.getName());
-        m_writer.write(formater);
     }
 
     void
@@ -212,12 +265,10 @@ namespace yal::backend::c {
         yf::StmtExpression* srcExpr = node.getExpression();
         srcExpr->acceptVisitor(*this);
         const yf::QualType qt = srcExpr->getQualType();
-        Formater& formater = m_writer.getFormater();
-        Format(formater, "%%",
-               (qt.isReference()) ? "->" : ".",
-               node.getMemberName()
-               );
-        m_writer.write(formater);
+        m_writer.write("%%",
+                       (qt.isReference()) ? "->" : ".",
+                       node.getMemberName()
+                       );
     }
 
     void
@@ -254,11 +305,9 @@ namespace yal::backend::c {
         if (qtLeft.getType() != qtRight.getType()) {
             const CType* ctypeLeft = m_typeCache.getCType(*qtLeft.getType());
             YAL_ASSERT(ctypeLeft != nullptr);
-            Formater& formater = m_writer.getFormater();
-            Format(formater, "(");
-            CTypeGen::GenQualType(formater,qtLeft, *ctypeLeft);
-            FormatAppend(formater, ")");
-            m_writer.write(formater);
+            m_writer.write("(");
+            CTypeGen::GenQualType(m_writer, qtLeft, *ctypeLeft);
+            m_writer.write(")");
         }
 
         exprRight->acceptVisitor(*this);
@@ -275,49 +324,45 @@ namespace yal::backend::c {
 
     void
     AstVisitorCSource::visit(yal::frontend::ExprIntegerLiteral& node) {
-        Formater& formater = m_writer.getFormater();
         switch(node.getIntegerType()) {
         case yf::IntegerType::I8:
-            Format(formater, "%", node.getValueAsI8());
+            m_writer.write("%", node.getValueAsI8());
             break;
         case yf::IntegerType::U8:
-            Format(formater, "%", node.getValueAsU8());
+            m_writer.write("%", node.getValueAsU8());
             break;
         case yf::IntegerType::I16:
-            Format(formater, "%", node.getValueAsI16());
+            m_writer.write("%", node.getValueAsI16());
             break;
         case yf::IntegerType::U16:
-            Format(formater, "%", node.getValueAsU16());
+            m_writer.write("%", node.getValueAsU16());
             break;
         case yf::IntegerType::I32:
-            Format(formater, "%", node.getValueAsI32());
+            m_writer.write("%", node.getValueAsI32());
             break;
         case yf::IntegerType::U32:
-            Format(formater, "%", node.getValueAsU32());
+            m_writer.write("%", node.getValueAsU32());
             break;
         case yf::IntegerType::I64:
-            Format(formater, "%", node.getValueAsI64());
+            m_writer.write("%", node.getValueAsI64());
             break;
         case yf::IntegerType::U64:
-            Format(formater, "%", node.getValueAsU64());
+            m_writer.write("%", node.getValueAsU64());
             break;
         default:
             YAL_ASSERT_MESSAGE(false, "Unknown integer type");
-            Format(formater, "Unknown");
+            m_writer.write("Unknown");
             break;
         }
-        m_writer.write(formater);
     }
 
     void
     AstVisitorCSource::visit(yal::frontend::ExprFloatLiteral& node) {
-        Formater& formater = m_writer.getFormater();
         if (node.getDecimalType() == yf::DecimalType::Decimal32) {
-            Format(formater, "%", node.getLiteralValueAsF32());
+            m_writer.write( "%", node.getLiteralValueAsF32());
         } else {
-             Format(formater, "%", node.getLiteralValueAsF64());
+            m_writer.write("%", node.getLiteralValueAsF64());
         }
-        m_writer.write(formater);
     }
 
     void
@@ -331,14 +376,31 @@ namespace yal::backend::c {
 
         m_writer.write(ctypeFn->getCIdentifier());
         m_writer.write("(");
+
         const auto& args = node.getFunctionArgs();
+        const yf::DeclFunction& declFn = typeFn->getDecl();
+        const yf::DeclFunction::Params& declParams = declFn.getParams();
+        // Apply special conversion rules for moved types
+        auto declParamIter = declParams.begin();
         bool first = true;
         for (auto& arg : args) {
+            YAL_ASSERT(declParamIter != declParams.end());
             if (!first) {
-                m_writer.write(" ,");
+                m_writer.write(", ");
             }
-            arg->acceptVisitor(*this);
+            const yf::QualType qtDeclParam = (*declParamIter)->getQualType();
+            if (!qtDeclParam.isReference() && !qtDeclParam.isTriviallyCopiable()) {
+                m_writer.write("&(");
+                State otherState;
+                otherState.varRefMakeReference = false;
+                ScopedState guard(*this, otherState);
+                arg->acceptVisitor(*this);
+                m_writer.write(")");
+            } else {
+                arg->acceptVisitor(*this);
+            }
             first = false;
+            ++declParamIter;
         }
         m_writer.write(")");
     }
@@ -364,13 +426,32 @@ namespace yal::backend::c {
             first = false;
         }
 
+        const yf::DeclFunction& declFn = typeFn->getDecl();
+        const yf::DeclFunction::Params& declParams = declFn.getParams();
+        // Apply special conversion rules for moved types
+        auto declParamIter = declParams.begin();
+        if (!node.isStaticCall()) {
+            declParamIter++;
+        }
         const auto& args = node.getFunctionArgs();
         for (auto& arg : args) {
+            YAL_ASSERT(declParamIter != declParams.end());
             if (!first) {
-                m_writer.write(" ,");
+                m_writer.write(", ");
             }
-            arg->acceptVisitor(*this);
+            const yf::QualType qtDeclParam = (*declParamIter)->getQualType();
+            if (!qtDeclParam.isReference() && !qtDeclParam.isTriviallyCopiable()) {
+                m_writer.write("&(");
+                State otherState;
+                otherState.varRefMakeReference = false;
+                ScopedState guard(*this, otherState);
+                arg->acceptVisitor(*this);
+                m_writer.write(")");
+            } else {
+                arg->acceptVisitor(*this);
+            }
             first = false;
+            ++declParamIter;
         }
         m_writer.write(")");
     }
@@ -386,9 +467,7 @@ namespace yal::backend::c {
         const CType* ctypeStruct = m_typeCache.getCType(*qtStruct.getType());
         YAL_ASSERT(ctypeStruct != nullptr);
 
-        Formater& formater = m_writer.getFormater();
-        Format(formater,"(%){\n", ctypeStruct->getCIdentifier());
-        m_writer.write(formater);
+        m_writer.write("(%){\n", ctypeStruct->getCIdentifier());
         m_writer.ident();
 
         bool isFirst = true;
@@ -402,14 +481,12 @@ namespace yal::backend::c {
         }
 
         m_writer.unident();
-        m_writer.write("}");
+        m_writer.write("\n}");
     }
 
     void
     AstVisitorCSource::visit(yal::frontend::StructMemberInit& node) {
-        Formater& formater = m_writer.getFormater();
-        Format(formater,".% = ", node.getMemberName());
-        m_writer.write(formater);
+        m_writer.write(".% = ", node.getMemberName());
         node.getInitExpr()->acceptVisitor(*this);
     }
 
@@ -430,12 +507,10 @@ namespace yal::backend::c {
     AstVisitorCSource::execute(const BackendOptions& options,
                                const StringRef headerPath) {
         (void) options;
-        Formater& formater = m_writer.getFormater();
-        Format(formater, "// Auto Generated with YAL Backend C %, do not modify!\n",
-               YAL_BACKEND_C_VERSION_STR);
-        FormatAppend(formater, "// Source for module %\n\n", m_module.getPath());
-        FormatAppend(formater, "#include \"%\"\n\n", headerPath);
-        m_writer.write(formater);
+        m_writer.write("// Auto Generated with YAL Backend C %, do not modify!\n",
+                       YAL_BACKEND_C_VERSION_STR);
+        m_writer.write("// Source for module %\n\n", m_module.getPath());
+        m_writer.write("#include \"%\"\n\n", headerPath);
 
         m_module.getDeclNode()->acceptVisitor(*this);
 

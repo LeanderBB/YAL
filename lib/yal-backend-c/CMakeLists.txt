@@ -41,7 +41,7 @@ set(LIB_SOURCES
 add_library(${LIB_NAME} STATIC
     ${LIB_SOURCES})
 
-add_library(yal::backend-c ALIAS ${LIB_NAME})
+add_library(yal::backend::c ALIAS ${LIB_NAME})
 
 target_include_directories(${LIB_NAME}
     PUBLIC ${CMAKE_CURRENT_SOURCE_DIR} ${YAL_BACKEND_C_CONFIG_INCLUDE_DIR})

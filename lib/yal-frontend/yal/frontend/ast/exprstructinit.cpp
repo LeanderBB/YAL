@@ -33,6 +33,7 @@ namespace yal::frontend {
 
         Qualifier qualifier;
         qualifier.setMutable();
+        qualifier.setLValue(false);
         m_qualType = QualType::Create(qualifier, structType);
     }
 

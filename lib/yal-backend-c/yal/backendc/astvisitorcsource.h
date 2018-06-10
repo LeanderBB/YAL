@@ -50,6 +50,7 @@ namespace yal::backend::c {
         struct ScopedState;
         struct State {
             bool varRefMakeReference = false;
+            unsigned int tmpVarCount = 0;
         };
 
     private:

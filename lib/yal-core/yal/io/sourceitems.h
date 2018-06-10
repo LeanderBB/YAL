@@ -46,11 +46,15 @@ namespace yal {
     public:
         SourceItemStringRef(const StringRef str);
 
+        SourceItemStringRef(const StringRef str,
+                            const StringRef path);
+
         const MemoryStream &getByteStream() const override;
 
         const StringRef getPath() const override;
     private:
         const StringRef m_string;
+        const StringRef m_path;
         MemoryStream m_stream;
 
     };

@@ -298,13 +298,22 @@ namespace yal::frontend {
     AstVisitorMoveCheck::visit(ExprStructVarRef& node) {
         const QualType qt = node.getQualType();
 
-        node.getExpression()->acceptVisitor(*this);
-
+        {
+            // For nested struct var refs, we can only verify
+            // the move of a member on the root expression,
+            // all nested members shouldn't do the check.
+            EvalMoveState newEvalState = m_evalMoveState;
+            newEvalState.structVarRefRoot = false;
+            EvalMoveStateScope evalGuard(m_evalMoveState, newEvalState);
+            node.getExpression()->acceptVisitor(*this);
+        }
         // Check if we are in a movable situation and if we are
         // make sure that we are also in a replace context for struct
         // member
-        if (!qt.isReference()
+        if (m_evalMoveState.structVarRefRoot
                 && m_evalMoveState.enabled
+                && !qt.isTriviallyCopiable()
+                && !qt.isReference()
                 && !m_evalMoveState.structReplace) {
             auto error = std::make_unique<ErrorMoveStructVar>(node);
             onError(std::move(error));
@@ -317,8 +326,22 @@ namespace yal::frontend {
         newEvalState.enabled = true;
         newEvalState.scope = m_activeScope;
         EvalMoveStateScope evalGuard(m_evalMoveState, newEvalState);
+        const DeclFunction& decl = node.getFunctionType()->getDecl();
+        const DeclFunction::Params& declParams = decl.getParams();
+        auto paramIter = declParams.begin();
         for (auto& arg : node.getFunctionArgs()) {
+            YAL_ASSERT(paramIter != declParams.end());
+            const QualType qtParam = (*paramIter)->getQualType();
+            const QualType qtArg = arg->getQualType();
+            if (!qtParam.isReference()
+                    && !qtParam.isTriviallyCopiable()
+                    && qtArg.isRValue()) {
+                uint32_t argIndex = uint32_t(std::distance(declParams.begin(), paramIter));
+                auto error = std::make_unique<ErrorMoveFnCallRValue>(node, argIndex);
+                onError(std::move(error));
+            }
             arg->acceptVisitor(*this);
+            ++paramIter;
         }
     }
 
@@ -334,8 +357,29 @@ namespace yal::frontend {
         newEvalState.enabled = true;
         newEvalState.scope = m_activeScope;
         EvalMoveStateScope evalGuard(m_evalMoveState, newEvalState);
+        const DeclFunction& decl = node.getFunctionType()->getDecl();
+        const DeclFunction::Params& declParams = decl.getParams();
+        auto paramIter = declParams.begin();
+        if (!node.isStaticCall()) {
+            ++paramIter;
+        }
         for (auto& arg : node.getFunctionArgs()) {
+            YAL_ASSERT(paramIter != declParams.end());
+            const QualType qtParam = (*paramIter)->getQualType();
+            const QualType qtArg = arg->getQualType();
+            if (!qtParam.isReference()
+                    && !qtParam.isTriviallyCopiable()
+                    && qtArg.isRValue()) {
+                uint32_t argIndex = uint32_t(std::distance(declParams.begin(), paramIter));
+                if (!node.isStaticCall()) {
+                    argIndex -= 1;
+                }
+                auto error = std::make_unique<ErrorMoveFnCallRValue>(node, argIndex);
+                onError(std::move(error));
+            }
+
             arg->acceptVisitor(*this);
+            ++paramIter;
         }
     }
 

@@ -30,8 +30,9 @@ namespace yal {
 
 namespace yal::frontend {
 
-    class ExprVarRef;
+    class ExprFnCall;
     class ExprStructVarRef;
+    class ExprVarRef;
     class Statement;
 
     class ErrorMoveUseAfterMove final : public ErrorFrontend {
@@ -68,5 +69,24 @@ namespace yal::frontend {
 
     private:
         const ExprStructVarRef& m_expr;
+    };
+
+    class ErrorMoveFnCallRValue final : public ErrorFrontend {
+    public:
+        static const ErrorCode kCode;
+
+        ErrorMoveFnCallRValue(const ExprFnCall& expr,
+                              const uint32_t argIndex);
+
+        StringRef getErrorName() const override final;
+
+    protected:
+        void printDetail(ErrorPrinter& printer)const override final;
+
+        const SourceInfo& getSourceInfo() const override final;
+
+    private:
+        const ExprFnCall& m_expr;
+        const uint32_t m_argIndex;
     };
 }

@@ -31,7 +31,16 @@ namespace yal {
 
         CodeWriter(ByteStream& output);
 
-        void write(Formater& formater);
+        ~CodeWriter();
+
+        YAL_NO_COPY_CLASS(CodeWriter);
+
+        template <typename ...Args>
+        void write(const char* format,
+                   const Args&... args) {
+            Format(m_formater, format, args...);
+            write(m_formater.toStringRef());
+        }
 
         void write(const StringRef ref);
 
@@ -41,18 +50,19 @@ namespace yal {
 
         void unident();
 
-        Formater& getFormater() {
-            return m_formater;
-        }
-
     private:
         void writeToStream();
 
+
     private:
-        static constexpr uint32_t kFormaterSize = 4096;
+        static constexpr uint32_t kFormaterSize = 1024;
+        static constexpr size_t kBufferSize = 4096;
+        size_t m_bufferOffset;
+        char m_buffer[kBufferSize];
         FormaterStack<kFormaterSize> m_formater;
         ByteStream& m_stream;
         uint32_t m_identLevel;
+        bool m_wasNewLine;
     };
 
 }

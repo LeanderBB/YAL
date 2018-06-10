@@ -191,6 +191,32 @@ R"R(
     }
 }
 
+
+TEST_F(PassMove, StructMoveTriviallyCopiable) {
+    const char* input =
+R"R(
+    type Bar : struct {
+        x : i32
+    }
+
+    type Foo : struct {
+        b: Bar
+    }
+
+    fn main() {
+       var f:Foo = Foo{b:Bar{x:30}};
+       var z:i32 = f.b.x;
+    }
+
+)R";
+
+    auto handle = createSourceHandle(input);
+    FrontendOptionsType options;
+    const ModuleType* module = m_frontEnd.compile(handle, options);
+    EXPECT_NE(module, nullptr);
+    EXPECT_FALSE(m_errorReporter.hasErrors());
+}
+
 TEST_F(PassMove, MoveReInitMove) {
     const char* input =
 R"R(

@@ -23,7 +23,6 @@
 
 namespace yal {
     class CodeWriter;
-    struct Formater;
 }
 
 namespace yal::frontend {
@@ -49,11 +48,15 @@ namespace yal::backend::c {
                                   const CTypeCache& cache,
                                   const yal::frontend::DeclStruct& decl);
 
-        static void GenQualType(Formater& formater,
+        static void GenQualType(CodeWriter& writer,
                                 const yal::frontend::QualType& qt,
                                 const CType& type);
 
-        static void GenQualTypeReturn(Formater& formater,
+        static void GenQualTypeFnParam(CodeWriter& writer,
+                                       const yal::frontend::QualType& qt,
+                                       const CType& type);
+
+        static void GenQualTypeReturn(CodeWriter& writer,
                                       const yal::frontend::QualType& qt,
                                       const CType& type);
 
@@ -61,6 +64,6 @@ namespace yal::backend::c {
 
         static StringRef GenUnaryOperator(const yal::frontend::UnaryOperatorType op);
 
-       static StringRef GenBinaryOperator(const yal::frontend::BinaryOperatorType op);
+        static StringRef GenBinaryOperator(const yal::frontend::BinaryOperatorType op);
     };
 }

@@ -1,15 +1,9 @@
 #
-# Simple Parser test
+# YAL Frontend Tests
 #
 add_executable(test_yal_frontend
     fixture.h
-    #test_general.cpp
-    #test_stageexprtype.cpp
-    #test_stagemovecheck.cpp
-    #test_stagereturncheck.cpp
     #test_stagesizecalc.cpp
-
-
     passes/test_passparser.cpp
     passes/decl/test_predecl.cpp
     passes/decl/test_astbuilder.cpp

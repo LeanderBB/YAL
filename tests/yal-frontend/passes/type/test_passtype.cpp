@@ -259,7 +259,7 @@ R"R(
         return;
     }
     const yal::Error* err = m_errorReporter.getFirstError();
-    EXPECT_EQ(yal::frontend::ErrorTypeReference::kCode, err->getCode());
+    EXPECT_EQ(yal::frontend::ErrorTypeExprUnassignable::kCode, err->getCode());
 }
 
 TEST_F(PassType, AssignToImmutable) {

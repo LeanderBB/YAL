@@ -23,6 +23,8 @@
 
 namespace yal {
 
+    static const char kIdentChar = char(-100);
+    static const char kUnidentChar = char(-102);
     static const StringRef kIdentLevels[] = {
         "",
         "  ",
@@ -46,37 +48,89 @@ namespace yal {
     = uint32_t(sizeof(kIdentLevels) / sizeof(StringRef));
 
     CodeWriter::CodeWriter(ByteStream& output):
+        m_bufferOffset(0),
         m_stream(output),
-        m_identLevel(0) {
+        m_identLevel(0),
+        m_wasNewLine(false) {
 
+    }
+
+    CodeWriter::~CodeWriter() {
+        writeToStream();
     }
 
     void
     CodeWriter::write(const StringRef ref) {
-        FormatWriteWithLinePrefix(m_stream, ref, kIdentLevels[m_identLevel]);
+        const size_t newOffset = ref.size() + m_bufferOffset;
+        if (newOffset > kBufferSize) {
+            // flush buffer
+            writeToStream();
+        }
+        memcpy(m_buffer + m_bufferOffset, ref.data(), ref.size());
+        m_bufferOffset = newOffset;
     }
 
     void
     CodeWriter::write() {
-        const char ch = '\n';
-        m_stream.write(&ch, 1);
+        const size_t newOffset = 1+ m_bufferOffset;
+        if (newOffset > kBufferSize) {
+            // flush buffer
+            writeToStream();
+        }
+        m_buffer[m_bufferOffset] = '\n';
+        m_bufferOffset = newOffset;
     }
 
     void
     CodeWriter::ident() {
-        m_identLevel ++;
-        YAL_ASSERT(m_identLevel < kIdentLevelCount);
+        const size_t newOffset = 1+ m_bufferOffset;
+        if (newOffset > kBufferSize) {
+            // flush buffer
+            writeToStream();
+        }
+        m_buffer[m_bufferOffset] = kIdentChar;
+        m_bufferOffset = newOffset;
     }
 
     void
     CodeWriter::unident() {
-        YAL_ASSERT(m_identLevel != 0);
-        m_identLevel --;
+        const size_t newOffset = 1+ m_bufferOffset;
+        if (newOffset > kBufferSize) {
+            // flush buffer
+            writeToStream();
+        }
+        m_buffer[m_bufferOffset] = kUnidentChar;
+        m_bufferOffset = newOffset;
     }
 
     void
-    CodeWriter::write(Formater& formater) {
-        FormatWriteWithLinePrefix(m_stream, formater, kIdentLevels[m_identLevel]);
-        FormatReset(formater);
+    CodeWriter::writeToStream() {
+        size_t offset = 0;
+        size_t marker = 0;
+        while (offset < m_bufferOffset) {
+            const char ch = m_buffer[offset];
+            if (ch == kIdentChar) {
+                ++m_identLevel;
+                YAL_ASSERT(m_identLevel < kIdentLevelCount);
+                m_stream.write(m_buffer + marker, offset - marker);
+                marker = offset + 1;
+            } else if(ch == kUnidentChar) {
+                YAL_ASSERT(m_identLevel != 0);
+                --m_identLevel;
+                m_stream.write(m_buffer + marker, offset - marker);
+                marker = offset + 1;
+            } else if (ch == '\n') {
+                m_stream.write(m_buffer + marker, offset - marker + 1);
+                marker = offset + 1;
+                m_wasNewLine = true;
+            } else if (m_wasNewLine) {
+                const StringRef& identStr = kIdentLevels[m_identLevel];
+                m_stream.write(identStr.data(), identStr.size());
+                m_wasNewLine = false;
+            }
+            ++offset;
+        }
+
+        m_bufferOffset = 0;
     }
 }

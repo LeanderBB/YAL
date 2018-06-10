@@ -432,11 +432,10 @@ namespace yal::frontend {
         const TypeFunction* typeFn = node.getFunctionType();
         YAL_ASSERT(typeFn->isFunction());
 
-        const DeclFunction* declFn = typeFn->getDecl();
-        YAL_ASSERT(declFn != nullptr);
+        const DeclFunction& declFn = typeFn->getDecl();
 
         const ExprList& args = node.getFunctionArgs();
-        const DeclFunction::Params& params = declFn->getParams();
+        const DeclFunction::Params& params = declFn.getParams();
 
         // Check arg number match
         if (args.size() != params.size()) {
@@ -457,7 +456,7 @@ namespace yal::frontend {
             }
         }
 
-        node.setQualType(declFn->getReturnType());
+        node.setQualType(declFn.getReturnType());
     }
 
     void
@@ -473,7 +472,7 @@ namespace yal::frontend {
             // static function call, types have been evaluated
             typeFn = node.getFunctionType();
             YAL_ASSERT(typeFn != nullptr && typeFn->isTypeFunctionStatic());
-            declFn = typeFn->getDecl();
+            declFn = &typeFn->getDecl();
             YAL_ASSERT(declFn != nullptr);
 
         } else {
@@ -507,7 +506,7 @@ namespace yal::frontend {
                     onError(std::move(error));
                 }
 
-                declFn = typeFn->getDecl();
+                declFn = &typeFn->getDecl();
                 // update function type now that we know
                 node.setFunctionType(typeFn);
             } else {

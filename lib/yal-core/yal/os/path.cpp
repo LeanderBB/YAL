@@ -229,7 +229,15 @@ namespace yal {
         if (!ToOsPath(osPath, path)) {
             return false;
         }
-        return MakeDirectoryRecursive(osPath.data(), osPath.data());
+        OSPathCharType* offset = osPath.data();
+#if defined(YAL_OS_UNIX)
+        if (osPath[0] == kPathSep) {
+            offset++;
+        }
+#else
+       #error "Handle absolute path"
+#endif
+        return MakeDirectoryRecursive(osPath.data(), offset);
     }
 
 
@@ -333,5 +341,14 @@ namespace yal {
             return false;
         }
         return yal_rename(osPathOld.data(), osPathNew.data()) == 0;
+    }
+
+    bool
+    Path::IsAbsolute(const StringRef path) {
+#if defined (YAL_OS_UNIX)
+      return path.length() != 0 ? path[0] == kPathSep : false;
+#else
+      #error Missing implementaiton of Path::IsAbsolute()
+#endif
     }
 }

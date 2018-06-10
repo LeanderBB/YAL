@@ -64,6 +64,7 @@ namespace yal::frontend {
             bool enabled = false;
             bool exit = false;
             bool structReplace = false;
+            bool structVarRefRoot = true;
         };
 
         void onError(std::unique_ptr<Error>&& error);

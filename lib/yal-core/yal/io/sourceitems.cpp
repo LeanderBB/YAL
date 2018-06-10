@@ -54,7 +54,13 @@ namespace yal {
 
 
     SourceItemStringRef::SourceItemStringRef(const StringRef str):
+        SourceItemStringRef(str, "unknown") {
+    }
+
+    SourceItemStringRef::SourceItemStringRef(const StringRef str,
+                                             const StringRef path):
         m_string(str),
+        m_path(path),
         m_stream() {
         YAL_ASSERT(str.size() != 0);
         m_stream.attach(str.data(), str.size(), false);
@@ -67,6 +73,6 @@ namespace yal {
 
     const StringRef
     SourceItemStringRef::getPath() const {
-        return "uknown";
+        return m_path;
     }
 }

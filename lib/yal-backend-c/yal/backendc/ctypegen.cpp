@@ -36,7 +36,6 @@ namespace yal::backend::c {
     CTypeGen::GenDelcFunction(yal::CodeWriter& writer,
                               const CTypeCache& cache,
                               const yal::frontend::DeclFunction& decl) {
-        Formater& formater = writer.getFormater();
         const CType* ctypeFn = cache.getCType(decl.getFunctionType());
         YAL_ASSERT(ctypeFn != nullptr);
 
@@ -45,118 +44,123 @@ namespace yal::backend::c {
             const yal::frontend::QualType qt = decl.getReturnType();
             const CType* ctype = cache.getCType(*qt.getType());
             YAL_ASSERT(ctype != nullptr);
-            FormatReset(formater);
-            GenQualTypeReturn(formater, qt, *ctype);
-            writer.write(formater);
+            GenQualTypeReturn(writer, qt, *ctype);
         } else {
-            Format(formater,"void");
-            writer.write(formater);
+            writer.write("void");
         }
         writer.write();
 
         // write fwd decl
-        Format(formater, "%(", ctypeFn->getCIdentifier());
-        writer.write(formater);
+        writer.write("%(", ctypeFn->getCIdentifier());
         const auto& params = decl.getParams();
         if (!params.empty()) {
-            writer.write();
             writer.ident();
             bool isFirst = true;
             for (auto& param : params) {
-                FormatReset(formater);
-                FormatAppend(formater, !isFirst ? "," : " ");
+                writer.write(!isFirst ? "\n," : "\n");
                 const yal::frontend::QualType qtParam = param->getQualType();
                 const CType* ctypeParam = cache.getCType(*qtParam.getType());
                 YAL_ASSERT(ctypeParam != nullptr);
-                GenQualType(formater, qtParam, *ctypeParam);
-                FormatAppend(formater, "%\n", param->getName());
+                GenQualTypeFnParam(writer, qtParam, *ctypeParam);
+                writer.write("%", param->getName());
                 isFirst = false;
-                writer.write(formater);
             }
             writer.unident();
+            writer.write("\n)");
+        } else {
+            writer.write(") ");
         }
-        Format(formater,")");
-        writer.write(formater);
+
     }
 
     void
     CTypeGen::GenDelcStruct(yal::CodeWriter& writer,
                             const CTypeCache& cache,
                             const yal::frontend::DeclStruct& decl) {
-        Formater& formater = writer.getFormater();
         const CType* ctypeStruct = cache.getCType(decl.getStructType());
         YAL_ASSERT(ctypeStruct != nullptr);
-        Format(formater, "typedef struct {\n");
-        writer.write(formater);
+        writer.write("typedef struct % {\n", ctypeStruct->getCIdentifier());
         writer.ident();
         for (auto& member : decl.getMembers()) {
-            FormatReset(formater);
             const yal::frontend::QualType qtMember = member->getQualType();
             const CType* ctypeMember = cache.getCType(*qtMember.getType());
             YAL_ASSERT(ctypeMember != nullptr);
-            GenQualType(formater, qtMember, *ctypeMember);
-            FormatAppend(formater, "%;\n", member->getName());
-            writer.write(formater);
+            GenQualType(writer, qtMember, *ctypeMember);
+            writer.write("%;\n", member->getName());
         }
         writer.unident();
-        Format(formater, "} %", ctypeStruct->getCIdentifier());
-        writer.write(formater);
+        writer.write("} %", ctypeStruct->getCIdentifier());
     }
 
     void
-    CTypeGen::GenQualType(Formater& formater,
+    CTypeGen::GenQualType(CodeWriter& writer,
                           const yal::frontend::QualType& qt,
                           const CType& type) {
         if (qt.isImmutable()) {
-            FormatAppend(formater, "const ");
+            writer.write("const ");
         }
 
-        FormatAppend(formater, "% ",type.getCIdentifier());
+        writer.write("% ",type.getCIdentifier());
 
         if (qt.isReference()) {
-            FormatAppend(formater, "*");
+            writer.write("*");
         }
     }
 
     void
-    CTypeGen::GenQualTypeReturn(Formater& formater,
+    CTypeGen::GenQualTypeFnParam(CodeWriter& writer,
+                                 const yal::frontend::QualType& qt,
+                                 const CType& type) {
+        if (qt.isImmutable()) {
+            writer.write("const ");
+        }
+
+        writer.write("% ",type.getCIdentifier());
+
+        if (qt.isReference()) {
+            writer.write("*");
+        } else if (!type.getFrontendType().isTriviallyCopiable()) {
+            writer.write("*");
+        }
+    }
+
+    void
+    CTypeGen::GenQualTypeReturn(CodeWriter &writer,
                                 const yal::frontend::QualType& qt,
                                 const CType& type) {
         // only add const if type is reference, as all return
         // types are copies
         if (qt.isImmutable() && qt.isReference()) {
-            FormatAppend(formater, "const ");
+            writer.write("const ");
         }
 
-        FormatAppend(formater, "% ",type.getCIdentifier());
+        writer.write("% ",type.getCIdentifier());
 
         if (qt.isReference()) {
-            FormatAppend(formater, "*");
+            writer.write("*");
         }
     }
 
     void
     CTypeGen::GetBuilitinTypeInfo(yal::CodeWriter& writer) {
         //TODO: Replace with a special header at some point
-        Formater& formater = writer.getFormater();
-        Format(formater, "#if !defined(YAL_BUILTIN_TYPES_DEFINED)\n");
-        FormatAppend(formater, "#define YAL_BUILTIN_TYPES_DEFINED\n");
-        FormatAppend(formater, "#include<stdint.h>\n");
-        FormatAppend(formater, "typedef uint8_t yal_bool;\n");
-        FormatAppend(formater, "#define YAL_TRUE ((yal_bool)1)\n");
-        FormatAppend(formater, "#define YAL_FALSE ((yal_bool)0)\n");
-        FormatAppend(formater, "typedef int8_t yal_i8;\n");
-        FormatAppend(formater, "typedef int16_t yal_i16;\n");
-        FormatAppend(formater, "typedef int32_t yal_i32;\n");
-        FormatAppend(formater, "typedef int64_t yal_i64;\n");
-        FormatAppend(formater, "typedef uint8_t yal_u8;\n");
-        FormatAppend(formater, "typedef uint16_t yal_u16;\n");
-        FormatAppend(formater, "typedef uint32_t yal_u32;\n");
-        FormatAppend(formater, "typedef uint64_t yal_u64;\n");
-        FormatAppend(formater, "typedef float yal_f32;\n");
-        FormatAppend(formater, "typedef double yal_f64;\n");
-        FormatAppend(formater, "#endif // YAL_BUILTIN_TYPES_DEFINED\n\n");
-        writer.write(formater);
+        writer.write( "#if !defined(YAL_BUILTIN_TYPES_DEFINED)\n");
+        writer.write("#define YAL_BUILTIN_TYPES_DEFINED\n");
+        writer.write("#include<stdint.h>\n");
+        writer.write("typedef uint8_t yal_bool;\n");
+        writer.write("#define YAL_TRUE ((yal_bool)1)\n");
+        writer.write("#define YAL_FALSE ((yal_bool)0)\n");
+        writer.write("typedef int8_t yal_i8;\n");
+        writer.write("typedef int16_t yal_i16;\n");
+        writer.write("typedef int32_t yal_i32;\n");
+        writer.write("typedef int64_t yal_i64;\n");
+        writer.write("typedef uint8_t yal_u8;\n");
+        writer.write("typedef uint16_t yal_u16;\n");
+        writer.write("typedef uint32_t yal_u32;\n");
+        writer.write("typedef uint64_t yal_u64;\n");
+        writer.write("typedef float yal_f32;\n");
+        writer.write("typedef double yal_f64;\n");
+        writer.write("#endif // YAL_BUILTIN_TYPES_DEFINED\n\n");
     }
 
     StringRef
@@ -184,7 +188,7 @@ namespace yal::backend::c {
         case yal::frontend::BinaryOperatorType::Minus:
             return "-";
         case yal::frontend::BinaryOperatorType::Div:
-           return "/";
+            return "/";
         case yal::frontend::BinaryOperatorType::Mult:
             return "*";
         case yal::frontend::BinaryOperatorType::Mod:

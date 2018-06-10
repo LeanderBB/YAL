@@ -42,12 +42,14 @@ namespace yal::frontend {
             return m_stdecl;
         }
 
-        DeclFunction* getDecl() {
-            return m_decl;
+        DeclFunction& getDecl() {
+            YAL_ASSERT(m_decl != nullptr);
+            return *m_decl;
         }
 
-        const DeclFunction* getDecl() const {
-            return m_decl;
+        const DeclFunction& getDecl() const {
+            YAL_ASSERT(m_decl != nullptr);
+            return *m_decl;
         }
 
         void setDecl(DeclFunction* decl);

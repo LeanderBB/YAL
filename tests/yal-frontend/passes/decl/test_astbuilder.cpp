@@ -607,8 +607,8 @@ R"R(
         return;
     }
 
-    const yal::frontend::DeclFunction* decl = typeFn->getDecl();
-    const yal::frontend::DeclFunction::Params& params = decl->getParams();
+    const yal::frontend::DeclFunction& decl = typeFn->getDecl();
+    const yal::frontend::DeclFunction::Params& params = decl.getParams();
 
     EXPECT_EQ(3, params.size());
 
@@ -648,8 +648,8 @@ R"R(
         return;
     }
 
-    const yal::frontend::DeclFunction* decl = typeFn->getDecl();
-    const yal::frontend::DeclFunction::Body& body = decl->getFunctionBody();
+    const yal::frontend::DeclFunction& decl = typeFn->getDecl();
+    const yal::frontend::DeclFunction::Body& body = decl.getFunctionBody();
 
     EXPECT_EQ(3, body.size());
 
