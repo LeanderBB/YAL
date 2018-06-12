@@ -21,37 +21,39 @@
 #include "yal/io/memorystream.h"
 namespace yal {
 
-    class SourceItemFile : public SourceItem {
+    class SourceItemFile final : public SourceItem {
     public:
 
-        SourceItemFile() = default;
-        ~SourceItemFile() = default;
+        SourceItemFile(const StringRef path);
 
-        bool open(const char* path);
+        StreamPtr getByteStream() const override final;
 
-        bool open(FileStream& stream,
-                  const char* path);
-
-        const MemoryStream &getByteStream() const override;
-
-        const StringRef getPath() const override;
+        const StringRef getPath() const override final;
 
     private:
-        MemoryStream m_stream;
-        std::string m_filePath;
+        const std::string m_filePath;
     };
 
 
-    class SourceItemStringRef : public SourceItem {
+    class SourceItemStdInput final : public SourceItem {
+    public:
+
+        StreamPtr getByteStream() const override final;
+
+        const StringRef getPath() const override final;
+
+    };
+
+    class SourceItemStringRef final : public SourceItem {
     public:
         SourceItemStringRef(const StringRef str);
 
         SourceItemStringRef(const StringRef str,
                             const StringRef path);
 
-        const MemoryStream &getByteStream() const override;
+        StreamPtr getByteStream() const override final;
 
-        const StringRef getPath() const override;
+        const StringRef getPath() const override final;
     private:
         const StringRef m_string;
         const StringRef m_path;

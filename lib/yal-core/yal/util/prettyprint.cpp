@@ -31,14 +31,14 @@ namespace yal {
                                   const size_t lineEnd,
                                   const size_t columnStart,
                                   const size_t columnEnd) {
-        ByteStream& stream = sourceItem.getByteStream();
-        if (stream.isSeekable())
+        SourceItem::StreamPtr stream = sourceItem.getByteStream();
+        if (stream && stream->isSeekable())
         {
-            stream.seek(0);
+            stream->seek(0);
             for(size_t i= 1; i < lineStart;++i) {
-                stream.skipLine();
+                stream->skipLine();
             }
-            const std::string line = stream.readLine();
+            const std::string line = stream->readLine();
             log.error("In %:%:%\n", sourceItem.getPath(), lineStart, columnStart);
             log.error("    %\n", line.c_str());
             if (lineStart != lineEnd) {

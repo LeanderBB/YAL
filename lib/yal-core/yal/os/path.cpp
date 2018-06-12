@@ -101,7 +101,7 @@ namespace yal {
                const StringRef p2) {
         output.reserve(p1.size() + p2.size() + 1);
         output.append(p1.data(), p1.size());
-        if (p1[p1.size() -1 ] != kPathSep) {
+        if (p1.size() != 0 && p1[p1.size() -1 ] != kPathSep) {
             output += kPathSep;
         }
         output.append(p2.data(), p2.size());

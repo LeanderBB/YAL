@@ -16,21 +16,26 @@
  *  You should have received a copy of the GNU Lesser General Public
  *  License along with YAL. If not, see <http://www.gnu.org/licenses/>.
  */
+#include "yal/util/stringpool.h"
 
-#include "yal/frontend/ast/astcontext.h"
+namespace yal {
 
-#include "yal/frontend/module.h"
-#include <cstdint>
-#include <cinttypes>
+    StringRef
+    StringPool::getOrCreate(const StringRef string) {
+        std::string& value = m_map[string];
+        if (value.empty()) {
+            value = string.toString();
+        }
+        return StringRef(value);
+    }
 
-namespace yal::frontend {
-
-    enum {
-        kStackSizeBytes = 4096
-    };
-
-    ASTContext::ASTContext() :
-        m_allocator(kStackSizeBytes){
+    std::optional<StringRef>
+    StringPool::get(const StringRef string) const {
+        auto it = m_map.find(string);
+        if (it == m_map.end()) {
+            return std::optional<StringRef>();
+        }
+        return StringRef(it->second);
     }
 
 }

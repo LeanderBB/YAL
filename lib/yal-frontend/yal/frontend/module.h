@@ -23,7 +23,7 @@
 #include "yal/frontend/ast/astcontext.h"
 #include "yal/frontend/parser/stcontext.h"
 #include "yal/frontend/types/typecontext.h"
-#include "yal/util/stringref.h"
+#include "yal/util/stringpool.h"
 #include <string>
 
 namespace yal::frontend {
@@ -94,6 +94,14 @@ namespace yal::frontend {
             return m_typeContext;
         }
 
+        StringPool& getStringPool() {
+            return m_stringPool;
+        }
+
+        const StringPool& getStringPool() const {
+            return m_stringPool;
+        }
+
         template <typename T, typename... ARGS>
         T* newASTNode(ARGS&& ...args) {
             return  m_astContext.getAllocator()
@@ -109,6 +117,7 @@ namespace yal::frontend {
         ASTContext m_astContext;
         STContext m_stcontext;
         TypeContext m_typeContext;
+        StringPool m_stringPool;
         DeclModule* m_rootNode;
     };
 }

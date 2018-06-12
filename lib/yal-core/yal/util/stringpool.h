@@ -17,20 +17,28 @@
  *  License along with YAL. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "yal/frontend/ast/astcontext.h"
+#pragma once
 
-#include "yal/frontend/module.h"
-#include <cstdint>
-#include <cinttypes>
+#include "yal/yal.h"
+#include "yal/util/stringref.h"
 
-namespace yal::frontend {
+#include <unordered_map>
+#include <optional>
 
-    enum {
-        kStackSizeBytes = 4096
+namespace yal {
+
+    class StringPool {
+    public:
+        StringPool() = default;
+        YAL_NO_COPY_CLASS(StringPool);
+
+        StringRef getOrCreate(const StringRef string);
+
+        std::optional<StringRef> get(const StringRef string) const;
+
+    protected:
+        using StringMap = std::unordered_map<StringRef, std::string>;
+        StringMap m_map;
     };
-
-    ASTContext::ASTContext() :
-        m_allocator(kStackSizeBytes){
-    }
 
 }

@@ -99,7 +99,6 @@
 %type struct_decl_vars {yal::frontend::STDeclStruct::Members*}
 // var
 %type var_type_spec {yal::frontend::STQualType*}
-%type named_decl {yal::StringRefPod}
 // statements
 %type statement_list {yal::frontend::STStatementList*}
 %type statement_list_or_empty {yal::frontend::STStatementList*}

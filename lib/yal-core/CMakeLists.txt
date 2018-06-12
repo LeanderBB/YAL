@@ -72,6 +72,8 @@ set(LIB_SOURCES
     yal/util/scopedstackelem.h
     yal/util/hash.cpp
     yal/util/hash.h
+    yal/util/stringpool.cpp
+    yal/util/stringpool.h
 )
 
 

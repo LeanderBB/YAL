@@ -19,11 +19,12 @@
 
 #include "yal/frontend/passes/parser/passparser.h"
 
+#include "yal/error/errorreporter.h"
 #include "yal/frontend/lexer/lexer.h"
 #include "yal/frontend/module.h"
 #include "yal/frontend/parser/stparser.h"
 #include "yal/frontend/passes/passes.h"
-#include "yal/error/errorreporter.h"
+#include "yal/io/bytestream.h"
 
 namespace yal::frontend {
 
@@ -34,7 +35,13 @@ namespace yal::frontend {
     bool
     PassParser::execute(PassOptions & options) {
 
-        Lexer lexer(options.srcItem.getByteStream());
+        SourceItem::StreamPtr byteStream = options.srcItem.getByteStream();
+        if (!byteStream) {
+            return false;
+        }
+
+        Lexer lexer(*byteStream,
+                    options.module.getStringPool());
         STParser parser(lexer,
                         options.module.getSTContext(),
                         options.errReporter,

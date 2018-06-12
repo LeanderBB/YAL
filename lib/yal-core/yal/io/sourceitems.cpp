@@ -20,31 +20,21 @@
 #include "yal/io/filestream.h"
 namespace yal {
 
-    bool
-    SourceItemFile::open(const char* path) {
-        m_stream.close();
-        m_filePath.clear();
-        FileStream fstream;
-        // Read file into memory stream
-        if (fstream.open(path, FileStream::kModeRead)) {
-            return open(fstream, path);
-        }
-        return false;
+    // SourceItemFile --------------------------------------------------------
+
+    SourceItemFile::SourceItemFile(const StringRef path):
+        m_filePath(path.toString()) {
+
     }
 
-    bool
-    SourceItemFile::open(FileStream& stream,
-                         const char *path) {
-        if (m_stream.create(stream)) {
-            m_filePath = path;
-            return true;
-        }
-        return false;
-    }
-
-    const MemoryStream &
+    SourceItem::StreamPtr
     SourceItemFile::getByteStream() const {
-        return m_stream;
+        auto fstream = std::make_unique<FileStream>();
+        // Read file into memory stream
+        if (!fstream->open(m_filePath, ByteStream::kModeRead)) {
+            fstream.reset();
+        }
+        return nullptr;
     }
 
     const StringRef
@@ -52,6 +42,19 @@ namespace yal {
         return m_filePath;
     }
 
+    // SourceItemStdInput ----------------------------------------------------
+    SourceItem::StreamPtr
+    SourceItemStdInput::getByteStream() const {
+        auto fstream = std::make_unique<FileStream>();
+        fstream->open(FileStream::StdStream::In);
+        return fstream;
+    }
+
+    const StringRef
+    SourceItemStdInput::getPath() const {
+        return "stdin";
+    }
+    // SourceItemStringRef ---------------------------------------------------
 
     SourceItemStringRef::SourceItemStringRef(const StringRef str):
         SourceItemStringRef(str, "unknown") {
@@ -66,9 +69,11 @@ namespace yal {
         m_stream.attach(str.data(), str.size(), false);
     }
 
-    const MemoryStream&
+    SourceItem::StreamPtr
     SourceItemStringRef::getByteStream() const {
-        return m_stream;
+        auto stream = std::make_unique<MemoryStream>();
+        stream->attach(m_string.data(), m_string.size(), false);
+        return stream;
     }
 
     const StringRef

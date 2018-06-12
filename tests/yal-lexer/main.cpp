@@ -16,14 +16,16 @@
  *  You should have received a copy of the GNU Lesser General Public
  *  License along with YAL. If not, see <http://www.gnu.org/licenses/>.
  */
-#include <gtest/gtest.h>
+
 #include <yal/yal.h>
-#include <yal/io/memorystream.h>
 #include <yal/frontend/lexer/lexer.h>
 #include <yal/frontend/lexer/tokens.h>
-#include <string>
+#include <yal/io/memorystream.h>
+#include <yal/util/stringpool.h>
+
 #include <iostream>
-#include <yal/util/stringref.h>
+#include <string>
+#include <gtest/gtest.h>
 
 /*
 TEST(Lexer, BasicTokenError) {
@@ -52,7 +54,8 @@ TEST(Lexer, BasicTokenRead) {
 
     stream.attach(input.c_str(),input.size(), false);
 
-    yal::frontend::Lexer lexer(stream);
+    yal::StringPool strPool;
+    yal::frontend::Lexer lexer(stream,strPool);
 
     yal::frontend::Lexer::Status status = lexer.scan();
 
@@ -64,9 +67,7 @@ TEST(Lexer, BasicTokenRead) {
         EXPECT_EQ(tk.lineEnd, 1u);
         EXPECT_EQ(tk.columnStart, 1u);
         EXPECT_EQ(tk.columnEnd, 3u);
-        EXPECT_EQ(tk.tokenStr.size, 3u);
         EXPECT_EQ(tk.tokenOffsetInStream, 0u);
-        EXPECT_EQ(yal::StringRef(tk.tokenStr), "let");
     }
 
     status = lexer.scan();
@@ -78,9 +79,7 @@ TEST(Lexer, BasicTokenRead) {
         EXPECT_EQ(tk.lineEnd, 1u);
         EXPECT_EQ(tk.columnStart, 5u);
         EXPECT_EQ(tk.columnEnd, 7u);
-        EXPECT_EQ(tk.tokenStr.size, 3u);
         EXPECT_EQ(tk.tokenOffsetInStream, 4u);
-        EXPECT_EQ(yal::StringRef(tk.tokenStr), "var");
     }
 
     status = lexer.scan();
@@ -94,7 +93,6 @@ TEST(Lexer, BasicTokenRead) {
         EXPECT_EQ(tk.columnEnd, 5u);
         EXPECT_EQ(tk.tokenStr.size, 4u);
         EXPECT_EQ(tk.tokenOffsetInStream, 10u);
-        EXPECT_EQ(yal::StringRef(tk.tokenStr), "true");
     }
 
     status = lexer.scan();
@@ -120,9 +118,7 @@ TEST(Lexer, BasicTokenRead) {
         EXPECT_EQ(tk.lineEnd, 3u);
         EXPECT_EQ(tk.columnStart, 1u);
         EXPECT_EQ(tk.columnEnd, 4u);
-        EXPECT_EQ(tk.tokenStr.size, 4u);
         EXPECT_EQ(tk.tokenOffsetInStream, 22u);
-        EXPECT_EQ(yal::StringRef(tk.tokenStr), "this");
     }
 
     status = lexer.scan();
@@ -134,9 +130,7 @@ TEST(Lexer, BasicTokenRead) {
         EXPECT_EQ(tk.lineEnd, 3u);
         EXPECT_EQ(tk.columnStart, 6u);
         EXPECT_EQ(tk.columnEnd, 8u);
-        EXPECT_EQ(tk.tokenStr.size, 3u);
         EXPECT_EQ(tk.tokenOffsetInStream, 27u);
-        EXPECT_EQ(yal::StringRef(tk.tokenStr), "and");
     }
 
     status = lexer.scan();
@@ -156,7 +150,8 @@ TEST(Lexer, TypeDeclTokens) {
     yal::MemoryStream stream;
     stream.attach(input.c_str(),input.size(), false);
 
-    yal::frontend::Lexer lexer(stream);
+    yal::StringPool strPool;
+    yal::frontend::Lexer lexer(stream, strPool);
     yal::frontend::Lexer::Status status = lexer.scan();
     {
         EXPECT_EQ(status, yal::frontend::Lexer::Status::Ok);

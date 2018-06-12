@@ -56,7 +56,7 @@ namespace yal {
 
     private:
         static constexpr uint32_t kFormaterSize = 1024;
-        static constexpr size_t kBufferSize = 4096;
+        static constexpr size_t kBufferSize = 2048;
         size_t m_bufferOffset;
         char m_buffer[kBufferSize];
         FormaterStack<kFormaterSize> m_formater;

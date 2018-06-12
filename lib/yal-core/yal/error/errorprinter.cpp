@@ -123,8 +123,8 @@ namespace yal {
                                   const SourceInfo& srcInfo)
     {
         size_t bytesWritten =0;
-        MemoryStream& stream = item.getByteStream();
-        if (stream.isSeekable())
+        SourceItem::StreamPtr stream = item.getByteStream();
+        if (stream && stream->isSeekable())
         {
             // print item location
             bytesWritten += FormatAppend(formater,"%:%:%\n\n",
@@ -133,11 +133,11 @@ namespace yal {
                                          srcInfo.begin.column);
 
             // print line info
-            stream.seek(0);
+            stream->seek(0);
             for(size_t i= 1; i < srcInfo.begin.line;++i) {
-                stream.skipLine();
+                stream->skipLine();
             }
-            const std::string line = stream.readLine();
+            const std::string line = stream->readLine();
             bytesWritten += FormatAppend(formater,"%\n", line.c_str());
 
             if (srcInfo.begin.line != srcInfo.end.line) {

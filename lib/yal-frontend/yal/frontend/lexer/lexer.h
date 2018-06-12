@@ -26,7 +26,8 @@
 namespace yal {
 
     enum class Token;
-    class MemoryStream;
+    class ByteStream;
+    class StringPool;
 }
 
 namespace yal::frontend {
@@ -40,7 +41,8 @@ namespace yal::frontend {
             EOS
         };
 
-        Lexer(MemoryStream& stream);
+        Lexer(ByteStream& stream,
+              StringPool& stringPool);
 
         ~Lexer();
 
@@ -50,7 +52,7 @@ namespace yal::frontend {
             return m_curToken;
         }
 
-        MemoryStream& getStream() const {
+        ByteStream& getStream() const {
             return m_stream;
         }
 
@@ -67,7 +69,8 @@ namespace yal::frontend {
 
         void setLexerError(const LexerState& state);
 
-        MemoryStream& m_stream;
+        ByteStream& m_stream;
+        StringPool& m_stringPool;
         std::unique_ptr<LexerState> m_lexerState;
         TokenInfo m_curToken;
     };

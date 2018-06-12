@@ -37,32 +37,21 @@
 int main(const int argc,
          const char** argv) {
 
-    yal::FileStream stream;
+    std::unique_ptr<yal::SourceItem> sourceItem;
     if (argc < 2)  {
-        stream.open(yal::FileStream::StdStream::In);
+        sourceItem = std::make_unique<yal::SourceItemStdInput>();
     } else {
-        if (!stream.open(argv[1], yal::FileStream::kModeRead)) {
-            std::cerr << "Failed to open: " << argv[1] << std::endl;
-            return EXIT_FAILURE;
-        }
+        sourceItem = std::make_unique<yal::SourceItemFile>(argv[1]);
     }
 
     yal::FileStream stdoutStream;
     stdoutStream.open(yal::FileStream::StdStream::Out);
-    yal::Log log(stdoutStream);
-
-    auto sourceStream = std::make_unique<yal::SourceItemFile>();
-
-    if (!sourceStream->open(stream, (argc < 2) ? "stdin" : argv[1])) {
-        std::cerr << "Failed to create source stream" << std::endl;
-        return EXIT_FAILURE;
-    }
 
     yal::SourceManager sourceManager;
     yal::frontend::ModuleManager moduleManager;
     yal::ErrorReporter errorReporter;
 
-    auto handle = sourceManager.add(std::move(sourceStream));
+    auto handle = sourceManager.add(std::move(sourceItem));
 
     yal::frontend::Frontend frontend(errorReporter,
                                      sourceManager,

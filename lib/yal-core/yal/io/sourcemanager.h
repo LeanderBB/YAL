@@ -25,7 +25,7 @@
 #include <vector>
 namespace yal {
 
-    class MemoryStream;
+    class ByteStream;
 
     class SourceItem;
     using SourceItemOpt = std::optional<SourceItem*>;
@@ -39,10 +39,10 @@ namespace yal {
             YAL_APPLY_CLASS_DEFAULT(Handle);
             bool isValid() const;
             inline bool operator == (const Handle& other) const {
-               return m_id == other.m_id;
+                return m_id == other.m_id;
             }
             inline bool operator != (const Handle& other) const {
-               return m_id != other.m_id;
+                return m_id != other.m_id;
             }
         private:
             friend class SourceManager;
@@ -63,8 +63,9 @@ namespace yal {
     };
 
     class SourceItem {
-       public:
+    public:
 
+        using StreamPtr = std::unique_ptr<ByteStream>;
         SourceItem() = default;
 
         virtual ~SourceItem();
@@ -75,12 +76,7 @@ namespace yal {
             return m_handle;
         }
 
-        inline MemoryStream& getByteStream() {
-            const SourceItem* const_this = this;
-            return const_cast<MemoryStream&>(const_this->getByteStream());
-        }
-
-        virtual const MemoryStream& getByteStream() const = 0;
+        virtual StreamPtr getByteStream() const = 0;
 
         virtual const StringRef getPath() const = 0;
 
