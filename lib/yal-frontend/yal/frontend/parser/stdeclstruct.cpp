@@ -34,10 +34,11 @@ namespace yal::frontend {
     }
 
     STDeclStruct::STDeclStruct(const STIdentifier *name,
-                               const Members *members):
+                               const ParseListStructMember::Range &range,
+                               STParser &parser):
         STDecl(SyntaxTreeType::STDeclStruct, name),
-        m_members(members) {
-
+        m_members(parser.getSTContext().getStdAllocatorWrapper<Members::value_type>()) {
+        parser.getStructMemberList().moveRange(m_members, range);
     }
 
     void

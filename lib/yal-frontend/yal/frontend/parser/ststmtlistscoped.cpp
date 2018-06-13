@@ -22,10 +22,12 @@
 
 namespace yal::frontend {
 
-    STStmtListScoped::STStmtListScoped(const STStatementList* statements):
+    STStmtListScoped::STStmtListScoped(const ParseListStmt::Range statements,
+                                       STParser& parser):
         STStatement(SyntaxTreeType::STStmtListScoped),
-        m_statements(statements) {
+        m_statements(parser.getSTContext().getStdAllocatorWrapper<STStatementList::value_type>()) {
 
+        parser.getStmtList().moveRange(m_statements, statements);
     }
 
     void

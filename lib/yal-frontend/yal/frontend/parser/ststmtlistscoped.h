@@ -20,23 +20,24 @@
 #pragma once
 
 #include "yal/frontend/parser/ststatement.h"
-
+#include "yal/frontend/parser/stparser.h"
 namespace yal::frontend {
 
 
     class STStmtListScoped final : public STStatement
     {
     public:
-        STStmtListScoped(const STStatementList* statements);
+        STStmtListScoped(const ParseListStmt::Range statements,
+                         STParser& parser);
 
         const STStatementList& getStatements() const {
-            return *m_statements;
+            return m_statements;
         }
 
         void acceptVisitor(SyntaxTreeVisitor& visitor) const override final;
 
    protected:
-        const STStatementList* m_statements;
+        STStatementList m_statements;
     };
 
 }

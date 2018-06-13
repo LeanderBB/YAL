@@ -34,11 +34,12 @@ namespace yal::frontend {
     }
 
     STExprStructInit::STExprStructInit(const STType *structName,
-                                       const MemberInitList *members):
+                                       const ParseListStructInit::Range members,
+                                       STParser& parser):
         STExpression(SyntaxTreeType::STExprStructInit),
         m_structType(structName),
-        m_memberInits(members) {
-
+        m_memberInits(parser.getSTContext().getStdAllocatorWrapper<MemberInitList::value_type>()) {
+        parser.getStructInitList().moveRange(m_memberInits, members);
     }
 
     void

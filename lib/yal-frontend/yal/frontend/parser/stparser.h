@@ -33,6 +33,82 @@ namespace yal::frontend {
 
     class Lexer;
     struct TokenInfo;
+    class STDecl;
+    class STStatement;
+    class STExpression;
+    class STStructMemberInit;
+    class STStructMember;
+    class STDeclParam;
+
+    template <typename T>
+    class ParseList {
+    public:
+        using DestinationType = std::vector<const T*, StdAllocatorWrapperStack<const T*>>;
+        struct Range {
+            size_t begin;
+            size_t end;
+        };
+
+        ParseList() {
+            m_list.reserve(32);
+        }
+
+        ParseList(const ParseList<T>&) = delete;
+        ParseList<T>& operator = (const ParseList<T>&) = delete;
+
+        size_t getSize() const {
+            return m_list.size();
+        }
+
+        Range getRangeEmpty() const {
+            return Range {0,0};
+        }
+
+        Range add(const T* value) {
+            Range r;
+            r.begin = m_list.size();
+            r.end = r.begin + 1;
+            m_list.push_back(value);
+            return r;
+        }
+
+        Range add(const Range& range,
+                  const T* value) {
+            Range r;
+            r.begin = range.begin;
+            r.end = m_list.size() + 1;
+            m_list.push_back(value);
+            return r;
+        }
+
+        size_t moveRange(DestinationType &dest,
+                         const Range& range) {
+            if( range.begin < m_list.size()
+                    && range.end > range.begin
+                    && range.end <=m_list.size()) {
+                const size_t size = range.end - range.begin;
+                dest.clear();
+                dest.reserve(size);
+
+                auto itBegin = m_list.begin() + range.begin;
+                auto itEnd = m_list.begin() + range.end;
+                dest.assign(itBegin,itEnd);
+                m_list.erase(itBegin, itEnd);
+                return size;
+            }
+            return 0;
+        }
+
+    private:
+        std::vector<const T*> m_list;
+    };
+
+    using ParseListDecl = ParseList<STDecl>;
+    using ParseListExpr = ParseList<STExpression>;
+    using ParseListStmt = ParseList<STStatement>;
+    using ParseListStructInit = ParseList<STStructMemberInit>;
+    using ParseListStructMember = ParseList<STStructMember>;
+    using ParseListDeclParam = ParseList<STDeclParam>;
 
     class STParser {
     public:
@@ -68,14 +144,43 @@ namespace yal::frontend {
             return m_stcontext.create<std::vector<T, StdAllocatorWrapperStack<T>>>(allocator);
         }
 
-        /*
-        template<typename T>
-        std::vector<T>* createVector() {
-            return m_stcontext.create<std::vector<T>>();
-        }*/
+
+        ParseListDecl& getDeclList() {
+            return m_listDecl;
+        }
+
+        ParseListExpr& getExprList() {
+            return m_listExpr;
+        }
+
+        ParseListStmt& getStmtList() {
+            return m_listStmt;
+        }
+
+        ParseListStructInit& getStructInitList() {
+            return m_listStructInit;
+        }
+
+        ParseListStructMember& getStructMemberList() {
+            return m_listStructMember;
+        }
+
+        ParseListDeclParam& getDeclParamList() {
+            return m_listDeclParam;
+        }
+
+        STContext& getSTContext() {
+            return m_stcontext;
+        }
 
     private:
         std::unique_ptr<void, void(*)(void*)> m_parserImpl;
+        ParseListDecl m_listDecl;
+        ParseListExpr m_listExpr;
+        ParseListStmt m_listStmt;
+        ParseListStructInit m_listStructInit;
+        ParseListStructMember m_listStructMember;
+        ParseListDeclParam m_listDeclParam;
         STContext& m_stcontext;
         Lexer& m_lexer;
         ErrorReporter& m_errorReporter;

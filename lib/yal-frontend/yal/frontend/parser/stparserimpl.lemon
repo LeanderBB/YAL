@@ -89,28 +89,28 @@
 %type decl_function {yal::frontend::STDeclFunction*}
 %type decl_type_function {yal::frontend::STDeclFunction*}
 %type function_return_decl {yal::frontend::STQualType*}
-%type function_args_decl {yal::frontend::STDeclFunction::Params*}
+%type function_args_decl {yal::frontend::ParseListDeclParam::Range}
 %type function_arg_decl {yal::frontend::STDeclParam*}
-%type function_param_list {yal::frontend::STDeclFunction::Params*}
+%type function_param_list {yal::frontend::ParseListDeclParam::Range}
 
 // struct
 %type decl_struct {yal::frontend::STDeclStruct*}
 %type struct_decl_var {yal::frontend::STStructMember*}
-%type struct_decl_vars {yal::frontend::STDeclStruct::Members*}
+%type struct_decl_vars {yal::frontend::ParseListStructMember::Range}
 // var
 %type var_type_spec {yal::frontend::STQualType*}
 // statements
-%type statement_list {yal::frontend::STStatementList*}
-%type statement_list_or_empty {yal::frontend::STStatementList*}
+%type statement_list {yal::frontend::ParseListStmt::Range}
+%type statement_list_or_empty {yal::frontend::ParseListStmt::Range}
 %type statement {yal::frontend::STStatement*}
 // expressions
 %type expression {yal::frontend::STExpression*}
 %type unaryexp {yal::frontend::STExprUnaryOperator*}
 %type binaryexp {yal::frontend::STExprBinaryOperator*}
 %type literal {yal::frontend::STExpression*}
-%type function_call_args{yal::frontend::STExprFnCall::ParamList*}
+%type function_call_args{yal::frontend::ParseListExpr::Range}
 %type struct_init {yal::frontend::STExprStructInit* }
-%type struct_member_init_list {yal::frontend::STExprStructInit::MemberInitList*}
+%type struct_member_init_list {yal::frontend::ParseListStructInit::Range}
 %type struct_member_init {yal::frontend::STStructMemberInit*}
 
 
@@ -242,18 +242,18 @@ decl_type(A) ::= decl_struct(B). { A = B;}
 // Decl Struct ---------------------------------------------------------------
 
 decl_struct(A) ::= TYPE(B) identifier(D) COLON STRUCT SCOPE_BEGIN struct_decl_vars(C) SCOPE_END(Z). {
-    A = pParser->createNode<yal::frontend::STDeclStruct>(D, C);
+    A = pParser->createNode<yal::frontend::STDeclStruct>(D, C, *pParser);
     auto srcInfo = CreateSourceInfo(B, Z, pParser->getSourceHandle());
     A->setSourceInfo(srcInfo);
 }
 
 struct_decl_vars(A) ::= struct_decl_vars(B) COMMA struct_decl_var(C). {
-    A = B;
-    A->push_back(C);
+    auto& list = pParser->getStructMemberList();
+    A = list.add(B, C);
 }
 struct_decl_vars(A) ::= struct_decl_var(B). {
-    A = pParser->createVector<const yal::frontend::STStructMember*>();
-    A->push_back(B);
+    auto& list = pParser->getStructMemberList();
+    A = list.add(B);
 }
 
 struct_decl_var(A) ::= identifier(B) COLON type_qualified(C). {
@@ -271,7 +271,7 @@ function_param_list(A) ::= PAR_BEGIN function_args_decl (B) PAR_END. {
 
 decl_function(A) ::= FUNCTION(B) identifier(C) function_param_list(D) function_return_decl (E)
         SCOPE_BEGIN statement_list_or_empty(F) SCOPE_END(Z). {
-    A = pParser->createNode<yal::frontend::STDeclFunction>(C, nullptr, E, D, F);
+    A = pParser->createNode<yal::frontend::STDeclFunction>(C, nullptr, E, D, F, *pParser);
     A->setSourceInfo(CreateSourceInfo(B, Z, pParser->getSourceHandle()));
 }
 
@@ -279,24 +279,24 @@ decl_function(A) ::= FUNCTION(B) identifier(C) function_param_list(D) function_r
 
 decl_type_function(A)::= FUNCTION(B) type_specifier(T) COLON COLON identifier(C) function_param_list(D) function_return_decl (E)
         SCOPE_BEGIN statement_list_or_empty(F) SCOPE_END(Z).  {
-    A = pParser->createNode<yal::frontend::STDeclFunction>(C, T, E, D, F);
+    A = pParser->createNode<yal::frontend::STDeclFunction>(C, T, E, D, F, *pParser);
     A->setSourceInfo(CreateSourceInfo(B, Z, pParser->getSourceHandle()));
 }
 
 // Function args decl --------------------------------------------------------
 
 function_args_decl(A) ::= function_args_decl(B) COMMA function_arg_decl(C). {
-        B->push_back(C);
-        A = B;
+        auto& list = pParser->getDeclParamList();
+        A = list.add(B, C);
 }
 
 function_args_decl(A) ::= function_arg_decl(B). {
-    A = pParser->createVector<const yal::frontend::STDeclParam*>();
-    A->push_back(B);
+    auto& list = pParser->getDeclParamList();
+    A = list.add(B);
 }
 
 function_args_decl(A) ::= . {
-        A = nullptr;
+   A = pParser->getDeclParamList().getRangeEmpty();
 }
 
 function_arg_decl(A) ::= identifier(B) COLON type_qualified(C). {
@@ -315,17 +315,17 @@ function_return_decl(A)::=. {A = nullptr;}
 
 // Statments -----------------------------------------------------------------
 
-statement_list_or_empty(A) ::=. {A = nullptr;}
+statement_list_or_empty(A) ::=. {A = pParser->getStmtList().getRangeEmpty();}
 statement_list_or_empty(A) ::= statement_list(B). {A = B;}
 
 
 statement_list(A) ::= statement_list(B) statement(C).{
-    B->push_back(C);
-    A=B;
+    auto& list = pParser->getStmtList();
+    A = list.add(B,C);
 }
 statement_list(A) ::= statement(B). {
-    A = pParser->createVector<const yal::frontend::STStatement*>();
-    A->push_back(B);
+    auto& list = pParser->getStmtList();
+    A = list.add(B);
 }
 
 
@@ -356,7 +356,7 @@ statement(A) ::= RETURN(Z) SEMI_COLON. {
 }
 
 statement(A) ::= SCOPE_BEGIN(X) statement_list_or_empty(B) SCOPE_END(Z). {
-    A = pParser->createNode<yal::frontend::STStmtListScoped>(B);
+    A = pParser->createNode<yal::frontend::STStmtListScoped>(B, *pParser);
     auto srcInfo = yal::frontend::CreateSourceInfo(X, Z, pParser->getSourceHandle());
     A->setSourceInfo(srcInfo);
 }
@@ -405,19 +405,19 @@ expression (A) ::= expression(B) DOT identifier(C). {
 }
 
 expression(A) ::= identifier(C) PAR_BEGIN function_call_args(D) PAR_END(Z). {
-    A = pParser->createNode<yal::frontend::STExprFnCall>(C,D);
+    A = pParser->createNode<yal::frontend::STExprFnCall>(C,D,*pParser);
     auto srcInfo = yal::frontend::CreateSourceInfo(C->getSourceInfo(), Z, pParser->getSourceHandle());
     A->setSourceInfo(srcInfo);
 }
 
 expression(A) ::= expression(B) DOT identifier(C) PAR_BEGIN function_call_args(D) PAR_END(Z). {
-    A = pParser->createNode<yal::frontend::STExprFnCall>(C,B,D);
+    A = pParser->createNode<yal::frontend::STExprFnCall>(C,B,D,*pParser);
     auto srcInfo = yal::frontend::CreateSourceInfo(B->getSourceInfo(), Z, pParser->getSourceHandle());
     A->setSourceInfo(srcInfo);
 }
 
 expression(A) ::= type_specifier(B) COLON COLON identifier(C) PAR_BEGIN function_call_args(D) PAR_END(Z). {
-    A = pParser->createNode<yal::frontend::STExprFnCall>(C,B,D);
+    A = pParser->createNode<yal::frontend::STExprFnCall>(C,B,D,*pParser);
     auto srcInfo = yal::frontend::CreateSourceInfo(B->getSourceInfo(), Z, pParser->getSourceHandle());
     A->setSourceInfo(srcInfo);
 }
@@ -538,34 +538,34 @@ unaryexp(A) ::= REFERENCE(Z) expression(B).[NEGATE] {
 // Function call ------------------------------------------------------------
 
 function_call_args(A) ::= function_call_args(B) COMMA expression(C). {
-    A = B;
-    A->push_back(C);
+    auto& list = pParser->getExprList();
+    A = list.add(B, C);
 }
 function_call_args(A)::= expression(B). {
-    A = pParser->createVector<const yal::frontend::STExpression*>();
-    A->push_back(B);
+    auto& list = pParser->getExprList();
+    A = list.add(B);
 }
 function_call_args(A) ::=. {
-    A= nullptr;
+    A= pParser->getExprList().getRangeEmpty();
 }
 
 
 // Struct Init ---------------------------------------------------------------
 
 struct_init(A) ::= type_specifier(B) SCOPE_BEGIN struct_member_init_list (C) SCOPE_END(D). {
-    A = pParser->createNode<yal::frontend::STExprStructInit>(B, C);
+    A = pParser->createNode<yal::frontend::STExprStructInit>(B, C, *pParser);
     auto srcInfo = yal::frontend::CreateSourceInfo(B->getSourceInfo(), D, pParser->getSourceHandle());
     A->setSourceInfo(srcInfo);
 }
 
-struct_member_init_list (A) ::=. {A = nullptr;}
+struct_member_init_list (A) ::=. {A = pParser->getStructInitList().getRangeEmpty();}
 struct_member_init_list (A) ::= struct_member_init_list(B) COMMA struct_member_init(C). {
-     B->push_back(C);
-     A = B;
+     auto& list = pParser->getStructInitList();
+     A = list.add(B, C);
 }
 struct_member_init_list (A) ::= struct_member_init(B). {
-        A = pParser->createVector<const yal::frontend::STStructMemberInit*>();
-        A->push_back(B);
+    auto& list = pParser->getStructInitList();
+    A = list.add(B);
 }
 
 struct_member_init(A) ::= identifier(B) COLON expression(C). {

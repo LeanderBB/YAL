@@ -50,11 +50,11 @@ namespace yal::frontend {
         } else {
             m_typefunction = 1;
 
-            const STDeclFunction::Params* params = decl->getParams();
-            if (params == nullptr || params->empty()) {
+            const STDeclFunction::Params& params = decl->getParams();
+            if (params.empty()) {
                 m_typefunctionStatic = 1;
             } else {
-                if ((*params)[0]->getName()->getString() != "self") {
+                if (params[0]->getName()->getString() != "self") {
                      m_typefunctionStatic = 1;
                 }
             }

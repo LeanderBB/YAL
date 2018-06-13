@@ -20,6 +20,7 @@
 #pragma once
 
 #include "yal/frontend/parser/ststmtexpression.h"
+#include "yal/frontend/parser/stparser.h"
 
 namespace yal::frontend {
 
@@ -57,13 +58,14 @@ namespace yal::frontend {
         using MemberInitList = STVector<const STStructMemberInit*>;
 
         STExprStructInit(const STType* structType,
-                         const MemberInitList* members);
+                         const ParseListStructInit::Range members,
+                         STParser& parser);
 
         const STType* getStructType() const {
             return m_structType;
         }
 
-        const MemberInitList* getMemeberInitExprs() const {
+        const MemberInitList& getMemeberInitExprs() const {
             return m_memberInits;
         }
 
@@ -71,6 +73,6 @@ namespace yal::frontend {
 
     private:
         const STType* m_structType;
-        const MemberInitList* m_memberInits;
+        MemberInitList m_memberInits;
     };
 }

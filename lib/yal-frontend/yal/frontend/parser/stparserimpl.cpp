@@ -178,11 +178,14 @@ typedef union {
   yal::frontend::STDeclParam* yy3;
   yal::frontend::STExprBinaryOperator* yy4;
   yal::frontend::STStructMember* yy25;
+  yal::frontend::ParseListStructInit::Range yy32;
   yal::frontend::STStructMemberInit* yy33;
+  yal::frontend::ParseListStructMember::Range yy34;
+  yal::frontend::ParseListStmt::Range yy47;
   yal::frontend::STIdentifier* yy57;
   yal::frontend::STDeclModule* yy66;
   yal::frontend::STDeclFunction* yy68;
-  yal::frontend::STExprFnCall::ParamList* yy70;
+  yal::frontend::ParseListDeclParam::Range yy69;
   yal::frontend::STQualType* yy71;
   uint32_t yy72;
   yal::frontend::STType* yy74;
@@ -190,12 +193,9 @@ typedef union {
   yal::frontend::STExprStructInit* yy100;
   yal::frontend::STDecl* yy108;
   yal::frontend::STStatement* yy129;
-  yal::frontend::STDeclFunction::Params* yy134;
-  yal::frontend::STExprStructInit::MemberInitList* yy140;
   yal::frontend::STExpression* yy162;
   yal::frontend::STDeclVar* yy167;
-  yal::frontend::STStatementList* yy187;
-  yal::frontend::STDeclStruct::Members* yy198;
+  yal::frontend::ParseListExpr::Range yy200;
 } YYMINORTYPE;
 #ifndef YYSTACKDEPTH
 #define YYSTACKDEPTH 100
@@ -1552,7 +1552,7 @@ static void yy_reduce(
       case 29: /* decl_struct ::= TYPE identifier COLON STRUCT SCOPE_BEGIN struct_decl_vars SCOPE_END */
 #line 244 "stparserimpl.lemon"
 {
-    yylhsminor.yy77 = pParser->createNode<yal::frontend::STDeclStruct>(yymsp[-5].minor.yy57, yymsp[-1].minor.yy198);
+    yylhsminor.yy77 = pParser->createNode<yal::frontend::STDeclStruct>(yymsp[-5].minor.yy57, yymsp[-1].minor.yy34, *pParser);
     auto srcInfo = CreateSourceInfo(yymsp[-6].minor.yy0, yymsp[0].minor.yy0, pParser->getSourceHandle());
     yylhsminor.yy77->setSourceInfo(srcInfo);
 }
@@ -1562,20 +1562,20 @@ static void yy_reduce(
       case 30: /* struct_decl_vars ::= struct_decl_vars COMMA struct_decl_var */
 #line 250 "stparserimpl.lemon"
 {
-    yylhsminor.yy198 = yymsp[-2].minor.yy198;
-    yylhsminor.yy198->push_back(yymsp[0].minor.yy25);
+    auto& list = pParser->getStructMemberList();
+    yylhsminor.yy34 = list.add(yymsp[-2].minor.yy34, yymsp[0].minor.yy25);
 }
 #line 1569 "stparserimpl.c"
-  yymsp[-2].minor.yy198 = yylhsminor.yy198;
+  yymsp[-2].minor.yy34 = yylhsminor.yy34;
         break;
       case 31: /* struct_decl_vars ::= struct_decl_var */
 #line 254 "stparserimpl.lemon"
 {
-    yylhsminor.yy198 = pParser->createVector<const yal::frontend::STStructMember*>();
-    yylhsminor.yy198->push_back(yymsp[0].minor.yy25);
+    auto& list = pParser->getStructMemberList();
+    yylhsminor.yy34 = list.add(yymsp[0].minor.yy25);
 }
 #line 1578 "stparserimpl.c"
-  yymsp[0].minor.yy198 = yylhsminor.yy198;
+  yymsp[0].minor.yy34 = yylhsminor.yy34;
         break;
       case 32: /* struct_decl_var ::= identifier COLON type_qualified */
 #line 259 "stparserimpl.lemon"
@@ -1590,14 +1590,14 @@ static void yy_reduce(
       case 33: /* function_param_list ::= PAR_BEGIN function_args_decl PAR_END */
 #line 268 "stparserimpl.lemon"
 {
-    yymsp[-2].minor.yy134 = yymsp[-1].minor.yy134;
+    yymsp[-2].minor.yy69 = yymsp[-1].minor.yy69;
 }
 #line 1596 "stparserimpl.c"
         break;
       case 34: /* decl_function ::= FUNCTION identifier function_param_list function_return_decl SCOPE_BEGIN statement_list_or_empty SCOPE_END */
 #line 273 "stparserimpl.lemon"
 {
-    yylhsminor.yy68 = pParser->createNode<yal::frontend::STDeclFunction>(yymsp[-5].minor.yy57, nullptr, yymsp[-3].minor.yy71, yymsp[-4].minor.yy134, yymsp[-1].minor.yy187);
+    yylhsminor.yy68 = pParser->createNode<yal::frontend::STDeclFunction>(yymsp[-5].minor.yy57, nullptr, yymsp[-3].minor.yy71, yymsp[-4].minor.yy69, yymsp[-1].minor.yy47, *pParser);
     yylhsminor.yy68->setSourceInfo(CreateSourceInfo(yymsp[-6].minor.yy0, yymsp[0].minor.yy0, pParser->getSourceHandle()));
 }
 #line 1604 "stparserimpl.c"
@@ -1606,7 +1606,7 @@ static void yy_reduce(
       case 35: /* decl_type_function ::= FUNCTION type_specifier COLON COLON identifier function_param_list function_return_decl SCOPE_BEGIN statement_list_or_empty SCOPE_END */
 #line 281 "stparserimpl.lemon"
 {
-    yylhsminor.yy68 = pParser->createNode<yal::frontend::STDeclFunction>(yymsp[-5].minor.yy57, yymsp[-8].minor.yy74, yymsp[-3].minor.yy71, yymsp[-4].minor.yy134, yymsp[-1].minor.yy187);
+    yylhsminor.yy68 = pParser->createNode<yal::frontend::STDeclFunction>(yymsp[-5].minor.yy57, yymsp[-8].minor.yy74, yymsp[-3].minor.yy71, yymsp[-4].minor.yy69, yymsp[-1].minor.yy47, *pParser);
     yylhsminor.yy68->setSourceInfo(CreateSourceInfo(yymsp[-9].minor.yy0, yymsp[0].minor.yy0, pParser->getSourceHandle()));
 }
 #line 1613 "stparserimpl.c"
@@ -1615,25 +1615,25 @@ static void yy_reduce(
       case 36: /* function_args_decl ::= function_args_decl COMMA function_arg_decl */
 #line 288 "stparserimpl.lemon"
 {
-        yymsp[-2].minor.yy134->push_back(yymsp[0].minor.yy3);
-        yylhsminor.yy134 = yymsp[-2].minor.yy134;
+        auto& list = pParser->getDeclParamList();
+        yylhsminor.yy69 = list.add(yymsp[-2].minor.yy69, yymsp[0].minor.yy3);
 }
 #line 1622 "stparserimpl.c"
-  yymsp[-2].minor.yy134 = yylhsminor.yy134;
+  yymsp[-2].minor.yy69 = yylhsminor.yy69;
         break;
       case 37: /* function_args_decl ::= function_arg_decl */
 #line 293 "stparserimpl.lemon"
 {
-    yylhsminor.yy134 = pParser->createVector<const yal::frontend::STDeclParam*>();
-    yylhsminor.yy134->push_back(yymsp[0].minor.yy3);
+    auto& list = pParser->getDeclParamList();
+    yylhsminor.yy69 = list.add(yymsp[0].minor.yy3);
 }
 #line 1631 "stparserimpl.c"
-  yymsp[0].minor.yy134 = yylhsminor.yy134;
+  yymsp[0].minor.yy69 = yylhsminor.yy69;
         break;
       case 38: /* function_args_decl ::= */
 #line 298 "stparserimpl.lemon"
 {
-        yymsp[1].minor.yy134 = nullptr;
+   yymsp[1].minor.yy69 = pParser->getDeclParamList().getRangeEmpty();
 }
 #line 1639 "stparserimpl.c"
         break;
@@ -1669,32 +1669,32 @@ static void yy_reduce(
         break;
       case 43: /* statement_list_or_empty ::= */
 #line 318 "stparserimpl.lemon"
-{yymsp[1].minor.yy187 = nullptr;}
+{yymsp[1].minor.yy47 = pParser->getStmtList().getRangeEmpty();}
 #line 1674 "stparserimpl.c"
         break;
       case 44: /* statement_list_or_empty ::= statement_list */
 #line 319 "stparserimpl.lemon"
-{yylhsminor.yy187 = yymsp[0].minor.yy187;}
+{yylhsminor.yy47 = yymsp[0].minor.yy47;}
 #line 1679 "stparserimpl.c"
-  yymsp[0].minor.yy187 = yylhsminor.yy187;
+  yymsp[0].minor.yy47 = yylhsminor.yy47;
         break;
       case 45: /* statement_list ::= statement_list statement */
 #line 322 "stparserimpl.lemon"
 {
-    yymsp[-1].minor.yy187->push_back(yymsp[0].minor.yy129);
-    yylhsminor.yy187=yymsp[-1].minor.yy187;
+    auto& list = pParser->getStmtList();
+    yylhsminor.yy47 = list.add(yymsp[-1].minor.yy47,yymsp[0].minor.yy129);
 }
 #line 1688 "stparserimpl.c"
-  yymsp[-1].minor.yy187 = yylhsminor.yy187;
+  yymsp[-1].minor.yy47 = yylhsminor.yy47;
         break;
       case 46: /* statement_list ::= statement */
 #line 326 "stparserimpl.lemon"
 {
-    yylhsminor.yy187 = pParser->createVector<const yal::frontend::STStatement*>();
-    yylhsminor.yy187->push_back(yymsp[0].minor.yy129);
+    auto& list = pParser->getStmtList();
+    yylhsminor.yy47 = list.add(yymsp[0].minor.yy129);
 }
 #line 1697 "stparserimpl.c"
-  yymsp[0].minor.yy187 = yylhsminor.yy187;
+  yymsp[0].minor.yy47 = yylhsminor.yy47;
         break;
       case 47: /* statement ::= expression ASSIGN expression SEMI_COLON */
 #line 332 "stparserimpl.lemon"
@@ -1746,7 +1746,7 @@ static void yy_reduce(
       case 52: /* statement ::= SCOPE_BEGIN statement_list_or_empty SCOPE_END */
 #line 358 "stparserimpl.lemon"
 {
-    yylhsminor.yy129 = pParser->createNode<yal::frontend::STStmtListScoped>(yymsp[-1].minor.yy187);
+    yylhsminor.yy129 = pParser->createNode<yal::frontend::STStmtListScoped>(yymsp[-1].minor.yy47, *pParser);
     auto srcInfo = yal::frontend::CreateSourceInfo(yymsp[-2].minor.yy0, yymsp[0].minor.yy0, pParser->getSourceHandle());
     yylhsminor.yy129->setSourceInfo(srcInfo);
 }
@@ -1830,7 +1830,7 @@ static void yy_reduce(
       case 65: /* expression ::= identifier PAR_BEGIN function_call_args PAR_END */
 #line 407 "stparserimpl.lemon"
 {
-    yylhsminor.yy162 = pParser->createNode<yal::frontend::STExprFnCall>(yymsp[-3].minor.yy57,yymsp[-1].minor.yy70);
+    yylhsminor.yy162 = pParser->createNode<yal::frontend::STExprFnCall>(yymsp[-3].minor.yy57,yymsp[-1].minor.yy200,*pParser);
     auto srcInfo = yal::frontend::CreateSourceInfo(yymsp[-3].minor.yy57->getSourceInfo(), yymsp[0].minor.yy0, pParser->getSourceHandle());
     yylhsminor.yy162->setSourceInfo(srcInfo);
 }
@@ -1840,7 +1840,7 @@ static void yy_reduce(
       case 66: /* expression ::= expression DOT identifier PAR_BEGIN function_call_args PAR_END */
 #line 413 "stparserimpl.lemon"
 {
-    yylhsminor.yy162 = pParser->createNode<yal::frontend::STExprFnCall>(yymsp[-3].minor.yy57,yymsp[-5].minor.yy162,yymsp[-1].minor.yy70);
+    yylhsminor.yy162 = pParser->createNode<yal::frontend::STExprFnCall>(yymsp[-3].minor.yy57,yymsp[-5].minor.yy162,yymsp[-1].minor.yy200,*pParser);
     auto srcInfo = yal::frontend::CreateSourceInfo(yymsp[-5].minor.yy162->getSourceInfo(), yymsp[0].minor.yy0, pParser->getSourceHandle());
     yylhsminor.yy162->setSourceInfo(srcInfo);
 }
@@ -1850,7 +1850,7 @@ static void yy_reduce(
       case 67: /* expression ::= type_specifier COLON COLON identifier PAR_BEGIN function_call_args PAR_END */
 #line 419 "stparserimpl.lemon"
 {
-    yylhsminor.yy162 = pParser->createNode<yal::frontend::STExprFnCall>(yymsp[-3].minor.yy57,yymsp[-6].minor.yy74,yymsp[-1].minor.yy70);
+    yylhsminor.yy162 = pParser->createNode<yal::frontend::STExprFnCall>(yymsp[-3].minor.yy57,yymsp[-6].minor.yy74,yymsp[-1].minor.yy200,*pParser);
     auto srcInfo = yal::frontend::CreateSourceInfo(yymsp[-6].minor.yy74->getSourceInfo(), yymsp[0].minor.yy0, pParser->getSourceHandle());
     yylhsminor.yy162->setSourceInfo(srcInfo);
 }
@@ -2045,32 +2045,32 @@ static void yy_reduce(
       case 85: /* function_call_args ::= function_call_args COMMA expression */
 #line 540 "stparserimpl.lemon"
 {
-    yylhsminor.yy70 = yymsp[-2].minor.yy70;
-    yylhsminor.yy70->push_back(yymsp[0].minor.yy162);
+    auto& list = pParser->getExprList();
+    yylhsminor.yy200 = list.add(yymsp[-2].minor.yy200, yymsp[0].minor.yy162);
 }
 #line 2052 "stparserimpl.c"
-  yymsp[-2].minor.yy70 = yylhsminor.yy70;
+  yymsp[-2].minor.yy200 = yylhsminor.yy200;
         break;
       case 86: /* function_call_args ::= expression */
 #line 544 "stparserimpl.lemon"
 {
-    yylhsminor.yy70 = pParser->createVector<const yal::frontend::STExpression*>();
-    yylhsminor.yy70->push_back(yymsp[0].minor.yy162);
+    auto& list = pParser->getExprList();
+    yylhsminor.yy200 = list.add(yymsp[0].minor.yy162);
 }
 #line 2061 "stparserimpl.c"
-  yymsp[0].minor.yy70 = yylhsminor.yy70;
+  yymsp[0].minor.yy200 = yylhsminor.yy200;
         break;
       case 87: /* function_call_args ::= */
 #line 548 "stparserimpl.lemon"
 {
-    yymsp[1].minor.yy70= nullptr;
+    yymsp[1].minor.yy200= pParser->getExprList().getRangeEmpty();
 }
 #line 2069 "stparserimpl.c"
         break;
       case 88: /* struct_init ::= type_specifier SCOPE_BEGIN struct_member_init_list SCOPE_END */
 #line 555 "stparserimpl.lemon"
 {
-    yylhsminor.yy100 = pParser->createNode<yal::frontend::STExprStructInit>(yymsp[-3].minor.yy74, yymsp[-1].minor.yy140);
+    yylhsminor.yy100 = pParser->createNode<yal::frontend::STExprStructInit>(yymsp[-3].minor.yy74, yymsp[-1].minor.yy32, *pParser);
     auto srcInfo = yal::frontend::CreateSourceInfo(yymsp[-3].minor.yy74->getSourceInfo(), yymsp[0].minor.yy0, pParser->getSourceHandle());
     yylhsminor.yy100->setSourceInfo(srcInfo);
 }
@@ -2079,26 +2079,26 @@ static void yy_reduce(
         break;
       case 89: /* struct_member_init_list ::= */
 #line 561 "stparserimpl.lemon"
-{yymsp[1].minor.yy140 = nullptr;}
+{yymsp[1].minor.yy32 = pParser->getStructInitList().getRangeEmpty();}
 #line 2084 "stparserimpl.c"
         break;
       case 90: /* struct_member_init_list ::= struct_member_init_list COMMA struct_member_init */
 #line 562 "stparserimpl.lemon"
 {
-     yymsp[-2].minor.yy140->push_back(yymsp[0].minor.yy33);
-     yylhsminor.yy140 = yymsp[-2].minor.yy140;
+     auto& list = pParser->getStructInitList();
+     yylhsminor.yy32 = list.add(yymsp[-2].minor.yy32, yymsp[0].minor.yy33);
 }
 #line 2092 "stparserimpl.c"
-  yymsp[-2].minor.yy140 = yylhsminor.yy140;
+  yymsp[-2].minor.yy32 = yylhsminor.yy32;
         break;
       case 91: /* struct_member_init_list ::= struct_member_init */
 #line 566 "stparserimpl.lemon"
 {
-        yylhsminor.yy140 = pParser->createVector<const yal::frontend::STStructMemberInit*>();
-        yylhsminor.yy140->push_back(yymsp[0].minor.yy33);
+    auto& list = pParser->getStructInitList();
+    yylhsminor.yy32 = list.add(yymsp[0].minor.yy33);
 }
 #line 2101 "stparserimpl.c"
-  yymsp[0].minor.yy140 = yylhsminor.yy140;
+  yymsp[0].minor.yy32 = yylhsminor.yy32;
         break;
       case 92: /* struct_member_init ::= identifier COLON expression */
 #line 571 "stparserimpl.lemon"

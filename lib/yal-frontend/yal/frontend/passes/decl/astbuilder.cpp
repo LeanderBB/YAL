@@ -255,15 +255,15 @@ namespace yal::frontend {
         DeclScope& declScopeFn = declFn->getFunctionScope();
 
         // Process function parameters
-        const STDeclFunction::Params* stParams = node.getParams();
-        if (stParams != nullptr ) {
+        const STDeclFunction::Params& stParams = node.getParams();
+        if (!stParams.empty()) {
 
             DeclFunction::Params params(DeclFunction::Params::allocator_type(astCtx.getAllocator()));
-            params.reserve(node.getParams()->size());
+            params.reserve(stParams.size());
 
             // process each struct member
             size_t idx = 0;
-            for (auto& param : *stParams) {
+            for (auto& param : stParams) {
 
                 const STIdentifier* name = param->getName();
                 const STQualType* stqt = param->getType();
@@ -327,8 +327,8 @@ namespace yal::frontend {
         }
         typeFn->setDecl(declFn);
 
-        const STDeclFunction::Body* body = node.getBody();
-        if (body != nullptr) {
+        const STDeclFunction::Body& body = node.getBody();
+        if (!body.empty()) {
 
             StatementList statements(StatementList::allocator_type(m_module.getASTContext().getAllocator()));
             StackStatement& stack = getState().stackStatements;
@@ -338,19 +338,19 @@ namespace yal::frontend {
                                                &declScopeFn);
 
             // process statements
-            for(auto& stmt : *body) {
+            for(auto& stmt : body) {
                 stmt->acceptVisitor(*this);
             }
 
             // collect statements
-            statements.resize(body->size(), nullptr);
+            statements.resize(body.size(), nullptr);
             for(size_t idx = statements.size() -1 ;
                 !stack.empty() && stack.size() >= currStmtStackSize; --idx) {
                 Statement* stmt = stack.top();
                 statements[idx] = stmt;
                 stack.pop();
             }
-            YAL_ASSERT(statements.size() == body->size());
+            YAL_ASSERT(statements.size() == body.size());
             declFn->setBody(std::move(statements));
         }
 
@@ -847,11 +847,11 @@ namespace yal::frontend {
         }
 
         // process fn args
-        const STExprFnCall::ParamList* paramSt = node.getParams();
+        const STExprFnCall::ParamList& paramSt = node.getParams();
         ExprList params(ExprList::allocator_type(m_module.getASTContext().getAllocator()));
-        if (paramSt != nullptr && !paramSt->empty()) {
-            params.reserve(paramSt->size());
-            for (auto& param : *paramSt) {
+        if (!paramSt.empty()) {
+            params.reserve(paramSt.size());
+            for (auto& param : paramSt) {
                 const size_t stackSize = stackExpr.size();
                 param->acceptVisitor(*this);
                 YAL_ASSERT(!stackExpr.empty());
@@ -939,12 +939,12 @@ namespace yal::frontend {
 
         // process struct init members
         ExprStructInit::MemberInitExprList members(ExprStructInit::MemberInitExprList::allocator_type(m_module.getASTContext().getAllocator()));
-        const STExprStructInit::MemberInitList* stmembers = node.getMemeberInitExprs();
-        if (stmembers != nullptr) {
-            members.reserve(stmembers->size());
+        const STExprStructInit::MemberInitList& stmembers = node.getMemeberInitExprs();
+        if (!stmembers.empty()) {
+            members.reserve(stmembers.size());
             const STDeclStruct& declStruct= typeStruct->getSTDecl();
             const STDeclStruct::Members& structMembers = declStruct.getMembers();
-            for (auto& stmember : *stmembers) {
+            for (auto& stmember : stmembers) {
 
                 auto it = std::find_if(std::begin(structMembers),
                                        std::end(structMembers),

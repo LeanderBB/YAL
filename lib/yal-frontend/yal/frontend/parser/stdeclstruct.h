@@ -18,6 +18,7 @@
  */
 
 #include "yal/frontend/parser/syntaxtree.h"
+#include "yal/frontend/parser/stparser.h"
 #include "yal/util/allocator/allocatorstack.h"
 
 namespace yal::frontend {
@@ -54,16 +55,17 @@ namespace yal::frontend {
         using Members = STVector<const STStructMember*>;
 
         STDeclStruct(const STIdentifier* name,
-                     const Members* members);
+                     const ParseListStructMember::Range& range,
+                     STParser& parser);
 
         const Members& getMembers() const {
-            return *m_members;
+            return m_members;
         }
 
         void acceptVisitor(SyntaxTreeVisitor& visitor) const override final;
 
     protected:
-        const Members* m_members;
+        Members m_members;
     };
 
 }

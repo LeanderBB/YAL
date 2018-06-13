@@ -20,7 +20,7 @@
 #pragma once
 
 #include "yal/frontend/parser/ststmtexpression.h"
-
+#include "yal/frontend/parser/stparser.h"
 namespace yal::frontend {
 
     class STExpression;
@@ -35,15 +35,18 @@ namespace yal::frontend {
         };
 
         STExprFnCall(const STIdentifier* name,
-                     const ParamList* params);
+                     const ParseListExpr::Range params,
+                     STParser& parser);
 
         STExprFnCall(const STIdentifier* name,
                      const STType* type,
-                     const ParamList *params);
+                     const ParseListExpr::Range params,
+                     STParser& parser);
 
         STExprFnCall(const STIdentifier* name,
                      const STExpression* expr,
-                     const ParamList *params);
+                     const ParseListExpr::Range params,
+                     STParser& parser);
 
         const STIdentifier* getName() const {
             return m_name;
@@ -57,7 +60,7 @@ namespace yal::frontend {
             return m_expr;
         }
 
-        const ParamList* getParams() const {
+        const ParamList& getParams() const {
             return m_params;
         }
 
@@ -71,7 +74,7 @@ namespace yal::frontend {
         const STIdentifier* m_name;
         const STType* m_targetType;
         const STExpression* m_expr;
-        const ParamList* m_params;
+        ParamList m_params;
         const FnType m_type;
     };
 

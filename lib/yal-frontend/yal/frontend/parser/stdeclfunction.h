@@ -19,7 +19,7 @@
 #pragma once
 
 #include "yal/frontend/parser/syntaxtree.h"
-
+#include "yal/frontend/parser/stparser.h"
 namespace yal::frontend {
     class STStatement;
 
@@ -58,8 +58,9 @@ namespace yal::frontend {
         STDeclFunction(const STIdentifier* functionName,
                        const STType* functionTarget,
                        const STQualType* returnType,
-                       const Params* params,
-                       const Body* statements);
+                       const ParseListDeclParam::Range params,
+                       const ParseListStmt::Range statements,
+                       STParser& parser);
 
         const STIdentifier* getFunctionName() const {
             return getName();
@@ -73,11 +74,11 @@ namespace yal::frontend {
             return m_returnType;
         }
 
-        const Body* getBody() const {
+        const Body& getBody() const {
             return m_body;
         }
 
-        const Params* getParams() const {
+        const Params& getParams() const {
             return m_params;
         }
 
@@ -86,8 +87,8 @@ namespace yal::frontend {
     protected:
         const STType* m_functionTarget;
         const STQualType* m_returnType;
-        const Params* m_params;
-        const Body* m_body;
+        Params m_params;
+        Body m_body;
     };
 
 }
