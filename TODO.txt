@@ -8,10 +8,6 @@ it is explicit
 [ ] Check for recursive types in struct decls.
 [ ] Static dispatch mechanism for visitors
 
-Maybe?
-######
-[ ] Revise Lexer Code architecture?
-
 
 Long Term Todo:
 ###############

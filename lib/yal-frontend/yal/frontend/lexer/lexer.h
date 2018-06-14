@@ -34,6 +34,10 @@ namespace yal::frontend {
     class Lexer {
     public:
 
+        enum {
+            kYYMaxFill = 11
+        };
+
         enum class Status
         {
             Ok,
@@ -58,9 +62,34 @@ namespace yal::frontend {
 
     private:
 
-        struct LexerState;
+        enum {
+            kMaxBufferSize = 1024
+        };
 
-        static std::unique_ptr<LexerState> createLexerState();
+        struct LexerState {
+            uint8_t buffer[kMaxBufferSize + kYYMaxFill];
+            uint8_t* limit = nullptr;
+            uint8_t* current = nullptr;
+            uint8_t* marker = nullptr;
+            uint8_t* token = nullptr;
+            size_t lineNum = 1;
+            size_t streamReadOffset = std::numeric_limits<size_t>::max();
+            size_t lineStartOffset = 0;
+            size_t tokenLineStart =0;
+            size_t tokenColumnStart = 0;
+            bool eof = false;
+
+            bool fill(const size_t size,
+                      ByteStream& stream);
+            size_t getColumnOffsetStart() const;
+            size_t getColumnOffsetEnd() const;
+            size_t getStreamOffset() const;
+            size_t getBufferOffsetTokBegin() const;
+            size_t getBufferOffsetTokEnd() const ;
+            void updateLineStartOffset();
+            void markScanBegin();
+            size_t getTokenLength() const;
+        };
 
         Status re2cExecute();
 
@@ -71,7 +100,7 @@ namespace yal::frontend {
 
         ByteStream& m_stream;
         StringPool& m_stringPool;
-        std::unique_ptr<LexerState> m_lexerState;
+        LexerState m_lexerState;
         TokenInfo m_curToken;
     };
 }

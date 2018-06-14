@@ -476,7 +476,7 @@ namespace yal::frontend {
     ErrorTypeAssignToImmutable::printDetail(ErrorPrinter &printer) const {
         auto& formater = printer.getFormater();
         FormatAppend(formater,
-                     "Can't assign a new value to imutable immutable expression");
+                     "Can't assign a new value to imutable immutable expression\n");
     }
 
     const SourceInfo&
