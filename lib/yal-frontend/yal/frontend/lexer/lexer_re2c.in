@@ -81,7 +81,7 @@ namespace yal::frontend {
             TYPE_FLOAT = "f32";
             TYPE_DOUBLE= "f64";
             STRUCT = "struct";
-            RANGE_CAST ="range_cast";
+            AS ="as";
             CAST = "cast";
             REFERENCE="&";
             PLUS = "+";
@@ -116,7 +116,7 @@ namespace yal::frontend {
             /* final rules */
             VAR { setToken(Token::Var, m_lexerState); return Status::Ok; }
             LET { setToken(Token::Let, m_lexerState);return Status::Ok; }
-            RANGE_CAST { setToken(Token::RangeCast, m_lexerState);return Status::Ok; }
+            AS { setToken(Token::As, m_lexerState);return Status::Ok; }
             CAST { setToken(Token::Cast, m_lexerState);return Status::Ok; }
             MUT { setToken(Token::Mutable, m_lexerState); return Status::Ok;}
             REFERENCE { setToken(Token::Reference, m_lexerState); return Status::Ok;}

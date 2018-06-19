@@ -94,14 +94,20 @@ namespace yal::frontend {
             return m_typeId;
         }
 
-        bool isCastableTo(const Type& other) const;
+        bool isCastableToAuto(const Type& other) const;
+
+        bool isCastableToRequest(const Type& other) const;
 
         void addFunction(TypeFunction* function);
 
         virtual SourceInfoOpt getSourceInfo() const;
 
     protected:
-        virtual bool isCastableToDetail(const Type&) const {
+        virtual bool isCastableToAutoImpl(const Type&) const {
+            return false;
+        }
+
+        virtual bool isCastableToRequestImpl(const Type&) const {
             return false;
         }
 

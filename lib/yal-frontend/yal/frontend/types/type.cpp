@@ -165,11 +165,20 @@ namespace yal::frontend {
     }
 
     bool
-    Type::isCastableTo(const Type &other) const {
+    Type::isCastableToAuto(const Type &other) const {
         if (m_typeId == other.getTypeId()) {
             return true;
         } else {
-            return isCastableToDetail(other);
+            return isCastableToAutoImpl(other);
+        }
+    }
+
+    bool
+    Type::isCastableToRequest(const Type& other) const {
+        if (m_typeId == other.getTypeId()) {
+            return true;
+        } else {
+            return isCastableToRequestImpl(other);
         }
     }
 }

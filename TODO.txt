@@ -1,13 +1,13 @@
 Short Todo:
 ##########
 
-[ ] Revise Pointer usage in Syntax tree
 [ ] Auto insert clamping cast operations between integer conversions.
 we will then be able to allow casting between all integer types as long as 
 it is explicit
 [ ] Check for recursive types in struct decls.
 [ ] Static dispatch mechanism for visitors
-
+[ ] New structure for writing type functions
+[ ] YAL Project
 
 Long Term Todo:
 ###############

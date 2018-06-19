@@ -29,8 +29,8 @@ namespace yal::frontend {
 
         void acceptVisitor(SyntaxTreeVisitor& visitor) const override final;
 
-        const STIdentifier* getVarName() const {
-            return m_varRef;
+        const STIdentifier& getVarName() const {
+            return *m_varRef;
         }
 
     private:
@@ -45,12 +45,12 @@ namespace yal::frontend {
 
         void acceptVisitor(SyntaxTreeVisitor& visitor) const override final;
 
-        const STIdentifier* getVarName() const {
-            return m_varRef;
+        const STIdentifier& getVarName() const {
+            return *m_varRef;
         }
 
-        const STExpression* getExpression() const {
-            return m_expr;
+        const STExpression& getExpression() const {
+            return *m_expr;
         }
 
     private:

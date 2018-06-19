@@ -127,3 +127,15 @@ R"R(
     compile(input,"general/reftest.yal");
     EXPECT_FALSE(m_errorReporter.hasErrors());
 }
+
+TEST_F(General, Cast) {
+    const char* input =
+R"R(
+    fn main() {
+        var x:i32 = 20;
+        var z:u32 = x as u32;
+    }
+)R";
+    compile(input,"general/cast.yal");
+    EXPECT_FALSE(m_errorReporter.hasErrors());
+}

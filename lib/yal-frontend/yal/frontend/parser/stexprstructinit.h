@@ -32,12 +32,12 @@ namespace yal::frontend {
         STStructMemberInit(const STIdentifier* name,
                            const STExpression* expr);
 
-        const STIdentifier* getName() const {
-            return m_name;
+        const STIdentifier& getName() const {
+            return *m_name;
         }
 
-        const STExpression* getExpr() const {
-            return m_expr;
+        const STExpression& getExpr() const {
+            return *m_expr;
         }
 
         const SourceInfo getSourceInfo() const {

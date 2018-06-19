@@ -213,7 +213,7 @@ namespace yal::frontend {
     }
 
     bool
-    TypeBuiltin::isCastableToDetail(const Type &other) const {
+    TypeBuiltin::isCastableToAutoImpl(const Type &other) const {
         if (other.getKind() != Kind::TypeBuiltin) {
             return false;
         }
@@ -266,6 +266,11 @@ namespace yal::frontend {
             break;
         }
         return false;
+    }
+
+    bool
+    TypeBuiltin::isCastableToRequestImpl(const Type &other) const {
+        return other.getKind() == Kind::TypeBuiltin;
     }
 
 }

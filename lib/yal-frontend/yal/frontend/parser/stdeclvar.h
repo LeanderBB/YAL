@@ -30,8 +30,8 @@ namespace yal::frontend {
                   const STQualType* type,
                   const STExpression* initExpr);
 
-        const STQualType* getType() const {
-            return m_type;
+        const STQualType& getType() const {
+            return *m_type;
         }
 
         const STExpression* getExpression() const {

@@ -56,6 +56,7 @@ namespace yal::frontend {
                                    const QualType qtTo,
                                    const SourceInfo& location);
 
+        void isValidCastConversion(const ExprCast& cast);
     private:
         Module& m_module;
         ErrorReporter& m_errReporter;

@@ -48,8 +48,8 @@ namespace yal::frontend {
                      const ParseListExpr::Range params,
                      STParser& parser);
 
-        const STIdentifier* getName() const {
-            return m_name;
+        const STIdentifier& getName() const {
+            return *m_name;
         }
 
         const STType* getTargetType() const {

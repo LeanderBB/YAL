@@ -413,3 +413,90 @@ R"R(
     EXPECT_EQ(yal::frontend::ErrorTypeTypeFnCallImmutable::kCode, err->getCode());
 }
 
+
+TEST_F(PassType, TypeCast) {
+    const char* input =
+R"R(
+    fn main() {
+       var x:u32 = 20u32;
+       var z:i32 = x as i32;
+    }
+)R";
+
+    auto handle = createSourceHandle(input);
+    FrontendOptionsType options;
+    const ModuleType* module = m_frontEnd.compile(handle, options);
+    EXPECT_NE(module, nullptr);
+    EXPECT_FALSE(m_errorReporter.hasErrors());;
+}
+
+TEST_F(PassType, TypeCastFail) {
+    const char* input =
+R"R(
+    type Foo : struct {
+          x:i32
+    }
+
+    fn main() {
+       var x:u32 = 20u32;
+       var z:i32 = x as Foo;
+    }
+)R";
+
+    auto handle = createSourceHandle(input);
+    FrontendOptionsType options;
+    const ModuleType* module = m_frontEnd.compile(handle, options);
+    EXPECT_EQ(module, nullptr);
+    EXPECT_TRUE(m_errorReporter.hasErrors());
+    if (!m_errorReporter.hasErrors()) {
+        return;
+    }
+    const yal::Error* err = m_errorReporter.getFirstError();
+    EXPECT_EQ(yal::frontend::ErrorTypeIncompatibleCast::kCode, err->getCode());
+}
+
+
+TEST_F(PassType, CastNonTrivialType) {
+    const char* input =
+R"R(
+    type Foo : struct {
+        x : i32
+    }
+
+    fn main() {
+        var f:Foo = Foo{x:20};
+        var b:Foo = f as Foo;
+    }
+
+)R";
+    auto handle = createSourceHandle(input);
+    FrontendOptionsType options;
+    const ModuleType* module = m_frontEnd.compile(handle, options);
+    EXPECT_EQ(module, nullptr);
+    EXPECT_TRUE(m_errorReporter.hasErrors());
+    if (!m_errorReporter.hasErrors()) {
+        return;
+    }
+    const yal::Error* err = m_errorReporter.getLastError();
+    EXPECT_EQ(err->getCode(), yal::frontend::ErrorTypeCastReference::kCode);
+}
+
+TEST_F(PassType, CastNonTrivialTypeAsReference) {
+    const char* input =
+R"R(
+    type Foo : struct {
+        x : i32
+    }
+
+    fn main() {
+        var f:Foo = Foo{x:20};
+        var b:&Foo = &f as &Foo;
+    }
+
+)R";
+    auto handle = createSourceHandle(input);
+    FrontendOptionsType options;
+    const ModuleType* module = m_frontEnd.compile(handle, options);
+    EXPECT_NE(module, nullptr);
+    EXPECT_FALSE(m_errorReporter.hasErrors());
+}

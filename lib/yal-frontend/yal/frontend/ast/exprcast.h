@@ -1,5 +1,5 @@
 /*
- *  Copyright 2017 by Leander Beernaert (lbb-dev@pm.me)
+ *  Copyright 2018 by Leander Beernaert (lbb-dev@pm.me)
  *
  *  This file is part of YAL.
  *
@@ -24,15 +24,15 @@
 
 namespace yal::frontend {
 
-    class ExprRangeCast : public StmtExpression{
+    class ExprCast : public StmtExpression {
     public:
-        ExprRangeCast(Module& module,
-                      const SourceInfo& srcInfo,
-                      const QualType& destType,
-                      StmtExpression* expression);
+        ExprCast(Module& module,
+                 const SourceInfo& srcInfo,
+                 const QualType& qt,
+                 StmtExpression* expression);
 
-        StmtExpression* getExpression() const {
-            return m_expression;
+        StmtExpression& getExpression() const {
+            return *m_expression;
         }
 
         virtual void acceptVisitor(AstVisitor& visitor) override;

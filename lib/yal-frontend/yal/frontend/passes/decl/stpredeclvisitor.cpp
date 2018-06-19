@@ -57,8 +57,8 @@ namespace yal::frontend {
             }
 
             if (!target->isFunctionTargetable()) {
-                auto errorPtr = std::make_unique<ErrorFnOnNonTargetType>(declFunction.getFunctionName()->getString(),
-                                                                         declFunction.getFunctionName()->getSourceInfo(),
+                auto errorPtr = std::make_unique<ErrorFnOnNonTargetType>(declFunction.getFunctionName().getString(),
+                                                                         declFunction.getFunctionName().getSourceInfo(),
                                                                          target);
                 m_errReporter.report(std::move(errorPtr));
                 return;

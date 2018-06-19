@@ -726,6 +726,6 @@ namespace yal::frontend {
 
     const SourceInfo&
     ErrorAssignRefWithInvalidScope::getSourceInfo() const {
-        return m_stmt.getRightExpr()->getSourceInfo();
+        return m_stmt.getRightExpr().getSourceInfo();
     }
 }

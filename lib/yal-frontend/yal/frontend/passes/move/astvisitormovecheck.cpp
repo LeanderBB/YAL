@@ -394,7 +394,7 @@ namespace yal::frontend {
     }
 
     void
-    AstVisitorMoveCheck::visit(ExprRangeCast&) {
+    AstVisitorMoveCheck::visit(ExprCast&) {
 
     }
 

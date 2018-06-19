@@ -86,8 +86,8 @@ namespace yal::frontend {
     class STDecl : public SyntaxTree {
     public:
 
-        const STIdentifier* getName() const {
-            return m_name;
+        const STIdentifier& getName() const {
+            return *m_name;
         }
 
     protected:

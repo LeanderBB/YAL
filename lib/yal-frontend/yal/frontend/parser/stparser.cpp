@@ -138,8 +138,8 @@ namespace yal::frontend {
             return YAL_TOKEN_REFERENCE;
         case Token::Self:
             return YAL_TOKEN_SELF;
-        case Token::RangeCast:
-            return YAL_TOKEN_RANGE_CAST;
+        case Token::As:
+            return YAL_TOKEN_AS;
         case Token::IntegerLiteralI8:
             return YAL_TOKEN_INTEGER_LITERAL_I8;
         case Token::IntegerLiteralI16:

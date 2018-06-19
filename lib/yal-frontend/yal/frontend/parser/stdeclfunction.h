@@ -29,12 +29,12 @@ namespace yal::frontend {
         STDeclParam(const STIdentifier* name,
                     const STQualType* type);
 
-        const STIdentifier* getName() const {
-            return m_name;
+        const STIdentifier& getName() const {
+            return *m_name;
         }
 
-        const STQualType* getType() const {
-            return m_type;
+        const STQualType& getType() const {
+            return *m_type;
         }
 
         const SourceInfo getSourceInfo() const {
@@ -62,7 +62,7 @@ namespace yal::frontend {
                        const ParseListStmt::Range statements,
                        STParser& parser);
 
-        const STIdentifier* getFunctionName() const {
+        const STIdentifier& getFunctionName() const {
             return getName();
         }
 

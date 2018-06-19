@@ -35,8 +35,8 @@ namespace yal::frontend {
     public:
         STStmtExpression(const STExpression* expr);
 
-        const STExpression* getExpr() const {
-            return m_expr;
+        const STExpression& getExpr() const {
+            return *m_expr;
         }
 
         void acceptVisitor(SyntaxTreeVisitor& visitor) const override final;

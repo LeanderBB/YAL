@@ -26,7 +26,7 @@ namespace yal::frontend {
     TypeStruct::TypeStruct(const Module& module,
                            const STDeclStruct &decl):
         Type(&module, Kind::TypeStruct,
-             Identifier( decl.getName()->getString(), module)),
+             Identifier( decl.getName().getString(), module)),
         m_stdecl(decl),
         m_decl(nullptr) {
 
@@ -42,6 +42,6 @@ namespace yal::frontend {
 
     SourceInfoOpt
     TypeStruct::getSourceInfo() const {
-        return SourceInfoOpt(m_stdecl.getName()->getSourceInfo());
+        return SourceInfoOpt(m_stdecl.getName().getSourceInfo());
     }
 }

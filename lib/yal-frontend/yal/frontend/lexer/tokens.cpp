@@ -92,7 +92,7 @@ namespace yal::frontend
             "Mutable",
             "Self",
             "Reference",
-            "RangeCast",
+            "As",
             "Cast",
             "IntegerLiteralI8",
             "IntegerLiteralI16",

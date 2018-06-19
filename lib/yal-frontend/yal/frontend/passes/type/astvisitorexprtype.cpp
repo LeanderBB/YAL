@@ -573,8 +573,11 @@ namespace yal::frontend {
     }
 
     void
-    AstVisitorExprType::visit(ExprRangeCast&) {
-        YAL_ASSERT(false);
+    AstVisitorExprType::visit(ExprCast& node) {
+        StmtExpression& expr = node.getExpression();
+        expr.acceptVisitor(*this);
+        // check if types are castable
+        isValidCastConversion(node);
     }
 
     void
@@ -639,7 +642,7 @@ namespace yal::frontend {
         const Type* typeFrom = qtFrom.getType();
         const Type* typeTo = qtTo.getType();
 
-        if (!typeFrom->isCastableTo(*typeTo)) {
+        if (!typeFrom->isCastableToAuto(*typeTo)) {
             auto error = std::make_unique<ErrorTypeIncompatible>(qtFrom,
                                                                  qtTo,
                                                                  location);
@@ -659,6 +662,35 @@ namespace yal::frontend {
             auto error = std::make_unique<ErrorTypeReference>(qtFrom,
                                                               qtTo,
                                                               location);
+            onError(std::move(error));
+        }
+    }
+
+    void
+    AstVisitorExprType::isValidCastConversion(const ExprCast &cast) {
+        const QualType qtFrom = cast.getExpression().getQualType();
+        const QualType qtTo = cast.getQualType();
+
+        const Type* typeFrom = qtFrom.getType();
+        const Type* typeTo = qtTo.getType();
+
+        if (!typeFrom->isCastableToRequest(*typeTo)) {
+            auto error = std::make_unique<ErrorTypeIncompatibleCast>(cast);
+            onError(std::move(error));
+        }
+
+        if (qtFrom.isImmutable()
+                && !qtTo.isImmutable()
+                && (!qtFrom.isTriviallyCopiable() || !qtTo.isTriviallyCopiable())) {
+            auto error = std::make_unique<ErrorTypeMutability>(qtFrom,
+                                                               qtTo,
+                                                               cast.getSourceInfo());
+            onError(std::move(error));
+        }
+
+        if (!qtTo.isTriviallyCopiable()
+                && (!qtFrom.isReference() || !qtTo.isReference())) {
+            auto error = std::make_unique<ErrorTypeCastReference>(cast);
             onError(std::move(error));
         }
     }

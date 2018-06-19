@@ -93,7 +93,7 @@ namespace yal::frontend {
         Mutable,
         Reference,
         Self,
-        RangeCast,
+        As,
         Cast,
         IntegerLiteralI8,
         IntegerLiteralI16,

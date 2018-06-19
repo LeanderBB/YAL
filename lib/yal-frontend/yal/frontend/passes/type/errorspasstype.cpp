@@ -64,6 +64,8 @@ namespace yal::frontend {
         FormatAppend(printer.getFormater(),
                      "Can't convert from type '%' to type '%'\n",
                      m_typeFrom, m_typeTo);
+        FormatAppend(printer.getFormater(),
+                     "Note: Type might be convertible when using cast operator 'as',\n");
     };
 
     // ErrorTypeMutability ----------------------------------------------------
@@ -523,5 +525,54 @@ namespace yal::frontend {
     const SourceInfo&
     ErrorTypeTypeFnCallImmutable::getSourceInfo() const {
         return m_expr.getSourceInfo();
+    }
+
+    // ErrorTypeTypeFnCallImmutable -------------------------------------------
+
+    const ErrorCode  ErrorTypeIncompatibleCast::kCode =
+            MakeErrorCode(static_cast<uint16_t>(PassTypeCode::Type), 17);
+
+    ErrorTypeIncompatibleCast::ErrorTypeIncompatibleCast(const ExprCast& expr):
+        ErrorTypeBase(kCode,
+                      expr.getExpression().getQualType(),
+                      expr.getQualType(),
+                      expr.getSourceInfo()) {
+    }
+
+    StringRef
+    ErrorTypeIncompatibleCast::getErrorName() const {
+        return "Invalid Type Cast";
+    }
+
+    void
+    ErrorTypeIncompatibleCast::printDetail(ErrorPrinter &printer) const {
+        FormatAppend(printer.getFormater(),
+                     "Can't cast from type '%' to type '%'\n",
+                     m_typeFrom.getType(), m_typeTo.getType());
+    }
+
+    // ErrorTypeCastReference -------------------------------------------
+
+    const ErrorCode  ErrorTypeCastReference::kCode =
+            MakeErrorCode(static_cast<uint16_t>(PassTypeCode::Type), 18);
+
+    ErrorTypeCastReference::ErrorTypeCastReference(const ExprCast& expr):
+        ErrorTypeBase(kCode,
+                      expr.getExpression().getQualType(),
+                      expr.getQualType(),
+                      expr.getSourceInfo()) {
+    }
+
+    StringRef
+    ErrorTypeCastReference::getErrorName() const {
+        return "Invalid Reference Cast";
+    }
+
+    void
+    ErrorTypeCastReference::printDetail(ErrorPrinter &printer) const {
+        FormatAppend(printer.getFormater(),
+                     "Can only cast non-trivially copiable types as reference.\n"
+                     "Attempting to cast from '%' to '%'\n",
+                     m_typeFrom, m_typeTo);
     }
 }

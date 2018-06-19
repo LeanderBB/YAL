@@ -22,16 +22,15 @@
 
 namespace yal::frontend {
 
-    STExprRangeCast::STExprRangeCast(const STQualType *targetType,
-                                     const STExpression* expr):
-        STExpression(SyntaxTreeType::STExprRangeCast),
-        m_targetType(targetType),
-        m_expr(expr) {
-
+    STExprCast::STExprCast(const STExpression* expr,
+                           const STQualType *qtTarget):
+        STExpression(SyntaxTreeType::STExprCast),
+        m_expr(expr),
+        m_qtTarget(qtTarget) {
     }
 
     void
-    STExprRangeCast::acceptVisitor(SyntaxTreeVisitor& visitor) const {
+    STExprCast::acceptVisitor(SyntaxTreeVisitor& visitor) const {
         visitor.visit(*this);
     }
 }

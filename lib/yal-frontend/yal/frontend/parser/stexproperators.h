@@ -35,8 +35,8 @@ namespace yal::frontend {
             return m_op;
         }
 
-        const STExpression* getExpression() const {
-            return m_expr;
+        const STExpression& getExpression() const {
+            return *m_expr;
         }
 
     private:
@@ -58,12 +58,12 @@ namespace yal::frontend {
             return m_op;
         }
 
-        const STExpression* getExpressionLeft() const {
-            return m_exprLeft;
+        const STExpression& getExpressionLeft() const {
+            return *m_exprLeft;
         }
 
-        const STExpression* getExpressionRight() const {
-            return m_exprRight;
+        const STExpression& getExpressionRight() const {
+            return *m_exprRight;
         }
     private:
         const BinaryOperatorType m_op;

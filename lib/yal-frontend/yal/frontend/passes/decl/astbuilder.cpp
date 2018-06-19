@@ -103,7 +103,7 @@ namespace yal::frontend {
 
     void
     AstBuilder::visit(const STDeclStruct& node) {
-        const StringRef declName = node.getName()->getString();
+        const StringRef declName = node.getName().getString();
         TypeContext& typeCtx = m_module.getTypeContext();
         ASTContext& astCtx = m_module.getASTContext();
         DeclScope* parentScope = getState().stackScope.top();
@@ -141,30 +141,30 @@ namespace yal::frontend {
         // process each struct member
         for (auto& member : node.getMembers()) {
 
-            const STIdentifier* name = member->getName();
-            const STQualType* stqt = member->getType();
+            const STIdentifier& name = member->getName();
+            const STQualType& stqt = member->getType();
 
             // check for duplicate decl
-            const Identifier memberId(name->getString());
+            const Identifier memberId(name.getString());
             const DeclBase* existingDecl = declScopeStruct.getDecl(memberId,false);
             if (existingDecl != nullptr ) {
-                onDuplicateSymbol(*name, *existingDecl);
+                onDuplicateSymbol(name, *existingDecl);
             }
 
             // check if type exists
-            Type* memberType = resolveType(*stqt->m_type);
+            Type* memberType = resolveType(*stqt.m_type);
             if (memberType == nullptr) {
-                onUndefinedType(*stqt->m_type);
+                onUndefinedType(*stqt.m_type);
             }
 
-            Qualifier qual = MakeQualifier(*stqt);
+            Qualifier qual = MakeQualifier(stqt);
             qual.setMutable();
             QualType qt = QualType::Create(qual, memberType);
 
             DeclVar* declVar = astCtx.getAllocator()
                     .construct<DeclVar>(m_module,
-                                        name->getString(),
-                                        name->getSourceInfo(),
+                                        name.getString(),
+                                        name.getSourceInfo(),
                                         declScopeStruct,
                                         qt,
                                         nullptr);
@@ -265,23 +265,23 @@ namespace yal::frontend {
             size_t idx = 0;
             for (auto& param : stParams) {
 
-                const STIdentifier* name = param->getName();
-                const STQualType* stqt = param->getType();
+                const STIdentifier& name = param->getName();
+                const STQualType& stqt = param->getType();
 
                 // check for duplicate decl
-                const DeclBase* existingDecl = declScopeFn.getDecl(Identifier(name->getString()),false);
+                const DeclBase* existingDecl = declScopeFn.getDecl(Identifier(name.getString()),false);
                 if (existingDecl != nullptr ) {
-                    onDuplicateSymbol(*name, *existingDecl);
+                    onDuplicateSymbol(name, *existingDecl);
                 }
 
                 DeclParamVar* declVar = nullptr;
 
-                if (name->getString() == "self") {
+                if (name.getString() == "self") {
 
                     // can only use self as 1st param
                     if (idx != 0) {
                         auto err = std::make_unique<ErrorInvalidLocationForSelf>(*typeFn,
-                                                                                 name->getSourceInfo());
+                                                                                 name.getSourceInfo());
                         m_errReporter.report(std::move(err));
                         getState().onError();
                     }
@@ -289,32 +289,32 @@ namespace yal::frontend {
                     // can only use self if in a target function
                     if (targetType == nullptr) {
                         auto err = std::make_unique<ErrorInvalidUseOfSelf>(*typeFn,
-                                                                           name->getSourceInfo());
+                                                                           name.getSourceInfo());
                         m_errReporter.report(std::move(err));
                         getState().onError();
                     }
 
-                    QualType qt = QualType::Create(MakeQualifier(*stqt), targetType);
+                    QualType qt = QualType::Create(MakeQualifier(stqt), targetType);
 
                     declVar = astCtx.getAllocator()
                             .construct<DeclParamVarSelf>(m_module,
-                                                         name->getSourceInfo(),
+                                                         name.getSourceInfo(),
                                                          declScopeFn,
                                                          qt);
                 } else {
 
                     // check if type exists
-                    Type* memberType = resolveType(*stqt->m_type);
+                    Type* memberType = resolveType(*stqt.m_type);
                     if (memberType == nullptr) {
-                        onUndefinedType(*stqt->m_type);
+                        onUndefinedType(*stqt.m_type);
                     }
 
-                    QualType qt = QualType::Create(MakeQualifier(*stqt), memberType);
+                    QualType qt = QualType::Create(MakeQualifier(stqt), memberType);
 
                     declVar = astCtx.getAllocator()
                             .construct<DeclParamVar>(m_module,
-                                                     name->getString(),
-                                                     name->getSourceInfo(),
+                                                     name.getString(),
+                                                     name.getSourceInfo(),
                                                      declScopeFn,
                                                      qt);
                 }
@@ -360,22 +360,22 @@ namespace yal::frontend {
 
     void
     AstBuilder::visit(const STDeclVar& node) {
-        const STIdentifier* declName = node.getName();
+        const STIdentifier& declName = node.getName();
         DeclScope* parentScope = getState().stackScope.top();
 
         // check duplicate symbol
-        const DeclBase* existingDecl = parentScope->getDecl(Identifier(declName->getString()), false);
+        const DeclBase* existingDecl = parentScope->getDecl(Identifier(declName.getString()), false);
         if (existingDecl != nullptr ) {
             onDuplicateSymbol(node, *existingDecl);
         }
 
         // check if type exists
-        const STQualType* stqt = node.getType();
-        Type* memberType = resolveType(*stqt->m_type);
+        const STQualType& stqt = node.getType();
+        Type* memberType = resolveType(*stqt.m_type);
         if (memberType == nullptr) {
-            onUndefinedType(*stqt->m_type);
+            onUndefinedType(*stqt.m_type);
         }
-        QualType qt = QualType::Create(MakeQualifier(*stqt), memberType);
+        QualType qt = QualType::Create(MakeQualifier(stqt), memberType);
 
         // get init expr if any
         StmtExpression* initExpr = nullptr;
@@ -393,7 +393,7 @@ namespace yal::frontend {
 
         DeclVar* decl = m_module.getASTContext().getAllocator()
                 .construct<DeclVar>(m_module,
-                                    declName->getString(),
+                                    declName.getString(),
                                     node.getSourceInfo(),
                                     *parentScope,
                                     qt,
@@ -431,7 +431,7 @@ namespace yal::frontend {
         StackDecl& stackDecl = getState().stackDecls;
         const size_t stackSize = stackDecl.size();
         (void) stackSize;
-        node.getDecl()->acceptVisitor(*this);
+        node.getDecl().acceptVisitor(*this);
         YAL_ASSERT(!stackDecl.empty());
         DeclBase* decl = stackDecl.top();
         stackDecl.pop();
@@ -450,7 +450,7 @@ namespace yal::frontend {
         StackExpr& stackExpr = getState().stackExpressions;
         const size_t stackSize = stackExpr.size();
         (void) stackSize;
-        node.getExpr()->acceptVisitor(*this);
+        node.getExpr().acceptVisitor(*this);
         YAL_ASSERT(!stackExpr.empty());
         StmtExpression* expr = stackExpr.top();
         stackExpr.pop();
@@ -460,13 +460,13 @@ namespace yal::frontend {
 
     void
     AstBuilder::visit(const STStmtAssign& node) {
-        const STExpression* stExprLeft = node.getLeftExpr();
-        const STExpression* stExprRight = node.getRightExpr();
+        const STExpression& stExprLeft = node.getLeftExpr();
+        const STExpression& stExprRight = node.getRightExpr();
 
         StackExpr& stack = getState().stackExpressions;
         const size_t stackSize = stack.size();
-        stExprLeft->acceptVisitor(*this);
-        stExprRight->acceptVisitor(*this);
+        stExprLeft.acceptVisitor(*this);
+        stExprRight.acceptVisitor(*this);
         YAL_ASSERT(!stack.empty());
         YAL_ASSERT(stack.size() == stackSize + 2);
 
@@ -536,22 +536,22 @@ namespace yal::frontend {
     void
     AstBuilder::visit(const STExprVarRef& node) {
 
-        const STIdentifier* varName = node.getVarName();
+        const STIdentifier& varName = node.getVarName();
         DeclScope* parentScope = getState().stackScope.top();
         // check for symbol
-        const DeclBase* existingDecl = parentScope->getDecl(Identifier(varName->getString()), false);
+        const DeclBase* existingDecl = parentScope->getDecl(Identifier(varName.getString()), false);
         if (existingDecl == nullptr ) {
-            onUndefinedSymbol(*varName);
+            onUndefinedSymbol(varName);
         }
 
         if (!existingDecl->isVariableDecl()) {
-            onSymbolNotDeclVar(*varName, *existingDecl);
+            onSymbolNotDeclVar(varName, *existingDecl);
         }
 
         const DeclVar* declVar = static_cast<const DeclVar*>(existingDecl);
 
         ExprVarRef* expr = nullptr;
-        if (varName->getString() == "self") {
+        if (varName.getString() == "self") {
             expr = m_module.getASTContext().getAllocator()
                     .construct<ExprVarRefSelf>(m_module,
                                                node.getSourceInfo(),
@@ -571,8 +571,8 @@ namespace yal::frontend {
 
         StackExpr& stackExpr = getState().stackExpressions;
         const size_t stackSize = stackExpr.size();
-        const STExpression* stExpr = node.getExpression();
-        stExpr->acceptVisitor(*this);
+        const STExpression& stExpr = node.getExpression();
+        stExpr.acceptVisitor(*this);
         YAL_ASSERT(!stackExpr.empty());
         YAL_ASSERT(stackExpr.size() == stackSize + 1);
 
@@ -590,13 +590,13 @@ namespace yal::frontend {
 
     void
     AstBuilder::visit(const STExprBinaryOperator& node) {
-        const STExpression* stExprLeft = node.getExpressionLeft();
-        const STExpression* stExprRight = node.getExpressionRight();
+        const STExpression& stExprLeft = node.getExpressionLeft();
+        const STExpression& stExprRight = node.getExpressionRight();
 
         StackExpr& stack = getState().stackExpressions;
         const size_t stackSize = stack.size();
-        stExprLeft->acceptVisitor(*this);
-        stExprRight->acceptVisitor(*this);
+        stExprLeft.acceptVisitor(*this);
+        stExprRight.acceptVisitor(*this);
         YAL_ASSERT(!stack.empty());
         YAL_ASSERT(stack.size() == stackSize + 2);
 
@@ -760,8 +760,8 @@ namespace yal::frontend {
     AstBuilder::visit(const STExprStructVarRef& node) {
         StackExpr& stackExpr = getState().stackExpressions;
         const size_t stackSize = stackExpr.size();
-        const STExpression* stExpr = node.getExpression();
-        stExpr->acceptVisitor(*this);
+        const STExpression& stExpr = node.getExpression();
+        stExpr.acceptVisitor(*this);
         YAL_ASSERT(!stackExpr.empty());
         YAL_ASSERT(stackExpr.size() == stackSize + 1);
 
@@ -772,7 +772,7 @@ namespace yal::frontend {
                 .construct<ExprStructVarRef>(m_module,
                                              node.getSourceInfo(),
                                              expr,
-                                             node.getVarName()->getString());
+                                             node.getVarName().getString());
 
         stackExpr.push(exprVarRef);
     }
@@ -794,18 +794,18 @@ namespace yal::frontend {
                 onUndefinedType(*typeSt);
             }
             // check if function is defined on type
-            typeFn = typeTarget->getFunctionWithName(node.getName()->getString());
+            typeFn = typeTarget->getFunctionWithName(node.getName().getString());
 
             if (typeFn == nullptr) {
                 auto err = std::make_unique<ErrorTypeFunctionUndefined>(*typeTarget,
-                                                                        *node.getName());
+                                                                        node.getName());
                 m_errReporter.report(std::move(err));
                 getState().onError();
             }
 
             if (!typeFn->isTypeFunctionStatic()) {
                 auto err = std::make_unique<ErrorTypeFunctionIsNotStatic>(*typeFn,
-                                                                          node.getName()->getSourceInfo());
+                                                                          node.getName().getSourceInfo());
                 m_errReporter.report(std::move(err));
                 getState().onError();
             }
@@ -828,17 +828,17 @@ namespace yal::frontend {
         // else  - normal function
 
         else if (node.getFunctionType() == STExprFnCall::FnType::Regular) {
-            const Identifier id(node.getName()->getString(), m_module);
+            const Identifier id(node.getName().getString(), m_module);
             Type* type = typeCtx.getByIdentifier(id);
 
             if (type == nullptr) {
-                onUndefinedSymbol(*node.getName());
+                onUndefinedSymbol(node.getName());
             }
 
             typeFn = dyn_cast<TypeFunction>(type);
             if (typeFn == nullptr) {
                 auto err = std::make_unique<ErrorTypeIsNotFunction>(*type,
-                                                                    node.getName()->getSourceInfo());
+                                                                    node.getName().getSourceInfo());
                 m_errReporter.report(std::move(err));
                 getState().onError();
             }
@@ -876,7 +876,7 @@ namespace yal::frontend {
                     .construct<ExprTypeFnCall>(m_module,
                                                node.getSourceInfo(),
                                                exprFn,
-                                               *node.getName(),
+                                               node.getName(),
                                                std::move(params));
         } else if(node.getFunctionType() == STExprFnCall::FnType::Static) {
             exprFnCall = m_module.getASTContext().getAllocator()
@@ -890,32 +890,31 @@ namespace yal::frontend {
     }
 
     void
-    AstBuilder::visit(const STExprRangeCast& node) {
-        const STQualType* stqt = node.getTargetType();
-
-        Type* targetType = resolveType(*stqt->m_type);
+    AstBuilder::visit(const STExprCast& node) {
+        const STQualType& qtType = node.getTargetType();
+        Type* targetType = resolveType(*qtType.m_type);
         // check if type has been defined
         if (targetType == nullptr) {
-            onUndefinedType(*stqt->m_type);
+            onUndefinedType(*qtType.m_type);
         }
 
         StackExpr& stackExpr = getState().stackExpressions;
         const size_t stackSize = stackExpr.size();
-        const STExpression* stExpr = node.getExpr();
-        stExpr->acceptVisitor(*this);
+        const STExpression& stExpr = node.getExpr();
+        stExpr.acceptVisitor(*this);
         YAL_ASSERT(!stackExpr.empty());
         YAL_ASSERT(stackExpr.size() == stackSize + 1);
 
         StmtExpression* expr = stackExpr.top();
         stackExpr.pop();
 
-        QualType qt = QualType::Create(MakeQualifier(*stqt), targetType);
+        const QualType qt = QualType::Create(MakeQualifier(qtType), targetType);
 
-        ExprRangeCast* exprCast = m_module.getASTContext().getAllocator()
-                .construct<ExprRangeCast>(m_module,
-                                          node.getSourceInfo(),
-                                          qt,
-                                          expr);
+        ExprCast* exprCast = m_module.getASTContext().getAllocator()
+                .construct<ExprCast>(m_module,
+                                     node.getSourceInfo(),
+                                     qt,
+                                     expr);
         stackExpr.push(exprCast);
     }
 
@@ -949,19 +948,19 @@ namespace yal::frontend {
                 auto it = std::find_if(std::begin(structMembers),
                                        std::end(structMembers),
                                        [stmember](const STDeclStruct::Members::value_type& v) -> bool {
-                    return v->getName()->getString() == stmember->getName()->getString();
+                    return v->getName().getString() == stmember->getName().getString();
                 });
 
                 if (it == std::end(structMembers)) {
                     auto err = std::make_unique<ErrorUndefinedStructMember>(*typeStruct,
-                                                                            *stmember->getName());
+                                                                            stmember->getName());
                     m_errReporter.report(std::move(err));
                     getState().onError();
                 }
 
                 const size_t stackSize = stackExpr.size();
-                const STExpression* stExpr = stmember->getExpr();
-                stExpr->acceptVisitor(*this);
+                const STExpression& stExpr = stmember->getExpr();
+                stExpr.acceptVisitor(*this);
                 YAL_ASSERT(!stackExpr.empty());
                 YAL_ASSERT(stackExpr.size() == stackSize + 1);
                 StmtExpression* expr = stackExpr.top();
@@ -970,7 +969,7 @@ namespace yal::frontend {
                 StructMemberInit* initExpr = m_module.getASTContext().getAllocator()
                         .construct<StructMemberInit>(m_module,
                                                      node.getSourceInfo(),
-                                                     stmember->getName()->getString(),
+                                                     stmember->getName().getString(),
                                                      expr);
                 members.push_back(initExpr);
             }
@@ -1051,7 +1050,7 @@ namespace yal::frontend {
 
     void
     AstBuilder::onUndefinedType(const STDecl &decl) {
-        auto error = std::make_unique<ErrorUndefinedTypeRef>(decl.getName()->getString(),
+        auto error = std::make_unique<ErrorUndefinedTypeRef>(decl.getName().getString(),
                                                              decl.getSourceInfo());
         m_errReporter.report(std::move(error));
         getState().onError();
@@ -1060,7 +1059,7 @@ namespace yal::frontend {
     void
     AstBuilder::onDuplicateSymbol(const STDecl& decl,
                                   const DeclBase &existing) {
-        auto error = std::make_unique<ErrorDuplicateSymbol>(decl.getName()->getString(),
+        auto error = std::make_unique<ErrorDuplicateSymbol>(decl.getName().getString(),
                                                             decl.getSourceInfo(),
                                                             existing.getIdentifier().getName(),
                                                             existing.getSourceInfo());

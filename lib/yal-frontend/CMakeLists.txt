@@ -77,8 +77,8 @@ set(YAL_SOURCES
     yal/frontend/ast/exprfloatliteral.h
     yal/frontend/ast/declscope.cpp
     yal/frontend/ast/declscope.h
-    yal/frontend/ast/exprrangecast.h
-    yal/frontend/ast/exprrangecast.cpp
+    yal/frontend/ast/exprcast.h
+    yal/frontend/ast/exprcast.cpp
     yal/frontend/ast/exprstructinit.cpp
     yal/frontend/ast/exprstructinit.h
     yal/frontend/ast/structmemberinit.h

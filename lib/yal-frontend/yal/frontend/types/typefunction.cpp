@@ -28,11 +28,11 @@ namespace yal::frontend {
                                    const STDeclFunction* decl) {
         const STType* target = decl->getFunctionTarget();
         if (target != nullptr) {
-            return Identifier(decl->getFunctionName()->getString(),
+            return Identifier(decl->getFunctionName().getString(),
                               target->getIdentifier(),
                               module);
         } else {
-            return Identifier(decl->getFunctionName()->getString(),
+            return Identifier(decl->getFunctionName().getString(),
                               module);
         }
     }
@@ -54,7 +54,7 @@ namespace yal::frontend {
             if (params.empty()) {
                 m_typefunctionStatic = 1;
             } else {
-                if (params[0]->getName()->getString() != "self") {
+                if (params[0]->getName().getString() != "self") {
                      m_typefunctionStatic = 1;
                 }
             }
@@ -68,6 +68,6 @@ namespace yal::frontend {
 
     SourceInfoOpt
     TypeFunction::getSourceInfo() const {
-        return SourceInfoOpt(m_stdecl->getName()->getSourceInfo());
+        return SourceInfoOpt(m_stdecl->getName().getSourceInfo());
     }
 }

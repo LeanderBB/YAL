@@ -23,37 +23,4 @@
 
 namespace yal::frontend {
 
-    class AstExprLeafSearchBase: public RecursiveAstVisitor {
-
-    public:
-        AstExprLeafSearchBase(const AstType nodeType):
-            m_nodeType(nodeType),
-            m_searchNode(nullptr) {
-        }
-
-
-#define YAL_AST_SKIP_NODE_CONTAINERS
-#define YAL_AST_NODE_TYPE(TYPE) virtual void visit(TYPE&) override final;
-#include "yal/frontend/ast/astnodes.def"
-#undef YAL_AST_NODE_TYPE
-#undef YAL_AST_SKIP_NODE_CONTAINERS
-
-    protected:
-        const AstType m_nodeType;
-        const void* m_searchNode;
-    };
-
-    template <typename T>
-    class AstExprLeafSearch : protected AstExprLeafSearchBase {
-    public:
-        AstExprLeafSearch():
-            AstExprLeafSearchBase(get_typeid<T>()) {
-        }
-
-        const T* search(StmtExpression* expr)  {
-            expr->acceptVisitor(*this);
-            return reinterpret_cast<const T*>(m_searchNode);
-        }
-    };
-
 }

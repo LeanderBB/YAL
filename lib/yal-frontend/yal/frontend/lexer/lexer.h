@@ -35,7 +35,7 @@ namespace yal::frontend {
     public:
 
         enum {
-            kYYMaxFill = 11
+            kYYMaxFill = 7
         };
 
         enum class Status

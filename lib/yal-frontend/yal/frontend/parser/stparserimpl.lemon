@@ -57,6 +57,7 @@
 }
 
 %right ASSIGN.
+%left AS.
 %left OR.
 %left AND.
 %left BIT_OR BIT_XOR BIT_AND.
@@ -387,9 +388,11 @@ expression (A) ::= unaryexp(B). {A = B;}
 expression (A) ::= binaryexp(B). {A = B;}
 expression (A) ::= struct_init(B). { A = B;}
 
-expression (A) ::= RANGE_CAST(B) LT type_qualified(C) GT PAR_BEGIN expression(D) PAR_END(E). {
-    A = pParser->createNode<yal::frontend::STExprRangeCast>(C, D);
-    auto srcInfo = yal::frontend::CreateSourceInfo(B, E, pParser->getSourceHandle());
+expression (A) ::= expression(B) AS type_qualified(C). {
+    A = pParser->createNode<yal::frontend::STExprCast>(B, C);
+    auto srcInfo = yal::frontend::CreateSourceInfo(B->getSourceInfo(),
+                                                   C->getSourceInfo(),
+                                                   pParser->getSourceHandle());
     A->setSourceInfo(srcInfo);
 }
 

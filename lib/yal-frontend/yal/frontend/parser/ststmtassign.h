@@ -32,12 +32,12 @@ namespace yal::frontend {
 
         void acceptVisitor(SyntaxTreeVisitor& visitor) const override final;
 
-        const STExpression* getLeftExpr() const {
-            return m_leftExpr;
+        const STExpression& getLeftExpr() const {
+            return *m_leftExpr;
         }
 
-        const STExpression* getRightExpr() const {
-            return m_rightExpr;
+        const STExpression& getRightExpr() const {
+            return *m_rightExpr;
         }
 
     private:

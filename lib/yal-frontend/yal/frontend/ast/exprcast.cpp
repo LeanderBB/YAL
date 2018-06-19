@@ -1,5 +1,5 @@
 /*
- *  Copyright 2017 by Leander Beernaert (lbb-dev@pm.me)
+ *  Copyright 2018 by Leander Beernaert (lbb-dev@pm.me)
  *
  *  This file is part of YAL.
  *
@@ -18,24 +18,24 @@
  */
 
 
-#include "yal/frontend/ast/exprrangecast.h"
+#include "yal/frontend/ast/exprcast.h"
 #include "yal/frontend/ast/astvisitor.h"
 
 namespace yal::frontend {
 
-    ExprRangeCast::ExprRangeCast(frontend::Module& module,
-                                 const SourceInfo &srcInfo,
-                                 const QualType& destType,
-                                 StmtExpression* expression):
-        StmtExpression(module, AstType::ExprRangeCast, srcInfo),
-        m_expression(expression){
+    ExprCast::ExprCast(frontend::Module& module,
+                       const SourceInfo &srcInfo,
+                       const QualType &qt,
+                       StmtExpression* expression):
+        StmtExpression(module, AstType::ExprCast, srcInfo),
+        m_expression(expression) {
 
-        m_qualType = destType;
+        m_qualType = qt;
     }
 
 
     void
-    ExprRangeCast::acceptVisitor(AstVisitor& visitor) {
+    ExprCast::acceptVisitor(AstVisitor& visitor) {
         visitor.visit(*this);
     }
 }

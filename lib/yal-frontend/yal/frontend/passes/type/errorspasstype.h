@@ -30,6 +30,7 @@ namespace yal {
 namespace yal::frontend {
 
     class DeclTypeFunction;
+    class ExprCast;
     class ExprFnCall;
     class ExprStructVarRef;
     class ExprStructInit;
@@ -324,5 +325,29 @@ namespace yal::frontend {
     private:
         const ExprTypeFnCall& m_expr;
         const DeclTypeFunction& m_decl;
+    };
+
+    class ErrorTypeIncompatibleCast final : public ErrorTypeBase {
+    public:
+        static const ErrorCode kCode;
+
+        ErrorTypeIncompatibleCast(const ExprCast& expr);
+
+        StringRef getErrorName() const override final;
+
+    protected:
+        void printDetail(ErrorPrinter& printer)const override final;
+    };
+
+    class ErrorTypeCastReference final : public ErrorTypeBase {
+    public:
+        static const ErrorCode kCode;
+
+        ErrorTypeCastReference(const ExprCast& expr);
+
+        StringRef getErrorName() const override final;
+
+    protected:
+        void printDetail(ErrorPrinter& printer)const override final;
     };
 }

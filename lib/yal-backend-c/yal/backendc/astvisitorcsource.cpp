@@ -457,8 +457,15 @@ namespace yal::backend::c {
     }
 
     void
-    AstVisitorCSource::visit(yal::frontend::ExprRangeCast&) {
-        YAL_ASSERT_MESSAGE(false, "Deprecated, do not use!!!");
+    AstVisitorCSource::visit(yal::frontend::ExprCast& node) {
+        const yf::QualType qtExpr = node.getQualType();
+        const CType* ctype = m_typeCache.getCType(*qtExpr.getType());
+        YAL_ASSERT(ctype != nullptr);
+        m_writer.write("((");
+        CTypeGen::GenQualType(m_writer, qtExpr, *ctype);
+        m_writer.write(")");
+        node.getExpression().acceptVisitor(*this);
+        m_writer.write(")");
     }
 
     void

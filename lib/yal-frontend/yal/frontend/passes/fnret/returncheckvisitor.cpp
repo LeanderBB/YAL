@@ -144,7 +144,7 @@ namespace yal::frontend {
     ReturnCheckVisitor::visit(ExprVarRefSelf&) {}
 
     void
-    ReturnCheckVisitor::visit(ExprRangeCast&) {}
+    ReturnCheckVisitor::visit(ExprCast&) {}
 
     void
     ReturnCheckVisitor::visit(ExprStructInit&) {}

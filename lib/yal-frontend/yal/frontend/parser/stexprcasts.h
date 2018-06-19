@@ -24,24 +24,24 @@
 namespace yal::frontend {
 
     class STExpression;
-    class STExprRangeCast final : public STExpression {
+    class STExprCast final : public STExpression {
     public:
-        STExprRangeCast(const STQualType* targetType,
-                        const STExpression* expr);
+        STExprCast(const STExpression* expr,
+                   const STQualType* qtTarget);
 
-        const STQualType* getTargetType() const {
-            return m_targetType;
+        const STQualType& getTargetType() const {
+            return *m_qtTarget;
         }
 
-        const STExpression* getExpr() const {
-            return m_expr;
+        const STExpression& getExpr() const {
+            return *m_expr;
         }
 
         void acceptVisitor(SyntaxTreeVisitor& visitor) const final override;
 
     private:
-        const STQualType* m_targetType;
         const STExpression* m_expr;
+        const STQualType* m_qtTarget;
     };
 
 }

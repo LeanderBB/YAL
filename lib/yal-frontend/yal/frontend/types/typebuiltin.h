@@ -22,7 +22,7 @@
 
 namespace yal::frontend {
 
-    class TypeBuiltin : public Type {
+    class TypeBuiltin final : public Type {
     public:
 
         enum class DataType {
@@ -65,8 +65,9 @@ namespace yal::frontend {
         }
 
     protected:
-        virtual bool isCastableToDetail(const Type& other) const override;
+        virtual bool isCastableToAutoImpl(const Type& other) const override final;
 
+        virtual bool isCastableToRequestImpl(const Type& other) const override final;
     private:
         const DataType m_builtinType;
     };
