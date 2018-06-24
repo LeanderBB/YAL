@@ -20,6 +20,7 @@
 #include "yal/backendc/ctypegen.h"
 
 #include "yal/backendc/ctype.h"
+#include "yal/backendc/ctypebuiltin.h"
 #include "yal/frontend/ast/declfunction.h"
 #include "yal/frontend/ast/declparamvar.h"
 #include "yal/frontend/ast/declmodule.h"
@@ -144,23 +145,9 @@ namespace yal::backend::c {
     void
     CTypeGen::GetBuilitinTypeInfo(yal::CodeWriter& writer) {
         //TODO: Replace with a special header at some point
-        writer.write( "#if !defined(YAL_BUILTIN_TYPES_DEFINED)\n");
-        writer.write("#define YAL_BUILTIN_TYPES_DEFINED\n");
-        writer.write("#include<stdint.h>\n");
-        writer.write("typedef uint8_t yal_bool;\n");
-        writer.write("#define YAL_TRUE ((yal_bool)1)\n");
-        writer.write("#define YAL_FALSE ((yal_bool)0)\n");
-        writer.write("typedef int8_t yal_i8;\n");
-        writer.write("typedef int16_t yal_i16;\n");
-        writer.write("typedef int32_t yal_i32;\n");
-        writer.write("typedef int64_t yal_i64;\n");
-        writer.write("typedef uint8_t yal_u8;\n");
-        writer.write("typedef uint16_t yal_u16;\n");
-        writer.write("typedef uint32_t yal_u32;\n");
-        writer.write("typedef uint64_t yal_u64;\n");
-        writer.write("typedef float yal_f32;\n");
-        writer.write("typedef double yal_f64;\n");
-        writer.write("#endif // YAL_BUILTIN_TYPES_DEFINED\n\n");
+        //writer.write("#include <yal/core/builtin.h>\n");
+
+        GenBuiltinHeader(writer);
     }
 
     StringRef
@@ -218,6 +205,17 @@ namespace yal::backend::c {
         default:
             YAL_ASSERT_MESSAGE(false, "unknown binary operator type");
         }
+    }
+
+
+    void
+    CTypeGen::GenBuiltinHeader(yal::CodeWriter& writer) {
+       CTypeBuilitin::GenBuiltinHeader(writer);
+    }
+
+    void
+    CTypeGen::GenBuiltinSource(yal::CodeWriter& writer) {
+        CTypeBuilitin::GenBuiltinSource(writer);
     }
 
 }

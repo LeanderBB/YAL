@@ -18,7 +18,7 @@
  */
 
 #include "yal/backendc/ctype.h"
-
+#include "yal/backendc/ctypebuiltin.h"
 #include "yal/frontend/types/type.h"
 #include "yal/frontend/types/typebuiltin.h"
 #include "yal/frontend/types/typecontext.h"
@@ -29,36 +29,9 @@
 
 namespace yal::backend::c {
 
-    static std::string
+    static StringRef
     GetCIdentifierBuiltin(const frontend::TypeBuiltin& type) {
-        const frontend::TypeBuiltin::DataType dt = type.getDataType();
-        switch(dt) {
-        case frontend::TypeBuiltin::DataType::Boolean:
-            return "yal_bool";
-        case frontend::TypeBuiltin::DataType::Int8:
-            return "yal_i8";
-        case frontend::TypeBuiltin::DataType::UInt8:
-            return "yal_u8";
-        case frontend::TypeBuiltin::DataType::Int16:
-            return "yal_i16";
-        case frontend::TypeBuiltin::DataType::UInt16:
-            return "yal_u16";
-        case frontend::TypeBuiltin::DataType::Int32:
-            return "yal_i32";
-        case frontend::TypeBuiltin::DataType::UInt32:
-            return "yal_u32";
-        case frontend::TypeBuiltin::DataType::Int64:
-            return "yal_i64";
-        case frontend::TypeBuiltin::DataType::UInt64:
-            return "yal_u64";
-        case frontend::TypeBuiltin::DataType::Float32:
-            return "yal_f32";
-        case frontend::TypeBuiltin::DataType::Float64:
-            return "yal_f64";
-        default:
-            YAL_ASSERT_MESSAGE(false, "Unknown builtin type");
-            return "Unknown";
-        }
+        return CTypeBuilitin::GetCTypeName(type);
     }
 
     static std::string
@@ -83,7 +56,7 @@ namespace yal::backend::c {
             const frontend::TypeBuiltin* typeBuiltIn =
                     yal::dyn_cast<frontend::TypeBuiltin>(&type);
             YAL_ASSERT(typeBuiltIn != nullptr);
-            return GetCIdentifierBuiltin(*typeBuiltIn);
+            return GetCIdentifierBuiltin(*typeBuiltIn).toString();
         }
         case frontend::Type::Kind::TypeFunction:
             return GenCIdentifierFunction(type);

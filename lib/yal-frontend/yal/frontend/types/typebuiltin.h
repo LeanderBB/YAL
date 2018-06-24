@@ -25,8 +25,8 @@ namespace yal::frontend {
     class TypeBuiltin final : public Type {
     public:
 
-        enum class DataType {
-            Boolean,
+        enum class DataType : uint8_t {
+            Boolean = 0,
             Int8,
             UInt8,
             Int16,
@@ -36,7 +36,8 @@ namespace yal::frontend {
             Int64,
             UInt64,
             Float32,
-            Float64
+            Float64,
+            DataTypeCount
         };
 
         TypeBuiltin(const DataType builtinType);

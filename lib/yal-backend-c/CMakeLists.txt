@@ -35,6 +35,8 @@ set(LIB_SOURCES
     yal/backendc/astvisitorcsource.h
     yal/backendc/ctypegen.cpp
     yal/backendc/ctypegen.h
+    yal/backendc/ctypebuiltin.cpp
+    yal/backendc/ctypebuiltin.h
 )
 
 

@@ -21,9 +21,11 @@
 #include "yal/backendc/astvisitorcsource.h"
 #include "yal/backendc/backendc.h"
 #include "yal/backendc/ctype.h"
+#include "yal/backendc/ctypebuiltin.h"
 #include "yal/backendc/ctypegen.h"
 #include "yal/frontend/ast/astnodes.h"
 #include "yal/frontend/module.h"
+#include "yal/frontend/types/typebuiltin.h"
 #include "yal/frontend/types/typefunction.h"
 #include "yal/frontend/types/typestruct.h"
 
@@ -458,14 +460,31 @@ namespace yal::backend::c {
 
     void
     AstVisitorCSource::visit(yal::frontend::ExprCast& node) {
-        const yf::QualType qtExpr = node.getQualType();
-        const CType* ctype = m_typeCache.getCType(*qtExpr.getType());
-        YAL_ASSERT(ctype != nullptr);
-        m_writer.write("((");
-        CTypeGen::GenQualType(m_writer, qtExpr, *ctype);
-        m_writer.write(")");
-        node.getExpression().acceptVisitor(*this);
-        m_writer.write(")");
+        const yf::QualType qtExpr = node.getExpression().getQualType();
+        const yf::QualType qtTarget = node.getQualType();
+        const CType* ctypeTarget = m_typeCache.getCType(*qtTarget.getType());
+        const CType* ctypeExpr= m_typeCache.getCType(*qtExpr.getType());
+        YAL_ASSERT(ctypeTarget != nullptr && ctypeExpr != nullptr);
+
+        bool doNomralConversion = true;
+        if(qtTarget.getType()->isBuilitin() && qtExpr.getType()->isBuilitin()) {
+            const yf::TypeBuiltin* typeBtTarget = dyn_cast<yf::TypeBuiltin>(qtTarget.getType());
+            const yf::TypeBuiltin* typeBtExpr = dyn_cast<yf::TypeBuiltin>(qtExpr.getType());
+            if (CTypeBuilitin::GenConversion(m_writer, *typeBtExpr, *typeBtTarget)) {
+                m_writer.write("(");
+                node.getExpression().acceptVisitor(*this);
+                m_writer.write(")");
+                doNomralConversion = false;
+            }
+        }
+
+        if (doNomralConversion) {
+            m_writer.write("((");
+            CTypeGen::GenQualType(m_writer, qtTarget, *ctypeTarget);
+            m_writer.write(")");
+            node.getExpression().acceptVisitor(*this);
+            m_writer.write(")");
+        }
     }
 
     void
@@ -518,6 +537,10 @@ namespace yal::backend::c {
                        YAL_BACKEND_C_VERSION_STR);
         m_writer.write("// Source for module %\n\n", m_module.getPath());
         m_writer.write("#include \"%\"\n\n", headerPath);
+
+        //TODO: Move this to a builtin module that can
+        // be generated when projects have been setup
+        CTypeBuilitin::GenBuiltinSource(m_writer);
 
         m_module.getDeclNode()->acceptVisitor(*this);
 

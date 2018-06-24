@@ -61,10 +61,11 @@ namespace yal {
 
     void
     CodeWriter::write(const StringRef ref) {
-        const size_t newOffset = ref.size() + m_bufferOffset;
+        size_t newOffset = ref.size() + m_bufferOffset;
         if (newOffset > kBufferSize) {
             // flush buffer
             writeToStream();
+            newOffset = ref.size();
         }
         memcpy(m_buffer + m_bufferOffset, ref.data(), ref.size());
         m_bufferOffset = newOffset;
@@ -72,10 +73,11 @@ namespace yal {
 
     void
     CodeWriter::write() {
-        const size_t newOffset = 1+ m_bufferOffset;
+        size_t newOffset = 1+ m_bufferOffset;
         if (newOffset > kBufferSize) {
             // flush buffer
             writeToStream();
+            newOffset = 1;
         }
         m_buffer[m_bufferOffset] = '\n';
         m_bufferOffset = newOffset;
@@ -83,10 +85,11 @@ namespace yal {
 
     void
     CodeWriter::ident() {
-        const size_t newOffset = 1+ m_bufferOffset;
+        size_t newOffset = 1+ m_bufferOffset;
         if (newOffset > kBufferSize) {
             // flush buffer
             writeToStream();
+            newOffset = 1;
         }
         m_buffer[m_bufferOffset] = kIdentChar;
         m_bufferOffset = newOffset;
@@ -94,10 +97,11 @@ namespace yal {
 
     void
     CodeWriter::unident() {
-        const size_t newOffset = 1+ m_bufferOffset;
+        size_t newOffset = 1+ m_bufferOffset;
         if (newOffset > kBufferSize) {
             // flush buffer
             writeToStream();
+            newOffset = 1;
         }
         m_buffer[m_bufferOffset] = kUnidentChar;
         m_bufferOffset = newOffset;

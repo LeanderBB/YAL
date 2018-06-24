@@ -65,5 +65,9 @@ namespace yal::backend::c {
         static StringRef GenUnaryOperator(const yal::frontend::UnaryOperatorType op);
 
         static StringRef GenBinaryOperator(const yal::frontend::BinaryOperatorType op);
+
+        static void GenBuiltinHeader(yal::CodeWriter& writer);
+
+        static void GenBuiltinSource(yal::CodeWriter& writer);
     };
 }

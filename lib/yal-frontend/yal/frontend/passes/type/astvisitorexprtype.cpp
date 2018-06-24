@@ -693,5 +693,10 @@ namespace yal::frontend {
             auto error = std::make_unique<ErrorTypeCastReference>(cast);
             onError(std::move(error));
         }
+
+        if (qtTo.isTriviallyCopiable() && qtTo.isReference()) {
+            auto error = std::make_unique<ErrorTypeCastReference>(cast);
+            onError(std::move(error));
+        }
     }
 }
