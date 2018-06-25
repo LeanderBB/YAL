@@ -110,7 +110,7 @@ R"R(
     }
 
     fn doSomething(f:Foo) {
-        var o:Foo = f;
+        let o:Foo = f;
         var i:u32 = f.b.x;
     }
 

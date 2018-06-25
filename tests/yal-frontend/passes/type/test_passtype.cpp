@@ -266,7 +266,7 @@ TEST_F(PassType, AssignToImmutable) {
     const char* input =
 R"R(
     fn main() {
-       var i: i32 = 40i32;
+       let i: i32 = 40i32;
        i = 50i32;
     }
 )R";
@@ -353,14 +353,14 @@ R"R(
 
     fn Foo::test(&self) : bool {
         {
-            var f:&Foo  = self;
+            let f:&Foo  = self;
             return f.x == 30i32;
         }
     }
 
     fn Foo::stuff(&self) : bool {
         {
-            var f:&Foo  = self;
+            let f:&Foo  = self;
             return f.test();
         }
     }
@@ -395,7 +395,7 @@ R"R(
     }
 
     fn main() {
-       var f:Foo = Foo{x:20i32};
+       let f:Foo = Foo{x:20i32};
        f.stuff();
        f.setX(40i32);
     }
@@ -460,12 +460,12 @@ TEST_F(PassType, CastNonTrivialType) {
     const char* input =
 R"R(
     type Foo : struct {
-        x : i32
+        x : u32
     }
 
     fn main() {
-        var f:Foo = Foo{x:20};
-        var b:Foo = f as Foo;
+        let f:Foo = Foo{x:20};
+        let b:Foo = f as Foo;
     }
 
 )R";
@@ -489,8 +489,8 @@ R"R(
     }
 
     fn main() {
-        var f:Foo = Foo{x:20};
-        var b:&Foo = &f as &Foo;
+        let f:Foo = Foo{x:20};
+        let b:&Foo = &f as &Foo;
     }
 
 )R";
@@ -509,7 +509,7 @@ R"R(
     }
 
     fn main() {
-        var x:i32 = 20;
+        var x:u32 = 20;
         var b:&u32 = &x as &u32;
     }
 
@@ -524,4 +524,40 @@ R"R(
     }
     const yal::Error* err = m_errorReporter.getLastError();
     EXPECT_EQ(err->getCode(), yal::frontend::ErrorTypeCastReference::kCode);
+}
+
+TEST_F(PassType, TypeInferenceImutable) {
+    const char* input =
+R"R(
+    fn main() {
+        let x = 20;
+        x = 30;
+    }
+)R";
+    auto handle = createSourceHandle(input);
+    FrontendOptionsType options;
+    const ModuleType* module = m_frontEnd.compile(handle, options);
+    EXPECT_EQ(module, nullptr);
+    EXPECT_TRUE(m_errorReporter.hasErrors());
+    if (!m_errorReporter.hasErrors()) {
+        return;
+    }
+    const yal::Error* err = m_errorReporter.getLastError();
+    EXPECT_EQ(err->getCode(), yal::frontend::ErrorTypeAssignToImmutable::kCode);
+}
+
+
+TEST_F(PassType, TypeInferenceMutable) {
+    const char* input =
+R"R(
+    fn main() {
+        var x = 20;
+        x = 30;
+    }
+)R";
+    auto handle = createSourceHandle(input);
+    FrontendOptionsType options;
+    const ModuleType* module = m_frontEnd.compile(handle, options);
+    EXPECT_NE(module, nullptr);
+    EXPECT_FALSE(m_errorReporter.hasErrors());
 }

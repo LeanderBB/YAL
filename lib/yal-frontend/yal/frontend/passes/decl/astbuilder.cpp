@@ -377,7 +377,21 @@ namespace yal::frontend {
             if (memberType == nullptr) {
                 onUndefinedType(*stqt->m_type);
             }
-            qt = QualType::Create(MakeQualifier(*stqt), memberType);
+            Qualifier qualifier = MakeQualifier(*stqt);
+            if (node.isImmutable()) {
+                qualifier.setImmutable();
+            } else {
+                qualifier.setMutable();
+            }
+            qt = QualType::Create(qualifier, memberType);
+        } else {
+            Qualifier qualifier;
+            if (node.isImmutable()) {
+                qualifier.setImmutable();
+            } else {
+                qualifier.setMutable();
+            }
+            qt = QualType::Create(qualifier, nullptr);
         }
 
         // get init expr if any

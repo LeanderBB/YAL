@@ -128,6 +128,11 @@ namespace yal::frontend {
                 // type inference
                 Qualifier qExpr = qtExpr.getQualifier();
                 qExpr.setLValue(true);
+                if (qtVar.isImmutable()) {
+                    qExpr.setImmutable();
+                } else {
+                    qExpr.setMutable();
+                }
                 node.setQualType(QualType::Create(qExpr, qtExpr.getType()));
             }
         }

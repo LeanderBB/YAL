@@ -704,10 +704,10 @@ TEST_F(PassDecl_AstBuilder, AssignRefOutOfScopeVar) {
     const char* input =
 R"R(
     fn main() {
-        var z:i32 = 0;
-        var y:&i32 = &z;
+        var z:u32 = 0;
+        var y:&u32 = &z;
         {
-           var x:i32 = 20;
+           var x:u32 = 20;
            y = &x;
         }
     }

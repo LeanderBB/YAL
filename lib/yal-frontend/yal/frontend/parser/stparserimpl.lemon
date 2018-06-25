@@ -365,7 +365,13 @@ statement(A) ::= SCOPE_BEGIN(X) statement_list_or_empty(B) SCOPE_END(Z). {
 // Var Decls -----------------------------------------------------------------
 
 decl_var(A) ::= VAR(Z) identifier(B) var_type_spec(C) ASSIGN expression(D). {
-    A = pParser->createNode<yal::frontend::STDeclVar>(B, C, D);
+    A = pParser->createNode<yal::frontend::STDeclVar>(B, C, D, false);
+    auto srcInfo = yal::frontend::CreateSourceInfo(Z, D->getSourceInfo(), pParser->getSourceHandle());
+    A->setSourceInfo(srcInfo);
+}
+
+decl_var(A) ::= LET(Z) identifier(B) var_type_spec(C) ASSIGN expression(D). {
+    A = pParser->createNode<yal::frontend::STDeclVar>(B, C, D, true);
     auto srcInfo = yal::frontend::CreateSourceInfo(Z, D->getSourceInfo(), pParser->getSourceHandle());
     A->setSourceInfo(srcInfo);
 }

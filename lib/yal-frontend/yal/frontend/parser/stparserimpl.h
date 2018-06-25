@@ -19,19 +19,20 @@ void YALSTParserTrace(FILE *TraceFILE,char *zTracePrompt);
 #define YALSTParserARG_STORE yypParser->pParser  = pParser 
 #define YALSTParserARG_FETCH  yal::frontend::STParser *pParser  = yypParser->pParser 
 #define YALSTParserARG_SDECL  yal::frontend::STParser *pParser ;
-#define YAL_TOKEN_BOOL_LITERAL                   65
-#define YAL_TOKEN_FLOAT_LITERAL_64               64
-#define YAL_TOKEN_FLOAT_LITERAL_32               63
-#define YAL_TOKEN_FLOAT_LITERAL                  62
-#define YAL_TOKEN_INTEGER_LITERAL_U64            61
-#define YAL_TOKEN_INTEGER_LITERAL_U32            60
-#define YAL_TOKEN_INTEGER_LITERAL_U16            59
-#define YAL_TOKEN_INTEGER_LITERAL_U8             58
-#define YAL_TOKEN_INTEGER_LITERAL_I64            57
-#define YAL_TOKEN_INTEGER_LITERAL_I32            56
-#define YAL_TOKEN_INTEGER_LITERAL_I16            55
-#define YAL_TOKEN_INTEGER_LITERAL_I8             54
-#define YAL_TOKEN_INTEGER_LITERAL                53
+#define YAL_TOKEN_BOOL_LITERAL                   66
+#define YAL_TOKEN_FLOAT_LITERAL_64               65
+#define YAL_TOKEN_FLOAT_LITERAL_32               64
+#define YAL_TOKEN_FLOAT_LITERAL                  63
+#define YAL_TOKEN_INTEGER_LITERAL_U64            62
+#define YAL_TOKEN_INTEGER_LITERAL_U32            61
+#define YAL_TOKEN_INTEGER_LITERAL_U16            60
+#define YAL_TOKEN_INTEGER_LITERAL_U8             59
+#define YAL_TOKEN_INTEGER_LITERAL_I64            58
+#define YAL_TOKEN_INTEGER_LITERAL_I32            57
+#define YAL_TOKEN_INTEGER_LITERAL_I16            56
+#define YAL_TOKEN_INTEGER_LITERAL_I8             55
+#define YAL_TOKEN_INTEGER_LITERAL                54
+#define YAL_TOKEN_LET                            53
 #define YAL_TOKEN_VAR                            52
 #define YAL_TOKEN_RETURN                         51
 #define YAL_TOKEN_FUNCTION                       50

@@ -28,7 +28,8 @@ namespace yal::frontend {
     public:
         STDeclVar(const STIdentifier* name,
                   const STQualType* type,
-                  const STExpression* initExpr);
+                  const STExpression* initExpr,
+                  const bool immutable);
 
         const STQualType* getType() const {
             return m_type;
@@ -38,11 +39,16 @@ namespace yal::frontend {
             return m_expr;
         }
 
+        bool isImmutable() const {
+            return m_immutable;
+        }
+
         void acceptVisitor(SyntaxTreeVisitor& visitor) const override final;
 
     protected:
         const STQualType* m_type;
         const STExpression* m_expr;
+        const bool m_immutable;
     };
 
 }

@@ -24,10 +24,12 @@ namespace yal::frontend {
 
     STDeclVar::STDeclVar(const STIdentifier* name,
                          const STQualType* type,
-                         const STExpression* initExpr):
+                         const STExpression* initExpr,
+                         const bool immutable):
         STDecl(SyntaxTreeType::STDeclVar, name),
         m_type(type),
-        m_expr(initExpr) {
+        m_expr(initExpr),
+        m_immutable(immutable) {
 
     }
 
