@@ -34,14 +34,14 @@ TEST_F(General, StructAccess) {
     const char* input =
 R"R(
     type Bar : struct {
-        x : i32
+        x : u32
     }
 
     type Foo : struct {
         b: Bar
     }
 
-    fn Foo::Static(x:i32) {
+    fn Foo::Static(x:u32) {
 
     }
 
@@ -49,12 +49,12 @@ R"R(
         return self.b.x == 20;
     }
 
-    fn Foo::setX(mut& self, newX:i32) {
+    fn Foo::setX(mut& self, newX:u32) {
         self.b.x = newX;
     }
 
     fn other(x: mut Foo) {
-        var z:i32 = x.b.x;
+        var z:u32 = x.b.x;
     }
 
     fn main() {
@@ -74,7 +74,7 @@ TEST_F(General, RefTest) {
     const char* input =
 R"R(
     type Bar : struct {
-        x : i32
+        x : u32
     }
 
 
@@ -94,7 +94,7 @@ R"R(
     }
 
 
-    fn Foo::create(i:i32) : mut Foo{
+    fn Foo::create(i:u32) : mut Foo{
         return Foo { b:Bar{ x:i}};
     }
 
@@ -112,7 +112,7 @@ R"R(
     }
 
     fn main() {
-       var f:mut Foo = Foo{b:Bar{x:20}};
+       var f = Foo{b:Bar{x:20}};
        test(&f);
        f.b = Bar { x:10};
 
@@ -132,7 +132,7 @@ TEST_F(General, Cast) {
     const char* input =
 R"R(
     fn main() {
-        var x:i32 = 20;
+        var x = 20;
         var z:u32 = x as u32;
     }
 )R";

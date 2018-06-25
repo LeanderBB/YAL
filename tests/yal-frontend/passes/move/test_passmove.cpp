@@ -30,14 +30,14 @@ TEST_F(PassMove, UseStructAfterAssignMove) {
     const char* input =
 R"R(
     type Bar : struct {
-        x : i32
+        x : u32
     }
 
     type Foo : struct {
         b: Bar
     }
 
-    fn Foo::create(i:i32) : Foo{
+    fn Foo::create(i:u32) : Foo{
         return Foo { b:Bar{ x:i}};
     }
 
@@ -64,10 +64,10 @@ TEST_F(PassMove, UseStructAfterFunctionMove) {
     const char* input =
 R"R(
     type Foo : struct {
-        x: i32
+        x: u32
     }
 
-    fn Foo::create(i:i32) : mut Foo{
+    fn Foo::create(i:u32) : mut Foo{
         return Foo {x:i};
     }
 
@@ -98,20 +98,20 @@ TEST_F(PassMove, UseStructAfterAssignMoveFnParam) {
     const char* input =
 R"R(
     type Bar : struct {
-        x : i32
+        x : u32
     }
 
     type Foo : struct {
         b: Bar
     }
 
-    fn Foo::create(i:i32) : Foo{
+    fn Foo::create(i:u32) : Foo{
         return Foo { b:Bar{ x:i}};
     }
 
     fn doSomething(f:Foo) {
         var o:Foo = f;
-        var i:i32 = f.b.x;
+        var i:u32 = f.b.x;
     }
 
     fn main() {
@@ -135,7 +135,7 @@ TEST_F(PassMove, UseStructAfterStructInitMove) {
     const char* input =
 R"R(
     type Bar : struct {
-        x : i32
+        x : u32
     }
 
     type Foo : struct {
@@ -145,7 +145,7 @@ R"R(
     fn main() {
        var b:mut Bar = Bar{x:4};
        var f:Foo = Foo{b:b};
-       var i:i32 = b.x;
+       var i:u32 = b.x;
     }
 
 )R";
@@ -165,7 +165,7 @@ TEST_F(PassMove, StructMoveNoReplace) {
     const char* input =
 R"R(
     type Bar : struct {
-        x : i32
+        x : u32
     }
 
     type Foo : struct {
@@ -196,7 +196,7 @@ TEST_F(PassMove, StructMoveTriviallyCopiable) {
     const char* input =
 R"R(
     type Bar : struct {
-        x : i32
+        x : u32
     }
 
     type Foo : struct {
@@ -205,7 +205,7 @@ R"R(
 
     fn main() {
        var f:Foo = Foo{b:Bar{x:30}};
-       var z:i32 = f.b.x;
+       var z:u32 = f.b.x;
     }
 
 )R";
@@ -221,10 +221,10 @@ TEST_F(PassMove, MoveReInitMove) {
     const char* input =
 R"R(
     type Foo : struct {
-        x:i32
+        x:u32
     }
 
-    fn Foo::create(i:i32) : mut Foo{
+    fn Foo::create(i:u32) : mut Foo{
         return Foo {x:i};
     }
 

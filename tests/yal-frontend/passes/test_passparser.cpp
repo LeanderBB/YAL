@@ -51,11 +51,11 @@ TEST_F(PassParser, NestedScopes) {
     const char* input =
 R"R(
     fn foo() {
-       var x:i32 = 0;
+       var x:u32 = 0;
        {
-          var y:i32 = x;
+          var y:u32 = x;
           {
-            var z:i32 = x + 23i32;
+            var z:u32 = x + 23u32;
           }
        }
     }
@@ -67,3 +67,39 @@ R"R(
     EXPECT_NE(module, nullptr);
     EXPECT_FALSE(m_errorReporter.hasErrors());
 }
+
+
+TEST_F(PassParser, DeclVarTypeInferenceLiteral) {
+
+    const char* input =
+R"R(
+    fn foo() {
+       var b = true;
+    }
+)R";
+
+    auto handle = createSourceHandle(input);
+    FrontendOptionsType options;
+    const ModuleType* module = m_frontEnd.compile(handle, options);
+    EXPECT_NE(module, nullptr);
+    EXPECT_FALSE(m_errorReporter.hasErrors());
+}
+
+
+TEST_F(PassParser, DeclVarTypeInferenceStruct) {
+
+    const char* input =
+R"R(
+    type Foo : struct { x:u32 }
+    fn foo() {
+       var f = Foo{x:20};
+    }
+)R";
+
+    auto handle = createSourceHandle(input);
+    FrontendOptionsType options;
+    const ModuleType* module = m_frontEnd.compile(handle, options);
+    EXPECT_NE(module, nullptr);
+    EXPECT_FALSE(m_errorReporter.hasErrors());
+}
+

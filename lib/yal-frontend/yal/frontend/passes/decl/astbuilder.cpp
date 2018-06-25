@@ -370,12 +370,15 @@ namespace yal::frontend {
         }
 
         // check if type exists
-        const STQualType& stqt = node.getType();
-        Type* memberType = resolveType(*stqt.m_type);
-        if (memberType == nullptr) {
-            onUndefinedType(*stqt.m_type);
+        QualType qt;
+        const STQualType* stqt = node.getType();
+        if (stqt != nullptr) {
+            Type* memberType = resolveType(*stqt->m_type);
+            if (memberType == nullptr) {
+                onUndefinedType(*stqt->m_type);
+            }
+            qt = QualType::Create(MakeQualifier(*stqt), memberType);
         }
-        QualType qt = QualType::Create(MakeQualifier(stqt), memberType);
 
         // get init expr if any
         StmtExpression* initExpr = nullptr;
@@ -633,7 +636,6 @@ namespace yal::frontend {
     AstBuilder::visit(const STExprIntegerLiteral& node) {
 
         StackExpr& stack = getState().stackExpressions;
-        // TODO: integer literals
         uint64_t value = 0;
         IntegerType intType = IntegerType::I32;
         bool negative = false;
@@ -656,7 +658,6 @@ namespace yal::frontend {
                 intType = IntegerType::I16;
                 break;
             }
-            case Token::IntegerLiteral:
             case Token::IntegerLiteralI32:{
                 const int64_t& negValue = reinterpret_cast<int64_t&>(value);
                 valid = negValue >= static_cast<int64_t>(std::numeric_limits<int32_t>::lowest())
@@ -681,6 +682,7 @@ namespace yal::frontend {
                         && value <= static_cast<uint16_t>(std::numeric_limits<uint16_t>::max());
                 intType = IntegerType::U16;
                 break;
+            case Token::IntegerLiteral:
             case Token::IntegerLiteralU32:
                 intType = IntegerType::U32;
                 valid = !negative

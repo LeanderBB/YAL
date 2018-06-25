@@ -111,7 +111,6 @@ namespace yal::frontend {
 
     void
     AstVisitorExprType::visit(DeclVar& node) {
-
         if (DeclVar::StmtExpressionOpt exprOpt = node.getExpression(); exprOpt.has_value()) {
             // visit expr
             StmtExpression* expr = exprOpt.value();
@@ -120,16 +119,22 @@ namespace yal::frontend {
             // check type conversion
             const QualType qtVar = node.getQualType();
             const QualType qtExpr = expr->getQualType();
-            isValidTypeConversion(qtExpr,
-                                  qtVar,
-                                  node.getSourceInfo());
-
-        } else {
-#if defined(YAL_ASSERT_ENABLED)
-            const QualType qtVar = node.getQualType();
-            YAL_ASSERT(qtVar.isValid());
-#endif
+            // if we have declared variable
+            if (qtVar.isValid()) {
+                isValidTypeConversion(qtExpr,
+                                      qtVar,
+                                      node.getSourceInfo());
+            } else {
+                // type inference
+                Qualifier qExpr = qtExpr.getQualifier();
+                qExpr.setLValue(true);
+                node.setQualType(QualType::Create(qExpr, qtExpr.getType()));
+            }
         }
+#if defined(YAL_ASSERT_ENABLED)
+        const QualType qtVar = node.getQualType();
+        YAL_ASSERT(qtVar.isValid());
+#endif
     }
 
     void
@@ -203,7 +208,11 @@ namespace yal::frontend {
 
     void
     AstVisitorExprType::visit(ExprVarRef& node) {
-        (void) node;
+        const QualType qt = node.getQualType();
+        if (!qt.isValid()) {
+            // original decl didn't have the full info, set it now
+            node.setQualType(node.getDeclVar().getQualType());
+        }
         YAL_ASSERT(node.getQualType().isValid());
     }
 

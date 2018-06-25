@@ -51,6 +51,8 @@ namespace yal::frontend {
             return m_qualType;
         }
 
+        void setQualType(const QualType& qt);
+
         virtual void acceptVisitor(AstVisitor& visitor) override;
 
     protected:

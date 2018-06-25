@@ -196,7 +196,7 @@ R"R(
 TEST_F(PassType, LValueReturnAssign) {
     const char* input =
 R"R(
-   fn test() : i32 {
+   fn test() : u32 {
       return 20;
    }
    fn main() {
@@ -220,7 +220,7 @@ TEST_F(PassType, LValueMakeRef) {
     const char* input =
 R"R(
     fn main() {
-       var i:mut& i32 = &30;
+       var i:mut& u32 = &30;
     }
 )R";
 
@@ -245,8 +245,8 @@ R"R(
     }
 
     fn main() {
-       var i: mut i32 = 40;
-       test(&i) = 456464;
+       var i: mut i32 = 40i32;
+       test(&i) = 456464i32;
     }
 )R";
 
@@ -266,8 +266,8 @@ TEST_F(PassType, AssignToImmutable) {
     const char* input =
 R"R(
     fn main() {
-       var i: i32 = 40;
-       i = 50;
+       var i: i32 = 40i32;
+       i = 50i32;
     }
 )R";
 
@@ -292,7 +292,7 @@ R"R(
     }
 
     fn Foo::test(&self) : bool {
-        return self.x == 30;
+        return self.x == 30i32;
     }
 
     fn Foo::stuff(&self) : bool {
@@ -300,7 +300,7 @@ R"R(
     }
 
     fn main() {
-       var f:Foo = Foo{x:20};
+       var f:Foo = Foo{x:20i32};
        f.stuff();
     }
 )R";
@@ -321,7 +321,7 @@ R"R(
 
     fn Foo::test(&self) : bool {
         {
-            return self.x == 30;
+            return self.x == 30i32;
         }
     }
 
@@ -332,7 +332,7 @@ R"R(
     }
 
     fn main() {
-       var f:Foo = Foo{x:20};
+       var f:Foo = Foo{x:20i32};
        f.stuff();
     }
 )R";
@@ -354,7 +354,7 @@ R"R(
     fn Foo::test(&self) : bool {
         {
             var f:&Foo  = self;
-            return f.x == 30;
+            return f.x == 30i32;
         }
     }
 
@@ -366,7 +366,7 @@ R"R(
     }
 
     fn main() {
-       var f:Foo = Foo{x:20};
+       var f:Foo = Foo{x:20i32};
        f.stuff();
     }
 )R";
@@ -387,7 +387,7 @@ R"R(
     }
 
     fn Foo::stuff(&self) : bool {
-        return self.x != 0;
+        return self.x != 0i32;
     }
 
     fn Foo::setX(mut& self, x:i32) {
@@ -395,9 +395,9 @@ R"R(
     }
 
     fn main() {
-       var f:Foo = Foo{x:20};
+       var f:Foo = Foo{x:20i32};
        f.stuff();
-       f.setX(40);
+       f.setX(40i32);
     }
 )R";
 
@@ -485,7 +485,7 @@ TEST_F(PassType, CastNonTrivialTypeAsReference) {
     const char* input =
 R"R(
     type Foo : struct {
-        x : i32
+        x : u32
     }
 
     fn main() {

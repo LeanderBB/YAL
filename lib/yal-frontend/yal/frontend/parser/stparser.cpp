@@ -123,8 +123,8 @@ namespace yal::frontend {
             return YAL_TOKEN_COMMA;
         case Token::Var:
             return YAL_TOKEN_VAR;
-        case Token::Let:
-            return YAL_TOKEN_LET;
+        /*case Token::Let:
+            return YAL_TOKEN_LET;*/
         case Token::Struct:
             return YAL_TOKEN_STRUCT;
         case Token::Return:

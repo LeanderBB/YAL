@@ -370,12 +370,6 @@ decl_var(A) ::= VAR(Z) identifier(B) var_type_spec(C) ASSIGN expression(D). {
     A->setSourceInfo(srcInfo);
 }
 
-decl_var(A) ::= LET(Z) identifier(B) var_type_spec(C) ASSIGN expression(D). {
-    A = pParser->createNode<yal::frontend::STDeclVar>(B, C, D);
-    auto srcInfo = yal::frontend::CreateSourceInfo(Z, D->getSourceInfo(), pParser->getSourceHandle());
-    A->setSourceInfo(srcInfo);
-}
-
 var_type_spec(A) ::= COLON type_qualified(B). {A = B;}
 var_type_spec(A)::=. {A = nullptr;}
 

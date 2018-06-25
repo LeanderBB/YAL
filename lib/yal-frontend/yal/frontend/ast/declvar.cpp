@@ -55,6 +55,12 @@ namespace yal::frontend {
     }
 
     void
+    DeclVar::setQualType(const QualType& qt) {
+        YAL_ASSERT(qt.isValid());
+        m_qualType = qt;
+    }
+
+    void
     DeclVar::acceptVisitor(AstVisitor& visitor) {
         visitor.visit(*this);
     }
