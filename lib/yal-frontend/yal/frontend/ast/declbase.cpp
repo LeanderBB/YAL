@@ -25,25 +25,21 @@ namespace yal::frontend {
 
     DeclBase::DeclBase(Module &module,
                        const AstType type,
-                       const Identifier& identifier,
                        const SourceInfo& sourceInfo,
                        DeclScope &scope):
         m_module(module),
         m_scopeWhereDecl(&scope),
         m_astType(type),
-        m_sourceInfo(sourceInfo),
-        m_identifier(identifier){
+        m_sourceInfo(sourceInfo) {
 
     }
 
     DeclBase::DeclBase(Module& module,
-                       const AstType type,
-                       const Identifier &identifier):
+                       const AstType type):
         m_module(module),
         m_scopeWhereDecl(),
         m_astType(type),
-        m_sourceInfo(),
-        m_identifier(identifier) {
+        m_sourceInfo() {
 
     }
 
@@ -62,5 +58,24 @@ namespace yal::frontend {
     void
     DeclBase::setScopeWhereDeclared(DeclScopeOpt scope) {
         m_scopeWhereDecl = scope;
+    }
+
+
+    DeclNamed::DeclNamed(Module &module,
+                         const AstType type,
+                         const Identifier& identifier,
+                         const SourceInfo& sourceInfo,
+                         DeclScope &scope):
+        DeclBase(module, type, sourceInfo, scope),
+        m_identifier(identifier){
+
+    }
+
+    DeclNamed::DeclNamed(Module& module,
+                         const AstType type,
+                         const Identifier &identifier):
+        DeclBase (module, type),
+        m_identifier(identifier) {
+
     }
 }

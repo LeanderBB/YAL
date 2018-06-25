@@ -23,6 +23,7 @@
 #include "yal/frontend/ast/declfunction.h"
 #include "yal/frontend/ast/declmodule.h"
 #include "yal/frontend/ast/decltypefunction.h"
+#include "yal/frontend/ast/decltypefunctions.h"
 #include "yal/frontend/ast/declstruct.h"
 #include "yal/frontend/ast/declparamvar.h"
 #include "yal/frontend/ast/declvar.h"

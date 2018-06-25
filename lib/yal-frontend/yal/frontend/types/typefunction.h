@@ -33,10 +33,12 @@ namespace yal::frontend {
     public:
 
         static Identifier CreateIdentitier(const Module& module,
-                                           const STDeclFunction* decl);
+                                           const STDeclFunction* decl,
+                                           const Type *type);
 
         TypeFunction(const Module& module,
-                     const STDeclFunction* decl);
+                     const STDeclFunction* decl,
+                     const Type* target);
 
         const STDeclFunction* getSTDecl() const {
             return m_stdecl;

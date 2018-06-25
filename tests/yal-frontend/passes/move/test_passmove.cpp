@@ -37,8 +37,10 @@ R"R(
         b: Bar
     }
 
-    fn Foo::create(i:u32) : Foo{
-        return Foo { b:Bar{ x:i}};
+    impl Foo {
+        fn create(i:u32) : Foo{
+            return Foo { b:Bar{ x:i}};
+        }
     }
 
     fn main() {
@@ -67,8 +69,10 @@ R"R(
         x: u32
     }
 
-    fn Foo::create(i:u32) : mut Foo{
-        return Foo {x:i};
+    impl Foo {
+        fn create(i:u32) : mut Foo{
+            return Foo {x:i};
+        }
     }
 
     fn doSomething(f:Foo) {
@@ -105,8 +109,10 @@ R"R(
         b: Bar
     }
 
-    fn Foo::create(i:u32) : Foo{
-        return Foo { b:Bar{ x:i}};
+    impl Foo {
+        fn create(i:u32) : Foo{
+            return Foo { b:Bar{ x:i}};
+        }
     }
 
     fn doSomething(f:Foo) {
@@ -224,8 +230,10 @@ R"R(
         x:u32
     }
 
-    fn Foo::create(i:u32) : mut Foo{
-        return Foo {x:i};
+    impl Foo {
+        fn create(i:u32) : mut Foo{
+            return Foo {x:i};
+        }
     }
 
     fn main() {

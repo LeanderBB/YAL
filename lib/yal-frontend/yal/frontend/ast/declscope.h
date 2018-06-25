@@ -26,16 +26,18 @@
 namespace yal::frontend {
 
     class DeclBase;
+    class DeclNamed;
     class Identifier;
     class DeclFunction;
     class DeclTypeFunction;
     class DeclStruct;
     class DeclModule;
     class StmtListScoped;
+    class DeclTypeFunctions;
 
     class DeclScope {
     private:
-        using DeclMap = IdentifierPtrMap<DeclBase*>;
+        using DeclMap = IdentifierPtrMap<DeclNamed*>;
     public:
         using DeclRange= IteratorRange<DeclMap::iterator>;
         using DeclRangeConst= IteratorRange<DeclMap::const_iterator>;
@@ -46,7 +48,8 @@ namespace yal::frontend {
             TypeFunction,
             Struct,
             StmtList,
-            Scope
+            Scope,
+            ImplType,
         };
 
         DeclScope();
@@ -63,18 +66,21 @@ namespace yal::frontend {
         DeclScope(StmtListScoped* node,
                   DeclScope* parent);
 
+        DeclScope(DeclTypeFunctions& node,
+                  DeclScope* parent);
+
         DeclScope(DeclModule* decl);
 
-        bool hasDecl(const DeclBase* decl,
+        bool hasDecl(const DeclNamed* decl,
                      const bool local) const;
 
         bool hasDecl(const Identifier& identIteratorRangeifier,
                      const bool local) const;
 
-        DeclBase* getDecl(const Identifier &identifier,
-                          const bool local) const;
+        DeclNamed* getDecl(const Identifier &identifier,
+                           const bool local) const;
 
-        void addDecl(DeclBase* decl);
+        void addDecl(DeclNamed* decl);
 
         void setParentScope(DeclScope* scope);
 
@@ -115,8 +121,9 @@ namespace yal::frontend {
         bool isScopedScope() const;
         bool isStructScope() const;
         bool isStmtListScope() const;
+        bool isImpleTypeScope() const;
 
-private:
+    private:
         DeclScope* m_parentScope;
         DeclMap m_declMap;
         DeclBase* m_scopeDecl;

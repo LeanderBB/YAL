@@ -107,6 +107,7 @@ namespace yal::frontend {
         DecimalLiteral64,
         IntegerLiteral,
         DecimalLiteral,
+        Impl,
         TokenCount
     };
 

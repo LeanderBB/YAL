@@ -24,7 +24,7 @@
 #include "yal/frontend/ast/declstruct.h"
 #include "yal/frontend/ast/declmodule.h"
 #include "yal/frontend/ast/decltypefunction.h"
-
+#include "yal/frontend/ast/decltypefunctions.h"
 namespace yal::frontend {
 
     DeclScope::DeclScope():
@@ -71,6 +71,15 @@ namespace yal::frontend {
 
     }
 
+    DeclScope::DeclScope(DeclTypeFunctions& node,
+                         DeclScope* parent) :
+        m_parentScope(parent),
+        m_declMap(),
+        m_scopeDecl(&node),
+        m_scopeKind(Kind::ImplType) {
+
+    }
+
     DeclScope::DeclScope(DeclModule* decl):
         m_parentScope(nullptr),
         m_declMap(),
@@ -80,7 +89,7 @@ namespace yal::frontend {
     }
 
     bool
-    DeclScope::hasDecl(const DeclBase* decl,
+    DeclScope::hasDecl(const DeclNamed* decl,
                        const bool local) const {
         const Identifier& identifier = decl->getIdentifier();
         return hasDecl(identifier, local);
@@ -98,7 +107,7 @@ namespace yal::frontend {
         return true;
     }
 
-    DeclBase*
+    DeclNamed*
     DeclScope::getDecl(const Identifier& identifier,
                        const bool local) const {
         auto it = m_declMap.find(&identifier);
@@ -111,7 +120,7 @@ namespace yal::frontend {
     }
 
     void
-    DeclScope::addDecl(DeclBase* decl) {
+    DeclScope::addDecl(DeclNamed* decl) {
         YAL_ASSERT(!hasDecl(decl, false));
         const Identifier& identifier = decl->getIdentifier();
         m_declMap[&identifier] = decl;
@@ -165,5 +174,10 @@ namespace yal::frontend {
     bool
     DeclScope::isStmtListScope() const {
         return m_scopeKind == Kind::StmtList;
+    }
+
+    bool
+    DeclScope::isImpleTypeScope() const {
+        return m_scopeKind == Kind::ImplType;
     }
 }

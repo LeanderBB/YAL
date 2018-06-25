@@ -25,11 +25,11 @@ namespace yal::frontend {
 
     Identifier
     TypeFunction::CreateIdentitier(const Module& module,
-                                   const STDeclFunction* decl) {
-        const STType* target = decl->getFunctionTarget();
+                                   const STDeclFunction* decl,
+                                   const Type* target) {
         if (target != nullptr) {
             return Identifier(decl->getFunctionName().getString(),
-                              target->getIdentifier(),
+                              target->getIdentifier().getName(),
                               module);
         } else {
             return Identifier(decl->getFunctionName().getString(),
@@ -38,14 +38,15 @@ namespace yal::frontend {
     }
 
     TypeFunction::TypeFunction(const Module& module,
-                               const STDeclFunction* decl):
-        Type(&module, Kind::TypeFunction, CreateIdentitier(module, decl)),
+                               const STDeclFunction* decl,
+                               const Type *target):
+        Type(&module, Kind::TypeFunction, CreateIdentitier(module, decl, target)),
         m_stdecl(decl),
         m_decl(nullptr) {
 
         m_moduleType = 1;
 
-        if (decl->getFunctionTarget() == nullptr) {
+        if (target == nullptr) {
             m_function = 1;
         } else {
             m_typefunction = 1;

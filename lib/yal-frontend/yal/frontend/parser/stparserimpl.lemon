@@ -88,7 +88,6 @@
 
 //function
 %type decl_function {yal::frontend::STDeclFunction*}
-%type decl_type_function {yal::frontend::STDeclFunction*}
 %type function_return_decl {yal::frontend::STQualType*}
 %type function_args_decl {yal::frontend::ParseListDeclParam::Range}
 %type function_arg_decl {yal::frontend::STDeclParam*}
@@ -113,12 +112,11 @@
 %type struct_init {yal::frontend::STExprStructInit* }
 %type struct_member_init_list {yal::frontend::ParseListStructInit::Range}
 %type struct_member_init {yal::frontend::STStructMemberInit*}
-
+%type decl_type_functions_scope {yal::frontend::STDeclTypeFunctions*}
+%type decl_type_function_list {yal::frontend::ParseListDecl::Range}
 
 %start_symbol  module
 %token_type {yal::frontend::TokenInfo}
-
-
 
 module ::= decls END.
 
@@ -128,12 +126,12 @@ decls (A)::= decls(B) decl_type(C). {
 decls(A) ::= decls(B) decl_function(C). {
         A =B; B->addDecl(C);
 }
-decls(A) ::= decls(B) decl_type_function(C). {
-        A =B; B->addDecl(C);
+decls(A) ::= decls(B) decl_type_functions_scope(C). {
+    A =B; B->addDecl(C);
 }
 decls(A) ::=. {
         A =  pParser->getDeclModule();
-     }
+}
 
 // Type References  -----------------------------------------------------------
 
@@ -272,17 +270,27 @@ function_param_list(A) ::= PAR_BEGIN function_args_decl (B) PAR_END. {
 
 decl_function(A) ::= FUNCTION(B) identifier(C) function_param_list(D) function_return_decl (E)
         SCOPE_BEGIN statement_list_or_empty(F) SCOPE_END(Z). {
-    A = pParser->createNode<yal::frontend::STDeclFunction>(C, nullptr, E, D, F, *pParser);
+    A = pParser->createNode<yal::frontend::STDeclFunction>(C, E, D, F, *pParser);
     A->setSourceInfo(CreateSourceInfo(B, Z, pParser->getSourceHandle()));
 }
 
 // Type Function decl ---------------------------------------------------------
 
-decl_type_function(A)::= FUNCTION(B) type_specifier(T) COLON COLON identifier(C) function_param_list(D) function_return_decl (E)
-        SCOPE_BEGIN statement_list_or_empty(F) SCOPE_END(Z).  {
-    A = pParser->createNode<yal::frontend::STDeclFunction>(C, T, E, D, F, *pParser);
-    A->setSourceInfo(CreateSourceInfo(B, Z, pParser->getSourceHandle()));
+decl_type_functions_scope(A)::= IMPL(B) type_specifier(T) SCOPE_BEGIN decl_type_function_list(C) SCOPE_END(Z). {
+        A = pParser->createNode<yal::frontend::STDeclTypeFunctions>(T,C, *pParser);
+        A->setSourceInfo(CreateSourceInfo(B, Z, pParser->getSourceHandle()));
 }
+
+decl_type_function_list(A) ::= decl_type_function_list(B) decl_function(C). {
+    auto& list = pParser->getDeclList();
+    A = list.add(B, C);
+}
+
+decl_type_function_list(A) ::= decl_function(C). {
+    auto& list = pParser->getDeclList();
+    A = list.add(C);
+}
+
 
 // Function args decl --------------------------------------------------------
 

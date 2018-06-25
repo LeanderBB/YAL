@@ -24,7 +24,7 @@
 namespace yal::frontend {
 
     class STExpression;
-    class STDeclVar final : public STDecl {
+    class STDeclVar final : public STDeclNamed {
     public:
         STDeclVar(const STIdentifier* name,
                   const STQualType* type,

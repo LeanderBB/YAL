@@ -44,6 +44,9 @@ namespace yal::frontend {
     class ParseList {
     public:
         using DestinationType = std::vector<const T*, StdAllocatorWrapperStack<const T*>>;
+        template<typename O>
+        using DestinationTypeOther = std::vector<const O*, StdAllocatorWrapperStack<const O*>>;
+
         struct Range {
             size_t begin;
             size_t end;
@@ -93,6 +96,28 @@ namespace yal::frontend {
                 auto itBegin = m_list.begin() + range.begin;
                 auto itEnd = m_list.begin() + range.end;
                 dest.assign(itBegin,itEnd);
+                m_list.erase(itBegin, itEnd);
+                return size;
+            }
+            return 0;
+        }
+
+        template<typename O, typename C>
+        size_t moveRange(DestinationTypeOther<O> &dest,
+                         const typename ParseList<C>::Range& range) {
+            if( range.begin < m_list.size()
+                    && range.end > range.begin
+                    && range.end <=m_list.size()) {
+                const size_t size = range.end - range.begin;
+                dest.clear();
+                dest.reserve(size);
+
+                auto itBegin = m_list.begin() + range.begin;
+                auto itEnd = m_list.begin() + range.end;
+                for (auto it = itBegin; it != itEnd; ++it)
+                {
+                    dest.push_back(static_cast<const O*>(*it));
+                }
                 m_list.erase(itBegin, itEnd);
                 return size;
             }

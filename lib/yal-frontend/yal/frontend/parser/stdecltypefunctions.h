@@ -17,55 +17,37 @@
  *  License along with YAL. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#pragma once
+
 #include "yal/frontend/parser/syntaxtree.h"
 #include "yal/frontend/parser/stparser.h"
-#include "yal/util/allocator/allocatorstack.h"
 
 namespace yal::frontend {
 
-    class STStructMember {
+    class STType;
+    class STDeclFunction;
+
+    class STDeclTypeFunctions final : public STDecl {
     public:
+        using Decls = STVector<const STDeclFunction*>;
 
-        STStructMember(const STIdentifier* name,
-                       const STQualType* type);
+        STDeclTypeFunctions(const STType* type,
+                            const ParseListDecl::Range range,
+                            STParser& parser);
 
-        const STIdentifier& getName() const {
-            return *m_name;
-        }
-
-        const STQualType& getType() const {
+        const STType& getType() const {
             return *m_type;
         }
 
-        const SourceInfo getSourceInfo() const {
-            return m_sourceInfo;
-        }
-
-        void setSourceInfo(const SourceInfo& sourceInfo);
-
-    protected:
-        const STIdentifier* m_name;
-        const STQualType* m_type;
-        SourceInfo m_sourceInfo;
-    };
-
-
-    class STDeclStruct final : public STDeclNamed {
-    public:
-        using Members = STVector<const STStructMember*>;
-
-        STDeclStruct(const STIdentifier* name,
-                     const ParseListStructMember::Range& range,
-                     STParser& parser);
-
-        const Members& getMembers() const {
-            return m_members;
+        const Decls& getDecls() const {
+            return m_decls;
         }
 
         void acceptVisitor(SyntaxTreeVisitor& visitor) const override final;
 
-    protected:
-        Members m_members;
+    private:
+        const STType* m_type;
+        Decls m_decls;
     };
 
 }

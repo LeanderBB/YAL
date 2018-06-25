@@ -30,6 +30,7 @@ namespace yal::frontend {
     class STDeclFunction;
     class STDeclStruct;
     class STDeclModule;
+    class Type;
     class Module;
 
     class STPreDeclVisitor final : public SyntaxTreeVisitor
@@ -44,9 +45,18 @@ namespace yal::frontend {
 
         void visit(const STDeclModule& declModule) override final;
 
+        void visit(const STDeclTypeFunctions& declTypeFunctions) override final;
+    private:
+
+        class ScopeGuard;
+        struct ScopeState {
+            Type* declimplTarget = nullptr;
+        };
+
     private:
         ErrorReporter& m_errReporter;
         Module& m_module;
+        ScopeState m_state;
     };
 
 }

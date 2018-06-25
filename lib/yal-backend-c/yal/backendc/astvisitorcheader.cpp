@@ -24,6 +24,7 @@
 #include "yal/frontend/module.h"
 #include "yal/frontend/ast/declmodule.h"
 #include "yal/frontend/ast/decltypefunction.h"
+#include "yal/frontend/ast/decltypefunctions.h"
 
 namespace yal::backend::c {
 
@@ -48,6 +49,14 @@ namespace yal::backend::c {
         CTypeGen::GenDelcFunction(m_writer,
                                   m_typeCache,
                                   decl);
+    }
+
+    void
+    AstVisitorCHeader::visit(yal::frontend::DeclTypeFunctions& node) {
+        for (auto& decl : node.getDecls()) {
+            decl->acceptVisitor(*this);
+            m_writer.write(";\n\n");
+        }
     }
 
     void

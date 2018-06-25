@@ -28,7 +28,7 @@ namespace yal::frontend {
     class Module;
     class AstVisitor;
 
-    class DeclModule : public DeclBase {
+    class DeclModule : public DeclNamed {
     public:
 
         using Decls = std::vector<DeclBase*, StdAllocatorWrapperStack<DeclBase*>>;

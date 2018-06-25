@@ -26,7 +26,7 @@ namespace yal::frontend {
                          const STQualType* type,
                          const STExpression* initExpr,
                          const bool immutable):
-        STDecl(SyntaxTreeType::STDeclVar, name),
+        STDeclNamed(SyntaxTreeType::STDeclVar, name),
         m_type(type),
         m_expr(initExpr),
         m_immutable(immutable) {

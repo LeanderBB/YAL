@@ -28,7 +28,7 @@ namespace yal::frontend {
 
     class DeclVar;
     class TypeStruct;
-    class DeclStruct : public DeclBase {
+    class DeclStruct : public DeclNamed {
     public:
 
         using Members = std::vector<DeclVar*, StdAllocatorWrapperStack<DeclVar*>>;

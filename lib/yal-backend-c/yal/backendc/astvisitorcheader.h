@@ -41,6 +41,8 @@ namespace yal::backend::c {
 
         void visit(yal::frontend::DeclTypeFunction& decl) override final;
 
+        void visit(yal::frontend::DeclTypeFunctions& decls) override final;
+
         void visit(yal::frontend::DeclStruct& decl) override final;
 
         void visit(yal::frontend::DeclModule& decl) override final;

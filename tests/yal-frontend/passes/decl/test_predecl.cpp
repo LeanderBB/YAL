@@ -60,11 +60,12 @@ R"R(
         b: bool
     }
 
+    impl Foo {
+        fn abcd(&self) {
+        }
 
-    fn Foo::abcd(&self) {
-    }
-
-    fn Foo::abcd(b:bool) {
+        fn abcd(b:bool) {
+        }
     }
 )R";
 
@@ -84,7 +85,10 @@ TEST_F(PassDecl_PreDecl, Undefined_FunctionTarget) {
 
     const char* input =
 R"R(
-    fn Foo::abcd(b:bool) {
+    impl Foo {
+        fn abcd(b:bool) {
+
+        }
     }
 )R";
 
@@ -108,8 +112,10 @@ R"R(
     fn abcd(b:bool) {
     }
 
-    fn abcd::foo() {
+    impl abcd {
+        fn foo() {
 
+        }
     }
 )R";
 
@@ -122,5 +128,5 @@ R"R(
         return;
     }
     const yal::Error* err = m_errorReporter.getLastError();
-    EXPECT_EQ(err->getCode(), yal::frontend::ErrorFnOnNonTargetType::kCode);
+    EXPECT_EQ(err->getCode(), yal::frontend::ErrorFnImplOnNonTargetType::kCode);
 }

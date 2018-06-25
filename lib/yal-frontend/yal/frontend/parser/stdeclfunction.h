@@ -50,13 +50,12 @@ namespace yal::frontend {
     };
 
 
-    class STDeclFunction final : public STDecl {
+    class STDeclFunction final : public STDeclNamed {
     public:
         using Body = STVector<const STStatement*>;
         using Params = STVector<const STDeclParam*>;
 
         STDeclFunction(const STIdentifier* functionName,
-                       const STType* functionTarget,
                        const STQualType* returnType,
                        const ParseListDeclParam::Range params,
                        const ParseListStmt::Range statements,
@@ -64,10 +63,6 @@ namespace yal::frontend {
 
         const STIdentifier& getFunctionName() const {
             return getName();
-        }
-
-        const STType* getFunctionTarget() const{
-            return m_functionTarget;
         }
 
         const STQualType* getReturnType() const {
@@ -85,7 +80,6 @@ namespace yal::frontend {
         void acceptVisitor(SyntaxTreeVisitor& visitor) const override final;
 
     protected:
-        const STType* m_functionTarget;
         const STQualType* m_returnType;
         Params m_params;
         Body m_body;

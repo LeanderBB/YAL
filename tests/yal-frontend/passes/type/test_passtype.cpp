@@ -39,10 +39,12 @@ R"R(
            other:bool
     }
 
-   fn Foo::static() : Foo {
-       var test:Foo = Foo {};
-       return test;
-   }
+    impl Foo {
+       fn static() : Foo {
+           var test:Foo = Foo {};
+           return test;
+       }
+    }
 )R";
 
     auto handle = createSourceHandle(input);
@@ -117,9 +119,11 @@ R"R(
            x:i32
     }
 
-   fn Foo::test(i:i32) : mut Foo {
-       return Foo {x:i};
-   }
+   impl Foo {
+       fn test(i:i32) : mut Foo {
+           return Foo {x:i};
+       }
+    }
 
    fn main() {
       var f:mut Foo = Foo::test(40);
@@ -146,13 +150,15 @@ R"R(
            x:i32
     }
 
-   fn Foo::test(&self, i:i32) : bool {
-       return self.x == i;
-   }
+    impl Foo {
+       fn test(&self, i:i32) : bool {
+           return self.x == i;
+       }
 
-   fn Foo::create(i:i32) : mut Foo {
-       return Foo {x: i};
-   }
+       fn create(i:i32) : mut Foo {
+           return Foo {x: i};
+       }
+    }
 
    fn main() {
       var f:mut Foo = Foo::create(40);
@@ -291,12 +297,14 @@ R"R(
           x:i32
     }
 
-    fn Foo::test(&self) : bool {
-        return self.x == 30i32;
-    }
+    impl Foo {
+        fn test(&self) : bool {
+            return self.x == 30i32;
+        }
 
-    fn Foo::stuff(&self) : bool {
-        return self.test();
+        fn stuff(&self) : bool {
+            return self.test();
+        }
     }
 
     fn main() {
@@ -319,15 +327,17 @@ R"R(
           x:i32
     }
 
-    fn Foo::test(&self) : bool {
-        {
-            return self.x == 30i32;
+    impl Foo {
+        fn test(&self) : bool {
+            {
+                return self.x == 30i32;
+            }
         }
-    }
 
-    fn Foo::stuff(&self) : bool {
-        {
-            return self.test();
+        fn stuff(&self) : bool {
+            {
+                return self.test();
+            }
         }
     }
 
@@ -351,17 +361,19 @@ R"R(
           x:i32
     }
 
-    fn Foo::test(&self) : bool {
-        {
-            let f:&Foo  = self;
-            return f.x == 30i32;
+    impl Foo {
+        fn test(&self) : bool {
+            {
+                let f:&Foo  = self;
+                return f.x == 30i32;
+            }
         }
-    }
 
-    fn Foo::stuff(&self) : bool {
-        {
-            let f:&Foo  = self;
-            return f.test();
+        fn stuff(&self) : bool {
+            {
+                let f:&Foo  = self;
+                return f.test();
+            }
         }
     }
 
@@ -386,14 +398,15 @@ R"R(
           x:i32
     }
 
-    fn Foo::stuff(&self) : bool {
-        return self.x != 0i32;
-    }
+    impl Foo {
+        fn stuff(&self) : bool {
+            return self.x != 0i32;
+        }
 
-    fn Foo::setX(mut& self, x:i32) {
-        self.x = x;
+        fn setX(mut& self, x:i32) {
+            self.x = x;
+        }
     }
-
     fn main() {
        let f:Foo = Foo{x:20i32};
        f.stuff();

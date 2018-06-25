@@ -51,6 +51,26 @@ namespace yal::frontend {
         return qual;
     }
 
+    class AstBuilder::ScopeGuard {
+    public:
+        YAL_NO_COPY_CLASS(ScopeGuard);
+
+        ScopeGuard(AstBuilder& visitor,
+                  const AstBuilder::ScopedState& newState):
+            m_visitor(visitor),
+            m_prevState(visitor.m_scopedState) {
+            m_visitor.m_scopedState = newState;
+        }
+
+        ~ScopeGuard() {
+            m_visitor.m_scopedState = m_prevState;
+        }
+
+    private:
+        AstBuilder& m_visitor;
+        AstBuilder::ScopedState m_prevState;
+    };
+
     template <typename T>
     using StackType = std::stack<T, std::vector<T>>;
     using StackDecl = StackType<DeclBase*>;
@@ -118,7 +138,7 @@ namespace yal::frontend {
 
         {
             // check for existing struct decl
-            const DeclBase* existingDecl = parentScope->getDecl(type->getIdentifier(), false);
+            const DeclNamed* existingDecl = parentScope->getDecl(type->getIdentifier(), false);
             if (existingDecl != nullptr ) {
                 onDuplicateSymbol(node, *existingDecl);
             }
@@ -146,7 +166,7 @@ namespace yal::frontend {
 
             // check for duplicate decl
             const Identifier memberId(name.getString());
-            const DeclBase* existingDecl = declScopeStruct.getDecl(memberId,false);
+            const DeclNamed* existingDecl = declScopeStruct.getDecl(memberId,false);
             if (existingDecl != nullptr ) {
                 onDuplicateSymbol(name, *existingDecl);
             }
@@ -179,15 +199,60 @@ namespace yal::frontend {
         getState().stackDecls.push(declStruct);
     }
 
+
+    void
+    AstBuilder::visit(const STDeclTypeFunctions& node) {
+        DeclScope* parentScope = getState().stackScope.top();
+
+        // check if target type has been declared
+        const STType& stTargetType = node.getType();
+        Type* targetType = resolveType(stTargetType);
+        if (targetType == nullptr) {
+            onUndefinedType(stTargetType);
+        }
+        YAL_ASSERT(targetType->isFunctionTargetable());
+
+        DeclTypeFunctions* typeFunctions =m_module.getASTContext().getAllocator()
+                .construct<DeclTypeFunctions>(m_module,
+                                    *parentScope,
+                                    node.getSourceInfo(),
+                                    *targetType);
+
+        ScopedState newState;
+        newState.implDeclType = targetType;
+        ScopeGuard guard(*this, newState);
+
+        const STDeclTypeFunctions::Decls& stDecls = node.getDecls();
+        DeclTypeFunctions::Decls decls(DeclTypeFunctions::Decls::allocator_type(m_module.getASTContext().getAllocator()));
+        decls.reserve(stDecls.size());
+
+        ScopedStackElem<StackScope> sscope(getState().stackScope,
+                                           &typeFunctions->getImplScope());
+        for (auto& decl : stDecls) {
+            decl->acceptVisitor(*this);
+            DeclBase* declType = getState().stackDecls.top();
+            YAL_ASSERT(declType != nullptr);
+            getState().stackDecls.pop();
+            DeclTypeFunction* declTypeFn = dyn_cast<DeclTypeFunction>(declType);
+            YAL_ASSERT(declTypeFn != nullptr);
+            decls.push_back(declTypeFn);
+        }
+
+        typeFunctions->setDecls(std::move(decls));
+
+        // push to decl stack
+        getState().stackDecls.push(typeFunctions);
+    }
+
     void
     AstBuilder::visit(const STDeclFunction& node) {
         TypeContext& typeCtx = m_module.getTypeContext();
         ASTContext& astCtx = m_module.getASTContext();
-        Type* targetType = nullptr;
+        Type* targetType = m_scopedState.implDeclType;
         DeclScope* parentScope = getState().stackScope.top();
 
         // check if type has been declared
-        Identifier fnId = TypeFunction::CreateIdentitier(m_module, &node);
+        Identifier fnId = TypeFunction::CreateIdentitier(m_module, &node, targetType);
         Type* type = typeCtx.getByIdentifier(fnId);
         if (type == nullptr) {
             onUndefinedType(node);
@@ -195,21 +260,10 @@ namespace yal::frontend {
 
         {
             // check for existing decl
-            const DeclBase* existingDecl = parentScope->getDecl(type->getIdentifier(), false);
+            const DeclNamed* existingDecl = parentScope->getDecl(type->getIdentifier(), false);
             if (existingDecl != nullptr ) {
                 onDuplicateSymbol(node, *existingDecl);
             }
-        }
-
-        // check target type
-        if (node.getFunctionTarget() != nullptr) {
-            const STType* stTargeType = node.getFunctionTarget();
-            // check if target type has been declared
-            targetType = resolveType(*stTargeType);
-            if (type == nullptr) {
-                onUndefinedType(*stTargeType);
-            }
-            YAL_ASSERT(targetType->isFunctionTargetable());
         }
 
         // check return type
@@ -269,7 +323,7 @@ namespace yal::frontend {
                 const STQualType& stqt = param->getType();
 
                 // check for duplicate decl
-                const DeclBase* existingDecl = declScopeFn.getDecl(Identifier(name.getString()),false);
+                const DeclNamed* existingDecl = declScopeFn.getDecl(Identifier(name.getString()),false);
                 if (existingDecl != nullptr ) {
                     onDuplicateSymbol(name, *existingDecl);
                 }
@@ -364,7 +418,7 @@ namespace yal::frontend {
         DeclScope* parentScope = getState().stackScope.top();
 
         // check duplicate symbol
-        const DeclBase* existingDecl = parentScope->getDecl(Identifier(declName.getString()), false);
+        const DeclNamed* existingDecl = parentScope->getDecl(Identifier(declName.getString()), false);
         if (existingDecl != nullptr ) {
             onDuplicateSymbol(node, *existingDecl);
         }
@@ -556,7 +610,7 @@ namespace yal::frontend {
         const STIdentifier& varName = node.getVarName();
         DeclScope* parentScope = getState().stackScope.top();
         // check for symbol
-        const DeclBase* existingDecl = parentScope->getDecl(Identifier(varName.getString()), false);
+        const DeclNamed* existingDecl = parentScope->getDecl(Identifier(varName.getString()), false);
         if (existingDecl == nullptr ) {
             onUndefinedSymbol(varName);
         }
@@ -1065,7 +1119,7 @@ namespace yal::frontend {
     }
 
     void
-    AstBuilder::onUndefinedType(const STDecl &decl) {
+    AstBuilder::onUndefinedType(const STDeclNamed &decl) {
         auto error = std::make_unique<ErrorUndefinedTypeRef>(decl.getName().getString(),
                                                              decl.getSourceInfo());
         m_errReporter.report(std::move(error));
@@ -1073,8 +1127,8 @@ namespace yal::frontend {
     }
 
     void
-    AstBuilder::onDuplicateSymbol(const STDecl& decl,
-                                  const DeclBase &existing) {
+    AstBuilder::onDuplicateSymbol(const STDeclNamed &decl,
+                                  const DeclNamed &existing) {
         auto error = std::make_unique<ErrorDuplicateSymbol>(decl.getName().getString(),
                                                             decl.getSourceInfo(),
                                                             existing.getIdentifier().getName(),
@@ -1085,7 +1139,7 @@ namespace yal::frontend {
 
     void
     AstBuilder::onDuplicateSymbol(const STIdentifier& id,
-                                  const DeclBase& existing) {
+                                  const DeclNamed& existing) {
         auto error = std::make_unique<ErrorDuplicateSymbol>(id.getString(),
                                                             id.getSourceInfo(),
                                                             existing.getIdentifier().getName(),
@@ -1104,7 +1158,7 @@ namespace yal::frontend {
 
     void
     AstBuilder::onSymbolNotDeclVar(const STIdentifier& id,
-                                   const DeclBase& decl) {
+                                   const DeclNamed& decl) {
         auto error = std::make_unique<ErrorSymNotDeclVar>(id.getString(),
                                                           id.getSourceInfo(),
                                                           decl);

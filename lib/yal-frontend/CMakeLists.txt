@@ -87,6 +87,8 @@ set(YAL_SOURCES
     yal/frontend/ast/astsearch.h
     yal/frontend/ast/stmtlistscoped.cpp
     yal/frontend/ast/stmtlistscoped.h
+    yal/frontend/ast/decltypefunctions.h
+    yal/frontend/ast/decltypefunctions.cpp
     yal/frontend/frontend.cpp
     yal/frontend/frontend.h
     yal/frontend/lexer/lexer.h
@@ -143,6 +145,8 @@ set(YAL_SOURCES
     yal/frontend/parser/stcontext.h
     yal/frontend/parser/ststmtlistscoped.cpp
     yal/frontend/parser/ststmtlistscoped.h
+    yal/frontend/parser/stdecltypefunctions.h
+    yal/frontend/parser/stdecltypefunctions.cpp
     yal/frontend/module.h
     yal/frontend/module.cpp
     yal/frontend/modulemanager.h

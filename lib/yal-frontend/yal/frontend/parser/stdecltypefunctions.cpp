@@ -16,29 +16,26 @@
  *  You should have received a copy of the GNU Lesser General Public
  *  License along with YAL. If not, see <http://www.gnu.org/licenses/>.
  */
-#pragma once
 
-#include "yal/frontend/parser/syntaxtree.h"
+#include "yal/frontend/parser/stdecltypefunctions.h"
+#include "yal/frontend/parser/sttype.h"
+#include "yal/frontend/parser/stdeclfunction.h"
+#include "yal/frontend/parser/syntaxtreevisitor.h"
 
 namespace yal::frontend {
-    class STDecl;
-    class STContext;
-    class STDeclModule final : public STDecl {
-    public:
 
-        using Decls = STVector<const STDecl*>;
+    STDeclTypeFunctions::STDeclTypeFunctions(const STType* type,
+                                             const ParseListDecl::Range range,
+                                             STParser& parser):
+        STDecl(SyntaxTreeType::STDeclTypeFunctions),
+        m_type(type),
+        m_decls(parser.getSTContext().getStdAllocatorWrapper<Decls::value_type>()){
+         parser.getDeclList().moveRange<STDeclFunction, STDecl>(m_decls, range);
+    }
 
-        STDeclModule(STContext& ctx);
 
-        void acceptVisitor(SyntaxTreeVisitor& visitor) const override final;
-
-        void addDecl(STDecl* decl);
-
-        const Decls& getDecls() const {
-            return m_decls;
-        }
-
-    protected:
-        Decls m_decls;
-    };
+    void
+    STDeclTypeFunctions::acceptVisitor(SyntaxTreeVisitor& visitor) const {
+        visitor.visit(*this);
+    }
 }

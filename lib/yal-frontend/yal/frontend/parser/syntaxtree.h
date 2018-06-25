@@ -86,13 +86,20 @@ namespace yal::frontend {
     class STDecl : public SyntaxTree {
     public:
 
+    protected:
+        STDecl(const SyntaxTreeType type);
+    };
+
+    class STDeclNamed : public STDecl {
+    public:
+
         const STIdentifier& getName() const {
             return *m_name;
         }
 
     protected:
-        STDecl(const SyntaxTreeType type,
-               const STIdentifier* name);
+        STDeclNamed(const SyntaxTreeType type,
+                    const STIdentifier* name);
 
     protected:
         const STIdentifier* m_name;

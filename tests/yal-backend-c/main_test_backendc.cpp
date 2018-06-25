@@ -41,16 +41,19 @@ R"R(
         b: Bar
     }
 
-    fn Foo::Static(x:u32) {
+    impl Foo {
 
-    }
+        fn static(x:u32) {
 
-    fn Foo::instance(&self) : bool {
-        return self.b.x == 20;
-    }
+        }
 
-    fn Foo::setX(mut& self, newX:u32) {
-        self.b.x = newX;
+        fn instance(&self) : bool {
+            return self.b.x == 20;
+        }
+
+        fn setX(mut& self, newX:u32) {
+            self.b.x = newX;
+        }
     }
 
     fn other(x: mut Foo) {
@@ -61,7 +64,6 @@ R"R(
         var f:mut Foo = Foo{b:Bar{x:20}};
         f.b = Bar { x:10};
         f.setX(40);
-
         other(f);
     }
 )R";
@@ -93,9 +95,14 @@ R"R(
        //f = Foo{b:Bar{x:20}};
     }
 
+    impl Foo {
+        fn create(i:u32) : mut Foo{
+            return Foo { b:Bar{ x:i}};
+        }
 
-    fn Foo::create(i:u32) : mut Foo{
-        return Foo { b:Bar{ x:i}};
+        fn createWithBar(b: mut Bar) : mut Foo{
+            return Foo { b:b};
+        }
     }
 
     fn moveHere(f:mut Foo) {
@@ -107,9 +114,7 @@ R"R(
       moveHere(f);
     }
 
-    fn Foo::createWithBar(b: mut Bar) : mut Foo{
-        return Foo { b:b};
-    }
+
 
     fn main() {
        var f = Foo{b:Bar{x:20}};

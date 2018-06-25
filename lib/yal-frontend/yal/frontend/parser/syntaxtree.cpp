@@ -30,9 +30,14 @@ namespace yal::frontend {
         m_sourceInfo = sourceInfo;
     }
 
-    STDecl::STDecl(const SyntaxTreeType type,
-                   const STIdentifier* name):
-        SyntaxTree(type),
+    STDecl::STDecl(const SyntaxTreeType type):
+        SyntaxTree(type) {
+
+    }
+
+    STDeclNamed::STDeclNamed(const SyntaxTreeType type,
+                             const STIdentifier* name):
+        STDecl(type),
         m_name(name) {
 
     }

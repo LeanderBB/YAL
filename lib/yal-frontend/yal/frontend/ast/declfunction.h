@@ -30,7 +30,7 @@ namespace yal::frontend {
     class Statement;
     class DeclParamVar;
 
-    class DeclFunction : public DeclBase
+    class DeclFunction : public DeclNamed
     {
     public:
 

@@ -33,11 +33,11 @@ namespace yal::frontend {
                                const QualType& returnType,
                                Params&& params,
                                Body&& body):
-        DeclBase(module,
-                 type,
-                 fnType->getIdentifier(),
-                 fnType->getSTDecl()->getSourceInfo(),
-                 scope),
+        DeclNamed(module,
+                  type,
+                  fnType->getIdentifier(),
+                  fnType->getSTDecl()->getSourceInfo(),
+                  scope),
         m_fnType(fnType),
         m_returnType(returnType),
         m_fnDeclScope(this, &scope),
@@ -51,11 +51,11 @@ namespace yal::frontend {
                                TypeFunction* fnType,
                                DeclScope& scope,
                                const QualType& returnType):
-        DeclBase(module,
-                 type,
-                 fnType->getIdentifier(),
-                 fnType->getSTDecl()->getSourceInfo(),
-                 scope),
+        DeclNamed(module,
+                  type,
+                  fnType->getIdentifier(),
+                  fnType->getSTDecl()->getSourceInfo(),
+                  scope),
         m_fnType(fnType),
         m_returnType(returnType),
         m_fnDeclScope(this, &scope),
@@ -84,11 +84,11 @@ namespace yal::frontend {
                                TypeFunction* fnType,
                                DeclScope& scope,
                                const QualType& returnType):
-       DeclFunction(module,
-                    AstType::DeclFunction,
-                    fnType,
-                    scope,
-                    returnType) {
+        DeclFunction(module,
+                     AstType::DeclFunction,
+                     fnType,
+                     scope,
+                     returnType) {
     }
 
     void

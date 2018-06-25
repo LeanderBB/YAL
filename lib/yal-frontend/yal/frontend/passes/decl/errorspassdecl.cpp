@@ -728,4 +728,43 @@ namespace yal::frontend {
     ErrorAssignRefWithInvalidScope::getSourceInfo() const {
         return m_stmt.getRightExpr().getSourceInfo();
     }
+
+    // ErrorFnImplOnNonTargetType --------------------------------------------
+
+    const ErrorCode  ErrorFnImplOnNonTargetType::kCode =
+            MakeErrorCode(static_cast<uint16_t>(PassTypeCode::Decl), 18);
+
+
+    ErrorFnImplOnNonTargetType:: ErrorFnImplOnNonTargetType(const SourceInfo& symSrcInfo,
+                                                            const Type* type):
+        ErrorFrontend(kCode),
+        m_fnSrcInfo(symSrcInfo),
+        m_targetType(type) {
+
+    }
+
+    StringRef
+    ErrorFnImplOnNonTargetType::getErrorName() const {
+        return "Invalid impl for target type";
+    }
+
+    void
+    ErrorFnImplOnNonTargetType::printDetail(ErrorPrinter &printer) const {
+        FormatAppend(printer.getFormater(),
+                     "Can not implement type functions for '%' as type is non-targetable.\n",
+                     m_targetType->getIdentifier());
+        SourceInfoOpt typeSrcInfo = m_targetType->getSourceInfo();
+        SourceItemOpt item = printer.getSourceManager().getItem(typeSrcInfo->handle);
+        if (typeSrcInfo.has_value() && item.has_value()){
+            FormatAppend(printer.getFormater(),
+                         "Type '%' declared here:\n",
+                         m_targetType->getIdentifier());
+            printer.printSourceInfo(printer.getFormater(), *item.value(), *typeSrcInfo);
+        }
+    };
+
+    const SourceInfo&
+    ErrorFnImplOnNonTargetType::getSourceInfo() const {
+        return m_fnSrcInfo;
+    }
 }

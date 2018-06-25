@@ -19,22 +19,23 @@ void YALSTParserTrace(FILE *TraceFILE,char *zTracePrompt);
 #define YALSTParserARG_STORE yypParser->pParser  = pParser 
 #define YALSTParserARG_FETCH  yal::frontend::STParser *pParser  = yypParser->pParser 
 #define YALSTParserARG_SDECL  yal::frontend::STParser *pParser ;
-#define YAL_TOKEN_BOOL_LITERAL                   66
-#define YAL_TOKEN_FLOAT_LITERAL_64               65
-#define YAL_TOKEN_FLOAT_LITERAL_32               64
-#define YAL_TOKEN_FLOAT_LITERAL                  63
-#define YAL_TOKEN_INTEGER_LITERAL_U64            62
-#define YAL_TOKEN_INTEGER_LITERAL_U32            61
-#define YAL_TOKEN_INTEGER_LITERAL_U16            60
-#define YAL_TOKEN_INTEGER_LITERAL_U8             59
-#define YAL_TOKEN_INTEGER_LITERAL_I64            58
-#define YAL_TOKEN_INTEGER_LITERAL_I32            57
-#define YAL_TOKEN_INTEGER_LITERAL_I16            56
-#define YAL_TOKEN_INTEGER_LITERAL_I8             55
-#define YAL_TOKEN_INTEGER_LITERAL                54
-#define YAL_TOKEN_LET                            53
-#define YAL_TOKEN_VAR                            52
-#define YAL_TOKEN_RETURN                         51
+#define YAL_TOKEN_BOOL_LITERAL                   67
+#define YAL_TOKEN_FLOAT_LITERAL_64               66
+#define YAL_TOKEN_FLOAT_LITERAL_32               65
+#define YAL_TOKEN_FLOAT_LITERAL                  64
+#define YAL_TOKEN_INTEGER_LITERAL_U64            63
+#define YAL_TOKEN_INTEGER_LITERAL_U32            62
+#define YAL_TOKEN_INTEGER_LITERAL_U16            61
+#define YAL_TOKEN_INTEGER_LITERAL_U8             60
+#define YAL_TOKEN_INTEGER_LITERAL_I64            59
+#define YAL_TOKEN_INTEGER_LITERAL_I32            58
+#define YAL_TOKEN_INTEGER_LITERAL_I16            57
+#define YAL_TOKEN_INTEGER_LITERAL_I8             56
+#define YAL_TOKEN_INTEGER_LITERAL                55
+#define YAL_TOKEN_LET                            54
+#define YAL_TOKEN_VAR                            53
+#define YAL_TOKEN_RETURN                         52
+#define YAL_TOKEN_IMPL                           51
 #define YAL_TOKEN_FUNCTION                       50
 #define YAL_TOKEN_PAR_END                        49
 #define YAL_TOKEN_PAR_BEGIN                      48

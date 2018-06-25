@@ -22,6 +22,7 @@
 #include "yal/frontend/parser/stdeclmodule.h"
 #include "yal/frontend/parser/stdeclfunction.h"
 #include "yal/frontend/parser/stdeclstruct.h"
+#include "yal/frontend/parser/stdecltypefunctions.h"
 #include "yal/frontend/parser/stdeclvar.h"
 #include "yal/frontend/parser/ststatement.h"
 #include "yal/frontend/parser/ststmtassign.h"

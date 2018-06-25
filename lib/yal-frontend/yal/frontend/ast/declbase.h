@@ -42,13 +42,11 @@ namespace yal::frontend {
 
         DeclBase(Module& module,
                  const AstType type,
-                 const Identifier &identifier,
                  const SourceInfo& sourceInfo,
                  DeclScope& scope);
 
         DeclBase(Module& module,
-                 const AstType type,
-                 const Identifier &identifier);
+                 const AstType type);
     public:
 
         YAL_NO_COPY_CLASS(DeclBase);
@@ -61,14 +59,6 @@ namespace yal::frontend {
 
         AstType getAstType() const {
             return m_astType;
-        }
-
-        StringRef getName() const {
-            return m_identifier.getName();
-        }
-
-        const Identifier& getIdentifier() const {
-            return m_identifier;
         }
 
         Module& getModule() {
@@ -96,6 +86,32 @@ namespace yal::frontend {
         const SourceInfo m_sourceInfo;
         Identifier m_identifier;
     };
+
+
+    class DeclNamed : public DeclBase {
+    public:
+
+        StringRef getName() const {
+            return m_identifier.getName();
+        }
+
+        const Identifier& getIdentifier() const {
+            return m_identifier;
+        }
+    protected:
+        DeclNamed(Module& module,
+                 const AstType type,
+                 const Identifier &identifier,
+                 const SourceInfo& sourceInfo,
+                 DeclScope& scope);
+
+        DeclNamed(Module& module,
+                 const AstType type,
+                 const Identifier &identifier);
+
+    protected:
+        Identifier m_identifier;
+    };
 }
 
 namespace yal {
@@ -107,6 +123,17 @@ namespace yal {
     template <>
     inline yal::frontend::AstType
     get_typeid_instance<yal::frontend::DeclBase>(const yal::frontend::DeclBase& decl) {
+        return decl.getAstType();
+    }
+
+    template<>
+    struct cast_typeid<yal::frontend::DeclNamed> {
+        typedef yal::frontend::AstType type;
+    };
+
+    template <>
+    inline yal::frontend::AstType
+    get_typeid_instance<yal::frontend::DeclNamed>(const yal::frontend::DeclNamed& decl) {
         return decl.getAstType();
     }
 }

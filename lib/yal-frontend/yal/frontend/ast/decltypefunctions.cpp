@@ -1,6 +1,5 @@
 /*
- *
- *  Copyright 2017 by Leander Beernaert (lbb-dev@pm.me)
+ *  Copyright 2018 by Leander Beernaert (lbb-dev@pm.me)
  *
  *  This file is part of YAL.
  *
@@ -18,28 +17,34 @@
  *  License along with YAL. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "yal/frontend/ast/declmodule.h"
+#include "yal/frontend/ast/decltypefunctions.h"
 #include "yal/frontend/module.h"
-#include "yal/frontend/ast/astcontext.h"
 #include "yal/frontend/ast/astvisitor.h"
-
+#include "yal/frontend/ast/decltypefunction.h"
 namespace yal::frontend {
 
-    DeclModule::DeclModule(Module& module,
-                           StringRef name):
-        DeclNamed(module, AstType::DeclModule, Identifier(name)),
-        m_declartions(StdAllocatorWrapperStack<DeclBase*>(module.getASTContext().getAllocator())),
-        m_declScope(this){
+    DeclTypeFunctions::DeclTypeFunctions(Module& module,
+                                         DeclScope &parentScope,
+                                         const SourceInfo &srcInfo,
+                                         Type &type):
+        DeclBase(module,
+                 AstType::DeclTypeFunctions,
+                 srcInfo,
+                 parentScope),
+        m_type(type),
+        m_decls(Decls::allocator_type(module.getASTContext().getAllocator())),
+        m_implScope(*this, &parentScope) {
 
     }
 
     void
-    DeclModule::setDecls(Decls&& decls) {
-        m_declartions = std::move(decls);
+    DeclTypeFunctions::setDecls(Decls&& decls) {
+        m_decls = std::move(decls);
     }
 
     void
-    DeclModule::acceptVisitor(AstVisitor &visitor) {
+    DeclTypeFunctions::acceptVisitor(AstVisitor& visitor) {
         visitor.visit(*this);
     }
+
 }

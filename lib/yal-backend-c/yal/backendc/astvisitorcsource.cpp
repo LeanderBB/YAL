@@ -159,6 +159,13 @@ namespace yal::backend::c {
     }
 
     void
+    AstVisitorCSource::visit(yal::frontend::DeclTypeFunctions& node) {
+        for (auto& decl : node.getDecls()) {
+            decl->acceptVisitor(*this);
+        }
+    }
+
+    void
     AstVisitorCSource::visit(yal::frontend::DeclStruct&) {
         // do nothing
     }

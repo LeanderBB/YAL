@@ -153,8 +153,10 @@ R"R(
          x:bool
     }
 
-    fn Bar::Foo(x: bool, &self) {
+    impl Bar {
+        fn Foo(x: bool, &self) {
 
+        }
     }
 )R";
     auto handle = createSourceHandle(input);
@@ -175,9 +177,10 @@ R"R(
     type Bar : struct {
          x:bool
     }
+    impl Bar {
+        fn Foo(x:i8, x:bool) {
 
-    fn Bar::Foo(x:i8, x:bool) {
-
+        }
     }
 )R";
     auto handle = createSourceHandle(input);
@@ -444,8 +447,10 @@ R"R(
         x:bool
     }
 
-    fn Foo::bar(&self, f:&Foo) {
+    impl Foo {
+        fn bar(&self, f:&Foo) {
 
+        }
     }
 
     fn main() {
@@ -660,13 +665,17 @@ R"R(
     if (const yal::frontend::StmtDecl* stmt =
             yal::dyn_cast<yal::frontend::StmtDecl>(body[0]);
             stmt != nullptr) {
-        EXPECT_EQ(yal::StringRef("y"), stmt->getDecl()->getName());
+        const yal::frontend::DeclBase* declBase = stmt->getDecl();
+        const yal::frontend::DeclVar* declVar = yal::dyn_cast<yal::frontend::DeclVar>(declBase);
+        EXPECT_EQ(yal::StringRef("y"), declVar->getName());
     }
 
     if (const yal::frontend::StmtDecl* stmt =
             yal::dyn_cast<yal::frontend::StmtDecl>(body[1]);
             stmt != nullptr) {
-        EXPECT_EQ(yal::StringRef("x"), stmt->getDecl()->getName());
+        const yal::frontend::DeclBase* declBase = stmt->getDecl();
+        const yal::frontend::DeclVar* declVar = yal::dyn_cast<yal::frontend::DeclVar>(declBase);
+        EXPECT_EQ(yal::StringRef("x"), declVar->getName());
     }
 }
 

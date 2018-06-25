@@ -161,6 +161,14 @@ namespace yal::frontend {
     }
 
     void
+    AstVisitorMoveCheck::visit(DeclTypeFunctions& node) {
+         DeclScopeGuard guard(*this, node.getImplScope());
+        for (auto& decl : node.getDecls()) {
+            decl->acceptVisitor(*this);
+        }
+    }
+
+    void
     AstVisitorMoveCheck::visit(DeclStruct& node) {
         DeclScopeGuard guard(*this, node.getStructDeclScope());
         DeclStruct::Members& members = node.getMembers();

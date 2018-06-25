@@ -45,6 +45,7 @@ namespace yal::frontend {
         /* common character classes */
 
             /* basic tokens */
+            IMPL="impl";
             MUT="mut";
             VAR = "var";
             LET = "let";
@@ -116,6 +117,7 @@ namespace yal::frontend {
             /* final rules */
             VAR { setToken(Token::Var, m_lexerState); return Status::Ok; }
             LET { setToken(Token::Let, m_lexerState);return Status::Ok; }
+            IMPL { setToken(Token::Impl, m_lexerState); return Status::Ok;}
             AS { setToken(Token::As, m_lexerState);return Status::Ok; }
             CAST { setToken(Token::Cast, m_lexerState);return Status::Ok; }
             MUT { setToken(Token::Mutable, m_lexerState); return Status::Ok;}

@@ -29,9 +29,9 @@ namespace yal::frontend {
 
     class Module;
     class STType;
-    class STDecl;
+    class STDeclNamed;
     class STIdentifier;
-    class DeclBase;
+    class DeclNamed;
     class Type;
 
     class AstBuilder final : public SyntaxTreeVisitor
@@ -51,15 +51,20 @@ namespace yal::frontend {
         struct State;
         State& getState();
 
+        class ScopeGuard;
+        struct ScopedState {
+            Type* implDeclType = nullptr;
+        };
+
         void onUndefinedType(const STType& type);
-        void onUndefinedType(const STDecl& type);
-        void onDuplicateSymbol(const STDecl& decl,
-                               const DeclBase& existing);
+        void onUndefinedType(const STDeclNamed &type);
+        void onDuplicateSymbol(const STDeclNamed& decl,
+                               const DeclNamed& existing);
         void onDuplicateSymbol(const STIdentifier& id,
-                               const DeclBase& existing);
+                               const DeclNamed& existing);
         void onUndefinedSymbol(const STIdentifier& id);
         void onSymbolNotDeclVar(const STIdentifier& id,
-                                const DeclBase& decl);
+                                const DeclNamed& decl);
 
         Type* resolveType(const STType& type);
 
@@ -67,6 +72,7 @@ namespace yal::frontend {
         ErrorReporter& m_errReporter;
         Module& m_module;
         State* m_state;
+        ScopedState m_scopedState;
     };
 
 

@@ -28,7 +28,7 @@ namespace yal::frontend {
 
     class StmtExpression;
 
-    class DeclVar : public DeclBase {
+    class DeclVar : public DeclNamed {
     public:
         using StmtExpressionOpt = std::optional<StmtExpression*>;
 

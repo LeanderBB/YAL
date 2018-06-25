@@ -161,7 +161,6 @@ namespace yal::frontend {
         const DeclBase& m_decl;
     };
 
-
     class STExprIntegerLiteral;
     class ErrorInvalidIntLiteral final : public ErrorFrontend{
     public:
@@ -368,5 +367,24 @@ namespace yal::frontend {
         const DeclVar& m_declRight;
     };
 
+
+    class ErrorFnImplOnNonTargetType final : public ErrorFrontend{
+    public:
+        static const ErrorCode kCode;
+
+        ErrorFnImplOnNonTargetType(const SourceInfo& symSrcInfo,
+                                   const Type* type);
+
+    protected:
+        StringRef getErrorName() const final override;
+
+        void printDetail(ErrorPrinter& printer) const final override;
+
+        const SourceInfo& getSourceInfo() const final override;
+    public:
+        const StringRef m_fnName;
+        const SourceInfo m_fnSrcInfo;
+        const Type* m_targetType;
+    };
 }
 

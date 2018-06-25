@@ -84,6 +84,13 @@ namespace yal::frontend {
     }
 
     void
+    ReturnCheckVisitor::visit(DeclTypeFunctions& node) {
+        for (auto& decl : node.getDecls()) {
+            decl->acceptVisitor(*this);
+        }
+    }
+
+    void
     ReturnCheckVisitor::visit(DeclStruct&) {}
 
     void

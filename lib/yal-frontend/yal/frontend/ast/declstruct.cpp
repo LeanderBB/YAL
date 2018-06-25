@@ -30,7 +30,7 @@ namespace yal::frontend {
                            TypeStruct* type,
                            DeclScope& scope,
                            Members&& members):
-        DeclBase(module,
+        DeclNamed(module,
                  AstType::DeclStruct,
                  type->getIdentifier(),
                  type->getSTDecl().getSourceInfo(),
@@ -47,7 +47,7 @@ namespace yal::frontend {
     DeclStruct::DeclStruct(Module& module,
                            TypeStruct* type,
                            DeclScope& scope):
-        DeclBase(module,
+        DeclNamed(module,
                  AstType::DeclStruct,
                  type->getIdentifier(),
                  type->getSTDecl().getSourceInfo(),

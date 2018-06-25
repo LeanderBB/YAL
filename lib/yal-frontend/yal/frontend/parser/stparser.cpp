@@ -160,6 +160,8 @@ namespace yal::frontend {
             return YAL_TOKEN_FLOAT_LITERAL_32;
         case Token::DecimalLiteral64:
             return YAL_TOKEN_FLOAT_LITERAL_64;
+        case Token::Impl:
+            return YAL_TOKEN_IMPL;
         default:
             YAL_ASSERT_MESSAGE(false, "Shouldn't be reached!");
             return -1;

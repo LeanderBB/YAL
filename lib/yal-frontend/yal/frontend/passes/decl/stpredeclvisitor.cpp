@@ -24,12 +24,34 @@
 #include "yal/frontend/parser/stdeclfunction.h"
 #include "yal/frontend/parser/stdeclmodule.h"
 #include "yal/frontend/parser/stdeclstruct.h"
+#include "yal/frontend/parser/stdecltypefunctions.h"
 #include "yal/frontend/passes/decl/errorspassdecl.h"
 #include "yal/frontend/types/typecontext.h"
 #include "yal/frontend/types/typefunction.h"
 #include "yal/frontend/types/typestruct.h"
 
 namespace yal::frontend {
+
+    class STPreDeclVisitor::ScopeGuard {
+    public:
+        YAL_NO_COPY_CLASS(ScopeGuard);
+
+        ScopeGuard(STPreDeclVisitor& visitor,
+                       const ScopeState& newState):
+            m_visitor(visitor),
+            m_prevState(visitor.m_state) {
+            m_visitor.m_state = newState;
+        }
+
+        ~ScopeGuard() {
+            m_visitor.m_state = m_prevState;
+        }
+
+    private:
+        STPreDeclVisitor& m_visitor;
+        STPreDeclVisitor::ScopeState m_prevState;
+    };
+
 
     STPreDeclVisitor::STPreDeclVisitor(ErrorReporter &errReporter,
                                        Module &module):
@@ -42,31 +64,9 @@ namespace yal::frontend {
     STPreDeclVisitor::visit(const STDeclFunction& declFunction) {
         TypeContext& typeCtx = m_module.getTypeContext();
 
-        Type* target = nullptr;
-        // check if target type has beend declared
-        const STType* targetType = declFunction.getFunctionTarget();
-        if (targetType != nullptr ) {
-            const Identifier targetId(targetType->getIdentifier(),m_module);
-            target = typeCtx.getByIdentifier(targetId);
-
-            if (target == nullptr) {
-                auto errorPtr = std::make_unique<ErrorUndefinedTypeRef>(targetId.getName(),
-                                                                        targetType->getSourceInfo());
-                m_errReporter.report(std::move(errorPtr));
-                return;
-            }
-
-            if (!target->isFunctionTargetable()) {
-                auto errorPtr = std::make_unique<ErrorFnOnNonTargetType>(declFunction.getFunctionName().getString(),
-                                                                         declFunction.getFunctionName().getSourceInfo(),
-                                                                         target);
-                m_errReporter.report(std::move(errorPtr));
-                return;
-            }
-        }
-
+        Type* target = m_state.declimplTarget;
         // check if function has already been declared
-        TypeFunction* typeFn = typeCtx.allocateType<TypeFunction>(m_module, &declFunction);
+        TypeFunction* typeFn = typeCtx.allocateType<TypeFunction>(m_module, &declFunction, target);
         const Type* existingType = typeCtx.getByIdentifier(typeFn->getIdentifier());
         if (existingType == nullptr) {
             typeCtx.registerType(typeFn);
@@ -109,6 +109,40 @@ namespace yal::frontend {
             if (m_errReporter.hasFatalError()) {
                 return;
             }
+            decl->acceptVisitor(*this);
+        }
+    }
+
+    void
+    STPreDeclVisitor::visit(const STDeclTypeFunctions& declTypeFunctions) {
+        const STType& targetType = declTypeFunctions.getType();
+        TypeContext& typeCtx = m_module.getTypeContext();
+
+        // Resolve type
+        Type* target = nullptr;
+        const Identifier targetId(targetType.getIdentifier(),m_module);
+        target = typeCtx.getByIdentifier(targetId);
+
+        if (target == nullptr) {
+            auto errorPtr = std::make_unique<ErrorUndefinedTypeRef>(targetId.getName(),
+                                                                    targetType.getSourceInfo());
+            m_errReporter.report(std::move(errorPtr));
+            return;
+        }
+
+        if (!target->isFunctionTargetable()) {
+            auto errorPtr = std::make_unique<ErrorFnImplOnNonTargetType>(targetType.getSourceInfo(),
+                                                                        target);
+            m_errReporter.report(std::move(errorPtr));
+            return;
+        }
+
+        // set new state
+        ScopeState newState;
+        newState.declimplTarget = target;
+        ScopeGuard guard(*this, newState);
+
+        for (auto& decl : declTypeFunctions.getDecls()) {
             decl->acceptVisitor(*this);
         }
     }

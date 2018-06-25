@@ -34,22 +34,18 @@ namespace yal::frontend {
     }
 
     STDeclFunction::STDeclFunction(const STIdentifier* functionName,
-                                   const STType *functionTarget,
                                    const STQualType* returnType,
                                    const ParseListDeclParam::Range params,
                                    const ParseListStmt::Range statements,
                                    STParser& parser):
-        STDecl(SyntaxTreeType::STDeclFunction, functionName),
-        m_functionTarget(functionTarget),
+        STDeclNamed(SyntaxTreeType::STDeclFunction, functionName),
         m_returnType(returnType),
         m_params(parser.getSTContext().getStdAllocatorWrapper<Params::value_type>()),
         m_body(parser.getSTContext().getStdAllocatorWrapper<Body::value_type>()) {
 
         parser.getDeclParamList().moveRange(m_params, params);
         parser.getStmtList().moveRange(m_body, statements);
-
     }
-
 
     void
     STDeclFunction::acceptVisitor(SyntaxTreeVisitor& visitor) const {

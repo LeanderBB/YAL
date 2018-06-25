@@ -23,7 +23,7 @@
 namespace yal::frontend {
 
     STDeclModule::STDeclModule(STContext& ctx):
-    SyntaxTree(SyntaxTreeType::STDeclModule),
+    STDecl(SyntaxTreeType::STDeclModule),
     m_decls(ctx.getStdAllocatorWrapper<const STDecl*>()){
 
     }
