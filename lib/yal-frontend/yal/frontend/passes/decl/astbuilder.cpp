@@ -23,6 +23,7 @@
 #include "yal/frontend/ast/astnodes.h"
 #include "yal/frontend/parser/sttype.h"
 #include "yal/frontend/parser/syntaxtreenodes.h"
+#include "yal/frontend/parser/syntaxtreevisitorimpl.h"
 #include "yal/frontend/passes/decl/errorspassdecl.h"
 #include "yal/frontend/types/typebuiltin.h"
 #include "yal/frontend/types/typefunction.h"
@@ -106,7 +107,7 @@ namespace yal::frontend {
                                            &declModule->getModuleDeclScope());
         // process nodes
         for (auto& decl : node.getDecls()) {
-            decl->acceptVisitor(*this);
+            resolve(*decl);
         }
 
         // collect ast decls
@@ -229,7 +230,7 @@ namespace yal::frontend {
         ScopedStackElem<StackScope> sscope(getState().stackScope,
                                            &typeFunctions->getImplScope());
         for (auto& decl : stDecls) {
-            decl->acceptVisitor(*this);
+            resolve(*decl);
             DeclBase* declType = getState().stackDecls.top();
             YAL_ASSERT(declType != nullptr);
             getState().stackDecls.pop();
@@ -393,7 +394,7 @@ namespace yal::frontend {
 
             // process statements
             for(auto& stmt : body) {
-                stmt->acceptVisitor(*this);
+                resolve(*stmt);
             }
 
             // collect statements
@@ -453,7 +454,7 @@ namespace yal::frontend {
         if (const STExpression* expr = node.getExpression(); expr != nullptr) {
             StackExpr& stackExpr = getState().stackExpressions;
             const size_t stackSize = stackExpr.size();
-            expr->acceptVisitor(*this);
+            resolve(*expr);
             if (stackExpr.size() == stackSize + 1) {
                 initExpr = stackExpr.top();
                 stackExpr.pop();
@@ -480,7 +481,7 @@ namespace yal::frontend {
         if (const STExpression* expr = node.getExpr(); expr != nullptr) {
             StackExpr& stackExpr = getState().stackExpressions;
             const size_t stackSize = stackExpr.size();
-            expr->acceptVisitor(*this);
+            resolve(*expr);
             if (stackExpr.size() == stackSize + 1) {
                 retExpr = stackExpr.top();
                 stackExpr.pop();
@@ -502,7 +503,7 @@ namespace yal::frontend {
         StackDecl& stackDecl = getState().stackDecls;
         const size_t stackSize = stackDecl.size();
         (void) stackSize;
-        node.getDecl().acceptVisitor(*this);
+        resolve(node.getDecl());
         YAL_ASSERT(!stackDecl.empty());
         DeclBase* decl = stackDecl.top();
         stackDecl.pop();
@@ -521,7 +522,7 @@ namespace yal::frontend {
         StackExpr& stackExpr = getState().stackExpressions;
         const size_t stackSize = stackExpr.size();
         (void) stackSize;
-        node.getExpr().acceptVisitor(*this);
+        resolve(node.getExpr());
         YAL_ASSERT(!stackExpr.empty());
         StmtExpression* expr = stackExpr.top();
         stackExpr.pop();
@@ -536,8 +537,8 @@ namespace yal::frontend {
 
         StackExpr& stack = getState().stackExpressions;
         const size_t stackSize = stack.size();
-        stExprLeft.acceptVisitor(*this);
-        stExprRight.acceptVisitor(*this);
+        resolve(stExprLeft);
+        resolve(stExprRight);
         YAL_ASSERT(!stack.empty());
         YAL_ASSERT(stack.size() == stackSize + 2);
 
@@ -643,7 +644,7 @@ namespace yal::frontend {
         StackExpr& stackExpr = getState().stackExpressions;
         const size_t stackSize = stackExpr.size();
         const STExpression& stExpr = node.getExpression();
-        stExpr.acceptVisitor(*this);
+        resolve(stExpr);
         YAL_ASSERT(!stackExpr.empty());
         YAL_ASSERT(stackExpr.size() == stackSize + 1);
 
@@ -666,8 +667,8 @@ namespace yal::frontend {
 
         StackExpr& stack = getState().stackExpressions;
         const size_t stackSize = stack.size();
-        stExprLeft.acceptVisitor(*this);
-        stExprRight.acceptVisitor(*this);
+        resolve(stExprLeft);
+        resolve(stExprRight);
         YAL_ASSERT(!stack.empty());
         YAL_ASSERT(stack.size() == stackSize + 2);
 
@@ -831,7 +832,7 @@ namespace yal::frontend {
         StackExpr& stackExpr = getState().stackExpressions;
         const size_t stackSize = stackExpr.size();
         const STExpression& stExpr = node.getExpression();
-        stExpr.acceptVisitor(*this);
+        resolve(stExpr);
         YAL_ASSERT(!stackExpr.empty());
         YAL_ASSERT(stackExpr.size() == stackSize + 1);
 
@@ -888,7 +889,7 @@ namespace yal::frontend {
             const size_t stackSize = stackExpr.size();
             const STExpression* stExpr = node.getExpr();
             YAL_ASSERT(stExpr != nullptr);
-            stExpr->acceptVisitor(*this);
+            resolve(*stExpr);
             YAL_ASSERT(!stackExpr.empty());
             YAL_ASSERT(stackExpr.size() == stackSize + 1);
             exprFn = stackExpr.top();
@@ -923,7 +924,7 @@ namespace yal::frontend {
             params.reserve(paramSt.size());
             for (auto& param : paramSt) {
                 const size_t stackSize = stackExpr.size();
-                param->acceptVisitor(*this);
+                resolve(*param);
                 YAL_ASSERT(!stackExpr.empty());
                 YAL_ASSERT(stackExpr.size() == stackSize + 1);
                 StmtExpression* paramExpr = stackExpr.top();
@@ -971,7 +972,7 @@ namespace yal::frontend {
         StackExpr& stackExpr = getState().stackExpressions;
         const size_t stackSize = stackExpr.size();
         const STExpression& stExpr = node.getExpr();
-        stExpr.acceptVisitor(*this);
+        resolve(stExpr);
         YAL_ASSERT(!stackExpr.empty());
         YAL_ASSERT(stackExpr.size() == stackSize + 1);
 
@@ -1030,7 +1031,7 @@ namespace yal::frontend {
 
                 const size_t stackSize = stackExpr.size();
                 const STExpression& stExpr = stmember->getExpr();
-                stExpr.acceptVisitor(*this);
+                resolve(stExpr);
                 YAL_ASSERT(!stackExpr.empty());
                 YAL_ASSERT(stackExpr.size() == stackSize + 1);
                 StmtExpression* expr = stackExpr.top();
@@ -1073,7 +1074,7 @@ namespace yal::frontend {
 
             // process statements
             for(auto& stmt : scopedStatements) {
-                stmt->acceptVisitor(*this);
+                resolve(*stmt);
             }
 
             // collect statements

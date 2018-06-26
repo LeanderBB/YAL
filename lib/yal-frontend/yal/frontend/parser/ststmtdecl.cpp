@@ -18,7 +18,6 @@
  */
 
 #include "yal/frontend/parser/ststmtdecl.h"
-#include "yal/frontend/parser/syntaxtreevisitor.h"
 
 namespace yal::frontend {
 
@@ -26,10 +25,5 @@ namespace yal::frontend {
         STStatement(SyntaxTreeType::STStmtDecl),
         m_decl(decl) {
 
-    }
-
-    void
-    STStmtDecl::acceptVisitor(SyntaxTreeVisitor& visitor) const {
-        visitor.visit(*this);
     }
 }

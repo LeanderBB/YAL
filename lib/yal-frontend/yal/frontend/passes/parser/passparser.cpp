@@ -22,6 +22,7 @@
 #include "yal/error/errorreporter.h"
 #include "yal/frontend/lexer/lexer.h"
 #include "yal/frontend/module.h"
+#include "yal/frontend/parser/errorparser.h"
 #include "yal/frontend/parser/stparser.h"
 #include "yal/frontend/passes/passes.h"
 #include "yal/io/bytestream.h"
@@ -37,6 +38,8 @@ namespace yal::frontend {
 
         SourceItem::StreamPtr byteStream = options.srcItem.getByteStream();
         if (!byteStream) {
+            auto error = std::make_unique<ErrorParserStreamOpen>(options.srcItem);
+            options.errReporter.report(std::move(error));
             return false;
         }
 

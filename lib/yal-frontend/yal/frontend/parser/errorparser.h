@@ -50,4 +50,17 @@ namespace yal::frontend {
         SourceInfo m_srcInfo;
     };
 
+    class ErrorParserStreamOpen final : public Error {
+    public:
+        static const ErrorCode kCode;
+
+        ErrorParserStreamOpen(const SourceItem& item);
+
+        StringRef getErrorName() const final override;
+
+        void print(ErrorPrinter& printer) const override final;
+    private:
+        const SourceItem& m_item;
+    };
+
 }

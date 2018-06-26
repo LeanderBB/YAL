@@ -18,7 +18,6 @@
  */
 
 #include "yal/frontend/parser/ststmtassign.h"
-#include "yal/frontend/parser/syntaxtreevisitor.h"
 
 namespace yal::frontend {
 
@@ -27,10 +26,5 @@ namespace yal::frontend {
         STStatement(SyntaxTreeType::STStmtAssign),
         m_leftExpr(leftExpr),
         m_rightExpr(rightExpr){
-    }
-
-    void
-    STStmtAssign::acceptVisitor(SyntaxTreeVisitor& visitor) const {
-        visitor.visit(*this);
     }
 }

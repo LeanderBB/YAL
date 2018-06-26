@@ -30,8 +30,6 @@ namespace yal::frontend {
         STStmtAssign(const STExpression* leftExpr,
                      const STExpression* rightExpr);
 
-        void acceptVisitor(SyntaxTreeVisitor& visitor) const override final;
-
         const STExpression& getLeftExpr() const {
             return *m_leftExpr;
         }

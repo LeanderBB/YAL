@@ -34,8 +34,6 @@ namespace yal::frontend {
             return m_statements;
         }
 
-        void acceptVisitor(SyntaxTreeVisitor& visitor) const override final;
-
    protected:
         STStatementList m_statements;
     };

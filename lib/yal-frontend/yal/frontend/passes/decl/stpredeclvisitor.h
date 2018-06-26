@@ -33,21 +33,17 @@ namespace yal::frontend {
     class Type;
     class Module;
 
-    class STPreDeclVisitor final : public SyntaxTreeVisitor
+    class STPreDeclVisitor final : public SyntaxTreeVisitorRecursive<STPreDeclVisitor, true>
     {
     public:
         STPreDeclVisitor(ErrorReporter& errReporter,
                          Module& module);
 
-        void visit(const STDeclFunction& declFunction) override final;
+#define YAL_ST_NODE_TYPE(type) void visit(const type&);
+#include "yal/frontend/parser/syntaxtreetypes.def"
+#undef YAL_ST_NODE_TYPE
 
-        void visit(const STDeclStruct& declStruct) override final;
-
-        void visit(const STDeclModule& declModule) override final;
-
-        void visit(const STDeclTypeFunctions& declTypeFunctions) override final;
     private:
-
         class ScopeGuard;
         struct ScopeState {
             Type* declimplTarget = nullptr;

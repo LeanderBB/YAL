@@ -38,9 +38,4 @@ namespace yal::frontend {
         m_initExpr = initExpr;
     }
 
-    void
-    StructMemberInit::acceptVisitor(AstVisitor& visitor) {
-        visitor.visit(*this);
-    }
-
 }

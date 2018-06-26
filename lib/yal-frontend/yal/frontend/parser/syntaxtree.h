@@ -57,13 +57,10 @@ namespace yal {
 
 namespace yal::frontend {
 
-    class SyntaxTreeVisitor;
     class SyntaxTree {
     public:
 
         virtual ~SyntaxTree(){}
-
-        virtual void acceptVisitor(SyntaxTreeVisitor& visitor) const = 0;
 
         SyntaxTreeType getSyntaxTreeType() const {
             return m_treeType;

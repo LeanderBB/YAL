@@ -28,11 +28,6 @@ namespace yal::frontend {
 
     }
 
-    void
-    STExprBoolLiteral::acceptVisitor(SyntaxTreeVisitor& visitor) const {
-        visitor.visit(*this);
-    }
-
     // -----------------------------------------------------------------------
 
     STExprIntegerLiteral::STExprIntegerLiteral(const TokenInfo &value):
@@ -60,11 +55,6 @@ namespace yal::frontend {
         }
     }
 
-    void
-    STExprIntegerLiteral::acceptVisitor(SyntaxTreeVisitor& visitor) const {
-        visitor.visit(*this);
-    }
-
     // -----------------------------------------------------------------------
 
     STExprFloatLiteral::STExprFloatLiteral(const TokenInfo &value):
@@ -84,8 +74,4 @@ namespace yal::frontend {
         }
     }
 
-    void
-    STExprFloatLiteral::acceptVisitor(SyntaxTreeVisitor& visitor) const {
-        visitor.visit(*this);
-    }
 }

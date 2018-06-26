@@ -635,10 +635,6 @@ namespace yal::frontend {
     }
 
     void
-    AstVisitorExprType::visit(StructMemberInit&) {}
-
-
-    void
     AstVisitorExprType::visit(StmtListScoped& node) {
         DeclScopeGuard guard(*this, node.getListScope());
         for (auto& stmt : node.getStatements()) {

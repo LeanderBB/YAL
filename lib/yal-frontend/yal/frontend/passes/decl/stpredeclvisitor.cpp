@@ -25,6 +25,7 @@
 #include "yal/frontend/parser/stdeclmodule.h"
 #include "yal/frontend/parser/stdeclstruct.h"
 #include "yal/frontend/parser/stdecltypefunctions.h"
+#include "yal/frontend/parser/syntaxtreevisitorimpl.h"
 #include "yal/frontend/passes/decl/errorspassdecl.h"
 #include "yal/frontend/types/typecontext.h"
 #include "yal/frontend/types/typefunction.h"
@@ -109,7 +110,7 @@ namespace yal::frontend {
             if (m_errReporter.hasFatalError()) {
                 return;
             }
-            decl->acceptVisitor(*this);
+            resolve(*decl);
         }
     }
 
@@ -143,7 +144,86 @@ namespace yal::frontend {
         ScopeGuard guard(*this, newState);
 
         for (auto& decl : declTypeFunctions.getDecls()) {
-            decl->acceptVisitor(*this);
+           resolve(*decl);
         }
+    }
+
+    void
+    STPreDeclVisitor::visit(const STDeclVar&) {
+        YAL_ASSERT_NOT_IMPLEMENTED();
+    }
+
+    void
+    STPreDeclVisitor::visit(const STStmtReturn&) {
+        YAL_ASSERT_NOT_IMPLEMENTED();
+    }
+
+    void
+    STPreDeclVisitor::visit(const STStmtDecl&) {
+        YAL_ASSERT_NOT_IMPLEMENTED();
+    }
+
+    void
+    STPreDeclVisitor::visit(const STStmtExpression&) {
+        YAL_ASSERT_NOT_IMPLEMENTED();
+    }
+
+    void
+    STPreDeclVisitor::visit(const STStmtAssign&) {
+        YAL_ASSERT_NOT_IMPLEMENTED();
+    }
+
+    void
+    STPreDeclVisitor::visit(const STExprVarRef&) {
+        YAL_ASSERT_NOT_IMPLEMENTED();
+    }
+
+    void
+    STPreDeclVisitor::visit(const STExprUnaryOperator&) {
+        YAL_ASSERT_NOT_IMPLEMENTED();
+    }
+
+    void
+    STPreDeclVisitor::visit(const STExprBinaryOperator&) {
+        YAL_ASSERT_NOT_IMPLEMENTED();
+    }
+
+    void
+    STPreDeclVisitor::visit(const STExprBoolLiteral&) {
+        YAL_ASSERT_NOT_IMPLEMENTED();
+    }
+
+    void
+    STPreDeclVisitor::visit(const STExprIntegerLiteral&) {
+        YAL_ASSERT_NOT_IMPLEMENTED();
+    }
+
+    void
+    STPreDeclVisitor::visit(const STExprFloatLiteral&) {
+        YAL_ASSERT_NOT_IMPLEMENTED();
+    }
+
+    void
+    STPreDeclVisitor::visit(const STExprStructVarRef&) {
+        YAL_ASSERT_NOT_IMPLEMENTED();
+    }
+
+    void
+    STPreDeclVisitor::visit(const STExprFnCall&) {
+    }
+
+    void
+    STPreDeclVisitor::visit(const STExprCast&) {
+        YAL_ASSERT_NOT_IMPLEMENTED();
+    }
+
+    void
+    STPreDeclVisitor::visit(const STExprStructInit&) {
+        YAL_ASSERT_NOT_IMPLEMENTED();
+    }
+
+    void
+    STPreDeclVisitor::visit(const STStmtListScoped&) {
+        YAL_ASSERT_NOT_IMPLEMENTED();
     }
 }

@@ -30,8 +30,6 @@ namespace yal::frontend {
 
         STDeclModule(STContext& ctx);
 
-        void acceptVisitor(SyntaxTreeVisitor& visitor) const override final;
-
         void addDecl(STDecl* decl);
 
         const Decls& getDecls() const {

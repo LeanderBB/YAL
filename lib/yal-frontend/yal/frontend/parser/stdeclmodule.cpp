@@ -18,7 +18,6 @@
  */
 
 #include "yal/frontend/parser/stdeclmodule.h"
-#include "yal/frontend/parser/syntaxtreevisitor.h"
 #include "yal/frontend/parser/stcontext.h"
 namespace yal::frontend {
 
@@ -31,11 +30,6 @@ namespace yal::frontend {
     void
     STDeclModule::addDecl(STDecl *node) {
         m_decls.push_back(node);
-    }
-
-    void
-    STDeclModule::acceptVisitor(SyntaxTreeVisitor &visitor) const {
-        visitor.visit(*this);
     }
 
 }

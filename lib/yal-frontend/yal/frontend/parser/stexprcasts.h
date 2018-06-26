@@ -37,8 +37,6 @@ namespace yal::frontend {
             return *m_expr;
         }
 
-        void acceptVisitor(SyntaxTreeVisitor& visitor) const final override;
-
     private:
         const STExpression* m_expr;
         const STQualType* m_qtTarget;

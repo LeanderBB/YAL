@@ -19,7 +19,7 @@
 #pragma once
 
 #include "yal/util/cast.h"
-
+#include "yal/util/stringref.h"
 namespace yal::frontend {
 
     enum class AstType {
@@ -34,6 +34,7 @@ namespace yal::frontend {
 #include "yal/frontend/ast/astnodes.def"
 #undef YAL_AST_NODE_TYPE
 
+    StringRef AstTypeName(const AstType type);
 }
 
 

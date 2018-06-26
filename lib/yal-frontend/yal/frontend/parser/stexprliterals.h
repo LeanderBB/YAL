@@ -31,7 +31,6 @@ namespace yal::frontend {
             return m_value;
         }
 
-        void acceptVisitor(SyntaxTreeVisitor& visitor) const override final;
     private:
          const StringRef m_value;
     };
@@ -49,8 +48,6 @@ namespace yal::frontend {
         Token getTokenType() const {
             return m_value.token;
         }
-
-        void acceptVisitor(SyntaxTreeVisitor& visitor) const override final;
 
     private:
         const TokenInfo m_value;
@@ -70,7 +67,6 @@ namespace yal::frontend {
             return m_value.token;
         }
 
-        void acceptVisitor(SyntaxTreeVisitor& visitor) const override final;
     private:
         const TokenInfo m_value;
         StringRef m_string;

@@ -20,6 +20,7 @@
 #include "yal/frontend/parser/errorparser.h"
 #include "yal/error/errorprinter.h"
 #include "yal/frontend/lexer/tokens.h"
+#include "yal/io/sourcemanager.h"
 #include "yal/util/format.h"
 
 namespace yal::frontend {
@@ -59,6 +60,28 @@ namespace yal::frontend {
     const SourceInfo&
     ErrorParser::getSourceInfo() const {
         return m_srcInfo;
+    }
+
+
+    const ErrorCode ErrorParserStreamOpen::kCode
+    = MakeErrorCode(kErrorCategoryCode, 2);
+
+    ErrorParserStreamOpen::ErrorParserStreamOpen(const SourceItem& item):
+        Error(kCode),
+        m_item(item) {
+
+    }
+
+    StringRef
+    ErrorParserStreamOpen::getErrorName() const {
+        return "Open Parser Stream";
+    }
+
+    void
+    ErrorParserStreamOpen::print(ErrorPrinter& printer) const {
+        auto& formater = printer.getFormater();
+        FormatAppend(formater, "Couldn't open bytestream from source item '%'\n",
+                     m_item.getPath());
     }
 
 }

@@ -17,6 +17,8 @@
  *  License along with YAL. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#pragma once
+
 #include "yal/frontend/parser/syntaxtree.h"
 #include "yal/frontend/parser/stparser.h"
 #include "yal/util/allocator/allocatorstack.h"
@@ -61,8 +63,6 @@ namespace yal::frontend {
         const Members& getMembers() const {
             return m_members;
         }
-
-        void acceptVisitor(SyntaxTreeVisitor& visitor) const override final;
 
     protected:
         Members m_members;

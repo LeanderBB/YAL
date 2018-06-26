@@ -44,10 +44,6 @@ namespace yal::frontend {
             return m_sourceInfo;
         }
 
-        AstType getAstType() const {
-            return AstType::StructMemberInit;
-        }
-
         Module& getModule() {
             return m_module;
         }
@@ -55,8 +51,6 @@ namespace yal::frontend {
         const Module& getModule() const {
             return m_module;
         }
-
-        void acceptVisitor(AstVisitor& visitor);
 
         StringRef getMemberName() const {
             return m_memberName;

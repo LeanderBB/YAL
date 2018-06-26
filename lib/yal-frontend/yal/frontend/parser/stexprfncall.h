@@ -68,8 +68,6 @@ namespace yal::frontend {
             return m_type;
         }
 
-        void acceptVisitor(SyntaxTreeVisitor& visitor) const override final;
-
     private:
         const STIdentifier* m_name;
         const STType* m_targetType;

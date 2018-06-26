@@ -19,19 +19,26 @@
 
 #pragma once
 
+#include <type_traits>
+
 namespace yal::frontend {
 
 #define YAL_ST_NODE_TYPE(type) class type;
 #include "yal/frontend/parser/syntaxtreetypes.def"
 #undef YAL_ST_NODE_TYPE
 
-    class SyntaxTreeVisitor {
+    class SyntaxTree;
+    template<typename Derived, bool Const>
+    class SyntaxTreeVisitorRecursive {
     public:
+        template<typename Node>
+        using NodeType = typename std::conditional<Const, const Node, Node>::type;
 
-        virtual ~SyntaxTreeVisitor() {}
+        Derived& getDerived() {
+            return static_cast<Derived&>(*this);
+        }
 
-#define YAL_ST_NODE_TYPE(type) virtual void visit(const type&) {}
-#include "yal/frontend/parser/syntaxtreetypes.def"
-#undef YAL_ST_NODE_TYPE
+        void resolve(NodeType<SyntaxTree>& node);
+
     };
 }

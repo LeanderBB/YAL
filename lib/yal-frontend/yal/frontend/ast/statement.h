@@ -48,6 +48,10 @@ namespace yal::frontend {
             return m_astType;
         }
 
+        StringRef getAstTypeName() const {
+            return AstTypeName(m_astType);
+        }
+
         virtual void acceptVisitor(AstVisitor& visitor) = 0;
 
     protected:

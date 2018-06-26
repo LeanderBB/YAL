@@ -27,11 +27,10 @@ namespace yal::frontend {
     public:
         STStmtDecl(const STDecl* decl);
 
-        void acceptVisitor(SyntaxTreeVisitor& visitor) const override final;
-
         const STDecl& getDecl() const {
             return *m_decl;
         }
+
     private:
         const STDecl* m_decl;
     };

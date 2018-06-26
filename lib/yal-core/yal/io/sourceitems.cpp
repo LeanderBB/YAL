@@ -33,8 +33,9 @@ namespace yal {
         // Read file into memory stream
         if (!fstream->open(m_filePath, ByteStream::kModeRead)) {
             fstream.reset();
+            return nullptr;
         }
-        return nullptr;
+        return fstream;
     }
 
     const StringRef

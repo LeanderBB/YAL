@@ -43,8 +43,6 @@ namespace yal::frontend {
             return m_immutable;
         }
 
-        void acceptVisitor(SyntaxTreeVisitor& visitor) const override final;
-
     protected:
         const STQualType* m_type;
         const STExpression* m_expr;

@@ -33,9 +33,4 @@ namespace yal::frontend {
 
     }
 
-    void
-    STDeclVar::acceptVisitor(SyntaxTreeVisitor &visitor) const {
-        visitor.visit(*this);
-    }
-
 }

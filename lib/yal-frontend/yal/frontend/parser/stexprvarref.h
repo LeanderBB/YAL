@@ -27,8 +27,6 @@ namespace yal::frontend {
     public:
         STExprVarRef(const STIdentifier* identitifer);
 
-        void acceptVisitor(SyntaxTreeVisitor& visitor) const override final;
-
         const STIdentifier& getVarName() const {
             return *m_varRef;
         }
@@ -42,8 +40,6 @@ namespace yal::frontend {
     public:
         STExprStructVarRef( const STExpression* expression,
                             const STIdentifier* identitifer);
-
-        void acceptVisitor(SyntaxTreeVisitor& visitor) const override final;
 
         const STIdentifier& getVarName() const {
             return *m_varRef;

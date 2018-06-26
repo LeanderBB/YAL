@@ -18,468 +18,370 @@
  */
 
 #include "yal/frontend/ast/astprinter.h"
-
-#include "yal/frontend/ast/astnodes.h"
+#include "yal/frontend/ast/astvisitorimpl.h"
+#include "yal/frontend/types/qualtype.h"
+#include "yal/frontend/types/typefunction.h"
+#include "yal/frontend/types/typestruct.h"
 #include "yal/io/bytestream.h"
 
+
 namespace yal::frontend {
-/*
+
     AstPrinter::AstPrinter(ByteStream& stream):
-        m_stream(stream),
-        m_formater() {
-        m_identationChars.reserve(32);
+        m_writer(stream) {
     }
 
     void
-    AstPrinter::visit(DeclFunction& node) {
-        print("DeclFunction ");
+    AstPrinter::visit(const DeclFunction& node) {
+        m_writer.write("%",node.getAstTypeName());
         printSourceInfo(node.getSourceInfo());
-        printOnLine(" %\n", node.getName());
+        m_writer.write(" %\n", node.getName());
 
-        bool hasStatmentList = node.getFunctionBody() != nullptr;
-
-        if (node.getParams() != nullptr) {
-            scopeBegin(!hasStatmentList);
-            DeclParamVarContainer* params = node.getParams();
-            params->acceptVisitor(*this);
+        const DeclFunction::Params& params = node.getParams();
+        const DeclFunction::Body& body = node.getFunctionBody();
+        if (!params.empty()) {
+            scopeBegin(body.empty());
+            for (const auto& param : params) {
+                resolve(*param);
+            }
             scopeEnd();
         }
 
-        if (hasStatmentList) {
+        if (!body.empty()) {
             scopeBegin();
-            StatementList* stmts = node.getFunctionBody();
-            stmts->acceptVisitor(*this);
+            for (const auto& stmt : body) {
+                resolve(*stmt);
+            }
             scopeEnd();
         }
     }
 
     void
-    AstPrinter::visit(DeclTypeFunction& node) {
-        print("DeclTypeFunction ");
+    AstPrinter::visit(const DeclTypeFunction& node) {
+        m_writer.write("%",node.getAstTypeName());
         printSourceInfo(node.getSourceInfo());
-        printOnLine(" % static:%\n", node.getName(), node.isStatic());
+        m_writer.write(" % static:%\n",
+                       node.getName(),
+                       node.isStatic());
 
-        scopeBegin(false);
-        node.getTargetType()->acceptVisitor(*this);
+        const DeclFunction::Params& params = node.getParams();
+        const DeclFunction::Body& body = node.getFunctionBody();
+        if (!params.empty()) {
+            scopeBegin(body.empty());
+            for (const auto& param : params) {
+                resolve(*param);
+            }
+            scopeEnd();
+        }
+
+        if (!body.empty()) {
+            scopeBegin();
+            for (const auto& stmt : body) {
+                resolve(*stmt);
+            }
+            scopeEnd();
+        }
+    }
+
+    void
+    AstPrinter::visit(const DeclTypeFunctions& node) {
+        m_writer.write("%",node.getAstTypeName());
+        printSourceInfo(node.getSourceInfo());
+        m_writer.write(" %\n", node.getType().getIdentifier());
+        scopeBegin();
+        for (auto& decl : node.getDecls()) {
+            resolve(*decl);
+        }
         scopeEnd();
-
-
-
-        bool hasStatmentList = node.getFunctionBody() != nullptr;
-
-        if (node.getParams() != nullptr) {
-            scopeBegin(!hasStatmentList);
-            DeclParamVarContainer* params = node.getParams();
-            params->acceptVisitor(*this);
-            scopeEnd();
-        }
-
-        if (hasStatmentList) {
-            scopeBegin();
-            StatementList* stmts = node.getFunctionBody();
-            stmts->acceptVisitor(*this);
-            scopeEnd();
-        }
     }
 
     void
-    AstPrinter::visit(DeclStruct& node) {
-        print("DeclStruct ");
+    AstPrinter::visit(const DeclStruct& node) {
+        m_writer.write("%",node.getAstTypeName());
         printSourceInfo(node.getSourceInfo());
-        printOnLine(" %\n", node.getName());
-        if (node.getMembers() != nullptr) {
+        m_writer.write(" %\n", node.getName());
+
+        const DeclStruct::Members& members = node.getMembers();
+
+        if (!members.empty()) {
             scopeBegin();
-            node.getMembers()->acceptVisitor(*this);
+            for (auto& member: members) {
+                resolve(*member);
+            }
             scopeEnd();
         }
     }
 
     void
-    AstPrinter::visit(DeclStructMembers& node) {
-        print("DeclStructMembers ");
+    AstPrinter::visit(const DeclVar& node) {
+        m_writer.write("%",node.getAstTypeName());
         printSourceInfo(node.getSourceInfo());
-        print();
-        for (auto it = node.childBegin(); it != node.childEnd(); ++it) {
-            scopeBegin(it + 1 == node.childEnd());
-            (*it)->acceptVisitor(*this);
-            scopeEnd();
-        }
-    }
-
-    void
-    AstPrinter::visit(DeclVar& node) {
-        print("DeclVar ");
-        printSourceInfo(node.getSourceInfo());
-        printOnLine(" %\n", node.getName());
-        if (node.getExpression() != nullptr) {
+        m_writer.write(" %\n", node.getName());
+        if (auto exprOpt = node.getExpression(); exprOpt.has_value()) {
             scopeBegin();
-            node.getExpression()->acceptVisitor(*this);
+            resolve(*exprOpt.value());
             scopeEnd();
         }
     }
 
 
     void
-    AstPrinter::visit(DeclModule& node) {
-        print("DeclModule %\n", node.getName());
+    AstPrinter::visit(const DeclModule& node) {
+        m_writer.write("DeclModule %\n", node.getName());
         auto& decls = node.getDeclarations();
         for (auto it = decls.begin(); it != decls.end(); ++it) {
             auto nextIt = it;
             scopeBegin(++nextIt == decls.end());
-            (*it)->acceptVisitor(*this);
+            resolve(**it);
             scopeEnd();
         }
     }
 
     void
-    AstPrinter::visit(DeclParamVar& node) {
-        print("DeclParamVar  ");
+    AstPrinter::visit(const DeclParamVar& node) {
+        m_writer.write("%",node.getAstTypeName());
         printSourceInfo(node.getSourceInfo());
-        printOnLine(" %\n", node.getName());
+        m_writer.write(" %\n", node.getName());
     }
 
     void
-    AstPrinter::visit(DeclParamVarSelf& node) {
-        print("DeclParamVarSelf ");
+    AstPrinter::visit(const DeclParamVarSelf& node) {
+        m_writer.write("%",node.getAstTypeName());
         printSourceInfo(node.getSourceInfo());
-        printQualifier(node.getQualType().getQualifier());
-        print();
+        m_writer.write();
     }
 
+    void
+    AstPrinter::visit(const DeclStrongAlias&) {
+
+    }
 
     void
-    AstPrinter::visit(DeclParamVarContainer& node) {
-        print("DeclParamVarContainer ");
+    AstPrinter::visit(const DeclWeakAlias&) {
+
+    }
+
+    void
+    AstPrinter::visit(const StmtReturn& node) {
+        m_writer.write("%",node.getAstTypeName());
         printSourceInfo(node.getSourceInfo());
-        print();
-        for (auto it = node.childBegin(); it != node.childEnd(); ++it) {
-            scopeBegin(it + 1 == node.childEnd());
-            (*it)->acceptVisitor(*this);
-            scopeEnd();
-        }
-    }
-
-    void
-    AstPrinter::visit(ExprList& node) {
-        print("ExprList ");
-        printSourceInfo(node.getSourceInfo());
-        print();
-        for (auto it = node.childBegin(); it != node.childEnd(); ++it) {
-            scopeBegin(it + 1 == node.childEnd());
-            (*it)->acceptVisitor(*this);
-            scopeEnd();
-        }
-    }
-
-    void
-    AstPrinter::visit(DeclStrongAlias&) {
-
-    }
-
-    void
-    AstPrinter::visit(DeclWeakAlias&) {
-
-    }
-
-    void
-    AstPrinter::visit(RefType& node) {
-        print("RefType ");
-        printSourceInfo(node.getSourceInfo());
-        printOnLine (" %", node.getIdentitfier().getAsString());
-        printQualifier(node.getQualifier());
-        print();
-    }
-
-
-    void
-    AstPrinter::visit(StatementList& node) {
-        print("StatementList ");
-        printSourceInfo(node.getSourceInfo());
-        print();
-
-        for (auto it = node.childBegin(); it != node.childEnd(); ++it) {
-            scopeBegin(it + 1 == node.childEnd());
-            (*it)->acceptVisitor(*this);
-            scopeEnd();
-        }
-
-    }
-
-    void
-    AstPrinter::visit(StmtReturn& node) {
-        print("StmtReturn ");
-        printSourceInfo(node.getSourceInfo());
-        print();
+        m_writer.write();
         if (node.hasReturnExpression()) {
+            const StmtExpression* expr = node.getExpression().value();
             scopeBegin();
-            node.getExpression()->acceptVisitor(*this);
+            resolve(*expr);
             scopeEnd();
         }
     }
 
     void
-    AstPrinter::visit(StmtDecl& node) {
-        print("StmtDecl ");
+    AstPrinter::visit(const StmtDecl& node) {
+        m_writer.write("%",node.getAstTypeName());
         printSourceInfo(node.getSourceInfo());
-        print();
+        m_writer.write();
         scopeBegin();
         {
-            node.getDecl()->acceptVisitor(*this);
+            resolve(*node.getDecl());
         }
         scopeEnd();
     }
 
     void
-    AstPrinter::visit(StmtAssign& node) {
-        print("StmtAssign ");
+    AstPrinter::visit(const StmtAssign& node) {
+        m_writer.write("%",node.getAstTypeName());
         printSourceInfo(node.getSourceInfo());
-        print();
+        m_writer.write();
         scopeBegin(false);
         {
-            node.getDestExpr()->acceptVisitor(*this);
+            resolve(*node.getLeftExpr());
         }
         scopeEnd();
         scopeBegin();
         {
-            node.getValueExpr()->acceptVisitor(*this);
+            resolve(*node.getRightExpr());
         }
         scopeEnd();
     }
 
     void
-    AstPrinter::visit(ExprVarRef& node) {
-        print("ExprVarRef ");
+    AstPrinter::visit(const ExprVarRef& node) {
+        m_writer.write("%",node.getAstTypeName());
         printSourceInfo(node.getSourceInfo());
-        printOnLine(" %\n", node.getDeclVar()->getName());
+        m_writer.write(" %\n", node.getDeclVar().getName());
     }
 
     void
-    AstPrinter::visit(ExprVarRefSelf& node) {
-        print("ExprVarRefSelf ");
+    AstPrinter::visit(const ExprVarRefSelf& node) {
+        m_writer.write("%",node.getAstTypeName());
         printSourceInfo(node.getSourceInfo());
-        print();
+        m_writer.write();
     }
 
     void
-    AstPrinter::visit(ExprStructVarRef& node) {
-        print("ExprStructVarRef ");
+    AstPrinter::visit(const ExprStructVarRef& node) {
+        m_writer.write("%",node.getAstTypeName());
         printSourceInfo(node.getSourceInfo());
-        printOnLine (" %\n", node.getMemberName());
+        m_writer.write(" %\n", node.getMemberName());
         scopeBegin();
         {
-            node.getExpression()->acceptVisitor(*this);
+            resolve(*node.getExpression());
         }
         scopeEnd();
     }
 
     void
-    AstPrinter::visit(ExprUnaryOperator& node) {
-        print("ExpUnaryOperator\n");
+    AstPrinter::visit(const ExprUnaryOperator& node) {
+        m_writer.write("%",node.getAstTypeName());
+        printSourceInfo(node.getSourceInfo());
+        m_writer.write();
         scopeBegin();
         {
-            node.getExpression()->acceptVisitor(*this);
+            resolve(*node.getExpression());
         }
         scopeEnd();
     }
 
     void
-    AstPrinter::visit(ExprBinaryOperator& node) {
-        print("ExpBinaryOperator ");
+    AstPrinter::visit(const ExprBinaryOperator& node) {
+        m_writer.write("%",node.getAstTypeName());
         printSourceInfo(node.getSourceInfo());
-        print();
+        m_writer.write();
         {
             scopeBegin(false);
-            node.getExpressionLeft()->acceptVisitor(*this);
+            resolve(*node.getExpressionLeft());
             scopeEnd();
         }
         {
             scopeBegin();
-            node.getExpressionRight()->acceptVisitor(*this);
+            resolve(*node.getExpressionRight());
             scopeEnd();
         }
     }
 
     void
-    AstPrinter::visit(ExprBoolLiteral& node) {
-        print("ExprBoolLiteral ");
+    AstPrinter::visit(const ExprBoolLiteral& node) {
+        m_writer.write("%",node.getAstTypeName());
         printSourceInfo(node.getSourceInfo());
-        printOnLine(" %\n", node.getLiteralValue());
+        m_writer.write(" %\n", node.getLiteralValue());
     }
 
     void
-    AstPrinter::visit(ExprIntegerLiteral& node) {
-        print("ExprIntegerLiteral ");
+    AstPrinter::visit(const ExprIntegerLiteral& node) {
+        m_writer.write("%",node.getAstTypeName());
         printSourceInfo(node.getSourceInfo());
-        print();
+        m_writer.write(" %\n", node.getLiteralValue());
     }
 
     void
-    AstPrinter::visit(ExprFloatLiteral& node) {
-        print("ExprFloatLiteral ");
+    AstPrinter::visit(const ExprFloatLiteral& node) {
+        m_writer.write("%",node.getAstTypeName());
         printSourceInfo(node.getSourceInfo());
-        print();
+        m_writer.write(" %\n", node.getLiteralValueAsF64());
     }
 
     void
-    AstPrinter::visit(ExprFnCall& node) {
-        print("ExprFnCall ");
+    AstPrinter::visit(const ExprFnCall& node) {
+        m_writer.write("%",node.getAstTypeName());
         printSourceInfo(node.getSourceInfo());
-        print();
-        const bool hasFunctionArgs = node.getFunctionArgs() != nullptr;
-        scopeBegin(!hasFunctionArgs);
-        node.getFunctionType()->acceptVisitor(*this);
-        scopeEnd();
-        if (hasFunctionArgs) {
+        m_writer.write(" %\n", node.getFunctionType()->getDecl().getName());
+
+        const ExprList& args = node.getFunctionArgs();
+        if (!args.empty()) {
             scopeBegin();
-            node.getFunctionArgs()->acceptVisitor(*this);
+            for (auto& expr : args) {
+                resolve(*expr);
+            }
             scopeEnd();
         }
     }
 
     void
-    AstPrinter::visit(ExprTypeFnCall& node) {
-        print("ExprStructFnCall ");
+    AstPrinter::visit(const ExprTypeFnCall& node) {
+        m_writer.write("%",node.getAstTypeName());
         printSourceInfo(node.getSourceInfo());
-        print();
-        scopeBegin(false);
-        node.getExpression()->acceptVisitor(*this);
-        scopeEnd();
-        const bool hasFunctionArgs = node.getFunctionArgs() != nullptr;
-        scopeBegin(!hasFunctionArgs);
-        node.getFunctionType()->acceptVisitor(*this);
-        scopeEnd();
-        if (hasFunctionArgs) {
+        m_writer.write(" %\n", node.getFunctionType()->getDecl().getName());
+        if (!node.isStaticCall()) {
+            scopeBegin(false);
+            resolve(*node.getExpression().value());
+            scopeEnd();
+        }
+
+        const ExprList& args = node.getFunctionArgs();
+        if (!args.empty()) {
             scopeBegin();
-            node.getFunctionArgs()->acceptVisitor(*this);
+            for (auto& expr : args) {
+                resolve(*expr);
+            }
             scopeEnd();
         }
     }
 
     void
-    AstPrinter::visit(ExprTypeFnCallStatic& node) {
-        print("ExprStructFnCallStatic %::% ",
-              node.getTargetType()->getIdentitfier(),
-              node.getFunctionName());
+    AstPrinter::visit(const ExprCast& node) {
+        m_writer.write("%",node.getAstTypeName());
         printSourceInfo(node.getSourceInfo());
-        print();
-        const bool hasFunctionArgs = node.getFunctionArgs() != nullptr;
-        scopeBegin(!hasFunctionArgs);
-        node.getFunctionType()->acceptVisitor(*this);
-        scopeEnd();
-        if (hasFunctionArgs) {
-            scopeBegin();
-            node.getFunctionArgs()->acceptVisitor(*this);
-            scopeEnd();
-        }
-    }
-
-    void
-    AstPrinter::visit(ExprRangeCast& node) {
-        print("ExprRangeCast ");
-        printSourceInfo(node.getSourceInfo());
-        print();
-        scopeBegin(false);
-        node.getDestType()->acceptVisitor(*this);
-        scopeEnd();
+        m_writer.write(" %\n", node.getQualType());
         scopeBegin();
-        node.getExpression()->acceptVisitor(*this);
+        resolve(node.getExpression());
         scopeEnd();
     }
 
     void
-    AstPrinter::visit(ExprStructInit& node) {
-        print("ExprStructInit ");
+    AstPrinter::visit(const ExprStructInit& node) {
+        m_writer.write("%",node.getAstTypeName());
         printSourceInfo(node.getSourceInfo());
-        print();
-        if (node.getMemberInitList() != nullptr) {
-            scopeBegin();
-            node.getMemberInitList()->acceptVisitor(*this);
-            scopeEnd();
-        }
-    }
+        m_writer.write(" %\n", node.getQualType().getType()->getIdentifier());
 
-    void
-    AstPrinter::visit(StructMemberInitList& node) {
-        print("StructMemberInitList ");
-        printSourceInfo(node.getSourceInfo());
-        print();
-        for (auto it = node.childBegin(); it != node.childEnd(); ++it) {
-            scopeBegin(it + 1 == node.childEnd());
-            (*it)->acceptVisitor(*this);
-            scopeEnd();
-        }
-    }
-
-    void
-    AstPrinter::visit(StructMemberInit& node) {
-        print("StructMemberInit % ", node.getMemberName());
-        printSourceInfo(node.getSourceInfo());
-        print();
         scopeBegin();
-        node.getInitExpr()->acceptVisitor(*this);
+        for (auto& initExpr : node.getMemberInitExprList()) {
+            m_writer.write("Member Init ");
+            printSourceInfo(initExpr->getSourceInfo());
+            m_writer.write(" %\n", initExpr->getMemberName());
+            scopeBegin();
+            resolve(*initExpr->getInitExpr());
+            scopeEnd();
+        }
         scopeEnd();
     }
 
     void
-    AstPrinter::print() {
-        const char newLine= '\n';
-        m_stream.write(&newLine, 1);
-    }
-
-    void
-    AstPrinter::printToStream() {
-        if (!m_identationChars.empty()) {
-            m_stream.write(&m_identationChars[0], m_identationChars.size());
+    AstPrinter::visit(const StmtListScoped& node) {
+        scopeBegin();
+        for (auto& stmt : node.getStatements()) {
+            resolve(*stmt);
         }
-        m_stream.write(m_formater.buffer, m_formater.bufferPos);
-    }
-
-    void
-    AstPrinter::printToStreamNoPrefix() {
-        m_stream.write(m_formater.buffer, m_formater.bufferPos);
+        scopeEnd();
     }
 
     void
     AstPrinter::scopeBegin(const bool lastNode)
     {
-        if (m_identationChars.size() > 1) {
-            auto it = m_identationChars.rbegin();
-            *it = ' ';
-            ++it;
-            if (*it == '`') {
-                *it = ' ';
-            }
-        }
-        m_identationChars.push_back(' ');
-        m_identationChars.push_back(lastNode ? '`' : '|');
-        m_identationChars.push_back('-');
+        (void) lastNode;
+        m_writer.ident();
+        m_writer.write("`-");
     }
 
     void
     AstPrinter::scopeEnd() {
-        YAL_ASSERT(!m_identationChars.empty());
-        const size_t size = m_identationChars.size() - 3;
-        m_identationChars.erase(m_identationChars.begin() + size,
-                                m_identationChars.end());
+        m_writer.unident();
     }
 
     void
     AstPrinter::printQualifier(const Qualifier& qualifier){
         if (qualifier.isMutable()) {
-            printOnLine(" mut");
+            m_writer.write(" mut");
         }
         if (qualifier.isReference()) {
-            printOnLine(" &");
+            m_writer.write(" &");
         }
     }
 
     void
     AstPrinter::printSourceInfo(const SourceInfo& info) {
-        printOnLine("<l:% c:% - l:% c:%>",
-                    info.begin.line,
-                    info.begin.column,
-                    info.end.line,
-                    info.end.column);
+        m_writer.write("<l:% c:% - l:% c:%>",
+                       info.begin.line,
+                       info.begin.column,
+                       info.end.line,
+                       info.end.column);
     }
-    */
 }

@@ -509,18 +509,13 @@ namespace yal::backend::c {
             if (!isFirst) {
                 m_writer.write("\n,");
             }
-            memberInit->acceptVisitor(*this);
+            m_writer.write(".% = ", memberInit->getMemberName());
+            memberInit->getInitExpr()->acceptVisitor(*this);
             isFirst = false;
         }
 
         m_writer.unident();
         m_writer.write("\n}");
-    }
-
-    void
-    AstVisitorCSource::visit(yal::frontend::StructMemberInit& node) {
-        m_writer.write(".% = ", node.getMemberName());
-        node.getInitExpr()->acceptVisitor(*this);
     }
 
     void AstVisitorCSource::visit(yal::frontend::StmtListScoped& node) {

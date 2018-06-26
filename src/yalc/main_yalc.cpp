@@ -21,6 +21,7 @@
 #include <yal/backendc/backendc.h>
 #include <yal/error/errorprinter.h>
 #include <yal/error/errorreporter.h>
+#include <yal/frontend/ast/astprinter.h>
 #include <yal/frontend/frontend.h>
 #include <yal/frontend/modulemanager.h>
 #include <yal/io/filestream.h>
@@ -61,8 +62,8 @@ int main(const int argc,
     yal::frontend::Module* module = frontend.compile(handle,options);
 
     if (module != nullptr) {
-        //yal::AstPrinter astPrinter(stdoutStream);
-        //astPrinter.visit(*module->getDeclNode());
+        yal::frontend::AstPrinter astPrinter(stdoutStream);
+        astPrinter.visit(*module->getDeclNode());
 
         if (argc > 2) {
             yal::backend::c::BackendC backend;

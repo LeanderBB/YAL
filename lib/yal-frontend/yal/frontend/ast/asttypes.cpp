@@ -1,5 +1,5 @@
 /*
- *  Copyright 2017 by Leander Beernaert (lbb-dev@pm.me)
+ *  Copyright 2018 by Leander Beernaert (lbb-dev@pm.me)
  *
  *  This file is part of YAL.
  *
@@ -17,20 +17,23 @@
  *  License along with YAL. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "yal/frontend/ast/astvisitor.h"
-#include "yal/frontend/ast/declparamvar.h"
-#include "yal/frontend/ast/declmodule.h"
-#include "yal/frontend/ast/statement.h"
-#include "yal/frontend/ast/declstruct.h"
-#include "yal/frontend/ast/stmtexpression.h"
-#include "yal/frontend/ast/structmemberinit.h"
+#include "yal/frontend/ast/asttypes.h"
+
 namespace yal::frontend {
 
 
-    void
-    RecursiveAstVisitor::visit(DeclModule& node){
-        for (auto& decl : node.getDeclarations()) {
-            decl->acceptVisitor(*this);
+    StringRef AstTypeName(const AstType type) {
+        switch(type) {
+
+#define YAL_AST_NODE_TYPE(CLASS) \
+        case AstType::CLASS:\
+            return #CLASS;
+#include "yal/frontend/ast/astnodes.def"
+#undef YAL_AST_NODE_TYPE
+
+        default:
+            YAL_ASSERT_MESSAGE(false, "Unknown AstType");
+            return "Unknown";
         }
     }
 }

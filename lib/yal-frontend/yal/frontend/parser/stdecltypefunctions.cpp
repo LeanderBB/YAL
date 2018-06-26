@@ -20,7 +20,6 @@
 #include "yal/frontend/parser/stdecltypefunctions.h"
 #include "yal/frontend/parser/sttype.h"
 #include "yal/frontend/parser/stdeclfunction.h"
-#include "yal/frontend/parser/syntaxtreevisitor.h"
 
 namespace yal::frontend {
 
@@ -33,9 +32,4 @@ namespace yal::frontend {
          parser.getDeclList().moveRange<STDeclFunction, STDecl>(m_decls, range);
     }
 
-
-    void
-    STDeclTypeFunctions::acceptVisitor(SyntaxTreeVisitor& visitor) const {
-        visitor.visit(*this);
-    }
 }

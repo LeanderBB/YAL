@@ -29,8 +29,6 @@ namespace yal::frontend {
         STExprUnaryOperator(const UnaryOperatorType op,
                             const STExpression* expr);
 
-        void acceptVisitor(SyntaxTreeVisitor& visitor) const override final;
-
         UnaryOperatorType getOperatorType() const {
             return m_op;
         }
@@ -51,8 +49,6 @@ namespace yal::frontend {
         STExprBinaryOperator(const BinaryOperatorType op,
                              const STExpression* exprLeft,
                              const STExpression* exprRight);
-
-        void acceptVisitor(SyntaxTreeVisitor& visitor) const override final;
 
         BinaryOperatorType getOperatorType() const {
             return m_op;

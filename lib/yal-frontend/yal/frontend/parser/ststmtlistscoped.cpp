@@ -18,7 +18,6 @@
  */
 
 #include "yal/frontend/parser/ststmtlistscoped.h"
-#include "yal/frontend/parser/syntaxtreevisitor.h"
 
 namespace yal::frontend {
 
@@ -30,8 +29,4 @@ namespace yal::frontend {
         parser.getStmtList().moveRange(m_statements, statements);
     }
 
-    void
-    STStmtListScoped::acceptVisitor(SyntaxTreeVisitor& visitor) const {
-        visitor.visit(*this);
-    }
 }

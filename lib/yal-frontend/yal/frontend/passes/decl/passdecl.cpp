@@ -41,7 +41,7 @@ namespace yal::frontend {
         // Run pre-decl pass
         const STDeclModule* stDeclModule =
                 options.module.getSTContext().getDeclModule();
-        stDeclModule->acceptVisitor(preDeclVisitor);
+        preDeclVisitor.resolve(*stDeclModule);
         if (errReporter.hasErrors()) {
             return false;
         }

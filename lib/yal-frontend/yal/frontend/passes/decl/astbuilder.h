@@ -34,14 +34,14 @@ namespace yal::frontend {
     class DeclNamed;
     class Type;
 
-    class AstBuilder final : public SyntaxTreeVisitor
+    class AstBuilder final : public SyntaxTreeVisitorRecursive<AstBuilder, true>
     {
     public:
 
         AstBuilder(ErrorReporter& errReporter,
                    Module& module);
 
-#define YAL_ST_NODE_TYPE(type) void visit(const type&) override final;
+#define YAL_ST_NODE_TYPE(type) void visit(const type&);
 #include "yal/frontend/parser/syntaxtreetypes.def"
 #undef YAL_ST_NODE_TYPE
 

@@ -19,61 +19,37 @@
 #pragma once
 
 #include "yal/frontend/ast/astvisitor.h"
-#include "yal/util/format.h"
-#include <vector>
+#include "yal/util/codewriter.h"
 
 namespace yal {
+    class ByteStream;
     struct SourceInfo;
 }
 
 namespace yal::frontend {
 
-    class ByteStream;
+
     class Qualifier;
 
-    class AstPrinter : public AstVisitor {
+    class AstPrinter : public AstVisitorStatic<AstPrinter, true> {
     public:
         AstPrinter(ByteStream&);
 
-#define YAL_AST_NODE_TYPE(type) void visit(type& node) override;
+#define YAL_AST_NODE_TYPE(type) void visit(const type& node);
 #include "yal/frontend/ast/astnodes.def"
 #undef YAL_AST_NODE_TYPE
 
     private:
-
-        template <typename ...Args>
-        void print(const char* format,
-                   const Args&... args) {
-            Format(m_formater, format, args...);
-            printToStream();
-        }
-
-        template <typename ...Args>
-        void printOnLine(const char* format,
-                         const Args&... args) {
-            Format(m_formater, format, args...);
-            printToStreamNoPrefix();
-        }
-
-        void print();
-
-        void printToStream();
-
-        void printToStreamNoPrefix();
-
         void scopeBegin(const bool lastNode = true);
 
         void scopeEnd();
 
-    private:
         void printQualifier(const Qualifier& qualifier);
 
         void printSourceInfo(const SourceInfo& info);
 
     private:
-        ByteStream& m_stream;
-        FormaterStack<1024> m_formater;
-        std::vector<char> m_identationChars;
+        CodeWriter m_writer;
     };
 
 }

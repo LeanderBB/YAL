@@ -18,7 +18,6 @@
  */
 
 #include "yal/frontend/parser/stexprcasts.h"
-#include "yal/frontend/parser/syntaxtreevisitor.h"
 
 namespace yal::frontend {
 
@@ -27,10 +26,5 @@ namespace yal::frontend {
         STExpression(SyntaxTreeType::STExprCast),
         m_expr(expr),
         m_qtTarget(qtTarget) {
-    }
-
-    void
-    STExprCast::acceptVisitor(SyntaxTreeVisitor& visitor) const {
-        visitor.visit(*this);
     }
 }

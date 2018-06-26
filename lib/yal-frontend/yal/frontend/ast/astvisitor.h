@@ -19,11 +19,13 @@
 
 #pragma once
 
+#include "yal/yal.h"
 #include "yal/frontend/ast/asttypes.h"
-
 namespace yal::frontend {
 
     class DeclModule;
+    class DeclBase;
+    class Statement;
     class AstVisitor {
     public:
 
@@ -45,6 +47,22 @@ namespace yal::frontend {
 #include "yal/frontend/ast/astnodes.def"
 #undef YAL_AST_NODE_TYPE
 #undef YAL_AST_SKIP_NODE_CONTAINERS
+    };
+
+
+    template<typename Derived, bool Const>
+    class AstVisitorStatic {
+    public:
+        template<typename Node>
+        using NodeType = typename std::conditional<Const, const Node, Node>::type;
+
+        Derived& getDerived() {
+            return static_cast<Derived&>(*this);
+        }
+
+        void resolve(NodeType<DeclBase>& node);
+
+        void resolve(NodeType<Statement>& node);
     };
 }
 

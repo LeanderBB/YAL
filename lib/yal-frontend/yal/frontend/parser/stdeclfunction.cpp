@@ -18,7 +18,6 @@
  */
 
 #include "yal/frontend/parser/stdeclfunction.h"
-#include "yal/frontend/parser/syntaxtreevisitor.h"
 
 namespace yal::frontend {
 
@@ -45,10 +44,5 @@ namespace yal::frontend {
 
         parser.getDeclParamList().moveRange(m_params, params);
         parser.getStmtList().moveRange(m_body, statements);
-    }
-
-    void
-    STDeclFunction::acceptVisitor(SyntaxTreeVisitor& visitor) const {
-        visitor.visit(*this);
     }
 }

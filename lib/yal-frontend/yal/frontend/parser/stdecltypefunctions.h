@@ -43,8 +43,6 @@ namespace yal::frontend {
             return m_decls;
         }
 
-        void acceptVisitor(SyntaxTreeVisitor& visitor) const override final;
-
     private:
         const STType* m_type;
         Decls m_decls;

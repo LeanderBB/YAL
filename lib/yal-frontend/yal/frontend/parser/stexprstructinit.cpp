@@ -18,7 +18,6 @@
  */
 
 #include "yal/frontend/parser/stexprstructinit.h"
-#include "yal/frontend/parser/syntaxtreevisitor.h"
 
 namespace yal::frontend {
 
@@ -42,8 +41,4 @@ namespace yal::frontend {
         parser.getStructInitList().moveRange(m_memberInits, members);
     }
 
-    void
-    STExprStructInit::acceptVisitor(SyntaxTreeVisitor& visitor) const {
-        visitor.visit(*this);
-    }
 }

@@ -18,7 +18,6 @@
  */
 
 #include "yal/frontend/parser/stdeclstruct.h"
-#include "yal/frontend/parser/syntaxtreevisitor.h"
 
 namespace yal::frontend {
 
@@ -39,10 +38,5 @@ namespace yal::frontend {
         STDeclNamed(SyntaxTreeType::STDeclStruct, name),
         m_members(parser.getSTContext().getStdAllocatorWrapper<Members::value_type>()) {
         parser.getStructMemberList().moveRange(m_members, range);
-    }
-
-    void
-    STDeclStruct::acceptVisitor(SyntaxTreeVisitor& visitor) const {
-        visitor.visit(*this);
     }
 }

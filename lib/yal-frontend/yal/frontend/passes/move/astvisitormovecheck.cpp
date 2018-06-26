@@ -413,13 +413,8 @@ namespace yal::frontend {
         newEvalState.scope = m_activeScope;
         EvalMoveStateScope evalGuard(m_evalMoveState, newEvalState);
         for (auto member: node.getMemberInitExprList()) {
-            member->acceptVisitor(*this);
+            member->getInitExpr()->acceptVisitor(*this);
         }
-    }
-
-    void
-    AstVisitorMoveCheck::visit(StructMemberInit& node) {
-        node.getInitExpr()->acceptVisitor(*this);
     }
 
     void

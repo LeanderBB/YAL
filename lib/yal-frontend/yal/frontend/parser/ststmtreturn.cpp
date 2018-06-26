@@ -18,7 +18,6 @@
  */
 
 #include "yal/frontend/parser/ststmtreturn.h"
-#include "yal/frontend/parser/syntaxtreevisitor.h"
 
 namespace yal::frontend {
 
@@ -27,8 +26,4 @@ namespace yal::frontend {
         m_expr(expr){
     }
 
-    void
-    STStmtReturn::acceptVisitor(SyntaxTreeVisitor& visitor) const {
-        visitor.visit(*this);
-    }
 }

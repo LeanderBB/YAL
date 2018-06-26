@@ -18,7 +18,6 @@
  */
 
 #include "yal/frontend/parser/stexproperators.h"
-#include "yal/frontend/parser/syntaxtreevisitor.h"
 
 namespace yal::frontend {
     STExprUnaryOperator::STExprUnaryOperator(const UnaryOperatorType op,
@@ -27,11 +26,6 @@ namespace yal::frontend {
         m_op(op),
         m_expr(expr) {
 
-    }
-
-    void
-    STExprUnaryOperator::acceptVisitor(SyntaxTreeVisitor& visitor) const {
-        visitor.visit(*this);
     }
 
     // -----------------------------------------------------------------------
@@ -44,10 +38,5 @@ namespace yal::frontend {
         m_exprLeft(exprLeft),
         m_exprRight(exprRight) {
 
-    }
-
-    void
-    STExprBinaryOperator::acceptVisitor(SyntaxTreeVisitor& visitor) const {
-        visitor.visit(*this);
     }
 }

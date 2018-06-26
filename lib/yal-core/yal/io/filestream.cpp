@@ -137,6 +137,7 @@ namespace yal {
 
        m_offset += bytesWritten;
 
+       fflush(m_file.get());
        return bytesWritten;
     }
 

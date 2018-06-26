@@ -135,6 +135,14 @@ namespace yal {
             ++offset;
         }
 
+        if (offset != marker) {
+            if (m_wasNewLine) {
+                const StringRef& identStr = kIdentLevels[m_identLevel];
+                m_stream.write(identStr.data(), identStr.size());
+            }
+            m_stream.write(m_buffer + marker, offset - marker );
+        }
+
         m_bufferOffset = 0;
     }
 }

@@ -77,8 +77,6 @@ namespace yal::frontend {
             return m_params;
         }
 
-        void acceptVisitor(SyntaxTreeVisitor& visitor) const override final;
-
     protected:
         const STQualType* m_returnType;
         Params m_params;

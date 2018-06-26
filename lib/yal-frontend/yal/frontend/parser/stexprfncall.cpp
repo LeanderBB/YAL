@@ -18,7 +18,6 @@
  */
 
 #include "yal/frontend/parser/stexprfncall.h"
-#include "yal/frontend/parser/syntaxtreevisitor.h"
 
 namespace yal::frontend  {
 
@@ -61,10 +60,5 @@ namespace yal::frontend  {
         m_type(FnType::Instance) {
 
          parser.getExprList().moveRange(m_params, params);
-    }
-
-    void
-    STExprFnCall::acceptVisitor(SyntaxTreeVisitor& visitor) const {
-        visitor.visit(*this);
     }
 }

@@ -31,6 +31,7 @@ set(YAL_SOURCES
     yal/frontend/ast/declbase.cpp
     yal/frontend/ast/declbasetypes.def
     yal/frontend/ast/asttypes.h
+    yal/frontend/ast/asttypes.cpp
     yal/frontend/ast/astnodes.def
     yal/frontend/ast/declfunction.h
     yal/frontend/ast/declfunction.cpp
@@ -62,6 +63,7 @@ set(YAL_SOURCES
     yal/frontend/ast/exprvarref.cpp
     yal/frontend/ast/exprvarref.h
     yal/frontend/ast/astvisitor.h
+    yal/frontend/ast/astvisitorimpl.h
     yal/frontend/ast/astvisitor.cpp
     yal/frontend/ast/astprinter.cpp
     yal/frontend/ast/astprinter.h
@@ -147,6 +149,7 @@ set(YAL_SOURCES
     yal/frontend/parser/ststmtlistscoped.h
     yal/frontend/parser/stdecltypefunctions.h
     yal/frontend/parser/stdecltypefunctions.cpp
+    yal/frontend/parser/syntaxtreevisitorimpl.h
     yal/frontend/module.h
     yal/frontend/module.cpp
     yal/frontend/modulemanager.h

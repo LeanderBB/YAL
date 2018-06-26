@@ -69,8 +69,6 @@ namespace yal::frontend {
             return m_memberInits;
         }
 
-        void acceptVisitor(SyntaxTreeVisitor& visitor) const override final;
-
     private:
         const STType* m_structType;
         MemberInitList m_memberInits;

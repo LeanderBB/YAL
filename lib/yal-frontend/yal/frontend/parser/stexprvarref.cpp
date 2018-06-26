@@ -18,7 +18,6 @@
  */
 
 #include "yal/frontend/parser/stexprvarref.h"
-#include "yal/frontend/parser/syntaxtreevisitor.h"
 
 namespace yal::frontend {
 
@@ -26,11 +25,6 @@ namespace yal::frontend {
         STExpression(SyntaxTreeType::STExprVarRef),
         m_varRef(identifier) {
 
-    }
-
-    void
-    STExprVarRef::acceptVisitor(SyntaxTreeVisitor& visitor) const {
-        visitor.visit(*this);
     }
 
     // -----------------------------------------------------------------------
@@ -41,11 +35,6 @@ namespace yal::frontend {
         m_expr(expression),
         m_varRef(identitifer) {
 
-    }
-
-    void
-    STExprStructVarRef::acceptVisitor(SyntaxTreeVisitor& visitor) const {
-        visitor.visit(*this);
     }
 
 }
