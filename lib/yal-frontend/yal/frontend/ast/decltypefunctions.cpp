@@ -19,8 +19,8 @@
 
 #include "yal/frontend/ast/decltypefunctions.h"
 #include "yal/frontend/module.h"
-#include "yal/frontend/ast/astvisitor.h"
 #include "yal/frontend/ast/decltypefunction.h"
+
 namespace yal::frontend {
 
     DeclTypeFunctions::DeclTypeFunctions(Module& module,
@@ -40,11 +40,6 @@ namespace yal::frontend {
     void
     DeclTypeFunctions::setDecls(Decls&& decls) {
         m_decls = std::move(decls);
-    }
-
-    void
-    DeclTypeFunctions::acceptVisitor(AstVisitor& visitor) {
-        visitor.visit(*this);
     }
 
 }

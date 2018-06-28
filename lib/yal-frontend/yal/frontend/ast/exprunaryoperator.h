@@ -46,8 +46,6 @@ namespace yal::frontend {
 
         void setExpression(StmtExpression* expr);
 
-        virtual void acceptVisitor(AstVisitor& visitor) override;
-
     private:
         const frontend::UnaryOperatorType m_opType;
         StmtExpression* m_expr;

@@ -537,6 +537,7 @@ namespace yal::frontend {
 
         StackExpr& stack = getState().stackExpressions;
         const size_t stackSize = stack.size();
+        (void) stackSize;
         resolve(stExprLeft);
         resolve(stExprRight);
         YAL_ASSERT(!stack.empty());
@@ -643,6 +644,7 @@ namespace yal::frontend {
 
         StackExpr& stackExpr = getState().stackExpressions;
         const size_t stackSize = stackExpr.size();
+        (void) stackSize;
         const STExpression& stExpr = node.getExpression();
         resolve(stExpr);
         YAL_ASSERT(!stackExpr.empty());
@@ -667,6 +669,7 @@ namespace yal::frontend {
 
         StackExpr& stack = getState().stackExpressions;
         const size_t stackSize = stack.size();
+        (void) stackSize;
         resolve(stExprLeft);
         resolve(stExprRight);
         YAL_ASSERT(!stack.empty());
@@ -831,6 +834,7 @@ namespace yal::frontend {
     AstBuilder::visit(const STExprStructVarRef& node) {
         StackExpr& stackExpr = getState().stackExpressions;
         const size_t stackSize = stackExpr.size();
+        (void) stackSize;
         const STExpression& stExpr = node.getExpression();
         resolve(stExpr);
         YAL_ASSERT(!stackExpr.empty());
@@ -887,6 +891,7 @@ namespace yal::frontend {
         else if (node.getFunctionType() == STExprFnCall::FnType::Instance) {
             // Get Expression, we can't evaluate much else at this point
             const size_t stackSize = stackExpr.size();
+            (void) stackSize;
             const STExpression* stExpr = node.getExpr();
             YAL_ASSERT(stExpr != nullptr);
             resolve(*stExpr);
@@ -924,6 +929,7 @@ namespace yal::frontend {
             params.reserve(paramSt.size());
             for (auto& param : paramSt) {
                 const size_t stackSize = stackExpr.size();
+                (void) stackSize;
                 resolve(*param);
                 YAL_ASSERT(!stackExpr.empty());
                 YAL_ASSERT(stackExpr.size() == stackSize + 1);
@@ -971,6 +977,7 @@ namespace yal::frontend {
 
         StackExpr& stackExpr = getState().stackExpressions;
         const size_t stackSize = stackExpr.size();
+        (void) stackSize;
         const STExpression& stExpr = node.getExpr();
         resolve(stExpr);
         YAL_ASSERT(!stackExpr.empty());
@@ -1030,6 +1037,7 @@ namespace yal::frontend {
                 }
 
                 const size_t stackSize = stackExpr.size();
+                (void) stackSize;
                 const STExpression& stExpr = stmember->getExpr();
                 resolve(stExpr);
                 YAL_ASSERT(!stackExpr.empty());

@@ -19,7 +19,7 @@
 
 #include "yal/frontend/passes/type/astvisitorexprtype.h"
 #include "yal/error/errorreporter.h"
-#include "yal/frontend/ast/astnodes.h"
+#include "yal/frontend/ast/astvisitorimpl.h"
 #include "yal/frontend/module.h"
 #include "yal/frontend/passes/decl/errorspassdecl.h"
 #include "yal/frontend/passes/type/errorspasstype.h"
@@ -70,14 +70,14 @@ namespace yal::frontend {
     AstVisitorExprType::execute() {
         DeclModule* modDecl = m_module.getDeclNode();
         m_jump.mark();
-        modDecl->acceptVisitor(*this);
+        resolve(*modDecl);
     }
 
     void
     AstVisitorExprType::visit(DeclModule& node) {
         DeclScopeGuard guard(*this, node.getModuleDeclScope());
         for (auto& decl : node.getDeclarations()) {
-            decl->acceptVisitor(*this);
+            resolve(*decl);
         }
     }
 
@@ -86,7 +86,7 @@ namespace yal::frontend {
         DeclScopeGuard guard(*this, node.getFunctionScope());
         DeclFunction::Body& body = node.getFunctionBody();
         for (auto& stmt : body) {
-            stmt->acceptVisitor(*this);
+            resolve(*stmt);
         }
     }
 
@@ -95,7 +95,7 @@ namespace yal::frontend {
         DeclScopeGuard guard(*this, node.getFunctionScope());
         DeclFunction::Body& body = node.getFunctionBody();
         for (auto& stmt : body) {
-            stmt->acceptVisitor(*this);
+           resolve(*stmt);
         }
     }
 
@@ -103,7 +103,7 @@ namespace yal::frontend {
     AstVisitorExprType::visit(DeclTypeFunctions& node) {
         DeclScopeGuard guard(*this, node.getImplScope());
         for (auto& decl : node.getDecls()) {
-            decl->acceptVisitor(*this);
+            resolve(*decl);
         }
     }
 
@@ -112,7 +112,7 @@ namespace yal::frontend {
         DeclScopeGuard guard(*this, node.getStructDeclScope());
         DeclStruct::Members& members = node.getMembers();
         for (auto& member: members) {
-            member->acceptVisitor(*this);
+            resolve(*member);
         }
 
     }
@@ -122,7 +122,7 @@ namespace yal::frontend {
         if (DeclVar::StmtExpressionOpt exprOpt = node.getExpression(); exprOpt.has_value()) {
             // visit expr
             StmtExpression* expr = exprOpt.value();
-            expr->acceptVisitor(*this);
+            resolve(*expr);
 
             // check type conversion
             const QualType qtVar = node.getQualType();
@@ -172,7 +172,7 @@ namespace yal::frontend {
         if (exprOpt.has_value()) {
             // visit return expr
             StmtExpression* expr = exprOpt.value();
-            expr->acceptVisitor(*this);
+            resolve(*expr);
 
             // Get function decl
             const DeclBase* decl = enclosingScope->getScopeDecl();
@@ -189,7 +189,7 @@ namespace yal::frontend {
 
     void
     AstVisitorExprType::visit(StmtDecl& node) {
-        node.getDecl()->acceptVisitor(*this);
+        resolve(*node.getDecl());
     }
 
     void
@@ -198,8 +198,8 @@ namespace yal::frontend {
         StmtExpression* exprRight = node.getRightExpr();
 
         // visit nodes
-        exprLeft->acceptVisitor(*this);
-        exprRight->acceptVisitor(*this);
+        resolve(*exprLeft);
+        resolve(*exprRight);
 
         const QualType qtFrom = exprRight->getQualType();
         const QualType qtTo = exprLeft->getQualType();
@@ -232,7 +232,7 @@ namespace yal::frontend {
     void
     AstVisitorExprType::visit(ExprUnaryOperator& node) {
         StmtExpression* expr = node.getExpression();
-        expr->acceptVisitor(*this);
+        resolve(*expr);
         const QualType qtExpr = expr->getQualType();
         const Type* typeExpr = qtExpr.getType();
         switch(node.getOperatorType()) {
@@ -297,8 +297,8 @@ namespace yal::frontend {
     AstVisitorExprType::visit(ExprBinaryOperator& node) {
         StmtExpression* exprLeft = node.getExpressionLeft();
         StmtExpression* exprRight = node.getExpressionRight();
-        exprLeft->acceptVisitor(*this);
-        exprRight->acceptVisitor(*this);
+        resolve(*exprLeft);
+        resolve(*exprRight);
 
         const QualType qtLeft = exprLeft->getQualType();
         const QualType qtRight = exprRight->getQualType();
@@ -411,7 +411,7 @@ namespace yal::frontend {
     void
     AstVisitorExprType::visit(ExprStructVarRef& node) {
         StmtExpression* expr = node.getExpression();
-        expr->acceptVisitor(*this);
+        resolve(*expr);
         const QualType qtExpr = expr->getQualType();
 
         // check if type of expression is a struct type
@@ -471,7 +471,7 @@ namespace yal::frontend {
             auto itArgs = args.begin();
             for(; itArgs != args.end(); ++itArgs, ++itParam) {
                 StmtExpression* expr = *itArgs;
-                expr->acceptVisitor(*this);
+                resolve(*expr);
                 const QualType qtExpr = expr->getQualType();
                 const QualType qtParam = (*itParam)->getQualType();
                 isValidTypeConversion(qtExpr, qtParam, expr->getSourceInfo());
@@ -503,7 +503,7 @@ namespace yal::frontend {
             if (exprOpt.has_value()) {
                 // check if type is function targetable
                 StmtExpression* expr = exprOpt.value();
-                expr->acceptVisitor(*this);
+                resolve(*expr);
                 qtTarget = expr->getQualType();
                 const Type* typeTarget = qtTarget.getType();
                 const STIdentifier* functionIdentifier = node.getFunctionName();
@@ -572,7 +572,7 @@ namespace yal::frontend {
             auto itArgs = args.begin();
             for(; itArgs != args.end(); ++itArgs, ++itParam) {
                 StmtExpression* expr = *itArgs;
-                expr->acceptVisitor(*this);
+                resolve(*expr);
                 const QualType qtExpr = expr->getQualType();
                 const QualType qtParam = (*itParam)->getQualType();
                 isValidTypeConversion(qtExpr, qtParam, expr->getSourceInfo());
@@ -597,7 +597,7 @@ namespace yal::frontend {
     void
     AstVisitorExprType::visit(ExprCast& node) {
         StmtExpression& expr = node.getExpression();
-        expr.acceptVisitor(*this);
+        resolve(expr);
         // check if types are castable
         isValidCastConversion(node);
     }
@@ -624,7 +624,7 @@ namespace yal::frontend {
 
             // eval expression
             StmtExpression* expr = memberInit->getInitExpr();
-            expr->acceptVisitor(*this);
+            resolve(*expr);
             const QualType exprQt = expr->getQualType();
 
             // verify conversion
@@ -638,7 +638,7 @@ namespace yal::frontend {
     AstVisitorExprType::visit(StmtListScoped& node) {
         DeclScopeGuard guard(*this, node.getListScope());
         for (auto& stmt : node.getStatements()) {
-            stmt->acceptVisitor(*this);
+            resolve(*stmt);
         }
     }
 

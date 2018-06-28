@@ -2,7 +2,6 @@ Short Todo:
 ##########
 
 [ ] Check for recursive types in struct decls.
-[ ] Static dispatch mechanism for visitors
 [ ] YAL Project
 
 Long Term Todo:

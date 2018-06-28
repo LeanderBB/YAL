@@ -37,8 +37,6 @@ namespace yal::frontend {
                      const SourceInfo& sourceInfo,
                      DeclScope &scope,
                      const QualType& type);
-
-        virtual void acceptVisitor(AstVisitor& visitor) override;
     };
 
     class DeclParamVarSelf : public DeclParamVar {
@@ -48,7 +46,6 @@ namespace yal::frontend {
                          DeclScope& scope,
                          const QualType& refType);
 
-        virtual void acceptVisitor(AstVisitor& visitor) override;
     };
 }
 

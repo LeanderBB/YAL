@@ -43,9 +43,10 @@ namespace yal {
         "                             ",
         "                               ",
     };
-
+#if defined(YAL_ASSERT_ENABLED)
     static const uint32_t kIdentLevelCount
     = uint32_t(sizeof(kIdentLevels) / sizeof(StringRef));
+#endif
 
     CodeWriter::CodeWriter(ByteStream& output):
         m_bufferOffset(0),

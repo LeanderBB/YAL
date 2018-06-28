@@ -20,7 +20,7 @@
 #include "yal/frontend/passes/move/astvisitormovecheck.h"
 #include "yal/frontend/passes/move/errorspassmove.h"
 #include "yal/error/errorreporter.h"
-#include "yal/frontend/ast/astnodes.h"
+#include "yal/frontend/ast/astvisitorimpl.h"
 #include "yal/frontend/module.h"
 #include "yal/frontend/passes/passes.h"
 #include "yal/frontend/parser/sttype.h"
@@ -131,55 +131,55 @@ namespace yal::frontend {
     AstVisitorMoveCheck::execute() {
         DeclModule* modDecl = m_module.getDeclNode();
         m_jump.mark();
-        modDecl->acceptVisitor(*this);
+        resolve(*modDecl);
     }
 
     void
-    AstVisitorMoveCheck::visit(DeclModule& node) {
+    AstVisitorMoveCheck::visit(const DeclModule& node) {
         DeclScopeGuard guard(*this, node.getModuleDeclScope());
         for (auto& decl : node.getDeclarations()) {
-            decl->acceptVisitor(*this);
+            resolve(*decl);
         }
     }
 
     void
-    AstVisitorMoveCheck::visit(DeclFunction& node) {
+    AstVisitorMoveCheck::visit(const DeclFunction& node) {
         DeclScopeGuard guard(*this, node.getFunctionScope());
-        DeclFunction::Body& body = node.getFunctionBody();
+        const DeclFunction::Body& body = node.getFunctionBody();
         for (auto& stmt : body) {
-            stmt->acceptVisitor(*this);
+            resolve(*stmt);
         }
     }
 
     void
-    AstVisitorMoveCheck::visit(DeclTypeFunction& node) {
+    AstVisitorMoveCheck::visit(const DeclTypeFunction& node) {
         DeclScopeGuard guard(*this, node.getFunctionScope());
-        DeclFunction::Body& body = node.getFunctionBody();
+        const DeclFunction::Body& body = node.getFunctionBody();
         for (auto& stmt : body) {
-            stmt->acceptVisitor(*this);
+            resolve(*stmt);
         }
     }
 
     void
-    AstVisitorMoveCheck::visit(DeclTypeFunctions& node) {
-         DeclScopeGuard guard(*this, node.getImplScope());
+    AstVisitorMoveCheck::visit(const DeclTypeFunctions& node) {
+        DeclScopeGuard guard(*this, node.getImplScope());
         for (auto& decl : node.getDecls()) {
-            decl->acceptVisitor(*this);
+            resolve(*decl);
         }
     }
 
     void
-    AstVisitorMoveCheck::visit(DeclStruct& node) {
+    AstVisitorMoveCheck::visit(const DeclStruct& node) {
         DeclScopeGuard guard(*this, node.getStructDeclScope());
-        DeclStruct::Members& members = node.getMembers();
+        const DeclStruct::Members& members = node.getMembers();
         for (auto& member: members) {
-            member->acceptVisitor(*this);
+            resolve(*member);
         }
 
     }
 
     void
-    AstVisitorMoveCheck::visit(DeclVar& node) {
+    AstVisitorMoveCheck::visit(const DeclVar& node) {
         auto exprOpt = node.getExpression();
         if (exprOpt.has_value()) {
             const QualType qtDecl = node.getQualType();
@@ -189,8 +189,8 @@ namespace yal::frontend {
                 newEvalState.scope = m_activeScope;
                 EvalMoveStateScope evalGuard(m_evalMoveState, newEvalState);
 
-                StmtExpression* expr = exprOpt.value();
-                expr->acceptVisitor(*this);
+                const StmtExpression* expr = exprOpt.value();
+                resolve(*expr);
             }
         }
         MoveState& state = findState(node);
@@ -199,18 +199,18 @@ namespace yal::frontend {
     }
 
     void
-    AstVisitorMoveCheck::visit(DeclParamVar&) {
+    AstVisitorMoveCheck::visit(const DeclParamVar&) {
         YAL_ASSERT(false);
     }
 
     void
-    AstVisitorMoveCheck::visit(DeclStrongAlias&) {}
+    AstVisitorMoveCheck::visit(const DeclStrongAlias&) {}
 
     void
-    AstVisitorMoveCheck::visit(DeclWeakAlias&) {}
+    AstVisitorMoveCheck::visit(const DeclWeakAlias&) {}
 
     void
-    AstVisitorMoveCheck::visit(StmtReturn& node) {
+    AstVisitorMoveCheck::visit(const StmtReturn& node) {
         auto exprOpt = node.getExpression();
         if (exprOpt.has_value()) {
 
@@ -220,34 +220,34 @@ namespace yal::frontend {
             newEvalState.exit = true;
             EvalMoveStateScope evalGuard(m_evalMoveState, newEvalState);
 
-            StmtExpression* expr = exprOpt.value();
-            expr->acceptVisitor(*this);
+            const StmtExpression* expr = exprOpt.value();
+            resolve(*expr);
         }
     }
 
     void
-    AstVisitorMoveCheck::visit(StmtDecl& node) {
-        node.getDecl()->acceptVisitor(*this);
+    AstVisitorMoveCheck::visit(const StmtDecl& node) {
+        resolve(*node.getDecl());
     }
 
     void
-    AstVisitorMoveCheck::visit(StmtAssign& node) {
-        StmtExpression* exprLeft = node.getLeftExpr();
-        StmtExpression* exprRight = node.getRightExpr();
+    AstVisitorMoveCheck::visit(const StmtAssign& node) {
+        const StmtExpression* exprLeft = node.getLeftExpr();
+        const StmtExpression* exprRight = node.getRightExpr();
 
         // visit left
-        exprLeft->acceptVisitor(*this);
+        resolve(*exprLeft);
         {
             // visit right
             EvalMoveState newEvalState;
             newEvalState.enabled = true;
             newEvalState.scope = m_activeScope;
             EvalMoveStateScope evalGuard(m_evalMoveState, newEvalState);
-            exprRight->acceptVisitor(*this);
+            resolve(*exprRight);
         }
 
         // Todo better way to verify this???
-        if (ExprVarRef* dstExprVarRef = dyn_cast<ExprVarRef>(exprLeft);
+        if (const ExprVarRef* dstExprVarRef = dyn_cast<ExprVarRef>(exprLeft);
                 dstExprVarRef != nullptr) {
             MoveState& mvstate = findState(dstExprVarRef->getDeclVar());
             mvstate.moved = false;
@@ -256,7 +256,7 @@ namespace yal::frontend {
     }
 
     void
-    AstVisitorMoveCheck::visit(ExprVarRef& node) {
+    AstVisitorMoveCheck::visit(const ExprVarRef& node) {
         const QualType qt = node.getQualType();
         if (!qt.isReference() && m_evalMoveState.enabled) {
             MoveState& state = findState(node.getDeclVar());
@@ -273,37 +273,37 @@ namespace yal::frontend {
     }
 
     void
-    AstVisitorMoveCheck::visit(ExprUnaryOperator& node) {
+    AstVisitorMoveCheck::visit(const ExprUnaryOperator& node) {
         // disable move tracking, unary operator doesn't move variables
         EvalMoveState newEvalState;
         newEvalState.enabled = false;
         newEvalState.scope = m_activeScope;
         EvalMoveStateScope evalGuard(m_evalMoveState, newEvalState);
-        node.getExpression()->acceptVisitor(*this);
+        resolve(*node.getExpression());
     }
 
     void
-    AstVisitorMoveCheck::visit(ExprBinaryOperator& node) {
+    AstVisitorMoveCheck::visit(const ExprBinaryOperator& node) {
         // disable move tracking, binary operator doesn't move variables
         EvalMoveState newEvalState;
         newEvalState.enabled = false;
         newEvalState.scope = m_activeScope;
         EvalMoveStateScope evalGuard(m_evalMoveState, newEvalState);
-        node.getExpressionLeft()->acceptVisitor(*this);
-        node.getExpressionRight()->acceptVisitor(*this);
+        resolve(*node.getExpressionLeft());
+        resolve(*node.getExpressionRight());
     }
 
     void
-    AstVisitorMoveCheck::visit(ExprBoolLiteral&) {}
+    AstVisitorMoveCheck::visit(const ExprBoolLiteral&) {}
 
     void
-    AstVisitorMoveCheck::visit(ExprIntegerLiteral&) {}
+    AstVisitorMoveCheck::visit(const ExprIntegerLiteral&) {}
 
     void
-    AstVisitorMoveCheck::visit(ExprFloatLiteral&) {}
+    AstVisitorMoveCheck::visit(const ExprFloatLiteral&) {}
 
     void
-    AstVisitorMoveCheck::visit(ExprStructVarRef& node) {
+    AstVisitorMoveCheck::visit(const ExprStructVarRef& node) {
         const QualType qt = node.getQualType();
 
         {
@@ -313,7 +313,7 @@ namespace yal::frontend {
             EvalMoveState newEvalState = m_evalMoveState;
             newEvalState.structVarRefRoot = false;
             EvalMoveStateScope evalGuard(m_evalMoveState, newEvalState);
-            node.getExpression()->acceptVisitor(*this);
+            resolve(*node.getExpression());
         }
         // Check if we are in a movable situation and if we are
         // make sure that we are also in a replace context for struct
@@ -329,7 +329,7 @@ namespace yal::frontend {
     }
 
     void
-    AstVisitorMoveCheck::visit(ExprFnCall& node) {
+    AstVisitorMoveCheck::visit(const ExprFnCall& node) {
         EvalMoveState newEvalState;
         newEvalState.enabled = true;
         newEvalState.scope = m_activeScope;
@@ -348,17 +348,17 @@ namespace yal::frontend {
                 auto error = std::make_unique<ErrorMoveFnCallRValue>(node, argIndex);
                 onError(std::move(error));
             }
-            arg->acceptVisitor(*this);
+            resolve(*arg);
             ++paramIter;
         }
     }
 
     void
-    AstVisitorMoveCheck::visit(ExprTypeFnCall& node) {
+    AstVisitorMoveCheck::visit(const ExprTypeFnCall& node) {
         auto exprOpt = node.getExpression();
         if (exprOpt.has_value()) {
             StmtExpression* expr = exprOpt.value();
-            expr->acceptVisitor(*this);
+            resolve(*expr);
         }
 
         EvalMoveState newEvalState;
@@ -386,42 +386,42 @@ namespace yal::frontend {
                 onError(std::move(error));
             }
 
-            arg->acceptVisitor(*this);
+            resolve(*arg);
             ++paramIter;
         }
     }
 
     void
-    AstVisitorMoveCheck::visit(DeclParamVarSelf&) {
+    AstVisitorMoveCheck::visit(const DeclParamVarSelf&) {
         YAL_ASSERT(false);
     }
 
     void
-    AstVisitorMoveCheck::visit(ExprVarRefSelf&) {
+    AstVisitorMoveCheck::visit(const ExprVarRefSelf&) {
 
     }
 
     void
-    AstVisitorMoveCheck::visit(ExprCast&) {
+    AstVisitorMoveCheck::visit(const ExprCast&) {
 
     }
 
     void
-    AstVisitorMoveCheck::visit(ExprStructInit& node) {
+    AstVisitorMoveCheck::visit(const ExprStructInit& node) {
         EvalMoveState newEvalState;
         newEvalState.enabled = true;
         newEvalState.scope = m_activeScope;
         EvalMoveStateScope evalGuard(m_evalMoveState, newEvalState);
         for (auto member: node.getMemberInitExprList()) {
-            member->getInitExpr()->acceptVisitor(*this);
+            resolve(*member->getInitExpr());
         }
     }
 
     void
-    AstVisitorMoveCheck::visit(StmtListScoped& node) {
+    AstVisitorMoveCheck::visit(const StmtListScoped& node) {
         DeclScopeGuard guard(*this, node.getListScope());
         for (auto& stmt : node.getStatements()) {
-            stmt->acceptVisitor(*this);
+            resolve(*stmt);
         }
     }
 

@@ -56,8 +56,6 @@ namespace yal::frontend {
             return m_declScope;
         }
 
-        virtual void acceptVisitor(AstVisitor& visitor) override;
-
     private:
         Decls m_declartions;
         DeclScope m_declScope;

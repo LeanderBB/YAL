@@ -18,7 +18,6 @@
  */
 
 #include "yal/frontend/ast/stmtdecl.h"
-#include "yal/frontend/ast/astvisitor.h"
 
 namespace yal::frontend {
 
@@ -30,8 +29,4 @@ namespace yal::frontend {
 
     }
 
-    void
-    StmtDecl::acceptVisitor(AstVisitor& visitor) {
-        visitor.visit(*this);
-    }
 }

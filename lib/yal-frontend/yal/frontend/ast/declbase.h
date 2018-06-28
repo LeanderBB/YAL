@@ -31,7 +31,6 @@
 namespace yal::frontend {
 
     class Module;
-    class AstVisitor;
     class Type;
     class TypeContext;
     class DeclScope;
@@ -80,8 +79,6 @@ namespace yal::frontend {
         void setScopeWhereDeclared(DeclScopeOpt scope);
 
         bool isVariableDecl() const;
-
-        virtual void acceptVisitor(AstVisitor& visitor) = 0;
 
     protected:
         Module& m_module;

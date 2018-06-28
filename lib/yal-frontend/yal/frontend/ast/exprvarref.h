@@ -42,8 +42,6 @@ namespace yal::frontend {
             return m_declVar;
         }
 
-        virtual void acceptVisitor(AstVisitor& visitor) override;
-
     private:
         const DeclVar& m_declVar;
 
@@ -54,8 +52,6 @@ namespace yal::frontend {
         ExprVarRefSelf(Module& module,
                        const SourceInfo& srcInfo,
                        const DeclVar* decl);
-
-        virtual void acceptVisitor(AstVisitor& visitor) override;
     };
 
 }

@@ -32,8 +32,4 @@ namespace yal::frontend {
 
     }
 
-    void
-    ExprStructVarRef::acceptVisitor(AstVisitor& visitor) {
-        visitor.visit(*this);
-    }
 }

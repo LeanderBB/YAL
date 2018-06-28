@@ -47,8 +47,6 @@ namespace yal::frontend {
 
         std::optional<const DeclVar*> getMemberByName(const StringRef name) const;
 
-        virtual void acceptVisitor(AstVisitor& visitor) override;
-
         const Members& getMembers() const {
             return m_members;
         }

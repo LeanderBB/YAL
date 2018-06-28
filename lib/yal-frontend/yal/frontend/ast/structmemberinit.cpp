@@ -18,7 +18,6 @@
  */
 
 #include "yal/frontend/ast/structmemberinit.h"
-#include "yal/frontend/ast/astvisitor.h"
 
 namespace yal::frontend {
 

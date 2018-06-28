@@ -21,7 +21,6 @@
 
 #include "yal/frontend/module.h"
 #include "yal/frontend/ast/astcontext.h"
-#include "yal/frontend/ast/astvisitor.h"
 
 namespace yal::frontend {
 
@@ -54,12 +53,6 @@ namespace yal::frontend {
 
     }
 
-    void
-    DeclParamVar::acceptVisitor(AstVisitor& visitor) {
-        visitor.visit(*this);
-    }
-
-
     DeclParamVarSelf::DeclParamVarSelf(Module& module,
                                        const SourceInfo &sourceInfo,
                                        DeclScope &scope,
@@ -71,11 +64,6 @@ namespace yal::frontend {
                      scope,
                      refType) {
 
-    }
-
-    void
-    DeclParamVarSelf::acceptVisitor(AstVisitor& visitor) {
-        visitor.visit(*this);
     }
 
 }

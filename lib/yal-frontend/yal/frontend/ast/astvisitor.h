@@ -26,32 +26,9 @@ namespace yal::frontend {
     class DeclModule;
     class DeclBase;
     class Statement;
-    class AstVisitor {
-    public:
-
-        virtual ~AstVisitor() {}
-
-#define YAL_AST_NODE_TYPE(type) virtual void visit(type&) {}
-#include "yal/frontend/ast/astnodes.def"
-#undef YAL_AST_NODE_TYPE
-
-    };
-
-    class RecursiveAstVisitor : public AstVisitor {
-    public:
-
-        virtual void visit(DeclModule& node) override;
-
-#define YAL_AST_SKIP_NODE_CONTAINERS
-#define YAL_AST_NODE_TYPE(type) virtual void visit(type&) override{}
-#include "yal/frontend/ast/astnodes.def"
-#undef YAL_AST_NODE_TYPE
-#undef YAL_AST_SKIP_NODE_CONTAINERS
-    };
-
 
     template<typename Derived, bool Const>
-    class AstVisitorStatic {
+    class AstVisitorRecursive {
     public:
         template<typename Node>
         using NodeType = typename std::conditional<Const, const Node, Node>::type;

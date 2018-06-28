@@ -43,8 +43,6 @@ namespace yal::frontend {
             return m_memberInitList;
         }
 
-        virtual void acceptVisitor(AstVisitor& visitor) override;
-
     private:
         MemberInitExprList m_memberInitList;
     };

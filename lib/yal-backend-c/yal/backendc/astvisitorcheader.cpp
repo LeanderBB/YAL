@@ -22,9 +22,7 @@
 #include "yal/backendc/backendc.h"
 #include "yal/backendc/ctypegen.h"
 #include "yal/frontend/module.h"
-#include "yal/frontend/ast/declmodule.h"
-#include "yal/frontend/ast/decltypefunction.h"
-#include "yal/frontend/ast/decltypefunctions.h"
+#include "yal/frontend/ast/astvisitorimpl.h"
 
 namespace yal::backend::c {
 
@@ -38,41 +36,104 @@ namespace yal::backend::c {
     }
 
     void
-    AstVisitorCHeader::visit(yal::frontend::DeclFunction& decl) {
+    AstVisitorCHeader::visit(const yal::frontend::DeclFunction& decl) {
         CTypeGen::GenDelcFunction(m_writer,
                                   m_typeCache,
                                   decl);
     }
 
     void
-    AstVisitorCHeader::visit(yal::frontend::DeclTypeFunction& decl) {
+    AstVisitorCHeader::visit(const yal::frontend::DeclTypeFunction& decl) {
         CTypeGen::GenDelcFunction(m_writer,
                                   m_typeCache,
                                   decl);
     }
 
     void
-    AstVisitorCHeader::visit(yal::frontend::DeclTypeFunctions& node) {
+    AstVisitorCHeader::visit(const yal::frontend::DeclTypeFunctions& node) {
         for (auto& decl : node.getDecls()) {
-            decl->acceptVisitor(*this);
+            resolve(*decl);
             m_writer.write(";\n\n");
         }
     }
 
     void
-    AstVisitorCHeader::visit(yal::frontend::DeclStruct& decl) {
+    AstVisitorCHeader::visit(const yal::frontend::DeclStruct& decl) {
         CTypeGen::GenDelcStruct(m_writer,
                                 m_typeCache,
                                 decl);
     }
 
     void
-    AstVisitorCHeader::visit(yal::frontend::DeclModule& decl) {
+    AstVisitorCHeader::visit(const yal::frontend::DeclModule& decl) {
         for (auto& decl : decl.getDeclarations()) {
-            decl->acceptVisitor(*this);
+            resolve(*decl);
             m_writer.write(";\n\n");
         }
     }
+
+    void
+    AstVisitorCHeader::visit(const yal::frontend::DeclVar&) {}
+
+    void
+    AstVisitorCHeader::visit(const yal::frontend::DeclParamVar&) {}
+
+    void
+    AstVisitorCHeader::visit(const yal::frontend::DeclStrongAlias&) {}
+
+    void
+    AstVisitorCHeader::visit(const yal::frontend::DeclWeakAlias&) {}
+
+    void
+    AstVisitorCHeader::visit(const yal::frontend::StmtReturn&) {}
+
+    void
+    AstVisitorCHeader::visit(const yal::frontend::StmtDecl&) {}
+
+    void
+    AstVisitorCHeader::visit(const yal::frontend::StmtAssign&) {}
+
+    void
+    AstVisitorCHeader::visit(const yal::frontend::ExprVarRef&) {}
+
+    void
+    AstVisitorCHeader::visit(const yal::frontend::ExprUnaryOperator&) {}
+
+    void
+    AstVisitorCHeader::visit(const yal::frontend::ExprBinaryOperator&) {}
+
+    void
+    AstVisitorCHeader::visit(const yal::frontend::ExprBoolLiteral&) {}
+
+    void
+    AstVisitorCHeader::visit(const yal::frontend::ExprIntegerLiteral&) {}
+
+    void
+    AstVisitorCHeader::visit(const yal::frontend::ExprFloatLiteral&) {}
+
+    void
+    AstVisitorCHeader::visit(const yal::frontend::ExprStructVarRef&) {}
+
+    void
+    AstVisitorCHeader::visit(const yal::frontend::ExprFnCall&) {}
+
+    void
+    AstVisitorCHeader::visit(const yal::frontend::ExprTypeFnCall&) {}
+
+    void
+    AstVisitorCHeader::visit(const yal::frontend::DeclParamVarSelf&) {}
+
+    void
+    AstVisitorCHeader::visit(const yal::frontend::ExprVarRefSelf&) {}
+
+    void
+    AstVisitorCHeader::visit(const yal::frontend::ExprCast&) {}
+
+    void
+    AstVisitorCHeader::visit(const yal::frontend::ExprStructInit&) {}
+
+    void
+    AstVisitorCHeader::visit(const yal::frontend::StmtListScoped&) {}
 
     bool
     AstVisitorCHeader::execute(const BackendOptions& options) {
@@ -96,7 +157,7 @@ namespace yal::backend::c {
 
         CTypeGen::GetBuilitinTypeInfo(m_writer);
 
-        m_module.getDeclNode()->acceptVisitor(*this);
+         resolve(*m_module.getDeclNode());
 
         if (!options.pragmaOnce) {
             m_writer.write("\n#endif //%_H\n",

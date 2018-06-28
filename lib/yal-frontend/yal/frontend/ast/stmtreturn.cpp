@@ -18,7 +18,6 @@
  */
 
 #include "yal/frontend/ast/stmtreturn.h"
-#include "yal/frontend/ast/astvisitor.h"
 
 namespace yal::frontend {
 
@@ -44,10 +43,5 @@ namespace yal::frontend {
     bool
     StmtReturn::hasReturnExpression() const {
         return m_expr.has_value();
-    }
-
-    void
-    StmtReturn::acceptVisitor(AstVisitor& visitor) {
-        visitor.visit(*this);
     }
 }

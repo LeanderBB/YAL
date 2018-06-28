@@ -84,6 +84,7 @@ namespace yal::backend::c {
         uint64_t idx = 0;
         auto fn = [this, &idx](const frontend::Type& type) {
             const uint64_t typeId = type.getTypeId();
+            (void) typeId;
             // make sure the types are oreded correctly
             YAL_ASSERT(typeId == idx);
             m_ctypes.emplace_back(type);

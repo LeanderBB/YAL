@@ -19,7 +19,6 @@
 
 #include "yal/frontend/ast/declfunction.h"
 #include "yal/frontend/module.h"
-#include "yal/frontend/ast/astvisitor.h"
 #include "yal/frontend/ast/declparamvar.h"
 #include "yal/frontend/parser/stdeclfunction.h"
 #include "yal/frontend/types/typefunction.h"
@@ -105,11 +104,5 @@ namespace yal::frontend {
     DeclFunction::setBody(Body&& body) {
         m_functionBody = std::move(body);
     }
-
-    void
-    DeclFunction::acceptVisitor(AstVisitor& visitor) {
-        visitor.visit(*this);
-    }
-
 
 }

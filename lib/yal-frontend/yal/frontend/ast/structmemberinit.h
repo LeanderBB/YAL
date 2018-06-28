@@ -28,7 +28,6 @@
 namespace yal::frontend {
 
     class StmtExpression;
-    class AstVisitor;
 
     class StructMemberInit
     {

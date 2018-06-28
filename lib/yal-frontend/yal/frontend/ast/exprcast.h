@@ -31,11 +31,13 @@ namespace yal::frontend {
                  const QualType& qt,
                  StmtExpression* expression);
 
-        StmtExpression& getExpression() const {
+        StmtExpression& getExpression() {
             return *m_expression;
         }
 
-        virtual void acceptVisitor(AstVisitor& visitor) override;
+        const StmtExpression& getExpression() const {
+            return *m_expression;
+        }
 
     private:
         StmtExpression* m_expression;

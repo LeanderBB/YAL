@@ -18,7 +18,6 @@
  */
 
 #include "yal/frontend/ast/declstruct.h"
-#include "yal/frontend/ast/astvisitor.h"
 #include "yal/frontend/ast/declvar.h"
 #include "yal/frontend/module.h"
 #include "yal/frontend/parser/stdeclstruct.h"
@@ -102,11 +101,6 @@ namespace yal::frontend {
         }
         YAL_ASSERT(size != 0);
         return  size = Type::AlignTo(size, sizeofPtr);
-    }
-
-    void
-    DeclStruct::acceptVisitor(AstVisitor& visitor) {
-        visitor.visit(*this);
     }
 
     void

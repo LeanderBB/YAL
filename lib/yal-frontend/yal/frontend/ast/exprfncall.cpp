@@ -18,8 +18,8 @@
  */
 
 #include "yal/frontend/ast/exprfncall.h"
-#include "yal/frontend/ast/astvisitor.h"
 #include "yal/frontend/types/typefunction.h"
+
 namespace yal::frontend{
 
     ExprFnCall::ExprFnCall(Module& module,
@@ -43,11 +43,6 @@ namespace yal::frontend{
                    functionType,
                    std::move(functionArgs)) {
 
-    }
-
-    void
-    ExprFnCall::acceptVisitor(AstVisitor& visitor) {
-        visitor.visit(*this);
     }
 
 }

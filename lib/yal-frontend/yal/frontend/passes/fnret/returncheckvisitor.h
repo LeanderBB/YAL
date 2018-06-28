@@ -31,19 +31,19 @@ namespace yal::frontend {
     struct PassOptions;
     class DeclFunction;
     class Module;
-    class ReturnCheckVisitor final : public AstVisitor{
+    class ReturnCheckVisitor final : public AstVisitorRecursive<ReturnCheckVisitor, true>{
     public:
         ReturnCheckVisitor(PassOptions& options);
 
         void execute();
 
-#define YAL_AST_NODE_TYPE(TYPE) void visit(TYPE&) override final;
+#define YAL_AST_NODE_TYPE(TYPE) void visit(const TYPE&);
 #include "yal/frontend/ast/astnodes.def"
 #undef YAL_AST_NODE_TYPE
 
     private:
 
-        void fnReturnCheck(DeclFunction& decl);
+        void fnReturnCheck(const DeclFunction& decl);
 
     protected:
         Module& m_module;

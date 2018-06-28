@@ -49,6 +49,7 @@ set(YAL_SOURCES
     yal/frontend/ast/exprunaryoperator.h
     yal/frontend/ast/exprbinaryoperator.cpp
     yal/frontend/ast/exprbinaryoperator.h
+    yal/frontend/ast/declvar.h
     yal/frontend/ast/declvar.cpp
     yal/frontend/ast/declparamvar.cpp
     yal/frontend/ast/declparamvar.h

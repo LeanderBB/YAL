@@ -20,7 +20,6 @@
 #include "yal/frontend/ast/exprboolliteral.h"
 #include "yal/frontend/module.h"
 #include "yal/frontend/types/typebuiltin.h"
-#include "yal/frontend/ast/astvisitor.h"
 
 namespace yal::frontend {
 
@@ -34,10 +33,5 @@ namespace yal::frontend {
         qual.setMutable();
         m_qualType = QualType::Create(qual,
                                       module.getTypeContext().getTypeBuiltinBool());
-    }
-
-    void
-    ExprBoolLiteral::acceptVisitor(AstVisitor& visitor) {
-        visitor.visit(*this);
     }
 }

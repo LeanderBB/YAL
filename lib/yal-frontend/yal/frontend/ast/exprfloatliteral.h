@@ -48,7 +48,6 @@ namespace yal::frontend {
             return m_decimalType;
         }
 
-        virtual void acceptVisitor(AstVisitor& visitor) override;
     private:
         double m_literalValue;
         DecimalType m_decimalType;

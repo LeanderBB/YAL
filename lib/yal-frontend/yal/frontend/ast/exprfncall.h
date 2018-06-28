@@ -52,8 +52,6 @@ namespace yal::frontend {
             return m_functionArgs;
         }
 
-        virtual void acceptVisitor(AstVisitor& visitor) override;
-
     protected:
         const TypeFunction* m_functionType;
         ExprList m_functionArgs;

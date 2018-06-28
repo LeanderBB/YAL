@@ -49,8 +49,6 @@ namespace yal::frontend {
 
         bool isImmutable() const;
 
-        virtual void acceptVisitor(AstVisitor& visitor) override;
-
     private:
         QualType m_targetType;
     };

@@ -18,7 +18,6 @@
  */
 
 #include "yal/frontend/ast/stmtlistscoped.h"
-#include "yal/frontend/ast/astvisitor.h"
 #include "yal/frontend/module.h"
 
 namespace yal::frontend {
@@ -37,8 +36,4 @@ namespace yal::frontend {
         m_statements = std::move(statements);
     }
 
-    void
-    StmtListScoped::acceptVisitor(AstVisitor& visitor) {
-        visitor.visit(*this);
-    }
 }

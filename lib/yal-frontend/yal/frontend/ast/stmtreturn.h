@@ -49,8 +49,6 @@ namespace yal::frontend {
 
         bool hasReturnExpression() const;
 
-        virtual void acceptVisitor(AstVisitor &visitor) override;
-
     private:
         StmtExpressionOpt m_expr;
     };

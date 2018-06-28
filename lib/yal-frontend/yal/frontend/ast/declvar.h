@@ -53,8 +53,6 @@ namespace yal::frontend {
 
         void setQualType(const QualType& qt);
 
-        virtual void acceptVisitor(AstVisitor& visitor) override;
-
     protected:
 
         DeclVar(Module& module,

@@ -20,7 +20,6 @@
 #include "yal/frontend/ast/exprintegerliteral.h"
 #include "yal/frontend/module.h"
 #include "yal/frontend/types/typebuiltin.h"
-#include "yal/frontend/ast/astvisitor.h"
 
 namespace yal::frontend{
 
@@ -133,9 +132,5 @@ namespace yal::frontend{
         return m_literalValue;
     }
 
-    void
-    ExprIntegerLiteral::acceptVisitor(AstVisitor& visitor) {
-        visitor.visit(*this);
-    }
 }
 

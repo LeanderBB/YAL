@@ -18,7 +18,6 @@
  */
 
 #include "yal/frontend/ast/exprunaryoperator.h"
-#include "yal/frontend/ast/astvisitor.h"
 
 namespace yal::frontend {
 
@@ -37,8 +36,4 @@ namespace yal::frontend {
         m_qualType = expr->getQualType();
     }
 
-    void
-    ExprUnaryOperator::acceptVisitor(AstVisitor &visitor) {
-        visitor.visit(*this);
-    }
 }

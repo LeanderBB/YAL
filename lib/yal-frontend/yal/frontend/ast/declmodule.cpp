@@ -21,7 +21,6 @@
 #include "yal/frontend/ast/declmodule.h"
 #include "yal/frontend/module.h"
 #include "yal/frontend/ast/astcontext.h"
-#include "yal/frontend/ast/astvisitor.h"
 
 namespace yal::frontend {
 
@@ -36,10 +35,5 @@ namespace yal::frontend {
     void
     DeclModule::setDecls(Decls&& decls) {
         m_declartions = std::move(decls);
-    }
-
-    void
-    DeclModule::acceptVisitor(AstVisitor &visitor) {
-        visitor.visit(*this);
     }
 }

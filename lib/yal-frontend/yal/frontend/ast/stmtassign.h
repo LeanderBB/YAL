@@ -42,8 +42,6 @@ namespace yal::frontend {
             return m_valueExpr;
         }
 
-        virtual void acceptVisitor(AstVisitor& visitor) override;
-
     private:
        StmtExpression* m_destExpr;
        StmtExpression* m_valueExpr;

@@ -55,8 +55,6 @@ namespace yal::frontend {
 
         void setFunctionType(const TypeFunction *functionType);
 
-        virtual void acceptVisitor(AstVisitor& visitor) override;
-
     private:
         StmtExpressionOpt m_expression;
         const STIdentifier* m_functionName;

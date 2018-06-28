@@ -23,7 +23,7 @@
 #include "yal/backendc/ctype.h"
 #include "yal/backendc/ctypebuiltin.h"
 #include "yal/backendc/ctypegen.h"
-#include "yal/frontend/ast/astnodes.h"
+#include "yal/frontend/ast/astvisitorimpl.h"
 #include "yal/frontend/module.h"
 #include "yal/frontend/types/typebuiltin.h"
 #include "yal/frontend/types/typefunction.h"
@@ -127,7 +127,7 @@ namespace yal::backend::c {
     }
 
     void
-    AstVisitorCSource::visit(yal::frontend::DeclFunction& node) {
+    AstVisitorCSource::visit(const yal::frontend::DeclFunction& node) {
         WriteSourceInfo(m_writer, node.getModule(),node.getSourceInfo());
         CTypeGen::GenDelcFunction(m_writer, m_typeCache, node);
         m_writer.write("{");
@@ -135,7 +135,7 @@ namespace yal::backend::c {
         m_writer.write();
         auto& body = node.getFunctionBody();
         for (auto& statment : body) {
-            statment->acceptVisitor(*this);
+            resolve(*statment);
             m_writer.write(";\n");
         }
         m_writer.unident();
@@ -143,7 +143,7 @@ namespace yal::backend::c {
     }
 
     void
-    AstVisitorCSource::visit(yal::frontend::DeclTypeFunction& node) {
+    AstVisitorCSource::visit(const yal::frontend::DeclTypeFunction& node) {
         WriteSourceInfo(m_writer, node.getModule(),node.getSourceInfo());
         CTypeGen::GenDelcFunction(m_writer, m_typeCache, node);
         m_writer.write("{");
@@ -151,7 +151,7 @@ namespace yal::backend::c {
         m_writer.write();
         auto& body = node.getFunctionBody();
         for (auto& statment : body) {
-            statment->acceptVisitor(*this);
+            resolve(*statment);
             m_writer.write(";\n");
         }
         m_writer.unident();
@@ -159,19 +159,19 @@ namespace yal::backend::c {
     }
 
     void
-    AstVisitorCSource::visit(yal::frontend::DeclTypeFunctions& node) {
+    AstVisitorCSource::visit(const yal::frontend::DeclTypeFunctions& node) {
         for (auto& decl : node.getDecls()) {
-            decl->acceptVisitor(*this);
+            resolve(*decl);
         }
     }
 
     void
-    AstVisitorCSource::visit(yal::frontend::DeclStruct&) {
+    AstVisitorCSource::visit(const yal::frontend::DeclStruct&) {
         // do nothing
     }
 
     void
-    AstVisitorCSource::visit(yal::frontend::DeclVar& node) {
+    AstVisitorCSource::visit(const yal::frontend::DeclVar& node) {
         const yf::QualType qt = node.getQualType();
         const CType* ctype = m_typeCache.getCType(*qt.getType());
         YAL_ASSERT(ctype != nullptr);
@@ -180,64 +180,64 @@ namespace yal::backend::c {
         auto exprOpt = node.getExpression();
         if (exprOpt.has_value()) {
             m_writer.write(" = ");
-            exprOpt.value()->acceptVisitor(*this);
+           resolve(*exprOpt.value());
         }
     }
 
 
     void
-    AstVisitorCSource::visit(yal::frontend::DeclModule& node) {
+    AstVisitorCSource::visit(const yal::frontend::DeclModule& node) {
         auto& decls = node.getDeclarations();
         for (auto& decl : decls) {
-            decl->acceptVisitor(*this);
+            resolve(*decl);
         }
     }
 
     void
-    AstVisitorCSource::visit(yal::frontend::DeclParamVar&) {
+    AstVisitorCSource::visit(const yal::frontend::DeclParamVar&) {
         YAL_ASSERT(false);
     }
 
     void
-    AstVisitorCSource::visit(yal::frontend::DeclParamVarSelf&) {
+    AstVisitorCSource::visit(const yal::frontend::DeclParamVarSelf&) {
         YAL_ASSERT(false);
     }
 
     void
-    AstVisitorCSource::visit(yal::frontend::DeclStrongAlias&) {
+    AstVisitorCSource::visit(const yal::frontend::DeclStrongAlias&) {
 
     }
 
     void
-    AstVisitorCSource::visit(yal::frontend::DeclWeakAlias&) {
+    AstVisitorCSource::visit(const yal::frontend::DeclWeakAlias&) {
 
     }
 
     void
-    AstVisitorCSource::visit(yal::frontend::StmtReturn& node) {
+    AstVisitorCSource::visit(const yal::frontend::StmtReturn& node) {
         auto exprOpt = node.getExpression();
         if (exprOpt.has_value()) {
             m_writer.write("return ");
-            exprOpt.value()->acceptVisitor(*this);
+            resolve(*exprOpt.value());
         } else {
             m_writer.write("return");
         }
     }
 
     void
-    AstVisitorCSource::visit(yal::frontend::StmtDecl& node) {
-        node.getDecl()->acceptVisitor(*this);
+    AstVisitorCSource::visit(const yal::frontend::StmtDecl& node) {
+        resolve(*node.getDecl());
     }
 
     void
-    AstVisitorCSource::visit(yal::frontend::StmtAssign& node) {
-        node.getLeftExpr()->acceptVisitor(*this);
+    AstVisitorCSource::visit(const yal::frontend::StmtAssign& node) {
+        resolve(*node.getLeftExpr());
         m_writer.write(" = ");
-        node.getRightExpr()->acceptVisitor(*this);
+        resolve(*node.getRightExpr());
     }
 
     void
-    AstVisitorCSource::visit(yal::frontend::ExprVarRef& node) {
+    AstVisitorCSource::visit(const yal::frontend::ExprVarRef& node) {
         const yf::DeclVar& decl =node.getDeclVar();
         const bool isMovedDeclParm =
                 decl.getAstType() == yf::AstType::DeclParamVar
@@ -264,15 +264,15 @@ namespace yal::backend::c {
     }
 
     void
-    AstVisitorCSource::visit(yal::frontend::ExprVarRefSelf& node) {
-        yf::ExprVarRef& varRef = node;
+    AstVisitorCSource::visit(const yal::frontend::ExprVarRefSelf& node) {
+        const yf::ExprVarRef& varRef = node;
         visit(varRef);
     }
 
     void
-    AstVisitorCSource::visit(yal::frontend::ExprStructVarRef& node) {
+    AstVisitorCSource::visit(const yal::frontend::ExprStructVarRef& node) {
         yf::StmtExpression* srcExpr = node.getExpression();
-        srcExpr->acceptVisitor(*this);
+        resolve(*srcExpr);
         const yf::QualType qt = srcExpr->getQualType();
         m_writer.write("%%",
                        (qt.isReference()) ? "->" : ".",
@@ -281,7 +281,7 @@ namespace yal::backend::c {
     }
 
     void
-    AstVisitorCSource::visit(yal::frontend::ExprUnaryOperator& node) {
+    AstVisitorCSource::visit(const yal::frontend::ExprUnaryOperator& node) {
         // Do not write reference operator since it is handled when
         // variables are being referenced.
         const yf::UnaryOperatorType op = node.getOperatorType();
@@ -295,15 +295,14 @@ namespace yal::backend::c {
         }
 
         ScopedState guard(*this, newState);
-
-        node.getExpression()->acceptVisitor(*this);
+        resolve(*node.getExpression());
     }
 
     void
-    AstVisitorCSource::visit(yal::frontend::ExprBinaryOperator& node) {
-        yf::StmtExpression* exprLeft = node.getExpressionLeft();
-        yf::StmtExpression* exprRight = node.getExpressionRight();
-        exprLeft->acceptVisitor(*this);
+    AstVisitorCSource::visit(const yal::frontend::ExprBinaryOperator& node) {
+        const yf::StmtExpression* exprLeft = node.getExpressionLeft();
+        const yf::StmtExpression* exprRight = node.getExpressionRight();
+        resolve(*exprLeft);
         m_writer.write(" ");
         m_writer.write(CTypeGen::GenBinaryOperator(node.getOperatorType()));
         m_writer.write(" ");
@@ -319,11 +318,11 @@ namespace yal::backend::c {
             m_writer.write(")");
         }
 
-        exprRight->acceptVisitor(*this);
+        resolve(*exprRight);
     }
 
     void
-    AstVisitorCSource::visit(yal::frontend::ExprBoolLiteral& node) {
+    AstVisitorCSource::visit(const yal::frontend::ExprBoolLiteral& node) {
         if (node.getLiteralValue()) {
             m_writer.write("YAL_TRUE");
         } else {
@@ -332,7 +331,7 @@ namespace yal::backend::c {
     }
 
     void
-    AstVisitorCSource::visit(yal::frontend::ExprIntegerLiteral& node) {
+    AstVisitorCSource::visit(const yal::frontend::ExprIntegerLiteral& node) {
         switch(node.getIntegerType()) {
         case yf::IntegerType::I8:
             m_writer.write("%", node.getValueAsI8());
@@ -366,7 +365,7 @@ namespace yal::backend::c {
     }
 
     void
-    AstVisitorCSource::visit(yal::frontend::ExprFloatLiteral& node) {
+    AstVisitorCSource::visit(const yal::frontend::ExprFloatLiteral& node) {
         if (node.getDecimalType() == yf::DecimalType::Decimal32) {
             m_writer.write( "%", node.getLiteralValueAsF32());
         } else {
@@ -375,7 +374,7 @@ namespace yal::backend::c {
     }
 
     void
-    AstVisitorCSource::visit(yal::frontend::ExprFnCall& node) {
+    AstVisitorCSource::visit(const yal::frontend::ExprFnCall& node) {
         State newState;
         newState.varRefMakeReference = true;
         ScopedState guard(*this, newState);
@@ -403,10 +402,10 @@ namespace yal::backend::c {
                 State otherState;
                 otherState.varRefMakeReference = false;
                 ScopedState guard(*this, otherState);
-                arg->acceptVisitor(*this);
+                resolve(*arg);
                 m_writer.write(")");
             } else {
-                arg->acceptVisitor(*this);
+                resolve(*arg);
             }
             first = false;
             ++declParamIter;
@@ -415,7 +414,7 @@ namespace yal::backend::c {
     }
 
     void
-    AstVisitorCSource::visit(yal::frontend::ExprTypeFnCall& node) {
+    AstVisitorCSource::visit(const yal::frontend::ExprTypeFnCall& node) {
         State newState;
         newState.varRefMakeReference = true;
         ScopedState guard(*this, newState);
@@ -431,7 +430,7 @@ namespace yal::backend::c {
         if (!node.isStaticCall()) {
             auto exprOpt = node.getExpression();
             YAL_ASSERT(exprOpt.has_value());
-            exprOpt.value()->acceptVisitor(*this);
+            resolve(*exprOpt.value());
             first = false;
         }
 
@@ -454,10 +453,10 @@ namespace yal::backend::c {
                 State otherState;
                 otherState.varRefMakeReference = false;
                 ScopedState guard(*this, otherState);
-                arg->acceptVisitor(*this);
+                resolve(*arg);
                 m_writer.write(")");
             } else {
-                arg->acceptVisitor(*this);
+                resolve(*arg);
             }
             first = false;
             ++declParamIter;
@@ -466,12 +465,11 @@ namespace yal::backend::c {
     }
 
     void
-    AstVisitorCSource::visit(yal::frontend::ExprCast& node) {
+    AstVisitorCSource::visit(const yal::frontend::ExprCast& node) {
         const yf::QualType qtExpr = node.getExpression().getQualType();
         const yf::QualType qtTarget = node.getQualType();
         const CType* ctypeTarget = m_typeCache.getCType(*qtTarget.getType());
-        const CType* ctypeExpr= m_typeCache.getCType(*qtExpr.getType());
-        YAL_ASSERT(ctypeTarget != nullptr && ctypeExpr != nullptr);
+        YAL_ASSERT(ctypeTarget != nullptr);
 
         bool doNomralConversion = true;
         if(qtTarget.getType()->isBuilitin() && qtExpr.getType()->isBuilitin()) {
@@ -479,7 +477,7 @@ namespace yal::backend::c {
             const yf::TypeBuiltin* typeBtExpr = dyn_cast<yf::TypeBuiltin>(qtExpr.getType());
             if (CTypeBuilitin::GenConversion(m_writer, *typeBtExpr, *typeBtTarget)) {
                 m_writer.write("(");
-                node.getExpression().acceptVisitor(*this);
+                resolve(node.getExpression());
                 m_writer.write(")");
                 doNomralConversion = false;
             }
@@ -489,13 +487,13 @@ namespace yal::backend::c {
             m_writer.write("((");
             CTypeGen::GenQualType(m_writer, qtTarget, *ctypeTarget);
             m_writer.write(")");
-            node.getExpression().acceptVisitor(*this);
+            resolve(node.getExpression());
             m_writer.write(")");
         }
     }
 
     void
-    AstVisitorCSource::visit(yal::frontend::ExprStructInit& node) {
+    AstVisitorCSource::visit(const yal::frontend::ExprStructInit& node) {
         const yf::QualType qtStruct = node.getQualType();
         const CType* ctypeStruct = m_typeCache.getCType(*qtStruct.getType());
         YAL_ASSERT(ctypeStruct != nullptr);
@@ -510,7 +508,7 @@ namespace yal::backend::c {
                 m_writer.write("\n,");
             }
             m_writer.write(".% = ", memberInit->getMemberName());
-            memberInit->getInitExpr()->acceptVisitor(*this);
+            resolve(*memberInit->getInitExpr());
             isFirst = false;
         }
 
@@ -518,12 +516,12 @@ namespace yal::backend::c {
         m_writer.write("\n}");
     }
 
-    void AstVisitorCSource::visit(yal::frontend::StmtListScoped& node) {
+    void AstVisitorCSource::visit(const yal::frontend::StmtListScoped& node) {
         m_writer.write("\n{");
         m_writer.ident();
 
         for (auto& stmt : node.getStatements()) {
-            stmt->acceptVisitor(*this);
+            resolve(*stmt);
             m_writer.write(";\n");
         }
 
@@ -544,7 +542,7 @@ namespace yal::backend::c {
         // be generated when projects have been setup
         CTypeBuilitin::GenBuiltinSource(m_writer);
 
-        m_module.getDeclNode()->acceptVisitor(*this);
+        resolve(*m_module.getDeclNode());
 
         return true;
     }

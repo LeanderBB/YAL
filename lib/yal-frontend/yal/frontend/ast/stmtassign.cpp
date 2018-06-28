@@ -18,7 +18,6 @@
  */
 
 #include "yal/frontend/ast/stmtassign.h"
-#include "yal/frontend/ast/astvisitor.h"
 
 namespace yal::frontend {
 
@@ -30,10 +29,5 @@ namespace yal::frontend {
         m_destExpr(destExpr),
         m_valueExpr(valueExpr) {
 
-    }
-
-    void
-    StmtAssign::acceptVisitor( AstVisitor& visitor) {
-        visitor.visit(*this);
     }
 }

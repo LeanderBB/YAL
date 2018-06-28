@@ -20,7 +20,6 @@
 #include "yal/frontend/ast/exprfloatliteral.h"
 #include "yal/frontend/module.h"
 #include "yal/frontend/types/typebuiltin.h"
-#include "yal/frontend/ast/astvisitor.h"
 #include <limits>
 
 namespace yal::frontend {
@@ -45,8 +44,4 @@ namespace yal::frontend {
         m_qualType = QualType::Create(qual,decimalType);
     }
 
-    void
-    ExprFloatLiteral::acceptVisitor(AstVisitor& visitor) {
-        visitor.visit(*this);
-    }
 }

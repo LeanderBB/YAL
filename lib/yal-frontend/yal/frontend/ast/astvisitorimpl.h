@@ -30,7 +30,8 @@ namespace yal::frontend {
     YAL_DECL_NODE_FN(DeclStruct) \
     YAL_DECL_NODE_FN(DeclVar) \
     YAL_DECL_NODE_FN(DeclParamVar) \
-    YAL_DECL_NODE_FN(DeclParamVarSelf)
+    YAL_DECL_NODE_FN(DeclParamVarSelf) \
+    YAL_DECL_NODE_FN(DeclModule)
 //    YAL_DECL_NODE_FN(DeclStrongAlias)
 // YAL_DECL_NODE_FN(DeclWeakAlias)
 
@@ -53,7 +54,7 @@ namespace yal::frontend {
     YAL_STMT_NODE_FN(StmtListScoped)\
 
     template<typename Derived, bool Const>
-    void AstVisitorStatic<Derived, Const>::resolve(NodeType<DeclBase>& node) {
+    void AstVisitorRecursive<Derived, Const>::resolve(NodeType<DeclBase>& node) {
         Derived& derived = getDerived();
         switch(node.getAstType()) {
 #define YAL_DECL_NODE_FN(type) \
@@ -69,7 +70,7 @@ namespace yal::frontend {
     }
 
     template<typename Derived, bool Const>
-    void AstVisitorStatic<Derived, Const>::resolve(NodeType<Statement>& node) {
+    void AstVisitorRecursive<Derived, Const>::resolve(NodeType<Statement>& node) {
         Derived& derived = getDerived();
         switch(node.getAstType()) {
 #define YAL_STMT_NODE_FN(type) \

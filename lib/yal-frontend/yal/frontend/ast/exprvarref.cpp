@@ -18,7 +18,6 @@
  */
 
 #include "yal/frontend/ast/exprvarref.h"
-#include "yal/frontend/ast/astvisitor.h"
 #include "yal/frontend/ast/declparamvar.h"
 
 namespace yal::frontend {
@@ -43,13 +42,6 @@ namespace yal::frontend {
         ExprVarRef(module, AstType::ExprVarRef, srcInfo, decl) {
     }
 
-
-    void
-    ExprVarRef::acceptVisitor(AstVisitor& visitor) {
-        visitor.visit(*this);
-    }
-
-
     ExprVarRefSelf::ExprVarRefSelf(frontend::Module& module,
                                    const SourceInfo& srcInfo,
                                    const DeclVar* decl):
@@ -57,8 +49,4 @@ namespace yal::frontend {
         YAL_ASSERT(dyn_cast<DeclParamVarSelf>(decl) != nullptr);
     }
 
-    void
-    ExprVarRefSelf::acceptVisitor(AstVisitor& visitor) {
-        visitor.visit(*this);
-    }
 }

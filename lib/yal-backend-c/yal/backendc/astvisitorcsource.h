@@ -31,14 +31,15 @@ namespace yal::backend::c {
     class CTypeCache;
     struct BackendOptions;
 
-    class AstVisitorCSource final : public yal::frontend::AstVisitor {
+    class AstVisitorCSource final :
+            public yal::frontend::AstVisitorRecursive<AstVisitorCSource, true> {
     public:
 
         AstVisitorCSource(ByteStream& stream,
                           yal::frontend::Module& module,
                           const CTypeCache& cache);
 
-#define YAL_AST_NODE_TYPE(type) virtual void visit(yal::frontend::type&) override final;
+#define YAL_AST_NODE_TYPE(type) void visit(const yal::frontend::type&);
 #include "yal/frontend/ast/astnodes.def"
 #undef YAL_AST_NODE_TYPE
 

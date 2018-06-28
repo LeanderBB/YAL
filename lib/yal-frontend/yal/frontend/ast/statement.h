@@ -27,7 +27,6 @@
 namespace yal::frontend {
 
     class Module;
-    class AstVisitor;
 
     class Statement {
     public:
@@ -51,8 +50,6 @@ namespace yal::frontend {
         StringRef getAstTypeName() const {
             return AstTypeName(m_astType);
         }
-
-        virtual void acceptVisitor(AstVisitor& visitor) = 0;
 
     protected:
         Module& m_module;

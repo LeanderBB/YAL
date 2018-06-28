@@ -31,7 +31,7 @@ namespace yal::frontend {
 
     class Qualifier;
 
-    class AstPrinter : public AstVisitorStatic<AstPrinter, true> {
+    class AstPrinter : public AstVisitorRecursive<AstPrinter, true> {
     public:
         AstPrinter(ByteStream&);
 

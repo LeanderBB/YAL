@@ -37,13 +37,14 @@ namespace yal::frontend {
     class DeclScope;
     class QualType;
 
-    class AstVisitorExprType final : public AstVisitor {
+    class AstVisitorExprType final :
+            public AstVisitorRecursive<AstVisitorExprType, false> {
     public:
         AstVisitorExprType(PassOptions& options);
 
         void execute();
 
-#define YAL_AST_NODE_TYPE(TYPE) void visit(TYPE&) override final;
+#define YAL_AST_NODE_TYPE(TYPE) void visit(TYPE&);
 #include "yal/frontend/ast/astnodes.def"
 #undef YAL_AST_NODE_TYPE
 

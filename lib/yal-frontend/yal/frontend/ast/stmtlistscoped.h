@@ -45,7 +45,9 @@ namespace yal::frontend {
             return m_scope;
         }
 
-        void acceptVisitor(AstVisitor& visitor) override final;
+        const DeclScope& getListScope() const {
+            return m_scope;
+        }
 
     private:
         StatementList m_statements;

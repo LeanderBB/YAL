@@ -26,11 +26,4 @@
 #include "yal/frontend/ast/structmemberinit.h"
 namespace yal::frontend {
 
-
-    void
-    RecursiveAstVisitor::visit(DeclModule& node){
-        for (auto& decl : node.getDeclarations()) {
-            decl->acceptVisitor(*this);
-        }
-    }
 }

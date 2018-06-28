@@ -75,8 +75,4 @@ namespace yal::frontend {
         return true;
     }
 
-    void
-    DeclTypeFunction::acceptVisitor(AstVisitor &visitor) {
-        visitor.visit(*this);
-    }
 }

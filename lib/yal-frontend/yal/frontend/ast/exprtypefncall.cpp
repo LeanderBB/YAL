@@ -68,9 +68,4 @@ namespace yal::frontend {
         return !m_expression.has_value() || m_functionName == nullptr;
     }
 
-    void
-    ExprTypeFnCall::acceptVisitor(AstVisitor& visitor) {
-        visitor.visit(*this);
-    }
-
 }

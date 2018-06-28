@@ -114,7 +114,9 @@ namespace yal::frontend {
             return m_fnDeclScope;
         }
 
-        void acceptVisitor(AstVisitor& visitor) override;
+        const DeclScope& getFunctionScope() const {
+            return m_fnDeclScope;
+        }
 
     protected:
         TypeFunction* m_fnType;

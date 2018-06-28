@@ -20,7 +20,7 @@
 #include "yal/frontend/passes/fnret/returncheckvisitor.h"
 
 #include "yal/error/errorreporter.h"
-#include "yal/frontend/ast/astnodes.h"
+#include "yal/frontend/ast/astvisitorimpl.h"
 #include "yal/frontend/module.h"
 #include "yal/frontend/passes/fnret/errorspassfnret.h"
 #include "yal/frontend/passes/passes.h"
@@ -39,23 +39,23 @@ namespace yal::frontend {
     ReturnCheckVisitor::execute() {
         DeclModule* modDecl = m_module.getDeclNode();
         m_jump.mark();
-        modDecl->acceptVisitor(*this);
+        resolve(*modDecl);
     }
 
     void
-    ReturnCheckVisitor::visit(DeclModule& node) {
+    ReturnCheckVisitor::visit(const DeclModule& node) {
         for (auto& decl : node.getDeclarations()) {
-            decl->acceptVisitor(*this);
+            resolve(*decl);
         }
     }
 
     void
-    ReturnCheckVisitor::visit(DeclFunction& node) {
-        DeclFunction::Body& body = node.getFunctionBody();
+    ReturnCheckVisitor::visit(const DeclFunction& node) {
+        const DeclFunction::Body& body = node.getFunctionBody();
         if (!body.empty() && node.getReturnType().isValid()) {
             for (auto& stmt : body) {
                 m_hasReturnStmt = false;
-                stmt->acceptVisitor(*this);
+                resolve(*stmt);
             }
         }
 
@@ -67,12 +67,12 @@ namespace yal::frontend {
     }
 
     void
-    ReturnCheckVisitor::visit(DeclTypeFunction& node) {
-        DeclFunction::Body& body = node.getFunctionBody();
+    ReturnCheckVisitor::visit(const DeclTypeFunction& node) {
+        const DeclFunction::Body& body = node.getFunctionBody();
         if (!body.empty() && node.getReturnType().isValid()) {
             for (auto& stmt : body) {
                 m_hasReturnStmt = false;
-                stmt->acceptVisitor(*this);
+                resolve(*stmt);
             }
         }
 
@@ -84,88 +84,88 @@ namespace yal::frontend {
     }
 
     void
-    ReturnCheckVisitor::visit(DeclTypeFunctions& node) {
+    ReturnCheckVisitor::visit(const DeclTypeFunctions& node) {
         for (auto& decl : node.getDecls()) {
-            decl->acceptVisitor(*this);
+            resolve(*decl);
         }
     }
 
     void
-    ReturnCheckVisitor::visit(DeclStruct&) {}
+    ReturnCheckVisitor::visit(const DeclStruct&) {}
 
     void
-    ReturnCheckVisitor::visit(DeclVar&) {}
+    ReturnCheckVisitor::visit(const DeclVar&) {}
 
     void
-    ReturnCheckVisitor::visit(DeclParamVar&) {}
+    ReturnCheckVisitor::visit(const DeclParamVar&) {}
 
     void
-    ReturnCheckVisitor::visit(DeclStrongAlias&) {}
+    ReturnCheckVisitor::visit(const DeclStrongAlias&) {}
 
     void
-    ReturnCheckVisitor::visit(DeclWeakAlias&) {}
+    ReturnCheckVisitor::visit(const DeclWeakAlias&) {}
 
     void
-    ReturnCheckVisitor::visit(StmtReturn&) {
+    ReturnCheckVisitor::visit(const StmtReturn&) {
       // TODO: revise when conditional statements and loops are introduced!
        m_hasReturnStmt = true;
     }
 
     void
-    ReturnCheckVisitor::visit(StmtDecl&) {}
+    ReturnCheckVisitor::visit(const StmtDecl&) {}
 
     void
-    ReturnCheckVisitor::visit(StmtAssign&) {}
+    ReturnCheckVisitor::visit(const StmtAssign&) {}
 
     void
-    ReturnCheckVisitor::visit(ExprVarRef&) {}
+    ReturnCheckVisitor::visit(const ExprVarRef&) {}
 
     void
-    ReturnCheckVisitor::visit(ExprUnaryOperator&) {}
+    ReturnCheckVisitor::visit(const ExprUnaryOperator&) {}
 
     void
-    ReturnCheckVisitor::visit(ExprBinaryOperator&) {}
+    ReturnCheckVisitor::visit(const ExprBinaryOperator&) {}
 
     void
-    ReturnCheckVisitor::visit(ExprBoolLiteral&) {}
+    ReturnCheckVisitor::visit(const ExprBoolLiteral&) {}
 
     void
-    ReturnCheckVisitor::visit(ExprIntegerLiteral&) {}
+    ReturnCheckVisitor::visit(const ExprIntegerLiteral&) {}
 
     void
-    ReturnCheckVisitor::visit(ExprFloatLiteral&) {}
+    ReturnCheckVisitor::visit(const ExprFloatLiteral&) {}
 
     void
-    ReturnCheckVisitor::visit(ExprStructVarRef&) {}
+    ReturnCheckVisitor::visit(const ExprStructVarRef&) {}
 
     void
-    ReturnCheckVisitor::visit(ExprFnCall&) {}
+    ReturnCheckVisitor::visit(const ExprFnCall&) {}
 
     void
-    ReturnCheckVisitor::visit(ExprTypeFnCall&) {}
+    ReturnCheckVisitor::visit(const ExprTypeFnCall&) {}
 
     void
-    ReturnCheckVisitor::visit(DeclParamVarSelf&) {}
+    ReturnCheckVisitor::visit(const DeclParamVarSelf&) {}
 
     void
-    ReturnCheckVisitor::visit(ExprVarRefSelf&) {}
+    ReturnCheckVisitor::visit(const ExprVarRefSelf&) {}
 
     void
-    ReturnCheckVisitor::visit(ExprCast&) {}
+    ReturnCheckVisitor::visit(const ExprCast&) {}
 
     void
-    ReturnCheckVisitor::visit(ExprStructInit&) {}
+    ReturnCheckVisitor::visit(const ExprStructInit&) {}
 
     void
-    ReturnCheckVisitor::visit(StmtListScoped& node) {
+    ReturnCheckVisitor::visit(const StmtListScoped& node) {
         for (auto& stmt : node.getStatements()) {
             m_hasReturnStmt = false;
-            stmt->acceptVisitor(*this);
+            resolve(*stmt);
         }
     }
 
     void
-    ReturnCheckVisitor::fnReturnCheck(DeclFunction& decl) {
+    ReturnCheckVisitor::fnReturnCheck(const DeclFunction& decl) {
         const QualType returnType = decl.getReturnType();
         if (returnType.isValid() && decl.getFunctionBody().empty()) {
 

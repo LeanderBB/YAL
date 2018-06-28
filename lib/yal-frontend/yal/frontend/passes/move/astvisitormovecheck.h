@@ -40,13 +40,13 @@ namespace yal::frontend {
     class DeclBase;
     class Statement;
 
-    class AstVisitorMoveCheck : public AstVisitor {
+    class AstVisitorMoveCheck : public AstVisitorRecursive<AstVisitorMoveCheck, true> {
     public:
         AstVisitorMoveCheck(PassOptions& options);
 
         void execute();
 
-#define YAL_AST_NODE_TYPE(TYPE) void visit(TYPE&) override final;
+#define YAL_AST_NODE_TYPE(TYPE) void visit(const TYPE&);
 #include "yal/frontend/ast/astnodes.def"
 #undef YAL_AST_NODE_TYPE
 

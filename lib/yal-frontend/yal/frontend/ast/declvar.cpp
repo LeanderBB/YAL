@@ -18,7 +18,6 @@
  */
 
 #include "yal/frontend/ast/declvar.h"
-#include "yal/frontend/ast/astvisitor.h"
 #include "yal/frontend/types/type.h"
 
 namespace yal::frontend {
@@ -58,11 +57,6 @@ namespace yal::frontend {
     DeclVar::setQualType(const QualType& qt) {
         YAL_ASSERT(qt.isValid());
         m_qualType = qt;
-    }
-
-    void
-    DeclVar::acceptVisitor(AstVisitor& visitor) {
-        visitor.visit(*this);
     }
 
 }

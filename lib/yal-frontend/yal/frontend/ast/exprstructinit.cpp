@@ -18,7 +18,6 @@
  */
 
 #include "yal/frontend/ast/exprstructinit.h"
-#include "yal/frontend/ast/astvisitor.h"
 #include "yal/frontend/types/typestruct.h"
 #include "yal/frontend/types/qualtype.h"
 
@@ -37,9 +36,4 @@ namespace yal::frontend {
         m_qualType = QualType::Create(qualifier, structType);
     }
 
-
-    void
-    ExprStructInit::acceptVisitor(AstVisitor& visitor) {
-        visitor.visit(*this);
-    }
 }

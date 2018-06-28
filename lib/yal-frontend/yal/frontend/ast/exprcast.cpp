@@ -19,7 +19,6 @@
 
 
 #include "yal/frontend/ast/exprcast.h"
-#include "yal/frontend/ast/astvisitor.h"
 
 namespace yal::frontend {
 
@@ -33,9 +32,4 @@ namespace yal::frontend {
         m_qualType = qt;
     }
 
-
-    void
-    ExprCast::acceptVisitor(AstVisitor& visitor) {
-        visitor.visit(*this);
-    }
 }

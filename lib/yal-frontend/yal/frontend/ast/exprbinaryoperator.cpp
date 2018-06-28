@@ -18,7 +18,6 @@
  */
 
 #include "yal/frontend/ast/exprbinaryoperator.h"
-#include "yal/frontend/ast/astvisitor.h"
 
 namespace yal::frontend {
 
@@ -48,10 +47,5 @@ namespace yal::frontend {
     void
     ExprBinaryOperator::updateQualType() {
         YAL_ASSERT_NOT_IMPLEMENTED();
-    }
-
-    void
-    ExprBinaryOperator::acceptVisitor(AstVisitor& visitor) {
-        visitor.visit(*this);
     }
 }

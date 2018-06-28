@@ -49,7 +49,9 @@ namespace yal::frontend {
             return m_implScope;
         }
 
-        void acceptVisitor(AstVisitor& visitor) override final;
+        const DeclScope& getImplScope() const {
+            return m_implScope;
+        }
 
     private:
         Type& m_type;

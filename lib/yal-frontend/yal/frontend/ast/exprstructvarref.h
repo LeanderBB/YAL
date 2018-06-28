@@ -40,8 +40,6 @@ namespace yal::frontend {
             return m_variableName;
         }
 
-        virtual void acceptVisitor(AstVisitor& visitor) override;
-
     private:
         StmtExpression*  m_expression;
         StringRef m_variableName;
