@@ -90,7 +90,7 @@ TEST_F(PassParser, DeclVarTypeInferenceStruct) {
 
     const char* input =
 R"R(
-    type Foo : struct { x:u32 }
+    type Foo struct { x:u32 }
     fn foo() {
        var f = Foo{x:20};
     }

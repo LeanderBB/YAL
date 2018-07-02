@@ -34,7 +34,7 @@ class PassType : public CompileFixture {
 TEST_F(PassType, StructMemberInitMissing) {
     const char* input =
 R"R(
-    type Foo:struct {
+    type Foo struct {
            bar:i32 ,
            other:bool
     }
@@ -62,7 +62,7 @@ R"R(
 TEST_F(PassType, RefAssignFail) {
     const char* input =
 R"R(
-    type Foo:struct {
+    type Foo struct {
            other:bool
     }
 
@@ -86,7 +86,7 @@ R"R(
 TEST_F(PassType, RefMissingCast) {
     const char* input =
 R"R(
-    type Foo:struct {
+    type Foo struct {
            other:bool
     }
 
@@ -115,7 +115,7 @@ R"R(
 TEST_F(PassType, FnTypeStaticCallOnInstance) {
     const char* input =
 R"R(
-    type Foo:struct {
+    type Foo struct {
            x:i32
     }
 
@@ -146,7 +146,7 @@ R"R(
 TEST_F(PassType, FnTypeInstanceCallOnStatic) {
     const char* input =
 R"R(
-    type Foo:struct {
+    type Foo struct {
            x:i32
     }
 
@@ -293,7 +293,7 @@ R"R(
 TEST_F(PassType, SelfVarRef) {
     const char* input =
 R"R(
-    type Foo : struct {
+    type Foo struct {
           x:i32
     }
 
@@ -323,7 +323,7 @@ R"R(
 TEST_F(PassType, SelfVarRefScoped) {
     const char* input =
 R"R(
-    type Foo : struct {
+    type Foo struct {
           x:i32
     }
 
@@ -357,7 +357,7 @@ R"R(
 TEST_F(PassType, SelfVarRefScopedIndirect) {
     const char* input =
 R"R(
-    type Foo : struct {
+    type Foo struct {
           x:i32
     }
 
@@ -394,7 +394,7 @@ R"R(
 TEST_F(PassType, TypeFnCallMutability) {
     const char* input =
 R"R(
-    type Foo : struct {
+    type Foo struct {
           x:i32
     }
 
@@ -446,7 +446,7 @@ R"R(
 TEST_F(PassType, TypeCastFail) {
     const char* input =
 R"R(
-    type Foo : struct {
+    type Foo struct {
           x:i32
     }
 
@@ -472,7 +472,7 @@ R"R(
 TEST_F(PassType, CastNonTrivialType) {
     const char* input =
 R"R(
-    type Foo : struct {
+    type Foo struct {
         x : u32
     }
 
@@ -497,7 +497,7 @@ R"R(
 TEST_F(PassType, CastNonTrivialTypeAsReference) {
     const char* input =
 R"R(
-    type Foo : struct {
+    type Foo struct {
         x : u32
     }
 
@@ -517,7 +517,7 @@ R"R(
 TEST_F(PassType, CastTrivialTypeAsReference) {
     const char* input =
 R"R(
-    type Foo : struct {
+    type Foo struct {
         x : i32
     }
 

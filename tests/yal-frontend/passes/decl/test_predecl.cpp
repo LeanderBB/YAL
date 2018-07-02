@@ -34,7 +34,7 @@ R"R(
 
     }
 
-    type main : struct {
+    type main struct {
         x:bool
     }
 )R";
@@ -56,7 +56,7 @@ TEST_F(PassDecl_PreDecl, DuplicateType_TypeFunction) {
 
     const char* input =
 R"R(
-    type Foo : struct {
+    type Foo struct {
         b: bool
     }
 

@@ -33,7 +33,7 @@ class PassDecl_AstBuilder : public CompileFixture {
 TEST_F(PassDecl_AstBuilder, DeclStructUndefinedType) {
     const char* input =
 R"R(
-    type Foo : struct {
+    type Foo struct {
     y: Bar
     }
 )R";
@@ -54,7 +54,7 @@ R"R(
 TEST_F(PassDecl_AstBuilder, DeclStructDuplicateSym) {
     const char* input =
 R"R(
-    type Foo : struct {
+    type Foo struct {
     y: i8,
     y: bool
     }
@@ -149,7 +149,7 @@ R"R(
 TEST_F(PassDecl_AstBuilder, DeclFnInvalidUseOfSelfNotFirstParam) {
     const char* input =
 R"R(
-    type Bar : struct {
+    type Bar struct {
          x:bool
     }
 
@@ -174,7 +174,7 @@ R"R(
 TEST_F(PassDecl_AstBuilder, DeclFnDuplicateParam) {
     const char* input =
 R"R(
-    type Bar : struct {
+    type Bar struct {
          x:bool
     }
     impl Bar {
@@ -414,7 +414,7 @@ R"R(
 TEST_F(PassDecl_AstBuilder, FunctionOnTargetNotDefined) {
     const char* input =
 R"R(
-    type Foo: struct {
+    type Foo struct {
         x:bool
     }
 
@@ -443,7 +443,7 @@ R"R(
 TEST_F(PassDecl_AstBuilder, FunctionOnTargetIsNotStatic) {
     const char* input =
 R"R(
-    type Foo: struct {
+    type Foo struct {
         x:bool
     }
 
@@ -473,7 +473,7 @@ R"R(
 TEST_F(PassDecl_AstBuilder, TypeIsNotFunction) {
     const char* input =
 R"R(
-    type Foo: struct {
+    type Foo struct {
         x:bool
     }
 
@@ -520,7 +520,7 @@ R"R(
 TEST_F(PassDecl_AstBuilder, StructInitUndefinedMember) {
     const char* input =
 R"R(
-    type Foo : struct {
+    type Foo struct {
         y:bool
     }
 
@@ -544,7 +544,7 @@ R"R(
 TEST_F(PassDecl_AstBuilder, StructMemberOrder) {
     const char* input =
 R"R(
-    type Foo : struct {
+    type Foo struct {
         x:bool,
         y:bool,
         z:bool
@@ -736,7 +736,7 @@ R"R(
 TEST_F(PassDecl_AstBuilder, AssignRefOutOfScopeStruct) {
     const char* input =
 R"R(
-    type Foo : struct {
+    type Foo struct {
         x : i32
     }
 

@@ -240,7 +240,7 @@ decl_type(A) ::= decl_struct(B). { A = B;}
 
 // Decl Struct ---------------------------------------------------------------
 
-decl_struct(A) ::= TYPE(B) identifier(D) COLON STRUCT SCOPE_BEGIN struct_decl_vars(C) SCOPE_END(Z). {
+decl_struct(A) ::= TYPE(B) identifier(D) STRUCT SCOPE_BEGIN struct_decl_vars(C) SCOPE_END(Z). {
     A = pParser->createNode<yal::frontend::STDeclStruct>(D, C, *pParser);
     auto srcInfo = CreateSourceInfo(B, Z, pParser->getSourceHandle());
     A->setSourceInfo(srcInfo);

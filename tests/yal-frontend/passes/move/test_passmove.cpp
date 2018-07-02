@@ -29,11 +29,11 @@ class PassMove: public CompileFixture {
 TEST_F(PassMove, UseStructAfterAssignMove) {
     const char* input =
 R"R(
-    type Bar : struct {
+    type Bar struct {
         x : u32
     }
 
-    type Foo : struct {
+    type Foo struct {
         b: Bar
     }
 
@@ -65,7 +65,7 @@ R"R(
 TEST_F(PassMove, UseStructAfterFunctionMove) {
     const char* input =
 R"R(
-    type Foo : struct {
+    type Foo struct {
         x: u32
     }
 
@@ -101,11 +101,11 @@ R"R(
 TEST_F(PassMove, UseStructAfterAssignMoveFnParam) {
     const char* input =
 R"R(
-    type Bar : struct {
+    type Bar struct {
         x : u32
     }
 
-    type Foo : struct {
+    type Foo struct {
         b: Bar
     }
 
@@ -140,11 +140,11 @@ R"R(
 TEST_F(PassMove, UseStructAfterStructInitMove) {
     const char* input =
 R"R(
-    type Bar : struct {
+    type Bar struct {
         x : u32
     }
 
-    type Foo : struct {
+    type Foo struct {
         b: Bar
     }
 
@@ -170,11 +170,11 @@ R"R(
 TEST_F(PassMove, StructMoveNoReplace) {
     const char* input =
 R"R(
-    type Bar : struct {
+    type Bar struct {
         x : u32
     }
 
-    type Foo : struct {
+    type Foo struct {
         b: Bar
     }
 
@@ -201,11 +201,11 @@ R"R(
 TEST_F(PassMove, StructMoveTriviallyCopiable) {
     const char* input =
 R"R(
-    type Bar : struct {
+    type Bar struct {
         x : u32
     }
 
-    type Foo : struct {
+    type Foo struct {
         b: Bar
     }
 
@@ -226,7 +226,7 @@ R"R(
 TEST_F(PassMove, MoveReInitMove) {
     const char* input =
 R"R(
-    type Foo : struct {
+    type Foo struct {
         x:u32
     }
 
@@ -294,7 +294,7 @@ R"R(
 TEST_F(PassMove, MoveDerefAssingNonTrivialCopiableRefToLocal) {
     const char* input =
 R"R(
-    type Foo : struct {
+    type Foo struct {
         x:u32
     }
 

@@ -33,11 +33,11 @@ class General : public CompileFixture {
 TEST_F(General, StructAccess) {
     const char* input =
 R"R(
-    type Bar : struct {
+    type Bar struct {
         x : u32
     }
 
-    type Foo : struct {
+    type Foo struct {
         b: Bar
     }
 
@@ -75,12 +75,12 @@ R"R(
 TEST_F(General, RefTest) {
     const char* input =
 R"R(
-    type Bar : struct {
+    type Bar struct {
         x : u32
     }
 
 
-    type Foo : struct {
+    type Foo struct {
         b: mut Bar
     }
 
