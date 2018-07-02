@@ -20,6 +20,7 @@
 #include "yal/frontend/ast/astprinter.h"
 #include "yal/frontend/ast/astvisitorimpl.h"
 #include "yal/frontend/types/qualtype.h"
+#include "yal/frontend/types/typealias.h"
 #include "yal/frontend/types/typefunction.h"
 #include "yal/frontend/types/typestruct.h"
 #include "yal/io/bytestream.h"
@@ -157,8 +158,12 @@ namespace yal::frontend {
     }
 
     void
-    AstPrinter::visit(const DeclWeakAlias&) {
-
+    AstPrinter::visit(const DeclAliasWeak& node) {
+        m_writer.write("%",node.getAstTypeName());
+        printSourceInfo(node.getSourceInfo());
+        m_writer.write(" % as %\n",
+                       node.getIdentifier(),
+                       node.getAliasType().getAliasedType().getIdentifier());
     }
 
     void

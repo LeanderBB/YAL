@@ -19,6 +19,7 @@
 
 #include "yal/frontend/types/identifier.h"
 #include "yal/frontend/module.h"
+#include "yal/frontend/parser/sttype.h"
 #include "yal/util/hash.h"
 
 namespace yal::frontend {

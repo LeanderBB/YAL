@@ -27,9 +27,7 @@
 #include "yal/frontend/parser/stdecltypefunctions.h"
 #include "yal/frontend/parser/syntaxtreevisitorimpl.h"
 #include "yal/frontend/passes/decl/errorspassdecl.h"
-#include "yal/frontend/types/typecontext.h"
-#include "yal/frontend/types/typefunction.h"
-#include "yal/frontend/types/typestruct.h"
+#include "yal/frontend/types/types.h"
 
 namespace yal::frontend {
 
@@ -38,7 +36,7 @@ namespace yal::frontend {
         YAL_NO_COPY_CLASS(ScopeGuard);
 
         ScopeGuard(STPreDeclVisitor& visitor,
-                       const ScopeState& newState):
+                   const ScopeState& newState):
             m_visitor(visitor),
             m_prevState(visitor.m_state) {
             m_visitor.m_state = newState;
@@ -74,15 +72,17 @@ namespace yal::frontend {
         } else {
             // report error
             auto errorPtr = std::make_unique<ErrorDuplicateTypeDecl>(m_module,
-                                                                 *typeFn,
-                                                                 *existingType);
+                                                                     *typeFn,
+                                                                     *existingType);
             m_errReporter.report(std::move(errorPtr));
             return;
         }
 
         // register function with type
         if (target != nullptr) {
-            target->addFunction(typeFn);
+            YAL_ASSERT(target->isFunctionTargetable());
+            TypeTargetable* typeTargetable = static_cast<TypeTargetable*>(target);
+            typeTargetable->addFunction(typeFn);
         }
     }
 
@@ -98,8 +98,8 @@ namespace yal::frontend {
         } else {
             // report error
             auto errorPtr = std::make_unique<ErrorDuplicateTypeDecl>(m_module,
-                                                                 *typeStruct,
-                                                                 *existingType);
+                                                                     *typeStruct,
+                                                                     *existingType);
             m_errReporter.report(std::move(errorPtr));
         }
     }
@@ -117,15 +117,11 @@ namespace yal::frontend {
     void
     STPreDeclVisitor::visit(const STDeclTypeFunctions& declTypeFunctions) {
         const STType& targetType = declTypeFunctions.getType();
-        TypeContext& typeCtx = m_module.getTypeContext();
 
         // Resolve type
-        Type* target = nullptr;
-        const Identifier targetId(targetType.getIdentifier(),m_module);
-        target = typeCtx.getByIdentifier(targetId);
-
+        Type* target = resolveType(targetType);
         if (target == nullptr) {
-            auto errorPtr = std::make_unique<ErrorUndefinedTypeRef>(targetId.getName(),
+            auto errorPtr = std::make_unique<ErrorUndefinedTypeRef>(targetType.getIdentifier(),
                                                                     targetType.getSourceInfo());
             m_errReporter.report(std::move(errorPtr));
             return;
@@ -133,7 +129,7 @@ namespace yal::frontend {
 
         if (!target->isFunctionTargetable()) {
             auto errorPtr = std::make_unique<ErrorFnImplOnNonTargetType>(targetType.getSourceInfo(),
-                                                                        target);
+                                                                         target);
             m_errReporter.report(std::move(errorPtr));
             return;
         }
@@ -144,7 +140,47 @@ namespace yal::frontend {
         ScopeGuard guard(*this, newState);
 
         for (auto& decl : declTypeFunctions.getDecls()) {
-           resolve(*decl);
+            resolve(*decl);
+        }
+    }
+
+    void
+    STPreDeclVisitor::visit(const STDeclAlias& node) {
+        TypeContext& typeCtx = m_module.getTypeContext();
+        const STType& aliasedType = node.getAliasedType();
+
+        // see if alias type has been declared
+        Type* resolvedType = resolveType(aliasedType);
+        if (resolvedType == nullptr) {
+            auto errorPtr = std::make_unique<ErrorUndefinedTypeRef>(aliasedType.getIdentifier(),
+                                                                    aliasedType.getSourceInfo());
+            m_errReporter.report(std::move(errorPtr));
+            return;
+        }
+
+        if (resolvedType->isFunction()
+                || resolvedType->isTypeFunction()
+                || resolvedType->isTypeFunctionStatic()) {
+            auto errorPtr = std::make_unique<ErrorAliasOfFunction>(node);
+            m_errReporter.report(std::move(errorPtr));
+            return;
+        }
+
+        // Create new type
+        TypeAliasWeak* typeAlias = typeCtx.allocateType<TypeAliasWeak>(m_module,
+                                                                       node,
+                                                                       *resolvedType);
+        // check for duplicate types
+        const Type* existingType = typeCtx.getByIdentifier(typeAlias->getIdentifier());
+        if (existingType == nullptr) {
+            typeCtx.registerType(typeAlias);
+        } else {
+            // report error
+            auto errorPtr = std::make_unique<ErrorDuplicateTypeDecl>(m_module,
+                                                                     *typeAlias,
+                                                                     *existingType);
+            m_errReporter.report(std::move(errorPtr));
+            return;
         }
     }
 
@@ -225,5 +261,41 @@ namespace yal::frontend {
     void
     STPreDeclVisitor::visit(const STStmtListScoped&) {
         YAL_ASSERT_NOT_IMPLEMENTED();
+    }
+
+    Type*
+    STPreDeclVisitor::resolveType(const STType& stType) {
+        TypeContext& typeCtx = m_module.getTypeContext();
+        switch(stType.getType()) {
+        case STType::Type::Bool:
+            return typeCtx.getTypeBuiltinBool();
+        case STType::Type::Int8:
+            return typeCtx.getTypeBuiltinI8();
+        case STType::Type::Int16:
+            return typeCtx.getTypeBuiltinI16();
+        case STType::Type::Int32:
+            return typeCtx.getTypeBuiltinI32();
+        case STType::Type::Int64:
+            return typeCtx.getTypeBuiltinI64();
+        case STType::Type::UInt8:
+            return typeCtx.getTypeBuiltinU8();
+        case STType::Type::UInt16:
+            return typeCtx.getTypeBuiltinU16();
+        case STType::Type::UInt32:
+            return typeCtx.getTypeBuiltinU32();
+        case STType::Type::UInt64:
+            return typeCtx.getTypeBuiltinU64();
+        case STType::Type::Float32:
+            return typeCtx.getTypeBuiltinFloat32();
+        case STType::Type::Float64:
+            return typeCtx.getTypeBuiltinFloat64();
+        case STType::Type::Custom:{
+            const Identifier id(stType.getIdentifier(), m_module);
+            return typeCtx.getByIdentifier(id);
+        }
+        default:
+            YAL_ASSERT(false);
+            return nullptr;
+        }
     }
 }

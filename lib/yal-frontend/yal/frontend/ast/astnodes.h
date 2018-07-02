@@ -20,6 +20,7 @@
 #pragma once
 
 #include "yal/frontend/ast/astvisitor.h"
+#include "yal/frontend/ast/declalias.h"
 #include "yal/frontend/ast/declfunction.h"
 #include "yal/frontend/ast/declmodule.h"
 #include "yal/frontend/ast/decltypefunction.h"

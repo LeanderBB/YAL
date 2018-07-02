@@ -6,9 +6,11 @@ add_executable(test_yal_frontend
     #test_stagesizecalc.cpp
     passes/test_passparser.cpp
     passes/decl/test_predecl.cpp
+    passes/decl/test_predecl_alias.cpp
     passes/decl/test_astbuilder.cpp
     passes/fnret/test_fnret.cpp
     passes/type/test_passtype.cpp
+    passes/type/test_passtype_alias.cpp
     passes/move/test_passmove.cpp
     main_test_compiler.cpp)
 

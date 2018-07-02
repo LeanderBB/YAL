@@ -162,7 +162,7 @@ namespace yal::frontend {
     AstVisitorExprType::visit(DeclStrongAlias&) {}
 
     void
-    AstVisitorExprType::visit(DeclWeakAlias&) {}
+    AstVisitorExprType::visit(DeclAliasWeak&) {}
 
     void
     AstVisitorExprType::visit(StmtReturn& node) {

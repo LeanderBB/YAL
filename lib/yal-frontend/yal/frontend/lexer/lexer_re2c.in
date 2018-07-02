@@ -45,6 +45,7 @@ namespace yal::frontend {
         /* common character classes */
 
             /* basic tokens */
+            ALIAS = "alias";
             IMPL="impl";
             MUT="mut";
             VAR = "var";
@@ -124,6 +125,7 @@ namespace yal::frontend {
             REFERENCE { setToken(Token::Reference, m_lexerState); return Status::Ok;}
             RETURN { setToken(Token::Return, m_lexerState);return Status::Ok; }
             TYPE { setToken(Token::Type, m_lexerState); return Status::Ok;}
+            ALIAS { setToken(Token::Alias, m_lexerState); return Status::Ok;}
             TRUE  { setToken(Token::True, m_lexerState); return Status::Ok; }
             FALSE  { setToken(Token::False, m_lexerState); return Status::Ok; }
             AND  { setToken(Token::And, m_lexerState); return Status::Ok; }

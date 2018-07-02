@@ -31,6 +31,7 @@ namespace yal::frontend {
     class STDeclStruct;
     class STDeclModule;
     class Type;
+    class STType;
     class Module;
 
     class STPreDeclVisitor final : public SyntaxTreeVisitorRecursive<STPreDeclVisitor, true>
@@ -48,6 +49,8 @@ namespace yal::frontend {
         struct ScopeState {
             Type* declimplTarget = nullptr;
         };
+
+        Type* resolveType(const STType& type);
 
     private:
         ErrorReporter& m_errReporter;

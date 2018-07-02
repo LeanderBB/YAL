@@ -209,7 +209,7 @@ namespace yal::backend::c {
     }
 
     void
-    AstVisitorCSource::visit(const yal::frontend::DeclWeakAlias&) {
+    AstVisitorCSource::visit(const yal::frontend::DeclAliasWeak&) {
 
     }
 

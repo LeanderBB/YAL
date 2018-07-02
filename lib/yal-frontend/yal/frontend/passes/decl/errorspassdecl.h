@@ -34,6 +34,7 @@ namespace yal::frontend {
     class Type;
     class TypeFunction;
     class TypeStruct;
+    class STDeclAlias;
 
     class ErrorDuplicateTypeDecl final : public ErrorFrontend{
     public:
@@ -367,7 +368,6 @@ namespace yal::frontend {
         const DeclVar& m_declRight;
     };
 
-
     class ErrorFnImplOnNonTargetType final : public ErrorFrontend{
     public:
         static const ErrorCode kCode;
@@ -385,6 +385,22 @@ namespace yal::frontend {
         const StringRef m_fnName;
         const SourceInfo m_fnSrcInfo;
         const Type* m_targetType;
+    };
+
+    class ErrorAliasOfFunction final : public ErrorFrontend{
+    public:
+        static const ErrorCode kCode;
+
+        ErrorAliasOfFunction(const STDeclAlias& decl);
+
+    protected:
+        StringRef getErrorName() const final override;
+
+        void printDetail(ErrorPrinter& printer) const final override;
+
+        const SourceInfo& getSourceInfo() const final override;
+    public:
+        const STDeclAlias& m_decl;
     };
 }
 

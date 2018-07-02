@@ -75,8 +75,6 @@ namespace yal::frontend {
             m_sizeBytes = 0;
             break;
         }
-
-        m_defined = 1;
         m_trivialCopy = 1;
         m_functionTargetable = 1;
     }
@@ -219,6 +217,10 @@ namespace yal::frontend {
         }
 
         const TypeBuiltin& builtinOther = static_cast<const TypeBuiltin&>(other);
+
+        if (builtinOther.getDataType() == m_builtinType) {
+            return true;
+        }
 
         switch(m_builtinType) {
         case DataType::Int8:

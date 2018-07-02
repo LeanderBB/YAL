@@ -17,30 +17,14 @@
  *  License along with YAL. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "yal/frontend/types/typestruct.h"
-#include "yal/frontend/parser/stdeclstruct.h"
-#include "yal/frontend/module.h"
+#include "yal/frontend/parser/stdeclalias.h"
 
 namespace yal::frontend {
 
-    TypeStruct::TypeStruct(const Module& module,
-                           const STDeclStruct &decl):
-        TypeTargetable(&module, Kind::TypeStruct,
-                       Identifier( decl.getName().getString(), module)),
-        m_stdecl(decl),
-        m_decl(nullptr) {
+    STDeclAlias::STDeclAlias(const STIdentifier* name,
+                             const STType* aliased):
+        STDeclNamed(SyntaxTreeType::STDeclAlias, name),
+        m_aliasedType(aliased) {
 
-        m_moduleType = 1;
-        m_functionTargetable = 1;
-    }
-
-    void
-    TypeStruct::setDecl(DeclStruct& decl) {
-        m_decl = &decl;
-    }
-
-    SourceInfoOpt
-    TypeStruct::getSourceInfo() const {
-        return SourceInfoOpt(m_stdecl.getName().getSourceInfo());
     }
 }

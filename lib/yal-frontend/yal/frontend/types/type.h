@@ -36,7 +36,7 @@ namespace yal::frontend {
     class Type {
         friend class TypeContext;
     public:
-        enum class Kind {
+        enum class Kind : uint8_t {
 #define YAL_TYPE_MACRO(type) type,
 #include "yal/frontend/types/typelist.def"
 #undef YAL_TYPE_MACRO
@@ -98,11 +98,22 @@ namespace yal::frontend {
 
         bool isCastableToRequest(const Type& other) const;
 
-        void addFunction(TypeFunction* function);
-
         virtual SourceInfoOpt getSourceInfo() const;
 
     protected:
+
+        virtual const TypeFunction* getFunctionWithIdImpl(const Identifier&) const {
+            return nullptr;
+        }
+
+        virtual const TypeFunction* getFunctionWithNameImpl(const StringRef) const {
+            return nullptr;
+        }
+
+        virtual const Type& resolve() const {
+            return *this;
+        }
+
         virtual bool isCastableToAutoImpl(const Type&) const {
             return false;
         }
@@ -111,26 +122,42 @@ namespace yal::frontend {
             return false;
         }
 
+        void copyInfoFromOther(const Type& other);
+
     protected:
-        using FunctionMap = IdentifierPtrMap<TypeFunction*>;
         uint64_t m_typeId;
         const Module* m_module;
-        const Kind m_kind;
-        uint32_t m_sizeBytes = 0;
         Identifier m_identifier;
-        FunctionMap m_typeFunctions;
-        unsigned m_moduleDependent:1;
+        uint32_t m_sizeBytes = 0;
+        const Kind m_kind;
         unsigned m_moduleExternal:1;
         unsigned m_moduleType:1;
-        unsigned m_defined:1;
         unsigned m_trivialCopy:1;
         unsigned m_functionTargetable:1;
         unsigned m_function:1;
         unsigned m_typefunction:1;
         unsigned m_typefunctionStatic:1;
-        unsigned m_struct:1;
     };
 
+
+    class TypeTargetable : public Type {
+    public:
+
+        void addFunction(TypeFunction* function);
+
+    protected:
+        TypeTargetable(const frontend::Module* module,
+                       const Kind kind,
+                       const Identifier& identifier);
+
+        const TypeFunction* getFunctionWithIdImpl(const Identifier& id) const override;
+
+        const TypeFunction* getFunctionWithNameImpl(const StringRef name) const override;
+
+    private:
+        using FunctionMap = IdentifierPtrMap<TypeFunction*>;
+        FunctionMap m_typeFunctions;
+    };
 
 }
 

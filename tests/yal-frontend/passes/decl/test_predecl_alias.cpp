@@ -22,22 +22,17 @@
 #include <yal/frontend/passes/decl/errorspassdecl.h>
 #include <yal/frontend/parser/errorparser.h>
 
-class PassDecl_PreDecl : public CompileFixture {
+class PassDecl_PreDecl_Alias : public CompileFixture {
 
 };
 
-TEST_F(PassDecl_PreDecl, DuplicateType) {
+
+TEST_F(PassDecl_PreDecl_Alias, AliasDuplicate) {
 
     const char* input =
 R"R(
-    fn main() {
-     var x = 30;
-
-    }
-
-    type main struct {
-        x:bool
-    }
+    type Foo struct { x:u32}
+    type Foo alias Foo;
 )R";
 
     auto handle = createSourceHandle(input);
@@ -52,45 +47,11 @@ R"R(
     EXPECT_EQ(err->getCode(), yal::frontend::ErrorDuplicateTypeDecl::kCode);
 }
 
-
-TEST_F(PassDecl_PreDecl, DuplicateType_TypeFunction) {
-
-    const char* input =
-R"R(
-    type Foo struct {
-        b: bool
-    }
-
-    impl Foo {
-        fn abcd(&self) {
-        }
-
-        fn abcd(b:bool) {
-        }
-    }
-)R";
-
-    auto handle = createSourceHandle(input);
-    FrontendOptionsType options;
-    const ModuleType* module = m_frontEnd.compile(handle, options);
-    EXPECT_EQ(module, nullptr);
-    EXPECT_TRUE(m_errorReporter.hasErrors());
-    if (!m_errorReporter.hasErrors()) {
-        return;
-    }
-    const yal::Error* err = m_errorReporter.getLastError();
-    EXPECT_EQ(err->getCode(), yal::frontend::ErrorDuplicateTypeDecl::kCode);
-}
-
-TEST_F(PassDecl_PreDecl, Undefined_FunctionTarget) {
+TEST_F(PassDecl_PreDecl_Alias, AliasUndefined) {
 
     const char* input =
 R"R(
-    impl Foo {
-        fn abcd(b:bool) {
-
-        }
-    }
+    type Bar alias Foo;
 )R";
 
     auto handle = createSourceHandle(input);
@@ -105,19 +66,13 @@ R"R(
     EXPECT_EQ(err->getCode(), yal::frontend::ErrorUndefinedTypeRef::kCode);
 }
 
-
-TEST_F(PassDecl_PreDecl, FnInvalidTarget) {
+TEST_F(PassDecl_PreDecl_Alias, AliasOnFunction) {
 
     const char* input =
 R"R(
-    fn abcd(b:bool) {
-    }
+    fn foo() {}
 
-    impl abcd {
-        fn foo() {
-
-        }
-    }
+    type Bar alias foo;
 )R";
 
     auto handle = createSourceHandle(input);
@@ -129,5 +84,31 @@ R"R(
         return;
     }
     const yal::Error* err = m_errorReporter.getLastError();
-    EXPECT_EQ(err->getCode(), yal::frontend::ErrorFnImplOnNonTargetType::kCode);
+    EXPECT_EQ(err->getCode(), yal::frontend::ErrorAliasOfFunction::kCode);
+}
+
+TEST_F(PassDecl_PreDecl_Alias, AliasOnTypeFunction) {
+
+    const char* input =
+R"R(
+    fn foo() {}
+    impl foo {
+        fn Test() {}
+    }
+    type Bar alias foo::Test;
+)R";
+
+    auto handle = createSourceHandle(input);
+    FrontendOptionsType options;
+    const ModuleType* module = m_frontEnd.compile(handle, options);
+    EXPECT_EQ(module, nullptr);
+    EXPECT_TRUE(m_errorReporter.hasErrors());
+    if (!m_errorReporter.hasErrors()) {
+        return;
+    }
+    const yal::Error* err = m_errorReporter.getLastError();
+    // TODO: When we can specify functions as types this should be the new error code
+    // EXPECT_EQ(err->getCode(), yal::frontend::ErrorAliasOfFunction::kCode);
+    // for now it will result in parse error
+    EXPECT_EQ(err->getCode(), yal::frontend::ErrorParser::kCode);
 }

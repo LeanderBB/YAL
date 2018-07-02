@@ -25,9 +25,7 @@
 #include "yal/frontend/parser/syntaxtreenodes.h"
 #include "yal/frontend/parser/syntaxtreevisitorimpl.h"
 #include "yal/frontend/passes/decl/errorspassdecl.h"
-#include "yal/frontend/types/typebuiltin.h"
-#include "yal/frontend/types/typefunction.h"
-#include "yal/frontend/types/typestruct.h"
+#include "yal/frontend/types/types.h"
 #include "yal/frontend/module.h"
 #include "yal/util/scopedstackelem.h"
 #include "yal/util/strconversions.h"
@@ -472,6 +470,44 @@ namespace yal::frontend {
                                     initExpr);
         parentScope->addDecl(decl);
         getState().stackDecls.push(decl);
+    }
+
+
+    void
+    AstBuilder::visit(const STDeclAlias& node) {
+        const STType& aliasedType = node.getAliasedType();
+
+        DeclScope* parentScope = getState().stackScope.top();
+        YAL_ASSERT(parentScope != nullptr);
+
+        // check if aliased type has been declared
+        Type* type = resolveType(aliasedType);
+        if (type == nullptr) {
+            onUndefinedType(aliasedType);
+        }
+
+        // check if alias type has been declared
+        const Identifier aliasId(node.getName().getString(), m_module);
+        Type* aliasType  = m_module.getTypeContext().getByIdentifier(aliasId);
+        if (aliasType == nullptr) {
+            onUndefinedType(aliasedType);
+        }
+
+        YAL_ASSERT(aliasType->isAlias());
+        if (aliasType->isWeakAlias()) {
+            TypeAliasWeak* typeAliasWeak = dyn_cast<TypeAliasWeak>(aliasType);
+            YAL_ASSERT(typeAliasWeak != nullptr);
+
+            DeclAliasWeak* decl = m_module.getASTContext().getAllocator()
+                    .construct<DeclAliasWeak>(m_module,
+                                              *parentScope,
+                                              *typeAliasWeak);
+            getState().stackDecls.push(decl);
+        }
+        else
+        {
+            YAL_ASSERT_NOT_IMPLEMENTED();
+        }
     }
 
     void
@@ -1006,7 +1042,13 @@ namespace yal::frontend {
             onUndefinedType(*stType);
         }
 
-        TypeStruct* typeStruct = dyn_cast<TypeStruct>(type);
+        if (type->isAlias()) {
+            TypeAliasWeak* typeAlias = dyn_cast<TypeAliasWeak>(type);
+            YAL_ASSERT(typeAlias != nullptr);
+            type = &typeAlias->getAliasedType();
+        }
+
+         TypeStruct* typeStruct = dyn_cast<TypeStruct>(type);
         if (typeStruct == nullptr) {
             auto error = std::make_unique<ErrorTypeIsNotStruct>(*type,
                                                                 stType->getSourceInfo());

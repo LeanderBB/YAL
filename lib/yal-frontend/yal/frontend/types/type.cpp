@@ -43,22 +43,18 @@ namespace yal::frontend {
                const Identifier &identifier) :
         m_typeId(std::numeric_limits<uint64_t>::max()),
         m_module(module),
-        m_kind(kind),
-        m_sizeBytes(0),
         m_identifier(identifier),
-        m_moduleDependent(0),
+        m_sizeBytes(0),
+        m_kind(kind),
         m_moduleExternal(0),
         m_moduleType(0),
-        m_defined(0),
         m_trivialCopy(0),
         m_functionTargetable(0),
         m_function(0),
         m_typefunction(0),
-        m_typefunctionStatic(0),
-        m_struct(0){
+        m_typefunctionStatic(0){
 
         if (module != nullptr) {
-            m_moduleDependent = 1;
             m_moduleType = 1;
         }
     }
@@ -91,13 +87,12 @@ namespace yal::frontend {
 
     bool
     Type::isStruct() const {
-        return m_kind == Kind::TypeStruct && m_struct == 1;
+        return m_kind == Kind::TypeStruct;
     }
 
     bool
     Type::isAlias() const {
-        return m_kind == Kind::TypeAliasStrong
-                || m_kind == Kind::TypeAliasWeak;
+        return isWeakAlias() || isStrongAlias();
     }
 
     bool
@@ -108,11 +103,6 @@ namespace yal::frontend {
     bool
     Type::isStrongAlias() const {
         return m_kind == Kind::TypeAliasStrong;
-    }
-
-    bool
-    Type::isModuleDependent() const {
-        return m_moduleDependent  == 1;
     }
 
     bool
@@ -137,26 +127,18 @@ namespace yal::frontend {
 
     const TypeFunction*
     Type::getFunctionWithName(const StringRef name) const {
-        Identifier fnId(name,
-                        m_identifier.getName(),
-                        m_identifier.getModule());
-        auto it = m_typeFunctions.find(&fnId);
-        return it != m_typeFunctions.end() ? it->second : nullptr;
+        if (!isFunctionTargetable()) {
+            return nullptr;
+        }
+        return getFunctionWithNameImpl(name);
     }
 
     const TypeFunction*
     Type::getFunctionWithIdentifier(const Identifier& id) const {
-        auto it = m_typeFunctions.find(&id);
-        return it != m_typeFunctions.end() ? it->second : nullptr;
-    }
-
-    void
-    Type::addFunction(TypeFunction* function) {
-        YAL_ASSERT(function->isTypeFunction());
-        YAL_ASSERT_MESSAGE(m_typeFunctions.find(&function->getIdentifier()) == m_typeFunctions.end(),
-                           "Adding duplicate function to type");
-        m_typeFunctions.insert(std::make_pair(&function->getIdentifier(),
-                                              function));
+        if (!isFunctionTargetable()) {
+            return nullptr;
+        }
+        return getFunctionWithIdImpl(id);
     }
 
     SourceInfoOpt
@@ -169,7 +151,8 @@ namespace yal::frontend {
         if (m_typeId == other.getTypeId()) {
             return true;
         } else {
-            return isCastableToAutoImpl(other);
+            const Type& resolved = other.resolve();
+            return isCastableToAutoImpl(resolved);
         }
     }
 
@@ -178,7 +161,43 @@ namespace yal::frontend {
         if (m_typeId == other.getTypeId()) {
             return true;
         } else {
-            return isCastableToRequestImpl(other);
+            const Type& resolved = other.resolve();
+            return isCastableToRequestImpl(resolved);
         }
     }
+
+    // TypeTargetable -------------------------------------------------------
+
+    TypeTargetable::TypeTargetable(const frontend::Module* module,
+                                   const Kind kind,
+                                   const Identifier& identifier):
+        Type(module, kind, identifier) {
+        m_functionTargetable = 1;
+    }
+
+    void
+    TypeTargetable::addFunction(TypeFunction* function) {
+        YAL_ASSERT(function->isTypeFunction());
+        YAL_ASSERT_MESSAGE(m_typeFunctions.find(&function->getIdentifier()) == m_typeFunctions.end(),
+                           "Adding duplicate function to type");
+        m_typeFunctions.insert(std::make_pair(&function->getIdentifier(),
+                                              function));
+    }
+
+    const TypeFunction*
+    TypeTargetable::getFunctionWithIdImpl(const Identifier& id) const {
+        auto it = m_typeFunctions.find(&id);
+        return it != m_typeFunctions.end() ? it->second : nullptr;
+    }
+
+    const TypeFunction*
+    TypeTargetable::getFunctionWithNameImpl(const StringRef name) const {
+        Identifier fnId(name,
+                        m_identifier.getName(),
+                        m_identifier.getModule());
+        auto it = m_typeFunctions.find(&fnId);
+        return it != m_typeFunctions.end() ? it->second : nullptr;
+    }
+
+
 }

@@ -31,7 +31,8 @@ namespace yal::frontend {
     YAL_DECL_NODE_FN(DeclVar) \
     YAL_DECL_NODE_FN(DeclParamVar) \
     YAL_DECL_NODE_FN(DeclParamVarSelf) \
-    YAL_DECL_NODE_FN(DeclModule)
+    YAL_DECL_NODE_FN(DeclModule) \
+    YAL_DECL_NODE_FN(DeclAliasWeak)
 //    YAL_DECL_NODE_FN(DeclStrongAlias)
 // YAL_DECL_NODE_FN(DeclWeakAlias)
 

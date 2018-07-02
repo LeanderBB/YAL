@@ -105,7 +105,7 @@ namespace yal::frontend {
     ReturnCheckVisitor::visit(const DeclStrongAlias&) {}
 
     void
-    ReturnCheckVisitor::visit(const DeclWeakAlias&) {}
+    ReturnCheckVisitor::visit(const DeclAliasWeak&) {}
 
     void
     ReturnCheckVisitor::visit(const StmtReturn&) {

@@ -21,9 +21,12 @@
 
 #include "yal/backendc/backendc.h"
 #include "yal/backendc/ctypegen.h"
+#include "yal/backendc/ctype.h"
 #include "yal/frontend/module.h"
 #include "yal/frontend/ast/astvisitorimpl.h"
+#include "yal/frontend/types/typealias.h"
 
+namespace yf = yal::frontend;
 namespace yal::backend::c {
 
     AstVisitorCHeader::AstVisitorCHeader(ByteStream& stream,
@@ -82,7 +85,15 @@ namespace yal::backend::c {
     AstVisitorCHeader::visit(const yal::frontend::DeclStrongAlias&) {}
 
     void
-    AstVisitorCHeader::visit(const yal::frontend::DeclWeakAlias&) {}
+    AstVisitorCHeader::visit(const yal::frontend::DeclAliasWeak& node) {
+        const yf::TypeAliasWeak& aliasType = node.getAliasType();
+        const CType* aliasCType = m_typeCache.getCType(aliasType);
+        const CType* aliasedCType = m_typeCache.getCType(aliasType.getAliasedType());
+        YAL_ASSERT(aliasCType != nullptr && aliasedCType != nullptr);
+        m_writer.write("typdef % %;\n\n",
+                       aliasedCType->getCIdentifier(),
+                       aliasCType->getCIdentifier());
+    }
 
     void
     AstVisitorCHeader::visit(const yal::frontend::StmtReturn&) {}

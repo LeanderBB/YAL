@@ -106,7 +106,8 @@ namespace yal::frontend
             "DecimalLiteral64",
             "IntegerLiteral",
             "DecimalLiteral",
-            "Impl"
+            "Impl",
+            "Alias"
         };
 
         static_assert(sizeof(sLookupTable)/sizeof(sLookupTable[0]) ==

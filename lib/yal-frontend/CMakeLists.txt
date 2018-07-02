@@ -39,6 +39,8 @@ set(YAL_SOURCES
     yal/frontend/ast/decltypefunction.cpp
     yal/frontend/ast/declmodule.cpp
     yal/frontend/ast/declmodule.h
+    yal/frontend/ast/declalias.h
+    yal/frontend/ast/declalias.cpp
     yal/frontend/ast/statement.h
     yal/frontend/ast/statement.cpp
     yal/frontend/ast/stmtexpression.cpp
@@ -151,6 +153,8 @@ set(YAL_SOURCES
     yal/frontend/parser/stdecltypefunctions.h
     yal/frontend/parser/stdecltypefunctions.cpp
     yal/frontend/parser/syntaxtreevisitorimpl.h
+    yal/frontend/parser/stdeclalias.cpp
+    yal/frontend/parser/stdeclalias.h
     yal/frontend/module.h
     yal/frontend/module.cpp
     yal/frontend/modulemanager.h
@@ -173,6 +177,9 @@ set(YAL_SOURCES
     yal/frontend/types/typestruct.h
     yal/frontend/types/identifier.cpp
     yal/frontend/types/identifier.h
+    yal/frontend/types/typealias.h
+    yal/frontend/types/typealias.cpp
+    yal/frontend/types/types.h
     yal/frontend/passes/passes.h
     yal/frontend/passes/parser/passparser.h
     yal/frontend/passes/parser/passparser.cpp

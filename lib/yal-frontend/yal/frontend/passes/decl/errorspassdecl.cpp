@@ -24,6 +24,7 @@
 #include "yal/frontend/ast/declbase.h"
 #include "yal/frontend/ast/declvar.h"
 #include "yal/frontend/module.h"
+#include "yal/frontend/parser/stdeclalias.h"
 #include "yal/frontend/parser/stdeclfunction.h"
 #include "yal/frontend/parser/stdeclstruct.h"
 #include "yal/frontend/parser/stexprliterals.h"
@@ -766,5 +767,32 @@ namespace yal::frontend {
     const SourceInfo&
     ErrorFnImplOnNonTargetType::getSourceInfo() const {
         return m_fnSrcInfo;
+    }
+
+    // ErrorAliasOfFunction --------------------------------------------
+
+    const ErrorCode  ErrorAliasOfFunction::kCode =
+            MakeErrorCode(static_cast<uint16_t>(PassTypeCode::Decl), 19);
+
+    ErrorAliasOfFunction:: ErrorAliasOfFunction(const STDeclAlias& decl):
+        ErrorFrontend(kCode),
+        m_decl(decl) {
+
+    }
+
+    StringRef
+    ErrorAliasOfFunction::getErrorName() const {
+        return "Invalid Alias";
+    }
+
+    void
+    ErrorAliasOfFunction::printDetail(ErrorPrinter &printer) const {
+        FormatAppend(printer.getFormater(),
+                     "Can't create alias of function types.\n");
+    };
+
+    const SourceInfo&
+    ErrorAliasOfFunction::getSourceInfo() const {
+        return m_decl.getSourceInfo();
     }
 }

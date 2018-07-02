@@ -81,10 +81,11 @@
 %type identifier {yal::frontend::STIdentifier*}
 %type self {yal::frontend::STIdentifier*}
 %type identifier_or_self {yal::frontend::STIdentifier*}
-// Decls
 
+// Decls
+%type decl {yal::frontend::STDecl*}
 %type decl_var {yal::frontend::STDeclVar*}
-%type decl_type {yal::frontend::STDecl*}
+%type decl_alias {yal::frontend::STDeclAlias*}
 
 //function
 %type decl_function {yal::frontend::STDeclFunction*}
@@ -120,21 +121,27 @@
 
 module ::= decls END.
 
-decls (A)::= decls(B) decl_type(C). {
-    A =B; B->addDecl(C);
-}
-decls(A) ::= decls(B) decl_function(C). {
-        A =B; B->addDecl(C);
-}
-decls(A) ::= decls(B) decl_type_functions_scope(C). {
+decls (A)::= decls(B) decl(C). {
     A =B; B->addDecl(C);
 }
 decls(A) ::=. {
         A =  pParser->getDeclModule();
 }
 
-// Type References  -----------------------------------------------------------
+decl(A) ::= decl_alias(B). {
+    A = B;
+}
+decl(A) ::= decl_struct(B). {
+    A = B;
+}
+decl(A) ::= decl_function(B). {
+    A = B;
+}
+decl(A) ::= decl_type_functions_scope(B). {
+    A = B;
+}
 
+// Type References  -----------------------------------------------------------
 
 identifier(A) ::= IDENTIFIER(B). {
         A = pParser->createNode<yal::frontend::STIdentifier>(B.tokenStr);
@@ -229,14 +236,12 @@ type_qualified(A) ::= qualifier(D) type_specifier(C). {
     A = pParser->createNode<yal::frontend::STQualType>(C, D);
 }
 
-// Type Decl -----------------------------------------------------------------
-
-decl_type(A) ::= TYPE identifier COLON type_specifier SEMI_COLON. {
-    A = nullptr;
+// Decl Alias ---------------------------------------------------------------
+decl_alias(A) ::= TYPE(B) identifier(D) ALIAS type_specifier(C) SEMI_COLON(Z). {
+    A = pParser->createNode<yal::frontend::STDeclAlias>(D, C);
+    auto srcInfo = CreateSourceInfo(B, Z, pParser->getSourceHandle());
+    A->setSourceInfo(srcInfo);
 }
-
-decl_type(A) ::= decl_struct(B). { A = B;}
-
 
 // Decl Struct ---------------------------------------------------------------
 

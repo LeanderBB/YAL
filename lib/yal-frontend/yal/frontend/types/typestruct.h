@@ -25,7 +25,7 @@ namespace yal::frontend {
 
     class STDeclStruct;
     class DeclStruct;
-    class TypeStruct : public Type
+    class TypeStruct : public TypeTargetable
     {
     public:
         TypeStruct(const Module& module,
