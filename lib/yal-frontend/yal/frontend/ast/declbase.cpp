@@ -48,12 +48,17 @@ namespace yal::frontend {
     }
 
     bool
-    DeclBase::isVariableDecl() const {
+    DeclBase::isDeclVar() const {
         return m_astType == AstType::DeclVar
                 || m_astType == AstType::DeclParamVar
                 || m_astType == AstType::DeclParamVarSelf;
     }
 
+    bool
+    DeclBase::isDeclParam() const {
+        return m_astType == AstType::DeclParamVar
+                || m_astType == AstType::DeclParamVarSelf;
+    }
 
     void
     DeclBase::setScopeWhereDeclared(DeclScopeOpt scope) {

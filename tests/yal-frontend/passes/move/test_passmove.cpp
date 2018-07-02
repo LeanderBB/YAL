@@ -251,3 +251,69 @@ R"R(
     EXPECT_TRUE(!m_errorReporter.hasErrors());
 }
 
+
+TEST_F(PassMove, MoveDerefAssignToRef) {
+    const char* input =
+R"R(
+    fn foo(x:mut& u32) {
+        *x = 40;
+    }
+    fn main() {
+       var x = 20;
+       foo(&x);
+    }
+)R";
+
+    auto handle = createSourceHandle(input);
+    FrontendOptionsType options;
+    const ModuleType* module = m_frontEnd.compile(handle, options);
+    EXPECT_NE(module, nullptr);
+    EXPECT_TRUE(!m_errorReporter.hasErrors());
+}
+
+TEST_F(PassMove, MoveDerefAssingTrivialCopiableRefToLocal) {
+    const char* input =
+R"R(
+    fn foo(x:mut& u32) {
+        var z = *x;
+    }
+    fn main() {
+       var x = 20;
+       foo(&x);
+    }
+)R";
+
+    auto handle = createSourceHandle(input);
+    FrontendOptionsType options;
+    const ModuleType* module = m_frontEnd.compile(handle, options);
+    EXPECT_NE(module, nullptr);
+    EXPECT_TRUE(!m_errorReporter.hasErrors());
+}
+
+
+TEST_F(PassMove, MoveDerefAssingNonTrivialCopiableRefToLocal) {
+    const char* input =
+R"R(
+    type Foo : struct {
+        x:u32
+    }
+
+    fn foo(x:mut& Foo) {
+        var z:Foo = *x;
+    }
+    fn main() {
+       var f = Foo {x:32};
+       foo(&f);
+    }
+)R";
+
+    auto handle = createSourceHandle(input);
+    FrontendOptionsType options;
+    const ModuleType* module = m_frontEnd.compile(handle, options);
+    EXPECT_EQ(module, nullptr);
+    EXPECT_TRUE(m_errorReporter.hasErrors());
+    if (m_errorReporter.hasErrors()) {
+        const yal::Error* err = m_errorReporter.getLastError();
+        EXPECT_EQ(yal::frontend::ErrorMoveDereference::kCode, err->getCode());
+    }
+}

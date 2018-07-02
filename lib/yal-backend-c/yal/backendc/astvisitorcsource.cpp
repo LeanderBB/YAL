@@ -239,23 +239,19 @@ namespace yal::backend::c {
     void
     AstVisitorCSource::visit(const yal::frontend::ExprVarRef& node) {
         const yf::DeclVar& decl =node.getDeclVar();
-        const bool isMovedDeclParm =
-                decl.getAstType() == yf::AstType::DeclParamVar
-                || decl.getAstType() == yf::AstType::DeclParamVarSelf;
+        const bool isDeclParam = decl.isDeclParam();
 
-        //TODO:: improve!!!
         if (m_state.varRefMakeReference) {
             const yf::QualType qt = node.getQualType();
             if (!qt.isReference()
-                    && !qt.isTriviallyCopiable()
-                    && !isMovedDeclParm) {
+                    && !isDeclParam) {
                 m_writer.write("&");
             }
         }
 
-        const bool shouldDeref = isMovedDeclParm
-                && decl.getQualType().isMovedType()
-                && !m_state.varRefMakeReference;
+        const bool shouldDeref = !m_state.varRefMakeReference
+                && isDeclParam
+                && decl.getQualType().isMovedType();
         if (shouldDeref) {
             m_writer.write("(*%)", decl.getName());
         } else {
@@ -282,15 +278,13 @@ namespace yal::backend::c {
 
     void
     AstVisitorCSource::visit(const yal::frontend::ExprUnaryOperator& node) {
+        State newState = m_state;
         // Do not write reference operator since it is handled when
         // variables are being referenced.
         const yf::UnaryOperatorType op = node.getOperatorType();
-        if (op!= yf::UnaryOperatorType::Reference) {
+        if (op != yf::UnaryOperatorType::Reference) {
             m_writer.write(CTypeGen::GenUnaryOperator(op));
-        }
-
-        State newState;
-        if (node.getOperatorType() == yf::UnaryOperatorType::Reference) {
+        } else {
             newState.varRefMakeReference = true;
         }
 

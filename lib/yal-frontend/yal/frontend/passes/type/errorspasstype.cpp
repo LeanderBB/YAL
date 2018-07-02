@@ -575,4 +575,33 @@ namespace yal::frontend {
                      "Attempting to cast from '%' to '%'\n",
                      m_typeFrom, m_typeTo);
     }
+
+    // ErrorTypeUnaryOpDerefNonRef ----------------------------------------------
+
+        const ErrorCode  ErrorTypeUnaryOpDerefNonRef::kCode =
+                MakeErrorCode(static_cast<uint16_t>(PassTypeCode::Type),19);
+
+        ErrorTypeUnaryOpDerefNonRef::ErrorTypeUnaryOpDerefNonRef(const ExprUnaryOperator& expr):
+            ErrorFrontend(kCode),
+            m_expr(expr) {
+        }
+
+        StringRef
+        ErrorTypeUnaryOpDerefNonRef::getErrorName() const {
+            return "Dereference of non reference";
+        }
+
+        void
+        ErrorTypeUnaryOpDerefNonRef::printDetail(ErrorPrinter &printer) const {
+            auto& formater = printer.getFormater();
+            FormatAppend(formater,
+                         "Can't dereference an expression that is not a reference.\n"
+                         "Expression is of type '%'\n",
+                         m_expr.getQualType());
+        };
+
+        const SourceInfo&
+        ErrorTypeUnaryOpDerefNonRef::getSourceInfo() const {
+            return m_expr.getSourceInfo();
+        }
 }

@@ -24,16 +24,16 @@ namespace yal {
 
     class StackJump {
     public:
-
-        void mark() {
-            setjmp(m_env);
-        }
+        static const constexpr int kJumpValue = 101;
 
         void trigger() {
-            longjmp(m_env, 101);
+            longjmp(m_env, kJumpValue);
         }
 
-    private:
+    public:
         jmp_buf m_env;
     };
+
+
+#define YAL_STACKJUMP_MARK(sj) setjmp(sj.m_env) == yal::StackJump::kJumpValue
 }

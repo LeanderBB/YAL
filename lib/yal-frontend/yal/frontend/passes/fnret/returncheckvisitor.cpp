@@ -38,7 +38,9 @@ namespace yal::frontend {
     void
     ReturnCheckVisitor::execute() {
         DeclModule* modDecl = m_module.getDeclNode();
-        m_jump.mark();
+        if (YAL_STACKJUMP_MARK(m_jump)) {
+           return;
+        }
         resolve(*modDecl);
     }
 
@@ -107,8 +109,8 @@ namespace yal::frontend {
 
     void
     ReturnCheckVisitor::visit(const StmtReturn&) {
-      // TODO: revise when conditional statements and loops are introduced!
-       m_hasReturnStmt = true;
+        // TODO: revise when conditional statements and loops are introduced!
+        m_hasReturnStmt = true;
     }
 
     void

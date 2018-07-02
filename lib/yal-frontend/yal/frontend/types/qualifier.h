@@ -30,6 +30,7 @@ namespace yal::frontend {
         void setMutable();
         void setImmutable();
         void setReference();
+        void dereference();
         void setPointer();
         void setRequiresReplace(const bool v);
         void setLValue(const bool v);

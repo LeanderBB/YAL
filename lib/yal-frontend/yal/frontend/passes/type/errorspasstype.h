@@ -350,4 +350,21 @@ namespace yal::frontend {
     protected:
         void printDetail(ErrorPrinter& printer)const override final;
     };
+
+    class ErrorTypeUnaryOpDerefNonRef final : public ErrorFrontend {
+    public:
+        static const ErrorCode kCode;
+
+        ErrorTypeUnaryOpDerefNonRef(const ExprUnaryOperator& expr);
+
+        StringRef getErrorName() const override final;
+
+    protected:
+        void printDetail(ErrorPrinter& printer)const override final;
+
+        const SourceInfo& getSourceInfo() const override final;
+
+    private:
+        const ExprUnaryOperator& m_expr;
+    };
 }

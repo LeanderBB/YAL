@@ -78,7 +78,9 @@ namespace yal::frontend {
 
         void setScopeWhereDeclared(DeclScopeOpt scope);
 
-        bool isVariableDecl() const;
+        bool isDeclVar() const;
+
+        bool isDeclParam() const;
 
     protected:
         Module& m_module;

@@ -144,3 +144,18 @@ R"R(
     compile(input,"general/cast.yal");
     EXPECT_FALSE(m_errorReporter.hasErrors());
 }
+
+TEST_F(General, RefAndDeref) {
+    const char* input =
+R"R(
+    fn foo(x:mut& u32) {
+        *x = 40;
+    }
+    fn main() {
+       var x = 20;
+       foo(&x);
+    }
+)R";
+    compile(input,"general/refAndDeref.yal");
+    EXPECT_FALSE(m_errorReporter.hasErrors());
+}

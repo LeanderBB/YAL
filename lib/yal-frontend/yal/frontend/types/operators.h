@@ -25,7 +25,8 @@ namespace yal::frontend {
         Not,
         BitNot,
         Negate,
-        Reference
+        Reference,
+        Derefence
     };
 
     enum class BinaryOperatorType {

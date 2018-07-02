@@ -69,7 +69,9 @@ namespace yal::frontend {
     void
     AstVisitorExprType::execute() {
         DeclModule* modDecl = m_module.getDeclNode();
-        m_jump.mark();
+        if (YAL_STACKJUMP_MARK(m_jump)) {
+            return;
+        }
         resolve(*modDecl);
     }
 
@@ -285,6 +287,17 @@ namespace yal::frontend {
 
             Qualifier qual = qtExpr.getQualifier();
             qual.setReference();
+            node.setQualType(QualType::Create(qual, typeExpr));
+            break;
+        }
+        case UnaryOperatorType::Derefence: {
+            // check if we are actully dereferencing a reference
+            if (!qtExpr.isReference()) {
+                auto error = std::make_unique<ErrorTypeUnaryOpDerefNonRef>(node);
+                onError(std::move(error));
+            }
+            Qualifier qual = qtExpr.getQualifier();
+            qual.dereference();
             node.setQualType(QualType::Create(qual, typeExpr));
             break;
         }

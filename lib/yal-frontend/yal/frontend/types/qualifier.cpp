@@ -46,6 +46,13 @@ namespace yal::frontend {
     }
 
     void
+    Qualifier::dereference() {
+        m_reference = 0;
+        m_pointer = 0;
+        m_lvalue = 1;
+    }
+
+    void
     Qualifier::setPointer() {
         m_pointer = 1;
         m_reference = 0;

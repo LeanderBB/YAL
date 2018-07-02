@@ -130,7 +130,9 @@ namespace yal::frontend {
     void
     AstVisitorMoveCheck::execute() {
         DeclModule* modDecl = m_module.getDeclNode();
-        m_jump.mark();
+        if (YAL_STACKJUMP_MARK(m_jump)) {
+            return;
+        }
         resolve(*modDecl);
     }
 
@@ -274,7 +276,14 @@ namespace yal::frontend {
 
     void
     AstVisitorMoveCheck::visit(const ExprUnaryOperator& node) {
-        // disable move tracking, unary operator doesn't move variables
+
+        if (m_evalMoveState.enabled
+                && node.getOperatorType() == UnaryOperatorType::Derefence
+                && !node.getExpression()->getQualType().isTriviallyCopiable()) {
+            // report that we can't move refences
+            auto error = std::make_unique<ErrorMoveDereference>(node);
+            onError(std::move(error));
+        }
         EvalMoveState newEvalState;
         newEvalState.enabled = false;
         newEvalState.scope = m_activeScope;

@@ -57,7 +57,7 @@ namespace yal::frontend {
         YAL_NO_COPY_CLASS(ScopeGuard);
 
         ScopeGuard(AstBuilder& visitor,
-                  const AstBuilder::ScopedState& newState):
+                   const AstBuilder::ScopedState& newState):
             m_visitor(visitor),
             m_prevState(visitor.m_scopedState) {
             m_visitor.m_scopedState = newState;
@@ -215,9 +215,9 @@ namespace yal::frontend {
 
         DeclTypeFunctions* typeFunctions =m_module.getASTContext().getAllocator()
                 .construct<DeclTypeFunctions>(m_module,
-                                    *parentScope,
-                                    node.getSourceInfo(),
-                                    *targetType);
+                                              *parentScope,
+                                              node.getSourceInfo(),
+                                              *targetType);
 
         ScopedState newState;
         newState.implDeclType = targetType;
@@ -617,7 +617,7 @@ namespace yal::frontend {
             onUndefinedSymbol(varName);
         }
 
-        if (!existingDecl->isVariableDecl()) {
+        if (!existingDecl->isDeclVar()) {
             onSymbolNotDeclVar(varName, *existingDecl);
         }
 
@@ -1107,7 +1107,9 @@ namespace yal::frontend {
 
         const STDeclModule* stDeclModule =
                 m_module.getSTContext().getDeclModule();
-        state.jump.mark();
+        if (YAL_STACKJUMP_MARK(m_state->jump)) {
+            return !m_errReporter.hasErrors();
+        }
         visit(*stDeclModule);
         return !m_errReporter.hasErrors();
     }

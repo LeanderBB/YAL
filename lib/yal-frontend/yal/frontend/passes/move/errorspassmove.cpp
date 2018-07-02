@@ -22,6 +22,7 @@
 #include "yal/frontend/ast/declvar.h"
 #include "yal/frontend/ast/exprfncall.h"
 #include "yal/frontend/ast/exprstructvarref.h"
+#include "yal/frontend/ast/exprunaryoperator.h"
 #include "yal/frontend/ast/exprvarref.h"
 #include "yal/frontend/passes/passes.h"
 
@@ -68,7 +69,7 @@ namespace yal::frontend {
         return m_expr.getSourceInfo();
     }
 
-    // ErrorMoveUseAfterMove ------------------------------------------------
+    // ErrorMoveStructVar ------------------------------------------------
 
     const ErrorCode  ErrorMoveStructVar::kCode =
             MakeErrorCode(static_cast<uint16_t>(PassTypeCode::Move), 2);
@@ -113,7 +114,7 @@ namespace yal::frontend {
 
     StringRef
     ErrorMoveFnCallRValue::getErrorName() const {
-        return "move expression with a RValue.";
+        return "Move expression with a RValue.";
     }
 
     void
@@ -132,4 +133,34 @@ namespace yal::frontend {
         return args[m_argIndex]->getSourceInfo();
     }
 
+    // ErrorMoveStructVar ------------------------------------------------
+
+    const ErrorCode  ErrorMoveDereference::kCode =
+            MakeErrorCode(static_cast<uint16_t>(PassTypeCode::Move), 4);
+
+    ErrorMoveDereference::ErrorMoveDereference(const ExprUnaryOperator& expr):
+        ErrorFrontend(kCode),
+        m_expr(expr) {
+        flagAsFatal();
+    }
+
+    StringRef
+    ErrorMoveDereference::getErrorName() const {
+        return "Move of derefenced value";
+    }
+
+    void
+    ErrorMoveDereference::printDetail(ErrorPrinter &printer) const {
+        auto& formater = printer.getFormater();
+        FormatAppend(formater,
+                     "Attempting to move value by dereferencing a reference."
+                     "References can only be updated, but never moved.\n"
+                     "Expression is of type '%' and is not trivially copiable.\n",
+                     m_expr.getExpression()->getQualType());
+    };
+
+    const SourceInfo&
+    ErrorMoveDereference::getSourceInfo() const {
+        return m_expr.getSourceInfo();
+    }
 }

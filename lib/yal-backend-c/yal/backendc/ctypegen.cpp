@@ -161,6 +161,8 @@ namespace yal::backend::c {
             return "-";
         case yal::frontend::UnaryOperatorType::Reference:
             return "&";
+        case yal::frontend::UnaryOperatorType::Derefence:
+            return "*";
         default:
             YAL_ASSERT_MESSAGE(false, "unknown unary operator type");
             return "";

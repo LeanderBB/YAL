@@ -574,3 +574,43 @@ R"R(
     EXPECT_NE(module, nullptr);
     EXPECT_FALSE(m_errorReporter.hasErrors());
 }
+
+TEST_F(PassType, DerefOfNonReference) {
+    const char* input =
+R"R(
+    fn main() {
+        var x = 20;
+        var z = *x;
+    }
+)R";
+    auto handle = createSourceHandle(input);
+    FrontendOptionsType options;
+    const ModuleType* module = m_frontEnd.compile(handle, options);
+    EXPECT_EQ(module, nullptr);
+    EXPECT_TRUE(m_errorReporter.hasErrors());
+    if (!m_errorReporter.hasErrors()) {
+        return;
+    }
+    const yal::Error* err = m_errorReporter.getLastError();
+    EXPECT_EQ(err->getCode(), yal::frontend::ErrorTypeUnaryOpDerefNonRef::kCode);
+}
+
+TEST_F(PassType, DerefOfNonReferenceLiteral) {
+    const char* input =
+R"R(
+    fn main() {
+        var z = *30;
+    }
+)R";
+    auto handle = createSourceHandle(input);
+    FrontendOptionsType options;
+    const ModuleType* module = m_frontEnd.compile(handle, options);
+    EXPECT_EQ(module, nullptr);
+    EXPECT_TRUE(m_errorReporter.hasErrors());
+    if (!m_errorReporter.hasErrors()) {
+        return;
+    }
+    const yal::Error* err = m_errorReporter.getLastError();
+    EXPECT_EQ(err->getCode(), yal::frontend::ErrorTypeUnaryOpDerefNonRef::kCode);
+}
+

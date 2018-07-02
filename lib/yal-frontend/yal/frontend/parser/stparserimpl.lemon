@@ -66,7 +66,7 @@
 %left MULT DIV MOD.
 %right NEGATE.
 %right BIT_NOT.
-%right NOT.
+%right NOT DEREF REFERENCE.
 %right DOT.
 
 
@@ -545,6 +545,14 @@ unaryexp(A) ::= REFERENCE(Z) expression(B).[NEGATE] {
     auto srcInfo = yal::frontend::CreateSourceInfo(Z, B->getSourceInfo(), pParser->getSourceHandle());
     A->setSourceInfo(srcInfo);
 }
+
+unaryexp(A) ::= MULT(Z) expression(B).[DEREF] {
+    A = pParser->createNode<yal::frontend::STExprUnaryOperator>(yal::frontend::UnaryOperatorType::Derefence,
+                                               B);
+    auto srcInfo = yal::frontend::CreateSourceInfo(Z, B->getSourceInfo(), pParser->getSourceHandle());
+    A->setSourceInfo(srcInfo);
+}
+
 
 // Function call ------------------------------------------------------------
 
