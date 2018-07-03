@@ -494,7 +494,7 @@ namespace yal::frontend {
         }
 
         YAL_ASSERT(aliasType->isAlias());
-        if (aliasType->isWeakAlias()) {
+        if (aliasType->isAliasWeak()) {
             TypeAliasWeak* typeAliasWeak = dyn_cast<TypeAliasWeak>(aliasType);
             YAL_ASSERT(typeAliasWeak != nullptr);
 

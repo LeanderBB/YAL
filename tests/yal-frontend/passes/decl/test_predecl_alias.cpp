@@ -91,7 +91,7 @@ TEST_F(PassDecl_PreDecl_Alias, AliasOnTypeFunction) {
 
     const char* input =
 R"R(
-    fn foo() {}
+    type foo struct { b: bool }
     impl foo {
         fn Test() {}
     }
@@ -111,4 +111,28 @@ R"R(
     // EXPECT_EQ(err->getCode(), yal::frontend::ErrorAliasOfFunction::kCode);
     // for now it will result in parse error
     EXPECT_EQ(err->getCode(), yal::frontend::ErrorParser::kCode);
+}
+
+TEST_F(PassDecl_PreDecl_Alias, AliasImplTypeFunction) {
+
+    const char* input =
+R"R(
+    type foo struct { b: bool }
+    type Bar alias foo;
+
+    impl Bar {
+        fn Test() {}
+    }
+)R";
+
+    auto handle = createSourceHandle(input);
+    FrontendOptionsType options;
+    const ModuleType* module = m_frontEnd.compile(handle, options);
+    EXPECT_EQ(module, nullptr);
+    EXPECT_TRUE(m_errorReporter.hasErrors());
+    if (!m_errorReporter.hasErrors()) {
+        return;
+    }
+    const yal::Error* err = m_errorReporter.getLastError();
+    EXPECT_EQ(err->getCode(), yal::frontend::ErrorFnImplOnAlias::kCode);
 }

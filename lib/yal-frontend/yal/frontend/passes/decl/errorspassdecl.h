@@ -402,5 +402,21 @@ namespace yal::frontend {
     public:
         const STDeclAlias& m_decl;
     };
+
+    class ErrorFnImplOnAlias final : public ErrorFrontend{
+    public:
+        static const ErrorCode kCode;
+
+        ErrorFnImplOnAlias(const Type& typeAliasWeak);
+
+    protected:
+        StringRef getErrorName() const final override;
+
+        void printDetail(ErrorPrinter& printer) const final override;
+
+        const SourceInfo& getSourceInfo() const final override;
+    public:
+        const Type& m_alias;
+    };
 }
 

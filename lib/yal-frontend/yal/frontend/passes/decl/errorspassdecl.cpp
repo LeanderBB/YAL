@@ -30,9 +30,7 @@
 #include "yal/frontend/parser/stexprliterals.h"
 #include "yal/frontend/parser/ststmtassign.h"
 #include "yal/frontend/passes/passes.h"
-#include "yal/frontend/types/type.h"
-#include "yal/frontend/types/typefunction.h"
-#include "yal/frontend/types/typestruct.h"
+#include "yal/frontend/types/types.h"
 #include "yal/util/format.h"
 
 namespace yal::frontend {
@@ -794,5 +792,39 @@ namespace yal::frontend {
     const SourceInfo&
     ErrorAliasOfFunction::getSourceInfo() const {
         return m_decl.getSourceInfo();
+    }
+
+    // ErrorFnImplOnAlias --------------------------------------------
+
+    const ErrorCode  ErrorFnImplOnAlias::kCode =
+            MakeErrorCode(static_cast<uint16_t>(PassTypeCode::Decl), 20);
+
+    ErrorFnImplOnAlias:: ErrorFnImplOnAlias(const Type& typeAliasWeak):
+        ErrorFrontend(kCode),
+        m_alias(typeAliasWeak) {
+
+    }
+
+    StringRef
+    ErrorFnImplOnAlias::getErrorName() const {
+        return "Type function impl on alias";
+    }
+
+    void
+    ErrorFnImplOnAlias::printDetail(ErrorPrinter &printer) const {
+        const TypeAliasWeak* aliasWeak = dyn_cast<TypeAliasWeak>(&m_alias);
+
+        FormatAppend(printer.getFormater(),
+                     "Can not implement type functions for '%' as type is a weak alias."
+                     "You must declare the function on the aliased type '%'.\n",
+                     aliasWeak->getIdentifier(),
+                     aliasWeak->getAliasedType().getIdentifier());
+    };
+
+    const SourceInfo&
+    ErrorFnImplOnAlias::getSourceInfo() const {
+        const TypeAliasWeak* aliasWeak = dyn_cast<TypeAliasWeak>(&m_alias);
+        YAL_ASSERT(aliasWeak != nullptr);
+        return aliasWeak->getSTDecl().getSourceInfo();
     }
 }

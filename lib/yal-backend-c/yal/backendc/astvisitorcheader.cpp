@@ -82,7 +82,7 @@ namespace yal::backend::c {
     AstVisitorCHeader::visit(const yal::frontend::DeclParamVar&) {}
 
     void
-    AstVisitorCHeader::visit(const yal::frontend::DeclStrongAlias&) {}
+    AstVisitorCHeader::visit(const yal::frontend::DeclAliasStrong&) {}
 
     void
     AstVisitorCHeader::visit(const yal::frontend::DeclAliasWeak& node) {

@@ -153,7 +153,7 @@ namespace yal::frontend {
     }
 
     void
-    AstPrinter::visit(const DeclStrongAlias&) {
+    AstPrinter::visit(const DeclAliasStrong&) {
 
     }
 

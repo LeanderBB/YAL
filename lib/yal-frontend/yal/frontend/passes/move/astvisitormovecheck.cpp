@@ -206,7 +206,7 @@ namespace yal::frontend {
     }
 
     void
-    AstVisitorMoveCheck::visit(const DeclStrongAlias&) {}
+    AstVisitorMoveCheck::visit(const DeclAliasStrong&) {}
 
     void
     AstVisitorMoveCheck::visit(const DeclAliasWeak&) {}

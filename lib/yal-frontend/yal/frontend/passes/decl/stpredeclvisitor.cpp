@@ -127,6 +127,12 @@ namespace yal::frontend {
             return;
         }
 
+        if (target->isAliasWeak()) {
+            auto errorPtr = std::make_unique<ErrorFnImplOnAlias>(*target);
+            m_errReporter.report(std::move(errorPtr));
+            return;
+        }
+
         if (!target->isFunctionTargetable()) {
             auto errorPtr = std::make_unique<ErrorFnImplOnNonTargetType>(targetType.getSourceInfo(),
                                                                          target);

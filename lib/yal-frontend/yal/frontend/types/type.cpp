@@ -92,16 +92,16 @@ namespace yal::frontend {
 
     bool
     Type::isAlias() const {
-        return isWeakAlias() || isStrongAlias();
+        return isAliasWeak() || isAliasStrong();
     }
 
     bool
-    Type::isWeakAlias() const {
+    Type::isAliasWeak() const {
         return m_kind == Kind::TypeAliasWeak;
     }
 
     bool
-    Type::isStrongAlias() const {
+    Type::isAliasStrong() const {
         return m_kind == Kind::TypeAliasStrong;
     }
 

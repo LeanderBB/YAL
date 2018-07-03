@@ -61,8 +61,8 @@ namespace yal::frontend {
         bool isBuilitin() const;
         bool isStruct() const;
         bool isAlias() const;
-        bool isWeakAlias() const;
-        bool isStrongAlias() const;
+        bool isAliasWeak() const;
+        bool isAliasStrong() const;
 
         bool isModuleDependent() const;
         bool isExternalType() const;

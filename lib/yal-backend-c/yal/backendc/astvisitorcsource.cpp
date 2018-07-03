@@ -204,7 +204,7 @@ namespace yal::backend::c {
     }
 
     void
-    AstVisitorCSource::visit(const yal::frontend::DeclStrongAlias&) {
+    AstVisitorCSource::visit(const yal::frontend::DeclAliasStrong&) {
 
     }
 
