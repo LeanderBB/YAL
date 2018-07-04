@@ -238,11 +238,16 @@ type_qualified(A) ::= qualifier(D) type_specifier(C). {
 
 // Decl Alias ---------------------------------------------------------------
 decl_alias(A) ::= TYPE(B) identifier(D) ALIAS type_specifier(C) SEMI_COLON(Z). {
-    A = pParser->createNode<yal::frontend::STDeclAlias>(D, C);
+    A = pParser->createNode<yal::frontend::STDeclAlias>(D, C, false);
     auto srcInfo = CreateSourceInfo(B, Z, pParser->getSourceHandle());
     A->setSourceInfo(srcInfo);
 }
 
+decl_alias(A) ::= TYPE(B) identifier(D) FROM type_specifier(C) SEMI_COLON(Z). {
+    A = pParser->createNode<yal::frontend::STDeclAlias>(D, C, true);
+    auto srcInfo = CreateSourceInfo(B, Z, pParser->getSourceHandle());
+    A->setSourceInfo(srcInfo);
+}
 // Decl Struct ---------------------------------------------------------------
 
 decl_struct(A) ::= TYPE(B) identifier(D) STRUCT SCOPE_BEGIN struct_decl_vars(C) SCOPE_END(Z). {

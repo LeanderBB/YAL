@@ -27,14 +27,20 @@ namespace yal::frontend {
     public:
 
         STDeclAlias(const STIdentifier* name,
-                    const STType* aliased);
+                    const STType* aliased,
+                    const bool isStrong);
 
         const STType& getAliasedType() const {
             return *m_aliasedType;
         }
 
+        bool isStrong() const {
+            return m_strong;
+        }
+
     private:
         const STType* m_aliasedType;
+        const bool m_strong;
     };
 
 

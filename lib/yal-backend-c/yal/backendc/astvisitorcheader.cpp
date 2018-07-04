@@ -43,6 +43,7 @@ namespace yal::backend::c {
         CTypeGen::GenDelcFunction(m_writer,
                                   m_typeCache,
                                   decl);
+        m_writer.write(";\n\n");
     }
 
     void
@@ -50,13 +51,13 @@ namespace yal::backend::c {
         CTypeGen::GenDelcFunction(m_writer,
                                   m_typeCache,
                                   decl);
+        m_writer.write(";\n\n");
     }
 
     void
     AstVisitorCHeader::visit(const yal::frontend::DeclTypeFunctions& node) {
         for (auto& decl : node.getDecls()) {
             resolve(*decl);
-            m_writer.write(";\n\n");
         }
     }
 
@@ -65,13 +66,13 @@ namespace yal::backend::c {
         CTypeGen::GenDelcStruct(m_writer,
                                 m_typeCache,
                                 decl);
+        m_writer.write(";\n\n");
     }
 
     void
     AstVisitorCHeader::visit(const yal::frontend::DeclModule& decl) {
         for (auto& decl : decl.getDeclarations()) {
             resolve(*decl);
-            m_writer.write(";\n\n");
         }
     }
 
@@ -82,7 +83,15 @@ namespace yal::backend::c {
     AstVisitorCHeader::visit(const yal::frontend::DeclParamVar&) {}
 
     void
-    AstVisitorCHeader::visit(const yal::frontend::DeclAliasStrong&) {}
+    AstVisitorCHeader::visit(const yal::frontend::DeclAliasStrong& node) {
+        const yf::TypeAliasStrong& aliasType = node.getAliasType();
+        const CType* aliasCType = m_typeCache.getCType(aliasType);
+        const CType* aliasedCType = m_typeCache.getCType(aliasType.getAliasedType());
+        YAL_ASSERT(aliasCType != nullptr && aliasedCType != nullptr);
+        m_writer.write("typedef % %;\n\n",
+                       aliasedCType->getCIdentifier(),
+                       aliasCType->getCIdentifier());
+    }
 
     void
     AstVisitorCHeader::visit(const yal::frontend::DeclAliasWeak& node) {
@@ -90,7 +99,7 @@ namespace yal::backend::c {
         const CType* aliasCType = m_typeCache.getCType(aliasType);
         const CType* aliasedCType = m_typeCache.getCType(aliasType.getAliasedType());
         YAL_ASSERT(aliasCType != nullptr && aliasedCType != nullptr);
-        m_writer.write("typdef % %;\n\n",
+        m_writer.write("typedef % %;\n\n",
                        aliasedCType->getCIdentifier(),
                        aliasCType->getCIdentifier());
     }
@@ -168,7 +177,7 @@ namespace yal::backend::c {
 
         CTypeGen::GetBuilitinTypeInfo(m_writer);
 
-         resolve(*m_module.getDeclNode());
+        resolve(*m_module.getDeclNode());
 
         if (!options.pragmaOnce) {
             m_writer.write("\n#endif //%_H\n",

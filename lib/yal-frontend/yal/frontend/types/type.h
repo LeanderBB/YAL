@@ -98,6 +98,11 @@ namespace yal::frontend {
 
         bool isCastableToRequest(const Type& other) const;
 
+        /// Resolve any aliases or type indirections
+        virtual const Type& resolve() const {
+            return *this;
+        }
+
         virtual SourceInfoOpt getSourceInfo() const;
 
     protected:
@@ -108,10 +113,6 @@ namespace yal::frontend {
 
         virtual const TypeFunction* getFunctionWithNameImpl(const StringRef) const {
             return nullptr;
-        }
-
-        virtual const Type& resolve() const {
-            return *this;
         }
 
         virtual bool isCastableToAutoImpl(const Type&) const {

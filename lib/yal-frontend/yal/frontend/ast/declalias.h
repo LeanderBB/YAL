@@ -23,8 +23,7 @@
 
 namespace yal::frontend {
 
-    class DeclAliasWeak final : public DeclNamed
-    {
+    class DeclAliasWeak final : public DeclNamed {
     public:
         DeclAliasWeak(Module& module,
                       DeclScope& scope,
@@ -37,6 +36,21 @@ namespace yal::frontend {
 
     private:
         TypeAliasWeak& m_aliasType;
+    };
+
+
+    class DeclAliasStrong final : public DeclNamed {
+    public:
+        DeclAliasStrong(Module& module,
+                        DeclScope& scope,
+                        TypeAliasStrong& aliasType);
+
+        const TypeAliasStrong& getAliasType() const {
+            return m_aliasType;
+        }
+
+    private:
+        TypeAliasStrong& m_aliasType;
     };
 
 }

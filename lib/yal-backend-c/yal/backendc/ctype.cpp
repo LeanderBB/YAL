@@ -34,19 +34,22 @@ namespace yal::backend::c {
         return CTypeBuilitin::GetCTypeName(type);
     }
 
+
     static std::string
-    GenCIdentifierStruct(const frontend::Type& type) {
+    GenCIdentifierGeneral(const frontend::Type& type) {
         const std::string fullIdentifier = type.getIdentifier().getFullIdentifier();
         StringRef ref(fullIdentifier);
-        std::string result = ref.replace("::","_");
-        return result;
+        return ref.replace("::","_");
+    }
+
+    static std::string
+    GenCIdentifierStruct(const frontend::Type& type) {
+        return GenCIdentifierGeneral(type);
     }
 
     static std::string
     GenCIdentifierFunction(const frontend::Type& type) {
-        std::string result = type.getIdentifier().getFullIdentifier();
-        StringRef ref(result);
-        return ref.replace("::","_");
+        return GenCIdentifierGeneral(type);
     }
 
     static std::string
@@ -62,6 +65,9 @@ namespace yal::backend::c {
             return GenCIdentifierFunction(type);
         case frontend::Type::Kind::TypeStruct:
             return GenCIdentifierStruct(type);
+        case frontend::Type::Kind::TypeAliasStrong:
+        case frontend::Type::Kind::TypeAliasWeak:
+            return GenCIdentifierGeneral(type);
         default:
             YAL_ASSERT_MESSAGE(false, "Unknown type kind");
             return "Unknown";

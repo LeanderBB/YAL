@@ -32,7 +32,8 @@ namespace yal::frontend {
 
         ExprStructInit(Module& module,
                        const SourceInfo& srcInfo,
-                       TypeStruct* structType,
+                       const Type& exprType,
+                       const TypeStruct& structType,
                        MemberInitExprList&& memberInitList);
 
         const MemberInitExprList& getMemberInitExprList() const {
@@ -43,8 +44,13 @@ namespace yal::frontend {
             return m_memberInitList;
         }
 
+        const TypeStruct& getTypeStruct() const {
+            return m_typeStruct;
+        }
+
     private:
         MemberInitExprList m_memberInitList;
+        const TypeStruct& m_typeStruct;
     };
 
 }

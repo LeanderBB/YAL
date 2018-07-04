@@ -58,6 +58,7 @@ namespace yal::frontend {
             OR = "or";
             NOT = "not";
             THIS = "this";
+            FROM = "from";
             FN = "fn";
             NEWLINE="\n";
             COLON = ":";
@@ -126,6 +127,7 @@ namespace yal::frontend {
             RETURN { setToken(Token::Return, m_lexerState);return Status::Ok; }
             TYPE { setToken(Token::Type, m_lexerState); return Status::Ok;}
             ALIAS { setToken(Token::Alias, m_lexerState); return Status::Ok;}
+            FROM { setToken(Token::From, m_lexerState); return Status::Ok;}
             TRUE  { setToken(Token::True, m_lexerState); return Status::Ok; }
             FALSE  { setToken(Token::False, m_lexerState); return Status::Ok; }
             AND  { setToken(Token::And, m_lexerState); return Status::Ok; }

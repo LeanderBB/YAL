@@ -22,12 +22,15 @@
 #include <yal/frontend/passes/decl/errorspassdecl.h>
 #include <yal/frontend/parser/errorparser.h>
 
-class PassDecl_PreDecl_Alias : public CompileFixture {
+class PassDecl_PreDecl_AliasWeak : public CompileFixture {
+
+};
+class PassDecl_PreDecl_AliasStrong : public CompileFixture {
 
 };
 
 
-TEST_F(PassDecl_PreDecl_Alias, AliasDuplicate) {
+TEST_F(PassDecl_PreDecl_AliasWeak, AliasDuplicate) {
 
     const char* input =
 R"R(
@@ -47,7 +50,7 @@ R"R(
     EXPECT_EQ(err->getCode(), yal::frontend::ErrorDuplicateTypeDecl::kCode);
 }
 
-TEST_F(PassDecl_PreDecl_Alias, AliasUndefined) {
+TEST_F(PassDecl_PreDecl_AliasWeak, AliasUndefined) {
 
     const char* input =
 R"R(
@@ -66,7 +69,7 @@ R"R(
     EXPECT_EQ(err->getCode(), yal::frontend::ErrorUndefinedTypeRef::kCode);
 }
 
-TEST_F(PassDecl_PreDecl_Alias, AliasOnFunction) {
+TEST_F(PassDecl_PreDecl_AliasWeak, AliasOnFunction) {
 
     const char* input =
 R"R(
@@ -87,7 +90,7 @@ R"R(
     EXPECT_EQ(err->getCode(), yal::frontend::ErrorAliasOfFunction::kCode);
 }
 
-TEST_F(PassDecl_PreDecl_Alias, AliasOnTypeFunction) {
+TEST_F(PassDecl_PreDecl_AliasWeak, AliasOnTypeFunction) {
 
     const char* input =
 R"R(
@@ -113,7 +116,7 @@ R"R(
     EXPECT_EQ(err->getCode(), yal::frontend::ErrorParser::kCode);
 }
 
-TEST_F(PassDecl_PreDecl_Alias, AliasImplTypeFunction) {
+TEST_F(PassDecl_PreDecl_AliasWeak, AliasImplTypeFunction) {
 
     const char* input =
 R"R(
@@ -135,4 +138,33 @@ R"R(
     }
     const yal::Error* err = m_errorReporter.getLastError();
     EXPECT_EQ(err->getCode(), yal::frontend::ErrorFnImplOnAlias::kCode);
+}
+
+
+TEST_F(PassDecl_PreDecl_AliasStrong, DuplicateFunction) {
+
+    const char* input =
+R"R(
+    type Foo struct { b: bool }
+    type Bar from Foo;
+
+    impl Foo {
+        fn Test() {}
+    }
+
+    impl Bar {
+        fn Test() {}
+    }
+)R";
+
+    auto handle = createSourceHandle(input);
+    FrontendOptionsType options;
+    const ModuleType* module = m_frontEnd.compile(handle, options);
+    EXPECT_EQ(nullptr, module);
+    EXPECT_TRUE(m_errorReporter.hasErrors());
+    if (!m_errorReporter.hasErrors()) {
+        return;
+    }
+    const yal::Error* err = m_errorReporter.getLastError();
+    EXPECT_EQ(err->getCode(), yal::frontend::ErrorDuplicateTypeDecl::kCode);
 }

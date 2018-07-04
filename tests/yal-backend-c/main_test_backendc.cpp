@@ -159,3 +159,41 @@ R"R(
     compile(input,"general/refAndDeref.yal");
     EXPECT_FALSE(m_errorReporter.hasErrors());
 }
+
+TEST_F(General, alias) {
+    const char* input =
+R"R(
+
+    type Foo struct {
+       x:u32
+    }
+
+    impl Foo {
+        fn Test(&self){
+        }
+    }
+
+    type myint alias u32;
+    type Bar from Foo;
+
+    impl Bar {
+        fn do(&self) {
+            self.Test();
+        }
+    }
+
+    fn foo(x:mut& u32) {
+        *x = 40;
+    }
+
+
+    fn main() {
+       var x:myint = 40;
+       foo(&x);
+       var b = Bar{x:40};
+       b.do();
+    }
+)R";
+    compile(input,"general/alias.yal");
+    EXPECT_FALSE(m_errorReporter.hasErrors());
+}

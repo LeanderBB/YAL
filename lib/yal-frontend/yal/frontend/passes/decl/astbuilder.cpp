@@ -493,7 +493,6 @@ namespace yal::frontend {
             onUndefinedType(aliasedType);
         }
 
-        YAL_ASSERT(aliasType->isAlias());
         if (aliasType->isAliasWeak()) {
             TypeAliasWeak* typeAliasWeak = dyn_cast<TypeAliasWeak>(aliasType);
             YAL_ASSERT(typeAliasWeak != nullptr);
@@ -504,9 +503,18 @@ namespace yal::frontend {
                                               *typeAliasWeak);
             getState().stackDecls.push(decl);
         }
+        else if (aliasType->isAliasStrong()) {
+            TypeAliasStrong* typeAliasStrong = dyn_cast<TypeAliasStrong>(aliasType);
+            YAL_ASSERT(typeAliasStrong != nullptr);
+            DeclAliasStrong* decl = m_module.getASTContext().getAllocator()
+                    .construct<DeclAliasStrong>(m_module,
+                                              *parentScope,
+                                              *typeAliasStrong);
+            getState().stackDecls.push(decl);
+        }
         else
         {
-            YAL_ASSERT_NOT_IMPLEMENTED();
+            YAL_ASSERT_MESSAGE(false, "Shouldn't be reached!");
         }
     }
 
@@ -1037,18 +1045,14 @@ namespace yal::frontend {
         StackExpr& stackExpr = getState().stackExpressions;
         const STType* stType = node.getStructType();
 
-        Type* type = resolveType(*stType);
+        const Type* type = resolveType(*stType);
         if (type == nullptr) {
             onUndefinedType(*stType);
         }
 
-        if (type->isAlias()) {
-            TypeAliasWeak* typeAlias = dyn_cast<TypeAliasWeak>(type);
-            YAL_ASSERT(typeAlias != nullptr);
-            type = &typeAlias->getAliasedType();
-        }
+        const Type* resolvedType = &type->resolve();
 
-         TypeStruct* typeStruct = dyn_cast<TypeStruct>(type);
+        const TypeStruct* typeStruct = dyn_cast<TypeStruct>(resolvedType);
         if (typeStruct == nullptr) {
             auto error = std::make_unique<ErrorTypeIsNotStruct>(*type,
                                                                 stType->getSourceInfo());
@@ -1100,7 +1104,8 @@ namespace yal::frontend {
         ExprStructInit* structInit = m_module.getASTContext().getAllocator()
                 .construct<ExprStructInit>(m_module,
                                            node.getSourceInfo(),
-                                           typeStruct,
+                                           *type,
+                                           *typeStruct,
                                            std::move(members));
         stackExpr.push(structInit);
     }

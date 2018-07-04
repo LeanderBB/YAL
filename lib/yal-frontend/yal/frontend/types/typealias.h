@@ -25,6 +25,7 @@ namespace yal::frontend {
 
     class STDeclAlias;
     class DeclAliasWeak;
+    class DeclAliasStrong;
 
     class TypeAliasWeak final : public Type {
     public:
@@ -69,4 +70,46 @@ namespace yal::frontend {
         DeclAliasWeak* m_decl;
     };
 
+    class TypeAliasStrong final : public TypeTargetable {
+    public:
+        TypeAliasStrong(const Module& module,
+                        const STDeclAlias& decl,
+                        Type& aliasedType);
+
+        void setDeclAlias(DeclAliasStrong& declAlias);
+
+        const STDeclAlias& getSTDecl() const {
+            return m_stDecl;
+        }
+
+        const DeclAliasStrong& getDecl() const {
+            YAL_ASSERT(m_decl != nullptr);
+            return *m_decl;
+        }
+
+        const Type& getAliasedType() const {
+            return m_aliasedType;
+        }
+
+        Type& getAliasedType() {
+            return m_aliasedType;
+        }
+
+        virtual SourceInfoOpt getSourceInfo() const override final;
+
+    protected:
+        bool isCastableToAutoImpl(const Type&) const override final;
+
+        bool isCastableToRequestImpl(const Type&) const override final;
+
+        const TypeFunction* getFunctionWithIdImpl(const Identifier&) const override final;
+
+        const TypeFunction* getFunctionWithNameImpl(const StringRef) const override final;
+
+        const Type& resolve() const override final;
+    private:
+        Type& m_aliasedType;
+        const STDeclAlias& m_stDecl;
+        DeclAliasStrong* m_decl;
+    };
 }

@@ -24,16 +24,17 @@
 namespace yal::frontend {
 
     ExprStructInit::ExprStructInit(Module& module,
-                                   const SourceInfo& srcInfo,
-                                   TypeStruct *structType,
+                                   const SourceInfo& srcInfo, const Type &exprType,
+                                   const TypeStruct &structType,
                                    MemberInitExprList&& memberInitList):
         StmtExpression(module, AstType::ExprStructInit, srcInfo),
-        m_memberInitList(std::move(memberInitList)) {
+        m_memberInitList(std::move(memberInitList)),
+        m_typeStruct(structType) {
 
         Qualifier qualifier;
         qualifier.setMutable();
         qualifier.setLValue(false);
-        m_qualType = QualType::Create(qualifier, structType);
+        m_qualType = QualType::Create(qualifier, &exprType);
     }
 
 }

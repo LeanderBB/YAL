@@ -64,5 +64,58 @@ namespace yal::frontend {
     TypeAliasWeak::resolve() const {
         return m_aliasedType;
     }
+
+    // Type Alias Strong ---------------------------------------------------
+
+    TypeAliasStrong::TypeAliasStrong(const Module& module,
+                                     const STDeclAlias& decl,
+                                     Type& aliasedType):
+        TypeTargetable(&module, Kind::TypeAliasStrong,
+             Identifier( decl.getName().getString(), module)),
+        m_aliasedType(aliasedType),
+        m_stDecl(decl),
+        m_decl(nullptr) {
+        m_functionTargetable = m_aliasedType.isFunctionTargetable();
+    }
+
+    SourceInfoOpt
+    TypeAliasStrong::getSourceInfo() const {
+        return m_stDecl.getSourceInfo();
+    }
+
+    bool
+    TypeAliasStrong::isCastableToAutoImpl(const Type&) const {
+        // Only allow autocast to same type
+        return false;
+    }
+
+    bool
+    TypeAliasStrong::isCastableToRequestImpl(const Type& other) const {
+        // allow strong aliases to be cast to their original type
+        return other.getTypeId() == m_aliasedType.getTypeId();
+    }
+
+    const TypeFunction*
+    TypeAliasStrong::getFunctionWithIdImpl(const Identifier& id) const {
+        // Search local this type first, before checking aliased type
+        const TypeFunction* result = TypeTargetable::getFunctionWithIdImpl(id);
+        return (result == nullptr)
+                ? m_aliasedType.getFunctionWithIdentifier(id)
+                : result;
+    }
+
+    const TypeFunction*
+    TypeAliasStrong::getFunctionWithNameImpl(const StringRef name) const {
+        // Search local this type first, before checking aliased type
+        const TypeFunction* result = TypeTargetable::getFunctionWithNameImpl(name);
+        return (result == nullptr)
+                ? m_aliasedType.getFunctionWithName(name)
+                : result;
+    }
+
+    const Type&
+    TypeAliasStrong::resolve() const {
+        return m_aliasedType;
+    }
 }
 

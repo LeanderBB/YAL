@@ -80,6 +80,16 @@ namespace yal::frontend {
 
         // register function with type
         if (target != nullptr) {
+
+            // check if the function already exists on target
+            const TypeFunction* existingFn = target->getFunctionWithName(typeFn->getIdentifier().getName());
+            if (existingFn != nullptr) {
+                auto errorPtr = std::make_unique<ErrorDuplicateTypeDecl>(m_module,
+                                                                         *typeFn,
+                                                                         *existingFn);
+                m_errReporter.report(std::move(errorPtr));
+                return;
+            }
             YAL_ASSERT(target->isFunctionTargetable());
             TypeTargetable* typeTargetable = static_cast<TypeTargetable*>(target);
             typeTargetable->addFunction(typeFn);
@@ -173,9 +183,16 @@ namespace yal::frontend {
         }
 
         // Create new type
-        TypeAliasWeak* typeAlias = typeCtx.allocateType<TypeAliasWeak>(m_module,
-                                                                       node,
-                                                                       *resolvedType);
+        Type* typeAlias = nullptr;
+        if (!node.isStrong()) {
+            typeAlias = typeCtx.allocateType<TypeAliasWeak>(m_module,
+                                                            node,
+                                                            *resolvedType);
+        } else {
+            typeAlias = typeCtx.allocateType<TypeAliasStrong>(m_module,
+                                                            node,
+                                                            *resolvedType);
+        }
         // check for duplicate types
         const Type* existingType = typeCtx.getByIdentifier(typeAlias->getIdentifier());
         if (existingType == nullptr) {

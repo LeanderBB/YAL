@@ -26,12 +26,15 @@
 #include <yal/frontend/types/typestruct.h>
 
 
-class PassType_Alias : public CompileFixture {
+class PassType_AliasWeak : public CompileFixture {
 
 };
 
+class PassType_AliasStrong : public CompileFixture {
 
-TEST_F(PassType_Alias, AssignToAlias) {
+};
+
+TEST_F(PassType_AliasWeak, AssignToAlias) {
     const char* input =
 R"R(
     type MyInt alias u32;
@@ -50,7 +53,7 @@ R"R(
 }
 
 
-TEST_F(PassType_Alias, AssignFromAlias) {
+TEST_F(PassType_AliasWeak, AssignFromAlias) {
     const char* input =
 R"R(
     type MyInt alias u32;
@@ -68,7 +71,7 @@ R"R(
     EXPECT_FALSE(m_errorReporter.hasErrors());
 }
 
-TEST_F(PassType_Alias, FnCall) {
+TEST_F(PassType_AliasWeak, FnCall) {
     const char* input =
 R"R(
     type MyInt alias u32;
@@ -97,7 +100,7 @@ R"R(
 }
 
 
-TEST_F(PassType_Alias, Struct) {
+TEST_F(PassType_AliasWeak, Struct) {
     const char* input =
 R"R(
 
@@ -121,7 +124,7 @@ R"R(
 }
 
 
-TEST_F(PassType_Alias, StructStaticCall) {
+TEST_F(PassType_AliasWeak, StructStaticCall) {
     const char* input =
 R"R(
 
@@ -138,6 +141,84 @@ R"R(
 
     fn foo() {
        Bar::Test();
+    }
+)R";
+
+    auto handle = createSourceHandle(input);
+    FrontendOptionsType options;
+    const ModuleType* module = m_frontEnd.compile(handle, options);
+    EXPECT_NE(nullptr, module);
+    EXPECT_FALSE(m_errorReporter.hasErrors());
+}
+
+
+TEST_F(PassType_AliasStrong, AssignToAlias) {
+    const char* input =
+R"R(
+    type MyInt from u32;
+
+    fn foo() {
+        var x = 30;
+        var z:MyInt = x;
+    }
+)R";
+
+    auto handle = createSourceHandle(input);
+    FrontendOptionsType options;
+    const ModuleType* module = m_frontEnd.compile(handle, options);
+    EXPECT_NE(nullptr, module);
+    EXPECT_FALSE(m_errorReporter.hasErrors());
+}
+
+
+TEST_F(PassType_AliasStrong, AssignFromAlias) {
+    const char* input =
+R"R(
+    type MyInt from u32;
+
+    fn foo() {
+        var z:MyInt = 40;
+        var y:u32 = z;
+    }
+)R";
+
+    auto handle = createSourceHandle(input);
+    FrontendOptionsType options;
+    const ModuleType* module = m_frontEnd.compile(handle, options);
+    EXPECT_EQ(nullptr, module);
+    EXPECT_TRUE(m_errorReporter.hasErrors());
+    if (!m_errorReporter.hasErrors()) {
+        return;
+    }
+    const yal::Error* err = m_errorReporter.getLastError();
+    EXPECT_EQ(err->getCode(), yal::frontend::ErrorTypeIncompatible::kCode);
+}
+
+
+TEST_F(PassType_AliasStrong, AliasInstancesCalls) {
+    const char* input =
+R"R(
+
+    type Foo struct {
+         x:u32
+    }
+
+    impl Foo {
+        fn Test(&self){
+        }
+    }
+
+    type Bar from Foo;
+
+    impl Bar {
+        fn do(&self) {
+            self.Test();
+        }
+    }
+
+    fn foo() {
+       var z  = Bar {x:32};
+       z.do();
     }
 )R";
 

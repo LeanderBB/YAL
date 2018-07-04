@@ -107,6 +107,7 @@ namespace yal::frontend
             "IntegerLiteral",
             "DecimalLiteral",
             "Impl",
+            "From",
             "Alias"
         };
 

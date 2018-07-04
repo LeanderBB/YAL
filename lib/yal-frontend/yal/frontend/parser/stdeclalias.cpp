@@ -22,9 +22,11 @@
 namespace yal::frontend {
 
     STDeclAlias::STDeclAlias(const STIdentifier* name,
-                             const STType* aliased):
+                             const STType* aliased,
+                             const bool isStrong):
         STDeclNamed(SyntaxTreeType::STDeclAlias, name),
-        m_aliasedType(aliased) {
+        m_aliasedType(aliased),
+        m_strong(isStrong) {
 
     }
 }

@@ -428,10 +428,11 @@ namespace yal::frontend {
         const QualType qtExpr = expr->getQualType();
 
         // check if type of expression is a struct type
-        const TypeStruct* typeStruct = dyn_cast<TypeStruct>(qtExpr.getType());
+        const TypeStruct* typeStruct = dyn_cast<TypeStruct>(&qtExpr.getType()->resolve());
         if (typeStruct == nullptr) {
             auto error = std::make_unique<ErrorTypeStructVarRefNonStruct>(node);
             onError(std::move(error));
+            return;
         }
 
         const DeclStruct& decl = typeStruct->getDecl();
@@ -617,10 +618,8 @@ namespace yal::frontend {
 
     void
     AstVisitorExprType::visit(ExprStructInit& node) {
-        const QualType qt = node.getQualType();
-        const TypeStruct* typeStruct = dyn_cast<TypeStruct>(qt.getType());
-        YAL_ASSERT(typeStruct != nullptr);
-        const DeclStruct& decl = typeStruct->getDecl();
+        const TypeStruct& typeStruct = node.getTypeStruct();
+        const DeclStruct& decl = typeStruct.getDecl();
 
         // check if all members are initialized
         ExprStructInit::MemberInitExprList& memberInits = node.getMemberInitExprList();

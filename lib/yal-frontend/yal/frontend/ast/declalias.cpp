@@ -35,4 +35,15 @@ namespace yal::frontend {
        m_aliasType(aliasType) {
 
    }
+
+   DeclAliasStrong::DeclAliasStrong(Module& module,
+                   DeclScope& scope,
+                   TypeAliasStrong& aliasType):
+       DeclNamed (module,
+                  AstType::DeclAliasStrong,
+                  aliasType.getIdentifier(),
+                  aliasType.getSTDecl().getSourceInfo(),
+                  scope),
+       m_aliasType(aliasType) {
+   }
 }
