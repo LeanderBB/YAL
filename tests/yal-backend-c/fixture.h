@@ -46,7 +46,7 @@ public:
     CompileFixture():
         m_stdstream(),
         m_sourceManager(),
-        m_moduleManager(),
+        m_moduleManager(""),
         m_errorReporter(),
         m_errorPrinter(m_stdstream, m_sourceManager),
         m_frontEnd(m_errorReporter, m_sourceManager, m_moduleManager){

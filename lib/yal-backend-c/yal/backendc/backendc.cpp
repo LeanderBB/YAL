@@ -56,7 +56,11 @@ namespace yal::backend::c {
         (void) module;
 
         // Module Path
-        const StringRef moduleName = module.getName();
+        StringRef moduleName = module.getName();
+        if (const size_t pos = moduleName.findLastOf(':'); pos != StringRef::npos) {
+            moduleName = moduleName.subStr(pos + 1);
+        }
+
         const StringRef moduleFullPath = module.getPath();
         const StringRef pathToModule = Path::GetPath(moduleFullPath);
 

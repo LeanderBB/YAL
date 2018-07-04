@@ -23,22 +23,15 @@
 
 namespace yal::frontend {
 
-    StringRef
-    Module::ModuleNameFromPath(const StringRef str) {
-        const StringRef basename = Path::GetBasename(str);
-        const StringRef moduleName = Path::RemoveExtension(basename);
-        return moduleName;
-    }
-
     Module::Module(ModuleManager &manager,
-                   const StringRef name,
+                   std::string &&name,
                    std::string &&path,
                    const SourceManager::Handle handle,
                    const Id id):
         m_id(id),
         m_sourceHandle(handle),
         m_manager(manager),
-        m_name(ModuleNameFromPath(name)),
+        m_name(std::move(name)),
         m_path(std::move(path)),
         m_astContext(),
         m_typeContext(),

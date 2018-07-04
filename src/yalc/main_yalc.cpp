@@ -48,8 +48,11 @@ int main(const int argc,
     yal::FileStream stdoutStream;
     stdoutStream.open(yal::FileStream::StdStream::Out);
 
+    auto realPath = yal::Path::GetRealPath("./");
+    const std::string realPathStr = realPath.value_or("./");
+
     yal::SourceManager sourceManager;
-    yal::frontend::ModuleManager moduleManager;
+    yal::frontend::ModuleManager moduleManager(realPathStr);
     yal::ErrorReporter errorReporter;
 
     auto handle = sourceManager.add(std::move(sourceItem));
@@ -72,8 +75,6 @@ int main(const int argc,
             optionsBackend.buildDir = argv[2];
             optionsBackend.config = "yalc";
             optionsBackend.compilerBin = "/usr/bin/clang";
-            auto realPath = yal::Path::GetRealPath("./");
-            const std::string realPathStr = realPath.value_or("./");
             optionsBackend.projectRootDir = realPathStr;
             backend.execute(optionsBackend, *module);
         }

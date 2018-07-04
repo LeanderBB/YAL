@@ -22,10 +22,11 @@
 
 namespace yal::frontend {
 
-    enum {kStackSize = 4096};
-    ModuleManager::ModuleManager() :
-        m_allocator(kStackSize),
-        m_modules() {
+    enum {kStackSize = (sizeof(Module) * 16)};
+    ModuleManager::ModuleManager(const StringRef moduleSourceDir)
+        : m_sourceDir(moduleSourceDir)
+        , m_allocator(kStackSize)
+        , m_modules() {
 
     }
 
@@ -33,19 +34,38 @@ namespace yal::frontend {
         clear();
     }
 
+    static std::string
+    ModuleNameFromPath(const StringRef rootdir,
+                       const StringRef moduledir) {
+        const size_t rootOffset = rootdir.length() != 0 ? rootdir.size() + 1: 0;
+        const StringRef basename = moduledir.subStr(rootOffset);
+        const StringRef moduleName = Path::RemoveExtension(basename);
+        return moduleName.replace(Path::kPathSepStr,"::");
+    }
+
     Module*
-    ModuleManager::createNew(const StringRef name,
-                             const SourceItem& item) {
+    ModuleManager::createNew(const SourceItem& item) {
         SourceManager::Handle handle = item.getHanlde();
+
+        // generate module name from path
+        const StringRef modulePath = item.getPath();
+        std::optional<std::string> fullPath = Path::GetRealPath(modulePath);
+        std::string fullModulePath = fullPath.value_or(modulePath.toString());
+
+        // check if module is actually in the path
+        if (!m_sourceDir.compare(fullModulePath, m_sourceDir.size())){
+            // Doesn't belog to this source directory, use add external
+            return nullptr;
+        }
+
+        std::string moduleName = ModuleNameFromPath(m_sourceDir, fullModulePath);
+
         if (getModuleBySourceHanlde(handle) == nullptr
-                && getModuleByName(name) == nullptr) {
-            const StringRef modulePath = item.getPath();
-            std::optional<std::string> fullPath = Path::GetRealPath(modulePath);
-            std::string fullModulePath = fullPath.value_or(modulePath.toString());
+                && getModuleByName(moduleName) == nullptr) {
             const size_t moduleCount = m_modules.size();
             void* ptr = m_allocator.allocate(sizeof(Module));
             Module* module = new (ptr) Module(*this,
-                                              name,
+                                              std::move(moduleName),
                                               std::move(fullModulePath),
                                               handle,
                                               static_cast<Module::Id>(moduleCount));

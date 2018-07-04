@@ -255,7 +255,7 @@ namespace yal {
 
     std::string
     StringRef::replace(const StringRef pattern,
-                        const StringRef with) const {
+                       const StringRef with) const {
         //TODO: Boyer-Moore string search!
         if (pattern.size() > m_size
                 || pattern.data() == nullptr
@@ -284,6 +284,25 @@ namespace yal {
             result.append(m_str + lastFoundOffset, m_size-lastFoundOffset);
         }
         return result;
+    }
+
+    bool
+    StringRef::compare(const StringRef other) const {
+        return *this == other;
+    }
+
+    bool
+    StringRef::compare(const StringRef other,
+                       const size_t size) const {
+        if (size > m_size) {
+            return false;
+        }
+
+        if (size > other.size()) {
+            return false;
+        }
+
+        return strncmp(m_str, other.m_str, size) == 0;
     }
 
     void

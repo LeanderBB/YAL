@@ -84,7 +84,7 @@ namespace yal {
         StringRefPod toStringRefPod() const;
 
         void toCStr(char* dst,
-                         const size_t size) const;
+                    const size_t size) const;
 
         size_t findFirstOf(const size_t start,
                            const char ch) const;
@@ -107,6 +107,10 @@ namespace yal {
 
         std::string replace(const StringRef pattern,
                             const StringRef with) const;
+
+        bool compare(const StringRef other) const;
+        bool compare(const StringRef other,
+                     const size_t size) const;
 
         void clear();
 

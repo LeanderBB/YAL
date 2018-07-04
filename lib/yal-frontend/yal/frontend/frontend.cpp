@@ -54,7 +54,7 @@ namespace yal::frontend {
         SourceItem* sourceItem = sourceItemOpt.value();
 
         yal::frontend::Module* module =
-                m_moduleManager.createNew(sourceItem->getPath(), *sourceItem);
+                m_moduleManager.createNew(*sourceItem);
         if (module == nullptr) {
             return nullptr;
         }

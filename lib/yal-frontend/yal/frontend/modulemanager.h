@@ -21,8 +21,9 @@
 
 #include "yal/frontend/module.h"
 #include "yal/io/sourcemanager.h"
-#include <vector>
 #include "yal/util/allocator/allocatorstack.h"
+#include "yal/util/stringref.h"
+#include <vector>
 
 namespace yal {
     class DeclModule;
@@ -33,14 +34,13 @@ namespace yal::frontend {
     class ModuleManager {
     public:
 
-        ModuleManager();
+        ModuleManager(const StringRef moduleSourceDir);
 
         ~ModuleManager();
 
         YAL_NO_COPY_CLASS(ModuleManager);
 
-        Module* createNew(const StringRef name,
-                          const SourceItem &item);
+        Module* createNew(const SourceItem &item);
 
         const Module *getModuleById(const Module::Id id) const;
 
@@ -50,6 +50,7 @@ namespace yal::frontend {
 
         void clear();
     private:
+        const StringRef m_sourceDir;
         AllocatorStack m_allocator;
         std::vector<Module*> m_modules;
     };

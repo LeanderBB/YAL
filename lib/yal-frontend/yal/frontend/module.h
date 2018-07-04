@@ -35,10 +35,8 @@ namespace yal::frontend {
     public:
         typedef uint32_t Id;
 
-        static StringRef ModuleNameFromPath(const StringRef str);
-
         Module(ModuleManager &manager,
-               const StringRef name,
+               std::string &&name,
                std::string&& path,
                const SourceManager::Handle handle,
                const Id id);
@@ -112,7 +110,7 @@ namespace yal::frontend {
         const Id m_id;
         const SourceManager::Handle m_sourceHandle;
         ModuleManager& m_manager;
-        const StringRef m_name;
+        const std::string m_name;
         const std::string m_path;
         ASTContext m_astContext;
         STContext m_stcontext;
