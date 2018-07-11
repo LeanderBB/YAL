@@ -148,6 +148,7 @@ namespace yal::frontend {
 
         switch(token) {
         case Token::Identifier:
+        case Token::IdentifierMulti:
         case Token::IntegerLiteral:
         case Token::IntegerLiteralI8:
         case Token::IntegerLiteralI16:

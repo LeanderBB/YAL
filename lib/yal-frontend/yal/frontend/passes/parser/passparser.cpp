@@ -48,7 +48,8 @@ namespace yal::frontend {
         STParser parser(lexer,
                         options.module.getSTContext(),
                         options.errReporter,
-                        options.srcItem);
+                        options.srcItem,
+                        options.module.getStringPool());
         return parser.parse();
     }
 

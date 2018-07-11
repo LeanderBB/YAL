@@ -34,11 +34,43 @@ namespace yal::frontend {
         m_name(std::move(name)),
         m_path(std::move(path)),
         m_astContext(),
-        m_typeContext(),
+        m_typeContext(*this),
         m_rootNode(nullptr){
 
         m_rootNode = newASTNode<DeclModule>(m_name);
         YAL_ASSERT_MESSAGE(m_rootNode != nullptr, "Failed to allocate root node");
+    }
+
+
+    bool
+    Module::import(const Module& module) {
+        if (isImported(module)) {
+            return true;
+        }
+        Module& mutMod = const_cast<Module&>(module);
+        TypeContext& modTypeCtx = mutMod.getTypeContext();
+
+        // Import types
+        auto fn = [this](Type& type) {
+            if (!m_typeContext.hasType(type.getIdentifier())) {
+                m_typeContext.registerType(&type);
+            }
+        };
+        modTypeCtx.forEachType(fn);
+
+        // Add to list of imported modules
+        m_importedModules.push_back(&mutMod);
+        return true;
+    }
+
+    bool
+    Module::isImported(const Module& module) const {
+        auto it = std::find_if(std::begin(m_importedModules),
+                               std::end(m_importedModules),
+                               [id = module.getId()](const Module* v) {
+            return v->getId() == id;
+        });
+        return it != std::end(m_importedModules);
     }
 
 }

@@ -27,7 +27,8 @@ namespace yal::frontend {
     class STIdentifier {
     public:
 
-        STIdentifier(const StringRef identifier);
+        STIdentifier(const StringRef identifier,
+                     const bool complex);
 
         void setSourceInfo(const SourceInfo& sourceInfo);
 
@@ -39,9 +40,14 @@ namespace yal::frontend {
             return m_identifier;
         }
 
+        bool isComplex() const {
+            return m_isComplex;
+        }
+
     protected:
         const StringRef m_identifier;
         SourceInfo m_sourceInfo;
+        const bool m_isComplex;
     };
 
 
@@ -65,7 +71,7 @@ namespace yal::frontend {
 
         STType(const Type type);
 
-        STType(const StringRef type);
+        STType(const STIdentifier* type);
 
         void setSourceInfo(const SourceInfo& sourceInfo);
 
@@ -77,13 +83,14 @@ namespace yal::frontend {
             return m_type;
         }
 
-        StringRef getIdentifier() const {
-            return m_identifier;
+        const STIdentifier& getIdentifier() const {
+            YAL_ASSERT(m_type == Type::Custom);
+            return *m_identifier;
         }
 
     private:
         const Type m_type;
-        const StringRef m_identifier;
+        const STIdentifier* m_identifier;
         SourceInfo m_sourceInfo;
     };
 

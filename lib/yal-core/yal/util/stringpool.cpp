@@ -29,6 +29,15 @@ namespace yal {
         return StringRef(value);
     }
 
+    StringRef
+    StringPool::getOrCreate(std::string&& string) {
+        std::string& value = m_map[string];
+        if (value.empty()) {
+            value = std::move(string);
+        }
+        return StringRef(value);
+    }
+
     std::optional<StringRef>
     StringPool::get(const StringRef string) const {
         auto it = m_map.find(string);

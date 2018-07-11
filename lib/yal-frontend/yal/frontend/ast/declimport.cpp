@@ -17,30 +17,17 @@
  *  License along with YAL. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#pragma once
+#include "yal/frontend/ast/declimport.h"
 
-#include "yal/yal.h"
-#include "yal/util/stringref.h"
+namespace yal::frontend {
 
-#include <unordered_map>
-#include <optional>
+    DeclImport::DeclImport(Module& module,
+                           DeclScope& scope,
+                           const SourceInfo &sourceInfo,
+                           const Module& imported)
+        : DeclBase(module, AstType::DeclImport, sourceInfo, scope)
+        , m_moduleImported(imported) {
 
-namespace yal {
-
-    class StringPool {
-    public:
-        StringPool() = default;
-        YAL_NO_COPY_CLASS(StringPool);
-
-        StringRef getOrCreate(const StringRef string);
-
-        StringRef getOrCreate(std::string&& string);
-
-        std::optional<StringRef> get(const StringRef string) const;
-
-    protected:
-        using StringMap = std::unordered_map<StringRef, std::string>;
-        StringMap m_map;
-    };
+    }
 
 }

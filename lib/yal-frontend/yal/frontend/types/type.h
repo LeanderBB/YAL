@@ -33,6 +33,45 @@ namespace yal::frontend {
     class Module;
     class TypeFunction;
 
+
+    class TypeId {
+    public:
+        static const TypeId kIvalid;
+
+        TypeId();
+
+        explicit TypeId(const uint64_t typeId,
+                        const Module& module);
+
+        explicit TypeId(const uint64_t typeId);
+
+        TypeId(const TypeId&) = default;
+        TypeId(TypeId&&) = default;
+        TypeId& operator =(const TypeId&) = default;
+        TypeId& operator =(TypeId&&) = default;
+
+        bool operator == (const TypeId& other) const {
+            return m_moduleId == other.m_moduleId
+                    && m_typeId == other.m_typeId;
+        }
+        bool operator != (const TypeId& other) const {
+            return !(*this == other);
+        }
+
+        uint64_t getTypeContextId() const {
+            return m_typeId;
+        }
+
+        uint32_t getModuleId() const {
+            return m_moduleId;
+        }
+
+    private:
+        uint64_t m_typeId;
+        uint32_t m_moduleId;
+    };
+
+
     class Type {
         friend class TypeContext;
     public:
@@ -90,7 +129,7 @@ namespace yal::frontend {
             return m_kind;
         }
 
-        uint64_t getTypeId() const {
+        TypeId getTypeId() const {
             return m_typeId;
         }
 
@@ -126,7 +165,7 @@ namespace yal::frontend {
         void copyInfoFromOther(const Type& other);
 
     protected:
-        uint64_t m_typeId;
+        TypeId m_typeId;
         const Module* m_module;
         Identifier m_identifier;
         uint32_t m_sizeBytes = 0;

@@ -33,12 +33,13 @@ namespace yal::frontend {
     class Type;
     class STType;
     class Module;
+    class ModuleManager;
+    struct PassOptions;
 
     class STPreDeclVisitor final : public SyntaxTreeVisitorRecursive<STPreDeclVisitor, true>
     {
     public:
-        STPreDeclVisitor(ErrorReporter& errReporter,
-                         Module& module);
+        STPreDeclVisitor(PassOptions& options);
 
 #define YAL_ST_NODE_TYPE(type) void visit(const type&);
 #include "yal/frontend/parser/syntaxtreetypes.def"
@@ -55,6 +56,7 @@ namespace yal::frontend {
     private:
         ErrorReporter& m_errReporter;
         Module& m_module;
+        ModuleManager& m_moduleManager;
         ScopeState m_state;
     };
 

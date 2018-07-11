@@ -79,6 +79,8 @@
 %type type_specifier {yal::frontend::STType*}
 %type qualifier {uint32_t}
 %type identifier {yal::frontend::STIdentifier*}
+%type identifier_complex {yal::frontend::STIdentifier*}
+%type identifier_simple {yal::frontend::STIdentifier*}
 %type self {yal::frontend::STIdentifier*}
 %type identifier_or_self {yal::frontend::STIdentifier*}
 
@@ -86,6 +88,8 @@
 %type decl {yal::frontend::STDecl*}
 %type decl_var {yal::frontend::STDeclVar*}
 %type decl_alias {yal::frontend::STDeclAlias*}
+%type decl_import_module {yal::frontend::STDeclImport*}
+%type decl_import {yal::frontend::STDeclImport*}
 
 //function
 %type decl_function {yal::frontend::STDeclFunction*}
@@ -141,21 +145,39 @@ decl(A) ::= decl_type_functions_scope(B). {
     A = B;
 }
 
+decl(A) ::= decl_import(B). {
+    A = B;
+}
+
 // Type References  -----------------------------------------------------------
 
-identifier(A) ::= IDENTIFIER(B). {
-        A = pParser->createNode<yal::frontend::STIdentifier>(B.tokenStr);
+identifier_complex(A) ::= IDENTIFIER_MULTI(B). {
+    A = pParser->createNode<yal::frontend::STIdentifier>(B.tokenStr, true);
+    auto srcInfo = CreateSourceInfo(B, B, pParser->getSourceHandle());
+    A->setSourceInfo(srcInfo);
+}
+
+identifier_simple(A) ::= IDENTIFIER(B). {
+        A = pParser->createNode<yal::frontend::STIdentifier>(B.tokenStr, false);
         auto srcInfo = CreateSourceInfo(B, B, pParser->getSourceHandle());
         A->setSourceInfo(srcInfo);
+}
+
+identifier(A) ::= identifier_simple(B). {
+        A = B;
+}
+
+identifier(A) ::= identifier_complex(B). {
+        A = B;
 }
 
 self(A) ::= SELF(B). {
-        A = pParser->createNode<yal::frontend::STIdentifier>(B.tokenStr);
+        A = pParser->createNode<yal::frontend::STIdentifier>(B.tokenStr, false);
         auto srcInfo = CreateSourceInfo(B, B, pParser->getSourceHandle());
         A->setSourceInfo(srcInfo);
 }
 
-identifier_or_self(A) ::= identifier(B). {A=B;}
+identifier_or_self(A) ::= identifier_simple(B). {A=B;}
 identifier_or_self(A) ::= self(B).{A=B;}
 
 type_specifier(A) ::= type_builtin(B). {
@@ -163,9 +185,9 @@ type_specifier(A) ::= type_builtin(B). {
 }
 
 type_specifier(A) ::= type_array. {A = nullptr;}
-type_specifier(A) ::= IDENTIFIER(B). {
-    A = pParser->createNode<yal::frontend::STType>(B.tokenStr);
-    A->setSourceInfo(yal::frontend::CreateSourceInfo(B,B, pParser->getSourceHandle()));
+type_specifier(A) ::= identifier(B). {
+    A = pParser->createNode<yal::frontend::STType>(B);
+    A->setSourceInfo(B->getSourceInfo());
 }
 
 type_builtin(A) ::= TYPE_BOOL(B). {
@@ -237,20 +259,39 @@ type_qualified(A) ::= qualifier(D) type_specifier(C). {
 }
 
 // Decl Alias ---------------------------------------------------------------
-decl_alias(A) ::= TYPE(B) identifier(D) ALIAS type_specifier(C) SEMI_COLON(Z). {
+
+decl_import(A)::= IMPORT(B) decl_import_module(C) SEMI_COLON(Z).{
+    A = C;
+    auto srcInfo = CreateSourceInfo(B, Z, pParser->getSourceHandle());
+    A->setSourceInfo(srcInfo);
+    A->finalize(*pParser);
+}
+
+decl_import_module(A)::= decl_import_module(B) COLON COLON identifier_simple(C). {
+        A = B;
+        A->addModuleChunk(C);
+}
+
+decl_import_module(A)::= identifier(C). {
+    A = pParser->createNode<yal::frontend::STDeclImport>(*pParser);
+    A->addModuleChunk(C);
+}
+
+// Decl Alias ---------------------------------------------------------------
+decl_alias(A) ::= TYPE(B) identifier_simple(D) ALIAS type_specifier(C) SEMI_COLON(Z). {
     A = pParser->createNode<yal::frontend::STDeclAlias>(D, C, false);
     auto srcInfo = CreateSourceInfo(B, Z, pParser->getSourceHandle());
     A->setSourceInfo(srcInfo);
 }
 
-decl_alias(A) ::= TYPE(B) identifier(D) FROM type_specifier(C) SEMI_COLON(Z). {
+decl_alias(A) ::= TYPE(B) identifier_simple(D) FROM type_specifier(C) SEMI_COLON(Z). {
     A = pParser->createNode<yal::frontend::STDeclAlias>(D, C, true);
     auto srcInfo = CreateSourceInfo(B, Z, pParser->getSourceHandle());
     A->setSourceInfo(srcInfo);
 }
 // Decl Struct ---------------------------------------------------------------
 
-decl_struct(A) ::= TYPE(B) identifier(D) STRUCT SCOPE_BEGIN struct_decl_vars(C) SCOPE_END(Z). {
+decl_struct(A) ::= TYPE(B) identifier_simple(D) STRUCT SCOPE_BEGIN struct_decl_vars(C) SCOPE_END(Z). {
     A = pParser->createNode<yal::frontend::STDeclStruct>(D, C, *pParser);
     auto srcInfo = CreateSourceInfo(B, Z, pParser->getSourceHandle());
     A->setSourceInfo(srcInfo);
@@ -265,7 +306,7 @@ struct_decl_vars(A) ::= struct_decl_var(B). {
     A = list.add(B);
 }
 
-struct_decl_var(A) ::= identifier(B) COLON type_qualified(C). {
+struct_decl_var(A) ::= identifier_simple(B) COLON type_qualified(C). {
     A = pParser->createNode<yal::frontend::STStructMember>(B, C);
     auto srcInfo = yal::frontend::CreateSourceInfo(B->getSourceInfo(), C->getSourceInfo(),pParser->getSourceHandle());
     A->setSourceInfo(srcInfo);
@@ -278,7 +319,7 @@ function_param_list(A) ::= PAR_BEGIN function_args_decl (B) PAR_END. {
     A = B;
 }
 
-decl_function(A) ::= FUNCTION(B) identifier(C) function_param_list(D) function_return_decl (E)
+decl_function(A) ::= FUNCTION(B) identifier_simple(C) function_param_list(D) function_return_decl (E)
         SCOPE_BEGIN statement_list_or_empty(F) SCOPE_END(Z). {
     A = pParser->createNode<yal::frontend::STDeclFunction>(C, E, D, F, *pParser);
     A->setSourceInfo(CreateSourceInfo(B, Z, pParser->getSourceHandle()));
@@ -318,7 +359,7 @@ function_args_decl(A) ::= . {
    A = pParser->getDeclParamList().getRangeEmpty();
 }
 
-function_arg_decl(A) ::= identifier(B) COLON type_qualified(C). {
+function_arg_decl(A) ::= identifier_simple(B) COLON type_qualified(C). {
         A = pParser->createNode<yal::frontend::STDeclParam>(B, C);
         A->setSourceInfo(yal::frontend::CreateSourceInfo(B->getSourceInfo(),C->getSourceInfo(), pParser->getSourceHandle()));
 }
@@ -382,13 +423,13 @@ statement(A) ::= SCOPE_BEGIN(X) statement_list_or_empty(B) SCOPE_END(Z). {
 
 // Var Decls -----------------------------------------------------------------
 
-decl_var(A) ::= VAR(Z) identifier(B) var_type_spec(C) ASSIGN expression(D). {
+decl_var(A) ::= VAR(Z) identifier_simple(B) var_type_spec(C) ASSIGN expression(D). {
     A = pParser->createNode<yal::frontend::STDeclVar>(B, C, D, false);
     auto srcInfo = yal::frontend::CreateSourceInfo(Z, D->getSourceInfo(), pParser->getSourceHandle());
     A->setSourceInfo(srcInfo);
 }
 
-decl_var(A) ::= LET(Z) identifier(B) var_type_spec(C) ASSIGN expression(D). {
+decl_var(A) ::= LET(Z) identifier_simple(B) var_type_spec(C) ASSIGN expression(D). {
     A = pParser->createNode<yal::frontend::STDeclVar>(B, C, D, true);
     auto srcInfo = yal::frontend::CreateSourceInfo(Z, D->getSourceInfo(), pParser->getSourceHandle());
     A->setSourceInfo(srcInfo);
@@ -431,17 +472,17 @@ expression(A) ::= identifier(C) PAR_BEGIN function_call_args(D) PAR_END(Z). {
     A->setSourceInfo(srcInfo);
 }
 
-expression(A) ::= expression(B) DOT identifier(C) PAR_BEGIN function_call_args(D) PAR_END(Z). {
+expression(A) ::= expression(B) DOT identifier_simple(C) PAR_BEGIN function_call_args(D) PAR_END(Z). {
     A = pParser->createNode<yal::frontend::STExprFnCall>(C,B,D,*pParser);
     auto srcInfo = yal::frontend::CreateSourceInfo(B->getSourceInfo(), Z, pParser->getSourceHandle());
     A->setSourceInfo(srcInfo);
 }
 
-expression(A) ::= type_specifier(B) COLON COLON identifier(C) PAR_BEGIN function_call_args(D) PAR_END(Z). {
-    A = pParser->createNode<yal::frontend::STExprFnCall>(C,B,D,*pParser);
-    auto srcInfo = yal::frontend::CreateSourceInfo(B->getSourceInfo(), Z, pParser->getSourceHandle());
-    A->setSourceInfo(srcInfo);
-}
+//expression(A) ::= type_specifier(B) COLON COLON identifier(C) PAR_BEGIN function_call_args(D) PAR_END(Z). {
+//    A = pParser->createNode<yal::frontend::STExprFnCall>(C,B,D,*pParser);
+//    auto srcInfo = yal::frontend::CreateSourceInfo(B->getSourceInfo(), Z, pParser->getSourceHandle());
+//    A->setSourceInfo(srcInfo);
+//}
 
 // Binary operators ----------------------------------------------------------
 
@@ -597,7 +638,7 @@ struct_member_init_list (A) ::= struct_member_init(B). {
     A = list.add(B);
 }
 
-struct_member_init(A) ::= identifier(B) COLON expression(C). {
+struct_member_init(A) ::= identifier_simple(B) COLON expression(C). {
     A = pParser->createNode<yal::frontend::STStructMemberInit>(B,C);
     auto srcInfo = yal::frontend::CreateSourceInfo(B->getSourceInfo(), C->getSourceInfo(), pParser->getSourceHandle());
     A->setSourceInfo(srcInfo);

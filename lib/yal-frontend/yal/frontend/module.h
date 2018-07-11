@@ -35,6 +35,8 @@ namespace yal::frontend {
     public:
         typedef uint32_t Id;
 
+        using ModuleList = std::vector<Module*>;
+
         Module(ModuleManager &manager,
                std::string &&name,
                std::string&& path,
@@ -106,6 +108,14 @@ namespace yal::frontend {
                     .construct<T>(*this, std::forward<ARGS>(args)...);
         }
 
+        bool import(const Module& module);
+
+        bool isImported(const Module& module) const;
+
+        const ModuleList& getImported() const {
+            return m_importedModules;
+        }
+
     private:
         const Id m_id;
         const SourceManager::Handle m_sourceHandle;
@@ -117,5 +127,6 @@ namespace yal::frontend {
         TypeContext m_typeContext;
         StringPool m_stringPool;
         DeclModule* m_rootNode;
+        ModuleList m_importedModules;
     };
 }

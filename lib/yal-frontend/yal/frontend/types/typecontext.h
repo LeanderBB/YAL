@@ -29,22 +29,20 @@ namespace yal::frontend {
     class Type;
     class TypeBuiltin;
     class Identifier;
+    class Module;
+    class STType;
+    class STIdentifier;
 
     class TypeContext {
     public:
 
-        TypeContext();
+        TypeContext(const Module& module);
 
         bool hasType(const Identifier& identifier) const;
 
         bool hasType (const Type& type) const;
 
-        const Type* getByIdentifier(const Identifier& identifier) const;
-
-        Type* getByIdentifier(const Identifier& identifier) {
-            const TypeContext* cthis = this;
-            return const_cast<Type*>(cthis->getByIdentifier(identifier));
-        }
+        Type* getByIdentifier(const Identifier& identifier) const;
 
         TypeBuiltin* getTypeBuiltinBool() const {
             return m_typeBool;
@@ -102,6 +100,14 @@ namespace yal::frontend {
             return m_types.size();
         }
 
+        const Module& getModule() const {
+            return m_module;
+        }
+
+        Type* resolveType(const STType& type) const;
+
+        Type* resolveType(const STIdentifier& identifier) const;
+
         template<typename FN>
         void forEachType(FN& fn) const {
             for (auto& type : m_typeList) {
@@ -110,8 +116,19 @@ namespace yal::frontend {
         }
 
     private:
+        friend class Module;
+        template<typename FN>
+        void forEachType(FN& fn) {
+            for (auto& type : m_typeList) {
+                fn(*type);
+            }
+        }
+
+
+    private:
         using TypeMap = IdentifierPtrMap<Type*>;
         using TypeList = std::vector<Type*>;
+        const Module& m_module;
         uint64_t m_typeIdCounter;
         AllocatorStack m_allocator;
         TypeMap m_types;
@@ -127,7 +144,6 @@ namespace yal::frontend {
         TypeBuiltin* m_typeU64;
         TypeBuiltin* m_typeFloat;
         TypeBuiltin* m_typeDouble;
-
     };
 
 }

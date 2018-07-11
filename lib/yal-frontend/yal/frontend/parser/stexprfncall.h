@@ -29,8 +29,7 @@ namespace yal::frontend {
         using ParamList = STVector<const STExpression*>;
 
         enum class FnType {
-            Regular,
-            Static,
+            RegularOrStatic,
             Instance
         };
 
@@ -38,10 +37,10 @@ namespace yal::frontend {
                      const ParseListExpr::Range params,
                      STParser& parser);
 
-        STExprFnCall(const STIdentifier* name,
+       /* STExprFnCall(const STIdentifier* name,
                      const STType* type,
                      const ParseListExpr::Range params,
-                     STParser& parser);
+                     STParser& parser); */
 
         STExprFnCall(const STIdentifier* name,
                      const STExpression* expr,

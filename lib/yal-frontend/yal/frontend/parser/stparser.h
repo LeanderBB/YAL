@@ -27,6 +27,7 @@
 namespace yal {
     class SourceItem;
     class ErrorReporter;
+    class StringPool;
 }
 
 namespace yal::frontend {
@@ -143,7 +144,8 @@ namespace yal::frontend {
         STParser(Lexer& lexer,
                  STContext& stcontext,
                  ErrorReporter& reporter,
-                 SourceItem& sourceItem);
+                 SourceItem& sourceItem,
+                 StringPool& stringPool);
 
         STDeclModule* getDeclModule() const {
             return m_stcontext.getDeclModule();
@@ -198,6 +200,10 @@ namespace yal::frontend {
             return m_stcontext;
         }
 
+        StringPool& getStringPool() {
+            return m_stringPool;
+        }
+
     private:
         std::unique_ptr<void, void(*)(void*)> m_parserImpl;
         ParseListDecl m_listDecl;
@@ -210,6 +216,7 @@ namespace yal::frontend {
         Lexer& m_lexer;
         ErrorReporter& m_errorReporter;
         SourceItem& m_sourceItem;
+        StringPool& m_stringPool;
     };
 
     SourceInfo CreateSourceInfo(const TokenInfo& start,

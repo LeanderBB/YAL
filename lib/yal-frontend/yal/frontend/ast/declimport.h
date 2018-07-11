@@ -19,28 +19,23 @@
 
 #pragma once
 
-#include "yal/yal.h"
-#include "yal/util/stringref.h"
+#include "yal/frontend/ast/declbase.h"
 
-#include <unordered_map>
-#include <optional>
+namespace yal::frontend {
 
-namespace yal {
-
-    class StringPool {
+    class DeclImport : public DeclBase {
     public:
-        StringPool() = default;
-        YAL_NO_COPY_CLASS(StringPool);
+        DeclImport(Module& module,
+                   DeclScope& scope,
+                   const SourceInfo& sourceInfo,
+                   const Module& imported);
 
-        StringRef getOrCreate(const StringRef string);
+        const Module& getModuleImported() const {
+            return m_moduleImported;
+        }
 
-        StringRef getOrCreate(std::string&& string);
-
-        std::optional<StringRef> get(const StringRef string) const;
-
-    protected:
-        using StringMap = std::unordered_map<StringRef, std::string>;
-        StringMap m_map;
+    private:
+        const Module& m_moduleImported;
     };
 
 }

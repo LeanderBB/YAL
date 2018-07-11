@@ -99,6 +99,8 @@ namespace yal::frontend {
             return YAL_TOKEN_DIV;
         case Token::Identifier:
             return YAL_TOKEN_IDENTIFIER;
+        case Token::IdentifierMulti:
+            return YAL_TOKEN_IDENTIFIER_MULTI;
         case Token::Colon:
             return YAL_TOKEN_COLON;
         case Token::SemiColon:
@@ -166,6 +168,8 @@ namespace yal::frontend {
             return YAL_TOKEN_ALIAS;
         case Token::From:
             return YAL_TOKEN_FROM;
+        case Token::Import:
+            return YAL_TOKEN_IMPORT;
         default:
             YAL_ASSERT_MESSAGE(false, "Shouldn't be reached!");
             return -1;
@@ -188,12 +192,14 @@ namespace yal::frontend {
     STParser::STParser(Lexer& lexer,
                        STContext& stcontext,
                        ErrorReporter &reporter,
-                       SourceItem& sourceItem):
+                       SourceItem& sourceItem,
+                       StringPool& stringPool):
         m_parserImpl(nullptr, ParserDtor),
         m_stcontext(stcontext),
         m_lexer(lexer),
         m_errorReporter(reporter),
-        m_sourceItem(sourceItem){
+        m_sourceItem(sourceItem),
+        m_stringPool(stringPool) {
         void*(*fnAlloc)(size_t) = ::malloc;
         void* ptr = YALSTParserAlloc(fnAlloc);
         m_parserImpl.reset(ptr);

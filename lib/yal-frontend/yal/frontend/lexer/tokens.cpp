@@ -82,6 +82,7 @@ namespace yal::frontend
             "Mult",
             "Div",
             "Identifier",
+            "IdentifierMulti",
             "Colon",
             "SemiColon",
             "Type",
@@ -108,7 +109,8 @@ namespace yal::frontend
             "DecimalLiteral",
             "Impl",
             "From",
-            "Alias"
+            "Alias",
+            "Import"
         };
 
         static_assert(sizeof(sLookupTable)/sizeof(sLookupTable[0]) ==

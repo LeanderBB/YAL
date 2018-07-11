@@ -21,7 +21,9 @@ configure_file(config.h.cmake ${CONFIG_FILE})
 add_executable(test_yal_backend_c
     fixture.h
     ${CONFIG_FILE}
-    main_test_backendc.cpp)
+    main_test_backendc.cpp
+    test_backendc_import.cpp
+)
 
 target_include_directories(test_yal_backend_c
     PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}" "${CONFIG_INCLUDE_DIR}"

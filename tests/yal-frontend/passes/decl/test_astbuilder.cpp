@@ -432,12 +432,13 @@ R"R(
         return;
     }
     const yal::Error* err = m_errorReporter.getLastError();
-    EXPECT_EQ(err->getCode(), yal::frontend::ErrorTypeFunctionUndefined::kCode);
+    EXPECT_EQ(err->getCode(), yal::frontend::ErrorUndefinedSymbol::kCode);
+    /*EXPECT_EQ(err->getCode(), yal::frontend::ErrorTypeFunctionUndefined::kCode);
     if (err->getCode() == yal::frontend::ErrorTypeFunctionUndefined::kCode) {
         const yal::frontend::ErrorTypeFunctionUndefined* errImpl =
                 static_cast<const yal::frontend::ErrorTypeFunctionUndefined*>(err);
         EXPECT_EQ(errImpl->m_sym, yal::StringRef("bar"));
-    }
+    }*/
 }
 
 TEST_F(PassDecl_AstBuilder, FunctionOnTargetIsNotStatic) {

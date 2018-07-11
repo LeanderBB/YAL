@@ -26,6 +26,7 @@
 #include "yal/frontend/module.h"
 #include "yal/frontend/parser/stdeclalias.h"
 #include "yal/frontend/parser/stdeclfunction.h"
+#include "yal/frontend/parser/stdeclimport.h"
 #include "yal/frontend/parser/stdeclstruct.h"
 #include "yal/frontend/parser/stexprliterals.h"
 #include "yal/frontend/parser/ststmtassign.h"
@@ -826,5 +827,33 @@ namespace yal::frontend {
         const TypeAliasWeak* aliasWeak = dyn_cast<TypeAliasWeak>(&m_alias);
         YAL_ASSERT(aliasWeak != nullptr);
         return aliasWeak->getSTDecl().getSourceInfo();
+    }
+
+    // ErrorModuleNotFound --------------------------------------------
+
+    const ErrorCode  ErrorImportNotFound::kCode =
+            MakeErrorCode(static_cast<uint16_t>(PassTypeCode::Decl), 21);
+
+    ErrorImportNotFound:: ErrorImportNotFound(const STDeclImport& decl):
+        ErrorFrontend(kCode),
+        m_decl(decl) {
+
+    }
+
+    StringRef
+    ErrorImportNotFound::getErrorName() const {
+        return "Import not found";
+    }
+
+    void
+    ErrorImportNotFound::printDetail(ErrorPrinter &printer) const {
+        FormatAppend(printer.getFormater(),
+                     "Could not locate module '%' for import.\n",
+                     m_decl.getModuleIdentifier());
+    };
+
+    const SourceInfo&
+    ErrorImportNotFound::getSourceInfo() const {
+      return m_decl.getSourceInfo();
     }
 }

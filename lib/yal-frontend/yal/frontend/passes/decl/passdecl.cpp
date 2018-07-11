@@ -36,7 +36,7 @@ namespace yal::frontend {
     PassDecl::execute(PassOptions &options) {
         // Pre-declare root scope types
         ErrorReporter& errReporter = options.errReporter;
-        STPreDeclVisitor preDeclVisitor(errReporter, options.module);
+        STPreDeclVisitor preDeclVisitor(options);
 
         // Run pre-decl pass
         const STDeclModule* stDeclModule =
@@ -48,7 +48,7 @@ namespace yal::frontend {
 
         // run Ast builder
         {
-            AstBuilder astBuilder(errReporter, options.module);
+            AstBuilder astBuilder(options);
             if (!astBuilder.execute()) {
                 return false;
             }

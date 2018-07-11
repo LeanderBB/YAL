@@ -99,6 +99,9 @@ namespace yal::frontend {
     ReturnCheckVisitor::visit(const DeclVar&) {}
 
     void
+    ReturnCheckVisitor::visit(const DeclImport&) {}
+
+    void
     ReturnCheckVisitor::visit(const DeclParamVar&) {}
 
     void

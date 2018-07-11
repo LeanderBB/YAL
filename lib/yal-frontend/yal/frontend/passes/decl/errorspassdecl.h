@@ -35,6 +35,7 @@ namespace yal::frontend {
     class TypeFunction;
     class TypeStruct;
     class STDeclAlias;
+    class STDeclImport;
 
     class ErrorDuplicateTypeDecl final : public ErrorFrontend{
     public:
@@ -417,6 +418,22 @@ namespace yal::frontend {
         const SourceInfo& getSourceInfo() const final override;
     public:
         const Type& m_alias;
+    };
+
+    class ErrorImportNotFound final : public ErrorFrontend{
+    public:
+        static const ErrorCode kCode;
+
+        ErrorImportNotFound(const STDeclImport& decl);
+
+    protected:
+        StringRef getErrorName() const final override;
+
+        void printDetail(ErrorPrinter& printer) const final override;
+
+        const SourceInfo& getSourceInfo() const final override;
+    public:
+        const STDeclImport& m_decl;
     };
 }
 

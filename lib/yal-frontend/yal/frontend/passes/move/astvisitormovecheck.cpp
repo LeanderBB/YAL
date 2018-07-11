@@ -177,7 +177,10 @@ namespace yal::frontend {
         for (auto& member: members) {
             resolve(*member);
         }
+    }
 
+    void
+    AstVisitorMoveCheck::visit(const DeclImport&) {
     }
 
     void

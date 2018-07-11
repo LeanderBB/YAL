@@ -110,10 +110,7 @@ R"R(
         return;
     }
     const yal::Error* err = m_errorReporter.getLastError();
-    // TODO: When we can specify functions as types this should be the new error code
-    // EXPECT_EQ(err->getCode(), yal::frontend::ErrorAliasOfFunction::kCode);
-    // for now it will result in parse error
-    EXPECT_EQ(err->getCode(), yal::frontend::ErrorParser::kCode);
+    EXPECT_EQ(err->getCode(), yal::frontend::ErrorAliasOfFunction::kCode);
 }
 
 TEST_F(PassDecl_PreDecl_AliasWeak, AliasImplTypeFunction) {

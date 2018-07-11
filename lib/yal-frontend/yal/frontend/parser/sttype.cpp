@@ -20,9 +20,12 @@
 
 namespace yal::frontend {
 
-    STIdentifier::STIdentifier(const StringRef identifier):
-        m_identifier(identifier) {
-
+    STIdentifier::STIdentifier(const StringRef identifier,
+                               const bool isComplex)
+        : m_identifier(identifier)
+        , m_sourceInfo()
+        , m_isComplex(isComplex) {
+        YAL_ASSERT(identifier.size() != 0);
     }
 
     void
@@ -38,10 +41,10 @@ namespace yal::frontend {
 
     }
 
-    STType::STType(const StringRef type):
+    STType::STType(const STIdentifier* type):
         m_type(Type::Custom),
         m_identifier(type) {
-
+        YAL_ASSERT(type != nullptr);
     }
 
     void

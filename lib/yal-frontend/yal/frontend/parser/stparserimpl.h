@@ -2,6 +2,9 @@
 #define YALSTParserTOKENTYPE yal::frontend::TokenInfo
 #define YALSTParserARG_PDECL , yal::frontend::STParser *pParser 
 void YALSTParser(void *yyp,int yymajor,YALSTParserTOKENTYPE yyminor YALSTParserARG_PDECL);
+#if defined(YYCOVERAGE)
+int YALSTParserCoverage(FILE *out);
+#endif
 #if defined(YYTRACKMAXSTACKDEPTH)
 int YALSTParserStackPeak(void *p);
 #endif
@@ -19,51 +22,53 @@ void YALSTParserTrace(FILE *TraceFILE,char *zTracePrompt);
 #define YALSTParserARG_STORE yypParser->pParser  = pParser 
 #define YALSTParserARG_FETCH  yal::frontend::STParser *pParser  = yypParser->pParser 
 #define YALSTParserARG_SDECL  yal::frontend::STParser *pParser ;
-#define YAL_TOKEN_BOOL_LITERAL                   70
-#define YAL_TOKEN_FLOAT_LITERAL_64               69
-#define YAL_TOKEN_FLOAT_LITERAL_32               68
-#define YAL_TOKEN_FLOAT_LITERAL                  67
-#define YAL_TOKEN_INTEGER_LITERAL_U64            66
-#define YAL_TOKEN_INTEGER_LITERAL_U32            65
-#define YAL_TOKEN_INTEGER_LITERAL_U16            64
-#define YAL_TOKEN_INTEGER_LITERAL_U8             63
-#define YAL_TOKEN_INTEGER_LITERAL_I64            62
-#define YAL_TOKEN_INTEGER_LITERAL_I32            61
-#define YAL_TOKEN_INTEGER_LITERAL_I16            60
-#define YAL_TOKEN_INTEGER_LITERAL_I8             59
-#define YAL_TOKEN_INTEGER_LITERAL                58
-#define YAL_TOKEN_LET                            57
-#define YAL_TOKEN_VAR                            56
-#define YAL_TOKEN_RETURN                         55
-#define YAL_TOKEN_IMPL                           54
-#define YAL_TOKEN_FUNCTION                       53
-#define YAL_TOKEN_PAR_END                        52
-#define YAL_TOKEN_PAR_BEGIN                      51
-#define YAL_TOKEN_COLON                          50
-#define YAL_TOKEN_COMMA                          49
-#define YAL_TOKEN_SCOPE_END                      48
-#define YAL_TOKEN_SCOPE_BEGIN                    47
-#define YAL_TOKEN_STRUCT                         46
-#define YAL_TOKEN_FROM                           45
+#define YAL_TOKEN_BOOL_LITERAL                   72
+#define YAL_TOKEN_FLOAT_LITERAL_64               71
+#define YAL_TOKEN_FLOAT_LITERAL_32               70
+#define YAL_TOKEN_FLOAT_LITERAL                  69
+#define YAL_TOKEN_INTEGER_LITERAL_U64            68
+#define YAL_TOKEN_INTEGER_LITERAL_U32            67
+#define YAL_TOKEN_INTEGER_LITERAL_U16            66
+#define YAL_TOKEN_INTEGER_LITERAL_U8             65
+#define YAL_TOKEN_INTEGER_LITERAL_I64            64
+#define YAL_TOKEN_INTEGER_LITERAL_I32            63
+#define YAL_TOKEN_INTEGER_LITERAL_I16            62
+#define YAL_TOKEN_INTEGER_LITERAL_I8             61
+#define YAL_TOKEN_INTEGER_LITERAL                60
+#define YAL_TOKEN_LET                            59
+#define YAL_TOKEN_VAR                            58
+#define YAL_TOKEN_RETURN                         57
+#define YAL_TOKEN_IMPL                           56
+#define YAL_TOKEN_FUNCTION                       55
+#define YAL_TOKEN_PAR_END                        54
+#define YAL_TOKEN_PAR_BEGIN                      53
+#define YAL_TOKEN_COMMA                          52
+#define YAL_TOKEN_SCOPE_END                      51
+#define YAL_TOKEN_SCOPE_BEGIN                    50
+#define YAL_TOKEN_STRUCT                         49
+#define YAL_TOKEN_FROM                           48
+#define YAL_TOKEN_ALIAS                          47
+#define YAL_TOKEN_TYPE                           46
+#define YAL_TOKEN_COLON                          45
 #define YAL_TOKEN_SEMI_COLON                     44
-#define YAL_TOKEN_ALIAS                          43
-#define YAL_TOKEN_TYPE                           42
-#define YAL_TOKEN_MUT                            41
-#define YAL_TOKEN_ARRAY_END                      40
-#define YAL_TOKEN_ARRAY_BEGIN                    39
-#define YAL_TOKEN_TYPE_DOUBLE                    38
-#define YAL_TOKEN_TYPE_FLOAT                     37
-#define YAL_TOKEN_TYPE_UINT64                    36
-#define YAL_TOKEN_TYPE_INT64                     35
-#define YAL_TOKEN_TYPE_UINT32                    34
-#define YAL_TOKEN_TYPE_INT32                     33
-#define YAL_TOKEN_TYPE_UINT16                    32
-#define YAL_TOKEN_TYPE_INT16                     31
-#define YAL_TOKEN_TYPE_UINT8                     30
-#define YAL_TOKEN_TYPE_INT8                      29
-#define YAL_TOKEN_TYPE_BOOL                      28
-#define YAL_TOKEN_SELF                           27
-#define YAL_TOKEN_IDENTIFIER                     26
+#define YAL_TOKEN_IMPORT                         43
+#define YAL_TOKEN_MUT                            42
+#define YAL_TOKEN_ARRAY_END                      41
+#define YAL_TOKEN_ARRAY_BEGIN                    40
+#define YAL_TOKEN_TYPE_DOUBLE                    39
+#define YAL_TOKEN_TYPE_FLOAT                     38
+#define YAL_TOKEN_TYPE_UINT64                    37
+#define YAL_TOKEN_TYPE_INT64                     36
+#define YAL_TOKEN_TYPE_UINT32                    35
+#define YAL_TOKEN_TYPE_INT32                     34
+#define YAL_TOKEN_TYPE_UINT16                    33
+#define YAL_TOKEN_TYPE_INT16                     32
+#define YAL_TOKEN_TYPE_UINT8                     31
+#define YAL_TOKEN_TYPE_INT8                      30
+#define YAL_TOKEN_TYPE_BOOL                      29
+#define YAL_TOKEN_SELF                           28
+#define YAL_TOKEN_IDENTIFIER                     27
+#define YAL_TOKEN_IDENTIFIER_MULTI               26
 #define YAL_TOKEN_END                            25
 #define YAL_TOKEN_DOT                            24
 #define YAL_TOKEN_REFERENCE                      23

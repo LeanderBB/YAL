@@ -77,6 +77,15 @@ namespace yal::backend::c {
     }
 
     void
+    AstVisitorCHeader::visit(const yal::frontend::DeclImport& decl) {
+        const yf::Module& moduleImported = decl.getModuleImported();
+        StringRef moduleName = moduleImported.getName();
+        std::string moduleIncludePath = moduleName.replace("::","/");
+        moduleIncludePath.append(".h");
+        m_writer.write("#include \"%\"\n\n", moduleIncludePath);
+    }
+
+    void
     AstVisitorCHeader::visit(const yal::frontend::DeclVar&) {}
 
     void

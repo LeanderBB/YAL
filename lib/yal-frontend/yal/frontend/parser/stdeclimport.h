@@ -19,28 +19,30 @@
 
 #pragma once
 
-#include "yal/yal.h"
-#include "yal/util/stringref.h"
+#include "yal/frontend/parser/syntaxtree.h"
 
-#include <unordered_map>
-#include <optional>
-
-namespace yal {
-
-    class StringPool {
+namespace yal::frontend {
+    class STParser;
+    class STDeclImport : public STDecl {
     public:
-        StringPool() = default;
-        YAL_NO_COPY_CLASS(StringPool);
+        using ModuleChuncks = STVector<const STIdentifier*>;
 
-        StringRef getOrCreate(const StringRef string);
+        STDeclImport(STParser& parser);
 
-        StringRef getOrCreate(std::string&& string);
+        void addModuleChunk(const STIdentifier* identifier);
 
-        std::optional<StringRef> get(const StringRef string) const;
+        void finalize(STParser& parser);
 
-    protected:
-        using StringMap = std::unordered_map<StringRef, std::string>;
-        StringMap m_map;
+        const ModuleChuncks& getModuleChuncks() const {
+            return m_moduleChunks;
+        }
+
+        StringRef getModuleIdentifier() const {
+            return m_moduleIdentifier;
+        }
+
+    private:
+        ModuleChuncks m_moduleChunks;
+        StringRef m_moduleIdentifier;
     };
-
 }

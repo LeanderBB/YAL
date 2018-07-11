@@ -83,6 +83,7 @@ namespace yal::frontend {
         Mult,
         Div,
         Identifier,
+        IdentifierMulti,
         Colon,
         SemiColon,
         Type,
@@ -110,6 +111,7 @@ namespace yal::frontend {
         Impl,
         Alias,
         From,
+        Import,
         TokenCount
     };
 

@@ -29,12 +29,12 @@ namespace yal::frontend  {
         m_targetType(nullptr),
         m_expr(nullptr),
         m_params(parser.getSTContext().getStdAllocatorWrapper<ParamList::value_type>()),
-        m_type(FnType::Regular) {
+        m_type(FnType::RegularOrStatic) {
 
         parser.getExprList().moveRange(m_params, params);
     }
 
-    STExprFnCall::STExprFnCall(const STIdentifier* name,
+  /*  STExprFnCall::STExprFnCall(const STIdentifier* name,
                                const STType *type,
                                const ParseListExpr::Range params,
                                STParser& parser):
@@ -46,7 +46,7 @@ namespace yal::frontend  {
         m_type(FnType::Static) {
 
          parser.getExprList().moveRange(m_params, params);
-    }
+    }*/
 
     STExprFnCall::STExprFnCall(const STIdentifier* name,
                                const STExpression* expr,

@@ -128,7 +128,9 @@ namespace yal::frontend {
 
     void
     AstPrinter::visit(const DeclModule& node) {
-        m_writer.write("DeclModule %\n", node.getName());
+        m_writer.write("%",node.getAstTypeName());
+        printSourceInfo(node.getSourceInfo());
+        m_writer.write(" %\n", node.getName());
         auto& decls = node.getDeclarations();
         for (auto it = decls.begin(); it != decls.end(); ++it) {
             auto nextIt = it;
@@ -136,6 +138,13 @@ namespace yal::frontend {
             resolve(**it);
             scopeEnd();
         }
+    }
+
+    void
+    AstPrinter::visit(const DeclImport& node) {
+        m_writer.write("%",node.getAstTypeName());
+        printSourceInfo(node.getSourceInfo());
+        m_writer.write(" %\n", node.getModuleImported().getName());
     }
 
     void

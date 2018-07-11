@@ -116,8 +116,10 @@ namespace yal::frontend {
         for (auto& member: members) {
             resolve(*member);
         }
-
     }
+
+    void
+    AstVisitorExprType::visit(DeclImport&) {}
 
     void
     AstVisitorExprType::visit(DeclVar& node) {

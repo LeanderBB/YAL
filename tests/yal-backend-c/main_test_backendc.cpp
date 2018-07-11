@@ -26,11 +26,11 @@ int main(int argc, char** argv) {
 }
 
 
-class General : public CompileFixture {
+class BackendC_General : public CompileFixture {
 
 };
 
-TEST_F(General, StructAccess) {
+TEST_F(BackendC_General, StructAccess) {
     const char* input =
 R"R(
     type Bar struct {
@@ -72,7 +72,7 @@ R"R(
 }
 
 
-TEST_F(General, RefTest) {
+TEST_F(BackendC_General, RefTest) {
     const char* input =
 R"R(
     type Bar struct {
@@ -133,7 +133,7 @@ R"R(
     EXPECT_FALSE(m_errorReporter.hasErrors());
 }
 
-TEST_F(General, Cast) {
+TEST_F(BackendC_General, Cast) {
     const char* input =
 R"R(
     fn main() {
@@ -145,7 +145,7 @@ R"R(
     EXPECT_FALSE(m_errorReporter.hasErrors());
 }
 
-TEST_F(General, RefAndDeref) {
+TEST_F(BackendC_General, RefAndDeref) {
     const char* input =
 R"R(
     fn foo(x:mut& u32) {
@@ -160,7 +160,7 @@ R"R(
     EXPECT_FALSE(m_errorReporter.hasErrors());
 }
 
-TEST_F(General, alias) {
+TEST_F(BackendC_General, alias) {
     const char* input =
 R"R(
 

@@ -89,10 +89,10 @@ namespace yal::backend::c {
         m_ctypes.reserve(context.getTypeCount());
         uint64_t idx = 0;
         auto fn = [this, &idx](const frontend::Type& type) {
-            const uint64_t typeId = type.getTypeId();
+            const frontend::TypeId typeId = type.getTypeId();
             (void) typeId;
             // make sure the types are oreded correctly
-            YAL_ASSERT(typeId == idx);
+            YAL_ASSERT(typeId.getTypeContextId() == idx);
             m_ctypes.emplace_back(type);
             ++idx;
         };
@@ -102,7 +102,7 @@ namespace yal::backend::c {
 
     const CType*
     CTypeCache::getCType(const frontend::Type& type) const {
-        const uint64_t typeId = type.getTypeId();
+        const uint64_t typeId = type.getTypeId().getTypeContextId();
         return typeId < m_ctypes.size()
                 ? &m_ctypes[typeId]
                 : nullptr;

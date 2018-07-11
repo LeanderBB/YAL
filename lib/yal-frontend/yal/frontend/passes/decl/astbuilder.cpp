@@ -24,9 +24,11 @@
 #include "yal/frontend/parser/sttype.h"
 #include "yal/frontend/parser/syntaxtreenodes.h"
 #include "yal/frontend/parser/syntaxtreevisitorimpl.h"
+#include "yal/frontend/passes/passes.h"
 #include "yal/frontend/passes/decl/errorspassdecl.h"
 #include "yal/frontend/types/types.h"
 #include "yal/frontend/module.h"
+#include "yal/frontend/modulemanager.h"
 #include "yal/util/scopedstackelem.h"
 #include "yal/util/strconversions.h"
 #include "yal/util/stackjump.h"
@@ -90,11 +92,11 @@ namespace yal::frontend {
     };
 
 
-    AstBuilder::AstBuilder(ErrorReporter& errReporter,
-                           Module& module):
-        m_errReporter(errReporter),
-        m_module(module),
-        m_state(nullptr) {
+    AstBuilder::AstBuilder(PassOptions& options)
+        : m_errReporter(options.errReporter)
+        , m_module(options.module)
+        , m_moduleManager(options.modManager)
+        , m_state(nullptr) {
 
     }
 
@@ -412,6 +414,21 @@ namespace yal::frontend {
     }
 
     void
+    AstBuilder::visit(const STDeclImport& node) {
+        const Module* moduleImported =
+                m_moduleManager.getModuleByName(node.getModuleIdentifier());
+        YAL_ASSERT(moduleImported != nullptr);
+
+        DeclImport* declImport = m_module.getASTContext().getAllocator()
+                .construct<DeclImport>(m_module,
+                                       *getState().stackScope.top(),
+                                       node.getSourceInfo(),
+                                       *moduleImported);
+
+        getState().stackDecls.push(declImport);
+    }
+
+    void
     AstBuilder::visit(const STDeclVar& node) {
         const STIdentifier& declName = node.getName();
         DeclScope* parentScope = getState().stackScope.top();
@@ -508,8 +525,8 @@ namespace yal::frontend {
             YAL_ASSERT(typeAliasStrong != nullptr);
             DeclAliasStrong* decl = m_module.getASTContext().getAllocator()
                     .construct<DeclAliasStrong>(m_module,
-                                              *parentScope,
-                                              *typeAliasStrong);
+                                                *parentScope,
+                                                *typeAliasStrong);
             getState().stackDecls.push(decl);
         }
         else
@@ -899,37 +916,33 @@ namespace yal::frontend {
     void
     AstBuilder::visit(const STExprFnCall& node) {
         StackExpr& stackExpr = getState().stackExpressions;
-        TypeContext& typeCtx = m_module.getTypeContext();
-        Type* typeTarget = nullptr;
+        //TypeContext& typeCtx = m_module.getTypeContext();
+        //Type* typeTarget = nullptr;
         const TypeFunction* typeFn= nullptr;
         StmtExpression* exprFn = nullptr;
 
         // if has target type
         // eval type  - static
-        if (node.getFunctionType() == STExprFnCall::FnType::Static) {
-            const STType* typeSt = node.getTargetType();
-            typeTarget = resolveType(*typeSt);
-            if (typeTarget == nullptr) {
-                onUndefinedType(*typeSt);
+        if (node.getFunctionType() == STExprFnCall::FnType::RegularOrStatic) {
+            Type* type = resolveType(node.getName());
+            if (type == nullptr) {
+                onUndefinedSymbol(node.getName());
             }
-            // check if function is defined on type
-            typeFn = typeTarget->getFunctionWithName(node.getName().getString());
-
+            typeFn = dyn_cast<TypeFunction>(type);
             if (typeFn == nullptr) {
-                auto err = std::make_unique<ErrorTypeFunctionUndefined>(*typeTarget,
-                                                                        node.getName());
+                auto err = std::make_unique<ErrorTypeIsNotFunction>(*type,
+                                                                     node.getName().getSourceInfo());
                 m_errReporter.report(std::move(err));
                 getState().onError();
             }
 
-            if (!typeFn->isTypeFunctionStatic()) {
+            if (typeFn->isTypeFunction() && !typeFn->isTypeFunctionStatic()) {
                 auto err = std::make_unique<ErrorTypeFunctionIsNotStatic>(*typeFn,
                                                                           node.getName().getSourceInfo());
                 m_errReporter.report(std::move(err));
                 getState().onError();
             }
         }
-
         // if has expr
         // eval expr - runtime type call
         else if (node.getFunctionType() == STExprFnCall::FnType::Instance) {
@@ -943,26 +956,7 @@ namespace yal::frontend {
             YAL_ASSERT(stackExpr.size() == stackSize + 1);
             exprFn = stackExpr.top();
             stackExpr.pop();
-        }
-
-        // else  - normal function
-
-        else if (node.getFunctionType() == STExprFnCall::FnType::Regular) {
-            const Identifier id(node.getName().getString(), m_module);
-            Type* type = typeCtx.getByIdentifier(id);
-
-            if (type == nullptr) {
-                onUndefinedSymbol(node.getName());
-            }
-
-            typeFn = dyn_cast<TypeFunction>(type);
-            if (typeFn == nullptr) {
-                auto err = std::make_unique<ErrorTypeIsNotFunction>(*type,
-                                                                    node.getName().getSourceInfo());
-                m_errReporter.report(std::move(err));
-                getState().onError();
-            }
-        } else {
+        }else {
             YAL_ASSERT_MESSAGE(false, "Unknown function type");
         }
 
@@ -985,25 +979,28 @@ namespace yal::frontend {
 
         // create type
         ExprFnCall* exprFnCall = nullptr;
-
-        if (node.getFunctionType() == STExprFnCall::FnType::Regular) {
-            exprFnCall = m_module.getASTContext().getAllocator()
-                    .construct<ExprFnCall>(m_module,
-                                           node.getSourceInfo(),
-                                           typeFn,
-                                           std::move(params));
-        } else if(node.getFunctionType() == STExprFnCall::FnType::Instance) {
+        if (typeFn != nullptr) {
+            if (typeFn->isFunction()) {
+                exprFnCall = m_module.getASTContext().getAllocator()
+                        .construct<ExprFnCall>(m_module,
+                                               node.getSourceInfo(),
+                                               typeFn,
+                                               std::move(params));
+            } else if(typeFn->isTypeFunctionStatic()) {
+                exprFnCall = m_module.getASTContext().getAllocator()
+                        .construct<ExprTypeFnCall>(m_module,
+                                                   node.getSourceInfo(),
+                                                   typeFn,
+                                                   std::move(params));
+            } else {
+                YAL_ASSERT_MESSAGE(false, "Shouldn't happen");
+            }
+        } else if (node.getFunctionType() == STExprFnCall::FnType::Instance) {
             exprFnCall = m_module.getASTContext().getAllocator()
                     .construct<ExprTypeFnCall>(m_module,
                                                node.getSourceInfo(),
                                                exprFn,
                                                node.getName(),
-                                               std::move(params));
-        } else if(node.getFunctionType() == STExprFnCall::FnType::Static) {
-            exprFnCall = m_module.getASTContext().getAllocator()
-                    .construct<ExprTypeFnCall>(m_module,
-                                               node.getSourceInfo(),
-                                               typeFn,
                                                std::move(params));
         }
         // push
@@ -1170,7 +1167,7 @@ namespace yal::frontend {
 
     void
     AstBuilder::onUndefinedType(const STType &type) {
-        auto error = std::make_unique<ErrorUndefinedTypeRef>(type.getIdentifier(),
+        auto error = std::make_unique<ErrorUndefinedTypeRef>(type.getIdentifier().getString(),
                                                              type.getSourceInfo());
         m_errReporter.report(std::move(error));
         getState().onError();
@@ -1227,36 +1224,12 @@ namespace yal::frontend {
     Type*
     AstBuilder::resolveType(const STType& stType) {
         TypeContext& typeCtx = m_module.getTypeContext();
-        switch(stType.getType()) {
-        case STType::Type::Bool:
-            return typeCtx.getTypeBuiltinBool();
-        case STType::Type::Int8:
-            return typeCtx.getTypeBuiltinI8();
-        case STType::Type::Int16:
-            return typeCtx.getTypeBuiltinI16();
-        case STType::Type::Int32:
-            return typeCtx.getTypeBuiltinI32();
-        case STType::Type::Int64:
-            return typeCtx.getTypeBuiltinI64();
-        case STType::Type::UInt8:
-            return typeCtx.getTypeBuiltinU8();
-        case STType::Type::UInt16:
-            return typeCtx.getTypeBuiltinU16();
-        case STType::Type::UInt32:
-            return typeCtx.getTypeBuiltinU32();
-        case STType::Type::UInt64:
-            return typeCtx.getTypeBuiltinU64();
-        case STType::Type::Float32:
-            return typeCtx.getTypeBuiltinFloat32();
-        case STType::Type::Float64:
-            return typeCtx.getTypeBuiltinFloat64();
-        case STType::Type::Custom:{
-            const Identifier id(stType.getIdentifier(), m_module);
-            return typeCtx.getByIdentifier(id);
-        }
-        default:
-            YAL_ASSERT(false);
-            return nullptr;
-        }
+        return typeCtx.resolveType(stType);
+    }
+
+    Type*
+    AstBuilder::resolveType(const STIdentifier& identifier) {
+        TypeContext& typeCtx = m_module.getTypeContext();
+        return typeCtx.resolveType(identifier);
     }
 }

@@ -62,7 +62,7 @@ namespace yal::frontend {
 
         if (getModuleBySourceHanlde(handle) == nullptr
                 && getModuleByName(moduleName) == nullptr) {
-            const size_t moduleCount = m_modules.size();
+            const size_t moduleCount = m_modules.size() + 1;
             void* ptr = m_allocator.allocate(sizeof(Module));
             Module* module = new (ptr) Module(*this,
                                               std::move(moduleName),

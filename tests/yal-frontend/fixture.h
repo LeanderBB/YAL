@@ -56,6 +56,11 @@ public:
         return m_sourceManager.add(std::make_unique<yal::SourceItemStringRef>(str));
     }
 
+    yal::SourceManager::Handle createSourceHandle(const yal::StringRef str,
+                                                  const yal::StringRef path) {
+        return m_sourceManager.add(std::make_unique<yal::SourceItemStringRef>(str, path));
+    }
+
     virtual void SetUp() override final{
 
     }

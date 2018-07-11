@@ -25,6 +25,7 @@
  */
 
 YAL_AST_NODE_TYPE(DeclFunction)
+YAL_AST_NODE_TYPE(DeclImport)
 YAL_AST_NODE_TYPE(DeclTypeFunction)
 YAL_AST_NODE_TYPE(DeclTypeFunctions)
 YAL_AST_NODE_TYPE(DeclStruct)

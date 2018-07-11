@@ -20,8 +20,9 @@
 #pragma once
 
 #include "yal/frontend/parser/stdeclalias.h"
-#include "yal/frontend/parser/stdeclmodule.h"
 #include "yal/frontend/parser/stdeclfunction.h"
+#include "yal/frontend/parser/stdeclimport.h"
+#include "yal/frontend/parser/stdeclmodule.h"
 #include "yal/frontend/parser/stdeclstruct.h"
 #include "yal/frontend/parser/stdecltypefunctions.h"
 #include "yal/frontend/parser/stdeclvar.h"

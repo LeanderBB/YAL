@@ -17,30 +17,44 @@
  *  License along with YAL. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#pragma once
 
-#include "yal/yal.h"
-#include "yal/util/stringref.h"
+#include "fixture.h"
 
-#include <unordered_map>
-#include <optional>
+class BackendC_Import : public CompileFixture {
 
-namespace yal {
+};
 
-    class StringPool {
-    public:
-        StringPool() = default;
-        YAL_NO_COPY_CLASS(StringPool);
+TEST_F(BackendC_Import, BasicImport) {
+    const char* inputFoo =
+R"R(
+    type Foo struct {
+       x:u32
+    }
 
-        StringRef getOrCreate(const StringRef string);
+    impl Foo {
+        fn Test(&self){
+        }
+    }
+)R";
+    compile(inputFoo,"import/Foo.yal");
+    EXPECT_FALSE(m_errorReporter.hasErrors());
+    if (m_errorReporter.hasErrors()) {
+        return;
+    }
+    const char* inputBar =
+R"R(
+    import import::Foo;
 
-        StringRef getOrCreate(std::string&& string);
+    type Bar struct {
+       f:import::Foo::Foo
+    }
 
-        std::optional<StringRef> get(const StringRef string) const;
+    fn bar_main() {
+       let b = Bar{f:import::Foo::Foo{ x: 30 }};
+       b.f.Test();
+    }
+)R";
 
-    protected:
-        using StringMap = std::unordered_map<StringRef, std::string>;
-        StringMap m_map;
-    };
-
+    compile(inputBar,"import/Bar.yal");
+    EXPECT_FALSE(m_errorReporter.hasErrors());
 }

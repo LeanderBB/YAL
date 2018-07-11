@@ -25,6 +25,7 @@ namespace yal::frontend {
 
 #define YAL_DELC_NODES \
     YAL_DECL_NODE_FN(DeclFunction) \
+    YAL_DECL_NODE_FN(DeclImport) \
     YAL_DECL_NODE_FN(DeclTypeFunction) \
     YAL_DECL_NODE_FN(DeclTypeFunctions) \
     YAL_DECL_NODE_FN(DeclStruct) \

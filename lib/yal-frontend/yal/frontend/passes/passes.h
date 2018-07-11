@@ -34,23 +34,26 @@ namespace yal::frontend {
         Move = 7,
     };
 
-
     class Module;
+    class ModuleManager;
 
     struct PassOptions {
         PassOptions(ErrorReporter& errReporter_,
                     SourceManager& srcManager_,
+                    ModuleManager& modManager_,
                     Module& module_,
                     SourceItem& srcItem_):
             errReporter(errReporter_),
             srcManager(srcManager_),
             module(module_),
-            srcItem(srcItem_){
+            srcItem(srcItem_),
+            modManager(modManager_) {
         }
 
         ErrorReporter& errReporter;
         SourceManager& srcManager;
         Module& module;
         SourceItem& srcItem;
+        ModuleManager& modManager;
     };
 };

@@ -214,6 +214,11 @@ namespace yal::backend::c {
     }
 
     void
+    AstVisitorCSource::visit(const yal::frontend::DeclImport&) {
+
+    }
+
+    void
     AstVisitorCSource::visit(const yal::frontend::StmtReturn& node) {
         auto exprOpt = node.getExpression();
         if (exprOpt.has_value()) {

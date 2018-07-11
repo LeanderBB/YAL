@@ -23,6 +23,27 @@
 #include "yal/frontend/types/typefunction.h"
 namespace yal::frontend {
 
+
+    const TypeId TypeId::kIvalid = TypeId();
+
+    TypeId::TypeId()
+        : m_typeId(std::numeric_limits<uint64_t>::max())
+        , m_moduleId(std::numeric_limits<uint32_t>::max()) {
+    }
+
+    TypeId::TypeId(const uint64_t typeId,
+                   const Module& module)
+        : m_typeId(typeId)
+        , m_moduleId(module.getId()) {
+
+    }
+
+    TypeId::TypeId(const uint64_t typeId)
+        : m_typeId(typeId)
+        , m_moduleId(0) {
+
+    }
+
     size_t
     Type::AlignTo(const size_t size,
                   const size_t alignment) {
@@ -41,7 +62,7 @@ namespace yal::frontend {
     Type::Type(const Module* module,
                const Kind kind,
                const Identifier &identifier) :
-        m_typeId(std::numeric_limits<uint64_t>::max()),
+        m_typeId(),
         m_module(module),
         m_identifier(identifier),
         m_sizeBytes(0),
