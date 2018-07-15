@@ -24,12 +24,7 @@
 #include "yal/frontend/ast/declbase.h"
 #include "yal/frontend/ast/declvar.h"
 #include "yal/frontend/module.h"
-#include "yal/frontend/parser/stdeclalias.h"
-#include "yal/frontend/parser/stdeclfunction.h"
-#include "yal/frontend/parser/stdeclimport.h"
-#include "yal/frontend/parser/stdeclstruct.h"
-#include "yal/frontend/parser/stexprliterals.h"
-#include "yal/frontend/parser/ststmtassign.h"
+#include "yal/frontend/parser/syntaxtreenodes.h"
 #include "yal/frontend/passes/passes.h"
 #include "yal/frontend/types/types.h"
 #include "yal/util/format.h"
@@ -854,6 +849,42 @@ namespace yal::frontend {
 
     const SourceInfo&
     ErrorImportNotFound::getSourceInfo() const {
-      return m_decl.getSourceInfo();
+        return m_decl.getSourceInfo();
+    }
+
+    // ErrorModuleNotFound --------------------------------------------
+
+    const ErrorCode  ErrorInvaldMutabilityQualifierUsage::kCode =
+            MakeErrorCode(static_cast<uint16_t>(PassTypeCode::Decl), 22);
+
+    ErrorInvaldMutabilityQualifierUsage::ErrorInvaldMutabilityQualifierUsage(const STDeclVar& decl)
+        : ErrorFrontend(kCode)
+        , m_nodeType("variable declarations")
+        , m_srcInfo(decl.getSourceInfo()){
+
+    }
+
+    ErrorInvaldMutabilityQualifierUsage::ErrorInvaldMutabilityQualifierUsage(const STStructMember& decl)
+        : ErrorFrontend(kCode)
+        , m_nodeType("struct member declarations")
+        , m_srcInfo(decl.getSourceInfo()){
+
+    }
+
+    StringRef
+    ErrorInvaldMutabilityQualifierUsage::getErrorName() const {
+        return "Invalid usage of mut qualifier";
+    }
+
+    void
+    ErrorInvaldMutabilityQualifierUsage::printDetail(ErrorPrinter &printer) const {
+        FormatAppend(printer.getFormater(),
+                     "Can not use mut qualifer on %.\n",
+                     m_nodeType);
+    };
+
+    const SourceInfo&
+    ErrorInvaldMutabilityQualifierUsage::getSourceInfo() const {
+        return m_srcInfo;
     }
 }

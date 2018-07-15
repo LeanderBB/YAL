@@ -95,7 +95,7 @@ R"R(
    }
 
    fn main() {
-      var f:mut Foo = Foo{other:false};
+      var f:Foo = Foo{other:false};
       test(f);
     }
 )R";
@@ -126,7 +126,7 @@ R"R(
     }
 
    fn main() {
-      var f:mut Foo = Foo::test(40);
+      var f = Foo::test(40);
       var o:Foo = f.test(30);
     }
 )R";
@@ -161,7 +161,7 @@ R"R(
     }
 
    fn main() {
-      var f:mut Foo = Foo::create(40);
+      var f:Foo = Foo::create(40);
       f.test(30);
       Foo::test(40);
     }
@@ -226,7 +226,7 @@ TEST_F(PassType, LValueMakeRef) {
     const char* input =
 R"R(
     fn main() {
-       var i:mut& u32 = &30;
+       var i:&u32 = &30;
     }
 )R";
 
@@ -251,7 +251,7 @@ R"R(
     }
 
     fn main() {
-       var i: mut i32 = 40i32;
+       var i:i32 = 40i32;
        test(&i) = 456464i32;
     }
 )R";

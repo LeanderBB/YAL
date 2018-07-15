@@ -165,6 +165,13 @@ namespace yal::frontend {
             const STIdentifier& name = member->getName();
             const STQualType& stqt = member->getType();
 
+            // can't use mutability qualifier on struct members
+            if (stqt.m_qualifiers & STQualType::kQualMutable) {
+                auto err = std::make_unique<ErrorInvaldMutabilityQualifierUsage>(*member);
+                m_errReporter.report(std::move(err));
+                getState().onError();
+            }
+
             // check for duplicate decl
             const Identifier memberId(name.getString());
             const DeclNamed* existingDecl = declScopeStruct.getDecl(memberId,false);
@@ -443,6 +450,14 @@ namespace yal::frontend {
         QualType qt;
         const STQualType* stqt = node.getType();
         if (stqt != nullptr) {
+
+            // can't use mutability qualifier on declvar
+            if (stqt->m_qualifiers & STQualType::kQualMutable) {
+                auto err = std::make_unique<ErrorInvaldMutabilityQualifierUsage>(node);
+                m_errReporter.report(std::move(err));
+                getState().onError();
+            }
+
             Type* memberType = resolveType(*stqt->m_type);
             if (memberType == nullptr) {
                 onUndefinedType(*stqt->m_type);

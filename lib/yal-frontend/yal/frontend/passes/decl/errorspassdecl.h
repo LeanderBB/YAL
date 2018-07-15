@@ -36,6 +36,8 @@ namespace yal::frontend {
     class TypeStruct;
     class STDeclAlias;
     class STDeclImport;
+    class STDeclVar;
+    class STStructMember;
 
     class ErrorDuplicateTypeDecl final : public ErrorFrontend{
     public:
@@ -434,6 +436,26 @@ namespace yal::frontend {
         const SourceInfo& getSourceInfo() const final override;
     public:
         const STDeclImport& m_decl;
+    };
+
+
+    class ErrorInvaldMutabilityQualifierUsage final : public ErrorFrontend{
+    public:
+        static const ErrorCode kCode;
+
+        ErrorInvaldMutabilityQualifierUsage(const STDeclVar& decl);
+
+        ErrorInvaldMutabilityQualifierUsage(const STStructMember& member);
+
+    protected:
+        StringRef getErrorName() const final override;
+
+        void printDetail(ErrorPrinter& printer) const final override;
+
+        const SourceInfo& getSourceInfo() const final override;
+    public:
+        StringRef m_nodeType;
+        const SourceInfo& m_srcInfo;
     };
 }
 

@@ -79,11 +79,11 @@ R"R(
     }
 
     fn main() {
-       var f: mut Foo = Foo{x:20};
-       var f2:mut Foo = f;
+       var f: Foo = Foo{x:20};
+       var f2: Foo = f;
        f = Foo::create(40);
        doSomething(f);
-       var f3: mut Foo = f;
+       var f3: Foo = f;
     }
 )R";
 
@@ -149,7 +149,7 @@ R"R(
     }
 
     fn main() {
-       var b:mut Bar = Bar{x:4};
+       var b:Bar = Bar{x:4};
        var f:Foo = Foo{b:b};
        var i:u32 = b.x;
     }
@@ -179,7 +179,7 @@ R"R(
     }
 
     fn main() {
-       var b:mut Bar = Bar{x:4};
+       var b: Bar = Bar{x:4};
        var f:Foo = Foo{b:b};
        var c:Bar = f.b;
     }
@@ -237,10 +237,10 @@ R"R(
     }
 
     fn main() {
-       var f:mut Foo = Foo::create(20);
-       var f2:mut Foo = f;
+       var f:Foo = Foo::create(20);
+       var f2:Foo = f;
        f = Foo::create(40);
-       var f3:mut Foo = f;
+       var f3:Foo = f;
     }
 )R";
 

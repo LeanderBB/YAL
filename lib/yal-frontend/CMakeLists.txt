@@ -244,12 +244,10 @@ if (${RE2C_TOOLS_FOUND})
 endif()
 
 #if lemon is availabe use custom targets
-if (${LEMON_TOOLS_FOUND})
-    LEMON_GEN(
-        "${CMAKE_CURRENT_SOURCE_DIR}/yal/frontend/parser/"
-        stparserimpl.lemon
-        stparserimpl.cpp)
-endif()
+LEMON_GEN(
+    "${CMAKE_CURRENT_SOURCE_DIR}/yal/frontend/parser/"
+    stparserimpl.lemon
+    stparserimpl.cpp)
 
 add_library(${YAL_LIB_NAME} STATIC
     ${YAL_SOURCES}

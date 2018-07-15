@@ -765,6 +765,47 @@ R"R(
 }
 
 
+TEST_F(PassDecl_AstBuilder, IvalidMutQualiferDeclVar) {
+    const char* input =
+R"R(
+    fn main() {
+        var z:mut i32 = 0;
+    }
+)R";
+
+    auto handle = createSourceHandle(input);
+    FrontendOptionsType options;
+    const ModuleType* module = m_frontEnd.compile(handle, options);
+    EXPECT_EQ(module, nullptr);
+    EXPECT_TRUE(m_errorReporter.hasErrors());
+    if (!m_errorReporter.hasErrors()) {
+        return;
+    }
+    const yal::Error* err = m_errorReporter.getLastError();
+    EXPECT_EQ(err->getCode(), yal::frontend::ErrorInvaldMutabilityQualifierUsage::kCode);
+}
+
+
+TEST_F(PassDecl_AstBuilder, IvalidMutQualiferDeclStructMember) {
+    const char* input =
+R"R(
+    type Foo struct {
+        z:mut i32
+    }
+)R";
+
+    auto handle = createSourceHandle(input);
+    FrontendOptionsType options;
+    const ModuleType* module = m_frontEnd.compile(handle, options);
+    EXPECT_EQ(module, nullptr);
+    EXPECT_TRUE(m_errorReporter.hasErrors());
+    if (!m_errorReporter.hasErrors()) {
+        return;
+    }
+    const yal::Error* err = m_errorReporter.getLastError();
+    EXPECT_EQ(err->getCode(), yal::frontend::ErrorInvaldMutabilityQualifierUsage::kCode);
+}
+
 /* TODO: Can't handle hidden reference chains, improve this?
 TEST_F(PassDecl_AstBuilder, AssignRefOutOfScopeVarRefChained) {
     const char* input =

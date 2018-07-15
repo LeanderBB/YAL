@@ -39,7 +39,7 @@ namespace yal::frontend {
             return *m_type;
         }
 
-        const SourceInfo getSourceInfo() const {
+        const SourceInfo& getSourceInfo() const {
             return m_sourceInfo;
         }
 

@@ -1,4 +1,5 @@
 /* This file was automatically generated.  Do not edit! */
+int YALSTParserFallback(int iToken);
 #define YALSTParserTOKENTYPE yal::frontend::TokenInfo
 #define YALSTParserARG_PDECL , yal::frontend::STParser *pParser 
 void YALSTParser(void *yyp,int yymajor,YALSTParserTOKENTYPE yyminor YALSTParserARG_PDECL);
@@ -12,15 +13,21 @@ int YALSTParserStackPeak(void *p);
 void YALSTParserFree(void *p,void(*freeProc)(void *));
 #endif
 void YALSTParserFinalize(void *p);
+#define YALSTParserCTX_PDECL
 #if !defined(YALSTParser_ENGINEALWAYSONSTACK)
-void *YALSTParserAlloc(void *(*mallocProc)(YYMALLOCARGTYPE));
+void *YALSTParserAlloc(void *(*mallocProc)(YYMALLOCARGTYPE)YALSTParserCTX_PDECL);
 #endif
-void YALSTParserInit(void *yypParser);
+void YALSTParserInit(void *yypRawParser YALSTParserCTX_PDECL);
 #if !defined(NDEBUG)
 void YALSTParserTrace(FILE *TraceFILE,char *zTracePrompt);
 #endif
-#define YALSTParserARG_STORE yypParser->pParser  = pParser 
-#define YALSTParserARG_FETCH  yal::frontend::STParser *pParser  = yypParser->pParser 
+#define YALSTParserCTX_STORE
+#define YALSTParserCTX_FETCH
+#define YALSTParserCTX_PARAM
+#define YALSTParserCTX_SDECL
+#define YALSTParserARG_STORE yypParser->pParser =pParser ;
+#define YALSTParserARG_FETCH  yal::frontend::STParser *pParser =yypParser->pParser ;
+#define YALSTParserARG_PARAM ,pParser 
 #define YALSTParserARG_SDECL  yal::frontend::STParser *pParser ;
 #define YAL_TOKEN_BOOL_LITERAL                   72
 #define YAL_TOKEN_FLOAT_LITERAL_64               71

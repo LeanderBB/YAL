@@ -61,7 +61,7 @@ R"R(
     }
 
     fn main() {
-        var f:mut Foo = Foo{b:Bar{x:20}};
+        var f: Foo = Foo{b:Bar{x:20}};
         f.b = Bar { x:10};
         f.setX(40);
         other(f);
@@ -81,7 +81,7 @@ R"R(
 
 
     type Foo struct {
-        b: mut Bar
+        b: Bar
     }
 
 
@@ -125,7 +125,7 @@ R"R(
        var o:&Foo = &f2;
 
        move(f);
-       var other:mut Bar = Bar { x: 20 };
+       var other:Bar = Bar { x: 20 };
        f = Foo::createWithBar(other);
     }
 )R";
