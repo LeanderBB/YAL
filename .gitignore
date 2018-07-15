@@ -1,4 +1,4 @@
 .DS_Store
 CMakeLists.txt.user
 external/gtest
-lib/yal-frontend/yal/frontend/parser/stparserimpl.out
+lib/frontend/yal/frontend/parser/stparserimpl.out
