@@ -1,0 +1,48 @@
+/*
+ *  Copyright 2018 by Leander Beernaert (leanderbb@gmail.com)
+ *
+ *  This file is part of YAL.
+ *
+ *  YAL is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU Lesser General Public License as
+ *  published by the Free Software Foundation, either version 3
+ *  of the License, or (at your option) any later version.
+ *
+ *  YAL is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ *  GNU Lesser General Public License for more details.
+ *
+ *  You should have received a copy of the GNU Lesser General Public
+ *  License along with YAL. If not, see <http://www.gnu.org/licenses/>.
+ */
+
+
+/* List of Syntax Tree Nodes in the compiler
+ *
+ * Define YAL_ST_NODE_TYPE(type) macro to use this list
+ *
+ */
+
+YAL_ST_NODE_TYPE(STDeclModule)
+YAL_ST_NODE_TYPE(STDeclStruct)
+YAL_ST_NODE_TYPE(STDeclFunction)
+YAL_ST_NODE_TYPE(STDeclTypeFunctions)
+YAL_ST_NODE_TYPE(STDeclVar)
+YAL_ST_NODE_TYPE(STDeclAlias)
+YAL_ST_NODE_TYPE(STDeclImport)
+YAL_ST_NODE_TYPE(STStmtReturn)
+YAL_ST_NODE_TYPE(STStmtDecl)
+YAL_ST_NODE_TYPE(STStmtExpression)
+YAL_ST_NODE_TYPE(STStmtAssign)
+YAL_ST_NODE_TYPE(STStmtListScoped)
+YAL_ST_NODE_TYPE(STExprVarRef)
+YAL_ST_NODE_TYPE(STExprUnaryOperator)
+YAL_ST_NODE_TYPE(STExprBinaryOperator)
+YAL_ST_NODE_TYPE(STExprBoolLiteral)
+YAL_ST_NODE_TYPE(STExprIntegerLiteral)
+YAL_ST_NODE_TYPE(STExprFloatLiteral)
+YAL_ST_NODE_TYPE(STExprStructVarRef)
+YAL_ST_NODE_TYPE(STExprFnCall)
+YAL_ST_NODE_TYPE(STExprCast)
+YAL_ST_NODE_TYPE(STExprStructInit)

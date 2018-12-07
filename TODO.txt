@@ -1,0 +1,11 @@
+Short Todo:
+##########
+
+[ ] Check for recursive types in struct decls.
+[ ] YAL Project
+
+Long Term Todo:
+###############
+[ ] Language server support
+[ ] Make frontend felixbile enough to recompile from an existing state 
++ changes

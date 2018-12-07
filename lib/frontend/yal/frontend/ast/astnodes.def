@@ -1,0 +1,56 @@
+/*
+ *  Copyright 2017 by Leander Beernaert (leanderbb@gmail.com)
+ *
+ *  This file is part of YAL.
+ *
+ *  YAL is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU Lesser General Public License as
+ *  published by the Free Software Foundation, either version 3
+ *  of the License, or (at your option) any later version.
+ *
+ *  YAL is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ *  GNU Lesser General Public License for more details.
+ *
+ *  You should have received a copy of the GNU Lesser General Public
+ *  License along with YAL. If not, see <http://www.gnu.org/licenses/>.
+ */
+
+
+/* List of AST Nodes in the compiler
+ *
+ * Define YAL_AST_NODE_TYPE(type) macro to use this list
+ *
+ */
+
+YAL_AST_NODE_TYPE(DeclFunction)
+YAL_AST_NODE_TYPE(DeclImport)
+YAL_AST_NODE_TYPE(DeclTypeFunction)
+YAL_AST_NODE_TYPE(DeclTypeFunctions)
+YAL_AST_NODE_TYPE(DeclStruct)
+YAL_AST_NODE_TYPE(DeclVar)
+YAL_AST_NODE_TYPE(DeclParamVar)
+YAL_AST_NODE_TYPE(DeclParamVarSelf)
+YAL_AST_NODE_TYPE(DeclAliasStrong)
+YAL_AST_NODE_TYPE(DeclAliasWeak)
+YAL_AST_NODE_TYPE(StmtReturn)
+YAL_AST_NODE_TYPE(StmtDecl)
+YAL_AST_NODE_TYPE(StmtAssign)
+YAL_AST_NODE_TYPE(ExprVarRef)
+YAL_AST_NODE_TYPE(ExprUnaryOperator)
+YAL_AST_NODE_TYPE(ExprBinaryOperator)
+YAL_AST_NODE_TYPE(ExprBoolLiteral)
+YAL_AST_NODE_TYPE(ExprIntegerLiteral)
+YAL_AST_NODE_TYPE(ExprFloatLiteral)
+YAL_AST_NODE_TYPE(ExprStructVarRef)
+YAL_AST_NODE_TYPE(ExprFnCall)
+YAL_AST_NODE_TYPE(ExprTypeFnCall)
+YAL_AST_NODE_TYPE(ExprVarRefSelf)
+YAL_AST_NODE_TYPE(ExprCast)
+YAL_AST_NODE_TYPE(ExprStructInit)
+YAL_AST_NODE_TYPE(StmtListScoped)
+
+#if !defined(YAL_AST_SKIP_NODE_CONTAINERS)
+YAL_AST_NODE_TYPE(DeclModule)
+#endif

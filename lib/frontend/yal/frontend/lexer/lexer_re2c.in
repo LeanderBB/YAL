@@ -1,0 +1,203 @@
+/*
+ *  Copyright 2017 by Leander Beernaert (leanderbb@gmail.com)
+ *
+ *  This file is part of YAL.
+ *
+ *  YAL is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU Lesser General Public License as
+ *  published by the Free Software Foundation, either version 3
+ *  of the License, or (at your option) any later version.
+ *
+ *  YAL is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ *  GNU Lesser General Public License for more details.
+ *
+ *  You should have received a copy of the GNU Lesser General Public
+ *  License along with YAL. If not, see <http://www.gnu.org/licenses/>.
+ */
+#include "yal/yal.h"
+#include "yal/frontend/lexer/tokens.h"
+#include "yal/frontend/lexer/lexer.h"
+/*!max:re2c*/
+
+
+namespace yal::frontend {
+    // I would really like for YYMAXFILL to be in a header, but it's not possible
+    // so we just must make sure that these values are in check
+    static_assert(YYMAXFILL == Lexer::kYYMaxFill,
+                  "Update Lexer::kYYMaxFile to be of the same value as YYMAXFILL");
+    Lexer::Status
+    Lexer::re2cExecute() {
+        for (;;) {
+            m_lexerState.markScanBegin();
+            /*!re2c
+        re2c:define:YYCTYPE = "unsigned char";
+        re2c:define:YYCURSOR = m_lexerState.current;
+        re2c:define:YYMARKER = m_lexerState.marker;
+        re2c:define:YYLIMIT = m_lexerState.limit;
+        re2c:yyfill:enable = 1;
+        re2c:define:YYFILL = "if (!m_lexerState.fill(@@, m_stream)) return Status::EOS;";
+        re2c:define:YYFILL:naked = 1;
+
+        end = "\x00";
+        end { if (m_lexerState.limit - m_lexerState.token == YYMAXFILL) {return Status::EOS;} }
+        /* common character classes */
+
+            /* basic tokens */
+            ALIAS = "alias";
+            IMPORT= "import";
+            IMPL="impl";
+            MUT="mut";
+            VAR = "var";
+            LET = "let";
+            TRUE = "true";
+            FALSE= "false";
+            RETURN= "return";
+            SELF ="self";
+            AND = "and";
+            OR = "or";
+            NOT = "not";
+            THIS = "this";
+            FROM = "from";
+            FN = "fn";
+            NEWLINE="\n";
+            COLON = ":";
+            DOT = ".";
+            COMMA = ",";
+            SEMICOLON = ";";
+            TYPE = "type";
+            BEGIN_PAR ="(";
+            END_PAR = ")";
+            BEGIN_ARRAY = "[";
+            END_ARRAY = "]";
+            BEGIN_SCOPE = "{";
+            END_SCOPE = "}";
+            TYPE_BOOL = "bool";
+            TYPE_INT8 = "i8";
+            TYPE_UINT8 = "u8";
+            TYPE_INT16 = "i16";
+            TYPE_UINT16 = "u16";
+            TYPE_INT32 = "i32";
+            TYPE_UINT32 = "u32";
+            TYPE_INT64 = "i32";
+            TYPE_UINT64 = "u32";
+            TYPE_FLOAT = "f32";
+            TYPE_DOUBLE= "f64";
+            STRUCT = "struct";
+            AS ="as";
+            CAST = "cast";
+            REFERENCE="&";
+            PLUS = "+";
+            MINUS ="-";
+            DIV = "/";
+            MOD = "mod";
+            MULT = "*";
+            ASSIGN= "=";
+            GE =">=";
+            GT =">";
+            LE ="<=";
+            LT ="<";
+            EQ ="==";
+            NE ="!=";
+            SCM= "//" [^\n]* "\n";
+
+            INTEGER = '-'?[0-9][0-9]*;
+            DECIMAL = [0-9]+ "." [0-9]+;
+            IDENTIFIER = [a-zA-Z][a-zA-Z0-9_]*;
+            MULTI_IDENTIFIER = IDENTIFIER ("::" IDENTIFIER)+;
+
+            INTEGER_I8 = INTEGER TYPE_INT8;
+            INTEGER_I16 = INTEGER TYPE_INT16;
+            INTEGER_I32 = INTEGER TYPE_INT32;
+            INTEGER_I64 = INTEGER TYPE_INT64;
+            INTEGER_U8 = INTEGER TYPE_UINT8;
+            INTEGER_U16 = INTEGER TYPE_UINT16;
+            INTEGER_U32 = INTEGER TYPE_UINT32;
+            INTEGER_U64 = INTEGER TYPE_UINT64;
+            DECIMAL_32 = DECIMAL TYPE_FLOAT;
+            DECIMAL_64 = DECIMAL TYPE_DOUBLE;
+
+            /* final rules */
+            VAR { setToken(Token::Var, m_lexerState); return Status::Ok; }
+            LET { setToken(Token::Let, m_lexerState);return Status::Ok; }
+            IMPL { setToken(Token::Impl, m_lexerState); return Status::Ok;}
+            AS { setToken(Token::As, m_lexerState);return Status::Ok; }
+            IMPORT { setToken(Token::Import, m_lexerState);return Status::Ok; }
+            CAST { setToken(Token::Cast, m_lexerState);return Status::Ok; }
+            MUT { setToken(Token::Mutable, m_lexerState); return Status::Ok;}
+            REFERENCE { setToken(Token::Reference, m_lexerState); return Status::Ok;}
+            RETURN { setToken(Token::Return, m_lexerState);return Status::Ok; }
+            TYPE { setToken(Token::Type, m_lexerState); return Status::Ok;}
+            ALIAS { setToken(Token::Alias, m_lexerState); return Status::Ok;}
+            FROM { setToken(Token::From, m_lexerState); return Status::Ok;}
+            TRUE  { setToken(Token::True, m_lexerState); return Status::Ok; }
+            FALSE  { setToken(Token::False, m_lexerState); return Status::Ok; }
+            AND  { setToken(Token::And, m_lexerState); return Status::Ok; }
+            OR  { setToken(Token::Or, m_lexerState); return Status::Ok; }
+            NOT  { setToken(Token::Not, m_lexerState); return Status::Ok; }
+            THIS  { setToken(Token::This, m_lexerState);return Status::Ok; }
+            FN  { setToken(Token::Function, m_lexerState);return Status::Ok; }
+            SELF  { setToken(Token::Self, m_lexerState);return Status::Ok; }
+            NEWLINE {m_lexerState.updateLineStartOffset(); continue;}
+            TYPE_BOOL { setToken(Token::TypeBool, m_lexerState); return Status::Ok;}
+            TYPE_INT8 { setToken(Token::TypeInt8, m_lexerState); return Status::Ok;}
+            TYPE_UINT8 { setToken(Token::TypeUInt8, m_lexerState); return Status::Ok;}
+            TYPE_INT16 { setToken(Token::TypeInt16, m_lexerState); return Status::Ok;}
+            TYPE_UINT16 { setToken(Token::TypeUInt16, m_lexerState); return Status::Ok;}
+            TYPE_INT32 { setToken(Token::TypeInt32, m_lexerState); return Status::Ok;}
+            TYPE_UINT32 { setToken(Token::TypeUInt32, m_lexerState); return Status::Ok;}
+            TYPE_INT64 { setToken(Token::TypeInt64, m_lexerState); return Status::Ok;}
+            TYPE_UINT64 { setToken(Token::TypeUInt64, m_lexerState); return Status::Ok;}
+            TYPE_FLOAT { setToken(Token::TypeFloat32, m_lexerState); return Status::Ok;}
+            TYPE_DOUBLE { setToken(Token::TypeFloat64, m_lexerState); return Status::Ok;}
+            PLUS { setToken(Token::Plus, m_lexerState); return Status::Ok;}
+            MINUS { setToken(Token::Minus, m_lexerState); return Status::Ok;}
+            DIV { setToken(Token::Div, m_lexerState); return Status::Ok;}
+            MULT { setToken(Token::Mult, m_lexerState); return Status::Ok;}
+            MOD { setToken(Token::Mod, m_lexerState); return Status::Ok;}
+            ASSIGN { setToken(Token::Assign, m_lexerState); return Status::Ok;}
+            STRUCT { setToken(Token::Struct, m_lexerState); return Status::Ok;}
+
+            INTEGER_I8 { setToken(Token::IntegerLiteralI8, m_lexerState); return Status::Ok;}
+            INTEGER_I16 { setToken(Token::IntegerLiteralI16, m_lexerState); return Status::Ok;}
+            INTEGER_I32 { setToken(Token::IntegerLiteralI32, m_lexerState); return Status::Ok;}
+            INTEGER_I64 { setToken(Token::IntegerLiteralI64, m_lexerState); return Status::Ok;}
+            INTEGER_U8 { setToken(Token::IntegerLiteralU8, m_lexerState); return Status::Ok;}
+            INTEGER_U16 { setToken(Token::IntegerLiteralU16, m_lexerState); return Status::Ok;}
+            INTEGER_U32 { setToken(Token::IntegerLiteralU32, m_lexerState); return Status::Ok;}
+            INTEGER_U64 { setToken(Token::IntegerLiteralU64, m_lexerState); return Status::Ok;}
+            INTEGER { setToken(Token::IntegerLiteral, m_lexerState); return Status::Ok;}
+            DECIMAL_32 { setToken(Token::DecimalLiteral32, m_lexerState); return Status::Ok;}
+            DECIMAL_64 { setToken(Token::DecimalLiteral64, m_lexerState); return Status::Ok;}
+            DECIMAL { setToken(Token::DecimalLiteral, m_lexerState); return Status::Ok;}
+
+            COLON { setToken(Token::Colon, m_lexerState); return Status::Ok;}
+            COMMA { setToken(Token::Comma, m_lexerState); return Status::Ok;}
+            SEMICOLON { setToken(Token::SemiColon, m_lexerState); return Status::Ok;}
+            BEGIN_SCOPE { setToken(Token::BeginScope, m_lexerState); return Status::Ok;}
+            END_SCOPE { setToken(Token::EndScope, m_lexerState); return Status::Ok;}
+            BEGIN_ARRAY { setToken(Token::BeginArray, m_lexerState); return Status::Ok;}
+            END_ARRAY { setToken(Token::EndArray, m_lexerState); return Status::Ok;}
+            BEGIN_PAR { setToken(Token::BeginPar, m_lexerState); return Status::Ok;}
+            END_PAR { setToken(Token::EndPar, m_lexerState); return Status::Ok;}
+            IDENTIFIER { setToken(Token::Identifier, m_lexerState); return Status::Ok;}
+            MULTI_IDENTIFIER {setToken(Token::IdentifierMulti, m_lexerState); return Status::Ok;}
+            DOT { setToken(Token::Dot, m_lexerState); return Status::Ok;}
+
+
+            GE { setToken(Token::CompareGe, m_lexerState); return Status::Ok;}
+            GT { setToken(Token::CompareGt, m_lexerState); return Status::Ok;}
+            LE { setToken(Token::CompareLe, m_lexerState); return Status::Ok;}
+            LT { setToken(Token::CompareLt, m_lexerState); return Status::Ok;}
+            EQ { setToken(Token::CompareEq, m_lexerState); return Status::Ok;}
+            NE { setToken(Token::CompareNe, m_lexerState); return Status::Ok;}
+
+            [ \t]* {continue;}
+            SCM {m_lexerState.updateLineStartOffset();continue;}
+            * { setToken(Token::TokenCount, m_lexerState); return Status::Error;}
+            */
+        }
+
+    }
+}
