@@ -100,23 +100,6 @@ namespace yal::backend::c {
                      info.begin.column);
     }
 
-    struct AstVisitorCSource::ScopedState {
-
-        ScopedState(AstVisitorCSource& visitor,
-                    const AstVisitorCSource::State& state):
-            m_visitor(visitor),
-            m_prevState(visitor.m_state) {
-            m_visitor.m_state = state;
-        }
-
-        ~ScopedState() {
-            m_visitor.m_state = m_prevState;
-        }
-
-        AstVisitorCSource& m_visitor;
-        const AstVisitorCSource::State m_prevState;
-    };
-
     AstVisitorCSource::AstVisitorCSource(ByteStream& stream,
                                          yal::frontend::Module& module,
                                          const CTypeCache& cache):
@@ -244,24 +227,7 @@ namespace yal::backend::c {
     void
     AstVisitorCSource::visit(const yal::frontend::ExprVarRef& node) {
         const yf::DeclVar& decl =node.getDeclVar();
-        const bool isDeclParam = decl.isDeclParam();
-
-        if (m_state.varRefMakeReference) {
-            const yf::QualType qt = node.getQualType();
-            if (!qt.isReference()
-                    && !isDeclParam) {
-                m_writer.write("&");
-            }
-        }
-
-        const bool shouldDeref = !m_state.varRefMakeReference
-                && isDeclParam
-                && decl.getQualType().isMovedType();
-        if (shouldDeref) {
-            m_writer.write("(*%)", decl.getName());
-        } else {
-            m_writer.write("%", decl.getName());
-        }
+        m_writer.write("%", decl.getName());
     }
 
     void
@@ -283,17 +249,10 @@ namespace yal::backend::c {
 
     void
     AstVisitorCSource::visit(const yal::frontend::ExprUnaryOperator& node) {
-        State newState = m_state;
         // Do not write reference operator since it is handled when
         // variables are being referenced.
         const yf::UnaryOperatorType op = node.getOperatorType();
-        if (op != yf::UnaryOperatorType::Reference) {
-            m_writer.write(CTypeGen::GenUnaryOperator(op));
-        } else {
-            newState.varRefMakeReference = true;
-        }
-
-        ScopedState guard(*this, newState);
+        m_writer.write(CTypeGen::GenUnaryOperator(op));
         resolve(*node.getExpression());
     }
 
@@ -374,9 +333,6 @@ namespace yal::backend::c {
 
     void
     AstVisitorCSource::visit(const yal::frontend::ExprFnCall& node) {
-        State newState;
-        newState.varRefMakeReference = true;
-        ScopedState guard(*this, newState);
         const yf::TypeFunction* typeFn = node.getFunctionType();
         const CType* ctypeFn = m_typeCache.getCType(*typeFn);
         YAL_ASSERT(ctypeFn != nullptr);
@@ -395,17 +351,7 @@ namespace yal::backend::c {
             if (!first) {
                 m_writer.write(", ");
             }
-            const yf::QualType qtDeclParam = (*declParamIter)->getQualType();
-            if (!qtDeclParam.isReference() && !qtDeclParam.isTriviallyCopiable()) {
-                m_writer.write("&(");
-                State otherState;
-                otherState.varRefMakeReference = false;
-                ScopedState guard(*this, otherState);
-                resolve(*arg);
-                m_writer.write(")");
-            } else {
-                resolve(*arg);
-            }
+            resolve(*arg);
             first = false;
             ++declParamIter;
         }
@@ -414,9 +360,6 @@ namespace yal::backend::c {
 
     void
     AstVisitorCSource::visit(const yal::frontend::ExprTypeFnCall& node) {
-        State newState;
-        newState.varRefMakeReference = true;
-        ScopedState guard(*this, newState);
         const yf::TypeFunction* typeFn = node.getFunctionType();
         const CType* ctypeFn = m_typeCache.getCType(*typeFn);
         YAL_ASSERT(ctypeFn != nullptr);
@@ -429,7 +372,16 @@ namespace yal::backend::c {
         if (!node.isStaticCall()) {
             auto exprOpt = node.getExpression();
             YAL_ASSERT(exprOpt.has_value());
+            
+            const bool isRef = (*exprOpt)->getQualType().isReference();
+            if (!isRef) {
+                m_writer.write("&(");
+            }
             resolve(*exprOpt.value());
+           
+            if (!isRef) {
+                m_writer.write(")");
+            }
             first = false;
         }
 
@@ -446,17 +398,7 @@ namespace yal::backend::c {
             if (!first) {
                 m_writer.write(", ");
             }
-            const yf::QualType qtDeclParam = (*declParamIter)->getQualType();
-            if (!qtDeclParam.isReference() && !qtDeclParam.isTriviallyCopiable()) {
-                m_writer.write("&(");
-                State otherState;
-                otherState.varRefMakeReference = false;
-                ScopedState guard(*this, otherState);
-                resolve(*arg);
-                m_writer.write(")");
-            } else {
-                resolve(*arg);
-            }
+            resolve(*arg);
             first = false;
             ++declParamIter;
         }

@@ -47,18 +47,9 @@ namespace yal::backend::c {
                      const StringRef headerPath);
 
     private:
-
-        struct ScopedState;
-        struct State {
-            bool varRefMakeReference = false;
-            unsigned int tmpVarCount = 0;
-        };
-
-    private:
         CodeWriter m_writer;
         yal::frontend::Module& m_module;
         const CTypeCache& m_typeCache;
-        State m_state;
     };
 
 }

@@ -120,9 +120,7 @@ namespace yal::backend::c {
 
         if (qt.isReference()) {
             writer.write("*");
-        } else if (!type.getFrontendType().isTriviallyCopiable()) {
-            writer.write("*");
-        }
+        }     
     }
 
     void
